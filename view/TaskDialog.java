@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class FreelancerTaskDialog extends JDialog {
+public class TaskDialog extends JDialog {
 
     private User currentUser;
     private JList<String> taskList;
@@ -22,7 +22,7 @@ public class FreelancerTaskDialog extends JDialog {
     };
     private int[] taskPayments = {300, 150, 200, 400};
 
-    public FreelancerTaskDialog(JFrame parent, User user) {
+    public TaskDialog(JFrame parent, User user) {
         super(parent, "Freelancer Tasks", true);
         this.currentUser = user;
 

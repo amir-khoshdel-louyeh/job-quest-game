@@ -1,12 +1,18 @@
 package view;
 
 import model.User;
+import controller.GameController;
+import controller.RoutineController;
+import controller.UserController;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GamePanel extends JPanel {
     private User currentUser;
+    private GameController controller;
+    private RoutineController routineController;
+    private UserController userController;
     private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
     private JTextArea chatArea;
     private JPanel animationPanel;
@@ -16,6 +22,9 @@ public class GamePanel extends JPanel {
 
     public GamePanel(User user) {
         this.currentUser = user;
+        this.controller = new GameController(user);
+        this.userController = controller.getUserController();
+        this.routineController = new RoutineController(userController, this);
         setLayout(new BorderLayout(10,10));
 
         // ---------------- Title ----------------
@@ -82,16 +91,34 @@ public class GamePanel extends JPanel {
         add(chatScroll, BorderLayout.SOUTH);
 
         // ---------------- Action Listeners ----------------
-        buyFoodButton.addActionListener(e -> buyFood());
-        visitDoctorButton.addActionListener(e -> visitDoctor());
-        workButton.addActionListener(e -> doWork());
+        buyFoodButton.addActionListener(e -> {
+            GameController.ActionResult result = controller.buyFood();
+            addChatMessage(result.message);
+            updateUserInfo();
+        });
+
+        visitDoctorButton.addActionListener(e -> {
+            GameController.ActionResult result = controller.visitDoctor();
+            addChatMessage(result.message);
+            updateUserInfo();
+        });
+
+        workButton.addActionListener(e -> {
+            GameController.ActionResult result = controller.doWork();
+            if ("FREELANCER_TASK_DIALOG".equals(result.message)) {
+                showFreelancerTaskDialog();
+            } else {
+                addChatMessage(result.message);
+                updateUserInfo();
+            }
+        });
 
         // ---------------- Energy Timer ----------------
-        Timer energyTimer = new Timer(60_000, e -> decreaseEnergy());
+        Timer energyTimer = new Timer(60_000, e -> routineController.decreaseEnergy());
         energyTimer.start();
 
         // ---------------- Sickness Timer ----------------
-        Timer sicknessTimer = new Timer(24*60*60*1000, e -> sicknessCheck());
+        Timer sicknessTimer = new Timer(24*60*60*1000, e -> routineController.sicknessCheck());
         sicknessTimer.start();
 
         // ---------------- Check if blocked ----------------
@@ -102,108 +129,8 @@ public class GamePanel extends JPanel {
         }
     }
 
-    // ---------------- Action Methods ----------------
-    private void buyFood() {
-        if(currentUser.getBalance() >= 50) {
-            currentUser.setBalance(currentUser.getBalance() - 50);
-            currentUser.setEnergy(Math.min(100_000, currentUser.getEnergy() + 5000)); // +5000 انرژی
-            addChatMessage(currentUser.getUsername() + " bought food (+Energy, -$50)");
-            updateUserInfo();
-        } else {
-            addChatMessage("Not enough money to buy food!");
-        }
-    }
-
-    private void visitDoctor() {
-        if(currentUser.getBalance() >= 100) {
-            currentUser.setBalance(currentUser.getBalance() - 100);
-            currentUser.setHealth(Math.min(100, currentUser.getHealth() + 20));
-            addChatMessage(currentUser.getUsername() + " visited doctor (+Health, -$100)");
-            updateUserInfo();
-        } else {
-            addChatMessage("Not enough money to visit doctor!");
-        }
-    }
-
-
-    private void doWork() {
-        if(currentUser.getIdentity().getClass().getSimpleName().equals("Freelancer")) {
-            // باز کردن پنجره تسک فریلنسری
-            FreelancerTaskDialog dialog = new FreelancerTaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), currentUser);
-            dialog.setVisible(true);
-        } else {
-            // بقیه کارها مثل Chef یا Doctor
-            currentUser.getIdentity().performDailyWork(currentUser);
-            addChatMessage(currentUser.getUsername() + " did daily work. Current balance: $" + currentUser.getBalance());
-        }
-        updateUserInfo();
-    }
-
-    // ---------------- Energy and Health Management ----------------
-    private void decreaseEnergy() {
-        if(currentUser.getEnergy() > 0) {
-            currentUser.setEnergy(currentUser.getEnergy() - 1);
-            updateUserInfo();
-
-            if(currentUser.getEnergy() <= 10_000 && currentUser.getEnergy() > 0) {
-                JOptionPane.showMessageDialog(this,
-                    "Warning! Energy low (" + currentUser.getEnergy() + ")");
-                addChatMessage("⚠️ Energy low warning!");
-            }
-
-            if(currentUser.getEnergy() == 0) {
-                blockUserFor48Hours("Energy reached 0");
-            }
-        }
-    }
-
-    private void checkHealth() {
-        if(currentUser.getHealth() <= 20 && currentUser.getHealth() > 0) {
-            JOptionPane.showMessageDialog(this,
-                "Warning! Health is very low (" + currentUser.getHealth() + ")");
-            addChatMessage("⚠️ Health low warning!");
-        }
-
-        if(currentUser.getHealth() == 0) {
-            blockUserFor48Hours("Health reached 0");
-        }
-    }
-
-    private void blockUserFor48Hours(String reason) {
-        int penalty = 2000;
-        currentUser.setBalance(Math.max(0, currentUser.getBalance() - penalty));
-        addChatMessage("❌ " + currentUser.getUsername() + " is blocked for 48 hours due to: " + reason + ". Penalty: $" + penalty);
-        JOptionPane.showMessageDialog(this, reason + "! Account blocked for 48 hours. Penalty: $" + penalty);
-
-        long unblockTime = System.currentTimeMillis() + 48 * 60 * 60 * 1000L;
-        currentUser.setBlockedUntil(unblockTime);
-        disableActions();
-    }
-
-    // ---------------- Random Sickness ----------------
-    private void sicknessCheck() {
-        long now = System.currentTimeMillis();
-        long lastSick = currentUser.getLastSicknessTime();
-
-        boolean forcedSickness = (now - lastSick) >= 72 * 60 * 60 * 1000L;
-        boolean randomSickness = Math.random() < 0.2;
-
-        if(forcedSickness || randomSickness) {
-            int healthLoss = (int)(currentUser.getHealth() * 0.05);
-            currentUser.setHealth(Math.max(0, currentUser.getHealth() - healthLoss));
-            currentUser.setLastSicknessTime(now);
-            addChatMessage("💀 " + currentUser.getUsername() + " got sick! Lost 5% health.");
-            updateUserInfo();
-            checkHealth();
-        }
-    }
-
-    // ---------------- Utility ----------------
-    private void disableActions() {
-        buyFoodButton.setEnabled(false);
-        visitDoctorButton.setEnabled(false);
-        workButton.setEnabled(false);
-    }
+    // Remove all game logic methods (buyFood, visitDoctor, doWork, decreaseEnergy, checkHealth, blockUserFor48Hours, sicknessCheck)
+    // Keep only UI-related methods:
 
     public void updateUserInfo() {
         usernameLabel.setText("User: " + currentUser.getUsername());
@@ -218,5 +145,33 @@ public class GamePanel extends JPanel {
 
     public JPanel getAnimationPanel() {
         return animationPanel;
+    }
+
+    public void disableActions() {
+        buyFoodButton.setEnabled(false);
+        visitDoctorButton.setEnabled(false);
+        workButton.setEnabled(false);
+    }
+
+    // Add UI helper methods for controller:
+    public void showEnergyWarning() {
+        JOptionPane.showMessageDialog(this,
+            "Warning! Energy low (" + currentUser.getEnergy() + ")");
+        addChatMessage("⚠️ Energy low warning!");
+    }
+
+    public void showHealthWarning() {
+        JOptionPane.showMessageDialog(this,
+            "Warning! Health is very low (" + currentUser.getHealth() + ")");
+        addChatMessage("⚠️ Health low warning!");
+    }
+
+    public void showBlockDialog(String reason, int penalty) {
+        JOptionPane.showMessageDialog(this, reason + "! Account blocked for 48 hours. Penalty: $" + penalty);
+    }
+
+    public void showFreelancerTaskDialog() {
+        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), currentUser);
+        dialog.setVisible(true);
     }
 }
