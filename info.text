@@ -1,0 +1,6 @@
+mvn compile
+
+mvn clean compile
+
+mvn exec:java -Dexec.mainClass="main.Main"
+moven

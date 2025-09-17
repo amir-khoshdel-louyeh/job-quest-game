@@ -1,25 +1,26 @@
 package view;
 
+import controller.RegisterController;
 import model.IdentityOption;
 import model.User;
+import model.Identity;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import model.Identity;
-
-
 public class RegisterPanel extends JPanel {
+    private MainFrame mainFrame;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton registerButton;
     private JButton backButton;
     private IdentityOption selectedOption;
+    private RegisterController registerController = new RegisterController();
 
-    public RegisterPanel() {
+    public RegisterPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         setLayout(new BorderLayout(10, 10));
 
         JLabel title = new JLabel("Create New Account", SwingConstants.CENTER);
@@ -31,7 +32,6 @@ public class RegisterPanel extends JPanel {
         options.add(new IdentityOption("Freelancer", "Work online, earn flexible income.", 1000, "images/freelancer.png"));
         options.add(new IdentityOption("Chef", "Cook meals and manage a restaurant.", 1200, "images/chef.png"));
         options.add(new IdentityOption("Doctor", "Heal players and earn big money.", 1500, "images/doctor.png"));
-        // اضافه کردن کار جدید راحت: options.add(new IdentityOption("Baker", "Bake breads.", 900, "images/baker.png"));
 
         // پنل عمودی برای گزینه‌ها
         JPanel optionsPanel = new JPanel();
@@ -100,27 +100,31 @@ public class RegisterPanel extends JPanel {
                 return;
             }
 
-            // 🔹 ساخت Identity واقعی بر اساس گزینه انتخاب شده
-            Identity identity;
-            switch(selectedOption.getName()) {
-                case "Freelancer":
-                    identity = new model.Freelancer();
-                    break;
-                case "Chef":
-                    identity = new model.Chef();
-                    break;
-                case "Doctor":
-                    identity = new model.Doctor();
-                    break;
-                default:
-                    identity = new model.Freelancer(); // پیش‌فرض
+            // 🔹 انتخاب Identity با else if
+            Identity identityObj;
+            if(selectedOption.getName().equals("Freelancer")) {
+                identityObj = new model.Freelancer();
+            } else if(selectedOption.getName().equals("Chef")) {
+                identityObj = new model.Chef();
+            } else if(selectedOption.getName().equals("Doctor")) {
+                identityObj = new model.Doctor();
+            } else {
+                identityObj = new model.Freelancer();
             }
 
-            User newUser = new User(username, password, identity, 1000);
+            // تبدیل Identity به String برای دیتابیس و گرفتن بالانس
+            String identityStr = identityObj.getClass().getSimpleName();
+            int startingBalance = selectedOption.getPrice();
 
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            topFrame.setContentPane(new GamePanel(newUser));
-            topFrame.revalidate();
+            // ثبت کاربر در دیتابیس
+            boolean success = registerController.register(username, password, identityStr, startingBalance);
+
+            if (success) {
+                User newUser = new User(username, password, identityObj, startingBalance);
+                mainFrame.showPanel(new GamePanel(newUser));
+            } else {
+                JOptionPane.showMessageDialog(this, "Registration failed! Username may already exist.");
+            }
         });
     }
 }

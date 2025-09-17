@@ -18,9 +18,21 @@ public class MainFrame extends JFrame {
         // بستن کامل برنامه
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // نمایش اولین پنل = Login
-        setContentPane(new LoginPanel());
+        // Pass this MainFrame to LoginPanel for navigation
+        setContentPane(new LoginPanel(this));
 
         setVisible(true);
+    }
+
+    // Centralized navigation method
+    public void showPanel(JPanel panel) {
+        setContentPane(panel);
+        revalidate();
+        repaint();
+    }
+
+    public static void main(String[] args) {
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.showPanel(new RegisterPanel(mainFrame));
     }
 }

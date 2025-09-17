@@ -1,6 +1,6 @@
 package view;
 
-import model.Freelancer;
+import controller.LoginController;
 import model.User;
 
 import javax.swing.*;
@@ -11,14 +11,14 @@ public class LoginPanel extends JPanel {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
+    private LoginController loginController = new LoginController();
 
-    public LoginPanel() {
+    public LoginPanel(MainFrame mainFrame) {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5,5,5,5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // عنوان
         JLabel titleLabel = new JLabel("Job-Quest-Game - Login", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         gbc.gridx = 0;
@@ -26,7 +26,6 @@ public class LoginPanel extends JPanel {
         gbc.gridwidth = 2;
         add(titleLabel, gbc);
 
-        // Username
         JLabel userLabel = new JLabel("Username:");
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -38,7 +37,6 @@ public class LoginPanel extends JPanel {
         gbc.gridy = 1;
         add(usernameField, gbc);
 
-        // Password
         JLabel passLabel = new JLabel("Password:");
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -49,7 +47,6 @@ public class LoginPanel extends JPanel {
         gbc.gridy = 2;
         add(passwordField, gbc);
 
-        // Login Button
         loginButton = new JButton("Login");
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -65,15 +62,14 @@ public class LoginPanel extends JPanel {
                 return;
             }
 
-            // ایجاد User واقعی (فعلاً Freelancer پیش‌فرض)
-            User user = new User(username, password, new Freelancer(), 1000);
-
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            topFrame.setContentPane(new GamePanel(user));
-            topFrame.revalidate();
+            User user = loginController.login(username, password);
+            if (user != null) {
+                mainFrame.showPanel(new GamePanel(user));
+            } else {
+                JOptionPane.showMessageDialog(this, "Login failed!");
+            }
         });
 
-        // Register Button
         registerButton = new JButton("Register");
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -81,9 +77,7 @@ public class LoginPanel extends JPanel {
         add(registerButton, gbc);
 
         registerButton.addActionListener(e -> {
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            topFrame.setContentPane(new RegisterPanel());
-            topFrame.revalidate();
+            mainFrame.showPanel(new RegisterPanel(mainFrame));
         });
     }
 }

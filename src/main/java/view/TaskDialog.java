@@ -1,6 +1,6 @@
 package view;
 
-import model.User;
+import controller.UserController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,7 +8,7 @@ import java.io.File;
 
 public class TaskDialog extends JDialog {
 
-    private User currentUser;
+    private UserController userController;
     private JList<String> taskList;
     private JButton uploadButton, submitButton;
     private JLabel selectedFileLabel;
@@ -22,9 +22,9 @@ public class TaskDialog extends JDialog {
     };
     private int[] taskPayments = {300, 150, 200, 400};
 
-    public TaskDialog(JFrame parent, User user) {
+    public TaskDialog(JFrame parent, UserController userController) {
         super(parent, "Freelancer Tasks", true);
-        this.currentUser = user;
+        this.userController = userController;
 
         setSize(400, 300);
         setLocationRelativeTo(parent);
@@ -74,11 +74,15 @@ public class TaskDialog extends JDialog {
             return;
         }
 
-        // پرداخت و انرژی
+        // Delegate to controller
         int payment = taskPayments[index];
-        currentUser.setBalance(currentUser.getBalance() + payment);
-        currentUser.setEnergy(Math.min(100_000, currentUser.getEnergy() - 2000)); // کمی انرژی مصرف می‌شود
+        userController.addBalance(payment);
+        userController.decreaseEnergy(2000); // کمی انرژی مصرف می‌شود
         JOptionPane.showMessageDialog(this, "Task submitted successfully! Earned $" + payment);
         dispose(); // بستن دیالوگ
     }
 }
+
+// In GamePanel or wherever you open TaskDialog:
+// TaskDialog dialog = new TaskDialog(parentFrame, userController);
+// dialog.setVisible(true);

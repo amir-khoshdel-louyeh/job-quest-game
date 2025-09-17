@@ -7,6 +7,7 @@ import controller.UserController;
 
 import javax.swing.*;
 import java.awt.*;
+import utils.Timer; // Add this import
 
 public class GamePanel extends JPanel {
     private User currentUser;
@@ -42,9 +43,9 @@ public class GamePanel extends JPanel {
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
         profilePanel.setBorder(BorderFactory.createTitledBorder("Your Profile"));
-        usernameLabel = new JLabel("User: " + currentUser.getUsername());
-        balanceLabel = new JLabel("Balance: $" + currentUser.getBalance());
-        healthLabel = new JLabel("Health: " + currentUser.getHealth() + "/100");
+        usernameLabel = new JLabel("User: " + userController.getUsername());
+        balanceLabel = new JLabel("Balance: $" + userController.getBalance());
+        healthLabel = new JLabel("Health: " + userController.getHealth() + "/100");
         profilePanel.add(usernameLabel);
         profilePanel.add(balanceLabel);
         profilePanel.add(healthLabel);
@@ -53,8 +54,8 @@ public class GamePanel extends JPanel {
         JPanel identityPanel = new JPanel();
         identityPanel.setLayout(new BoxLayout(identityPanel, BoxLayout.Y_AXIS));
         identityPanel.setBorder(BorderFactory.createTitledBorder("Current Identity"));
-        JLabel identityName = new JLabel(currentUser.getIdentity().getClass().getSimpleName());
-        energyLabel = new JLabel("Energy: " + currentUser.getEnergy() + "/100000");
+        JLabel identityName = new JLabel(userController.getUser().getIdentity().getClass().getSimpleName());
+        energyLabel = new JLabel("Energy: " + userController.getEnergy() + "/100000");
         identityPanel.add(identityName);
         identityPanel.add(energyLabel);
 
@@ -113,30 +114,26 @@ public class GamePanel extends JPanel {
             }
         });
 
-        // ---------------- Energy Timer ----------------
-        Timer energyTimer = new Timer(60_000, e -> routineController.decreaseEnergy());
-        energyTimer.start();
-
-        // ---------------- Sickness Timer ----------------
-        Timer sicknessTimer = new Timer(24*60*60*1000, e -> routineController.sicknessCheck());
-        sicknessTimer.start();
+        // Use the Timer utility for periodic routines
+        Timer.runPeriodic(60_000, e -> routineController.decreaseEnergy());
+        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck());
 
         // ---------------- Check if blocked ----------------
-        if(currentUser.isBlocked()) {
+        if(userController.isBlocked()) {
             JOptionPane.showMessageDialog(this,
-                "Your account is blocked until " + new java.util.Date(currentUser.getBlockedUntil()));
+                "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
             disableActions();
         }
+
+        // Unblocking user after 48 hours (in milliseconds)
+        Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
     }
 
-    // Remove all game logic methods (buyFood, visitDoctor, doWork, decreaseEnergy, checkHealth, blockUserFor48Hours, sicknessCheck)
-    // Keep only UI-related methods:
-
     public void updateUserInfo() {
-        usernameLabel.setText("User: " + currentUser.getUsername());
-        balanceLabel.setText("Balance: $" + currentUser.getBalance());
-        healthLabel.setText("Health: " + currentUser.getHealth() + "/100");
-        energyLabel.setText("Energy: " + currentUser.getEnergy() + "/100000");
+        usernameLabel.setText("User: " + userController.getUsername());
+        balanceLabel.setText("Balance: $" + userController.getBalance());
+        healthLabel.setText("Health: " + userController.getHealth() + "/100");
+        energyLabel.setText("Energy: " + userController.getEnergy() + "/100000");
     }
 
     public void addChatMessage(String msg) {
@@ -156,22 +153,22 @@ public class GamePanel extends JPanel {
     // Add UI helper methods for controller:
     public void showEnergyWarning() {
         JOptionPane.showMessageDialog(this,
-            "Warning! Energy low (" + currentUser.getEnergy() + ")");
+            "Warning! Energy low (" + userController.getEnergy() + ")");
         addChatMessage("⚠️ Energy low warning!");
     }
 
     public void showHealthWarning() {
         JOptionPane.showMessageDialog(this,
-            "Warning! Health is very low (" + currentUser.getHealth() + ")");
+            "Warning! Health is very low (" + userController.getHealth() + ")");
         addChatMessage("⚠️ Health low warning!");
+    }
+
+    public void showFreelancerTaskDialog() {
+        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), userController);
+        dialog.setVisible(true);
     }
 
     public void showBlockDialog(String reason, int penalty) {
         JOptionPane.showMessageDialog(this, reason + "! Account blocked for 48 hours. Penalty: $" + penalty);
-    }
-
-    public void showFreelancerTaskDialog() {
-        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), currentUser);
-        dialog.setVisible(true);
     }
 }
