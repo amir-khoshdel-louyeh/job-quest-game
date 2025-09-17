@@ -30,9 +30,4 @@ public class MainFrame extends JFrame {
         revalidate();
         repaint();
     }
-
-    public static void main(String[] args) {
-        MainFrame mainFrame = new MainFrame();
-        mainFrame.showPanel(new RegisterPanel(mainFrame));
-    }
 }

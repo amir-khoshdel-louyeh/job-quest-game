@@ -1,15 +1,16 @@
 package view;
 
-import model.User;
 import controller.GameController;
 import controller.RoutineController;
 import controller.UserController;
+import model.User;
+import observer.Observer;
 
 import javax.swing.*;
 import java.awt.*;
 import utils.Timer; // Add this import
 
-public class GamePanel extends JPanel {
+public class GamePanel extends JPanel implements Observer {
     private User currentUser;
     private GameController controller;
     private RoutineController routineController;
@@ -19,12 +20,13 @@ public class GamePanel extends JPanel {
     private JPanel animationPanel;
     private JPanel rightPanel;
 
-    private JButton buyFoodButton, visitDoctorButton, workButton;
+    private JButton workButton, servicesButton, saveAndExitButton;
 
     public GamePanel(User user) {
         this.currentUser = user;
         this.controller = new GameController(user);
         this.userController = controller.getUserController();
+        this.userController.addObserver(this); // Register the panel as an observer
         this.routineController = new RoutineController(userController, this);
         setLayout(new BorderLayout(10,10));
 
@@ -62,13 +64,20 @@ public class GamePanel extends JPanel {
         // Marketplace Panel
         JPanel marketPanel = new JPanel();
         marketPanel.setLayout(new BoxLayout(marketPanel, BoxLayout.Y_AXIS));
-        marketPanel.setBorder(BorderFactory.createTitledBorder("Marketplace"));
-        buyFoodButton = new JButton("Buy Food (+Energy $50)");
-        visitDoctorButton = new JButton("Visit Doctor (+Health $100)");
-        workButton = new JButton("Do Daily Work");
-        marketPanel.add(buyFoodButton);
-        marketPanel.add(visitDoctorButton);
+        marketPanel.setBorder(BorderFactory.createTitledBorder("Services"));
+        workButton = new JButton("Availible Jobs");
+        workButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center it for consistent layout
+        saveAndExitButton = new JButton("Save & Exit");
+        saveAndExitButton.setBackground(new Color(220, 53, 69)); // A reddish color for emphasis
+        saveAndExitButton.setForeground(Color.WHITE);
+
+        servicesButton = new JButton("Browse Services");
+        servicesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Populate the market panel BEFORE adding it to the main layout
         marketPanel.add(workButton);
+        marketPanel.add(Box.createVerticalStrut(10));
+        marketPanel.add(servicesButton);
 
         rightPanel.add(profilePanel);
         rightPanel.add(Box.createVerticalStrut(10));
@@ -76,7 +85,15 @@ public class GamePanel extends JPanel {
         rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(marketPanel);
 
-        add(rightPanel, BorderLayout.EAST);
+        // Wrap the right panel in a scroll pane to handle overflow
+        JScrollPane rightScrollPane = new JScrollPane(rightPanel);
+        rightScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        rightScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        rightScrollPane.setBorder(null); // The inner panel already has borders
+        add(rightScrollPane, BorderLayout.EAST);
+
+        JPanel bottomActionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomActionsPanel.add(saveAndExitButton);
 
         // ---------------- Center Animation / World View ----------------
         animationPanel = new JPanel();
@@ -89,28 +106,33 @@ public class GamePanel extends JPanel {
         chatArea.setEditable(false);
         chatArea.setBorder(BorderFactory.createTitledBorder("Chat / Notifications"));
         JScrollPane chatScroll = new JScrollPane(chatArea);
-        add(chatScroll, BorderLayout.SOUTH);
+
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.add(chatScroll, BorderLayout.CENTER);
+        southPanel.add(bottomActionsPanel, BorderLayout.SOUTH);
+        add(southPanel, BorderLayout.SOUTH);
 
         // ---------------- Action Listeners ----------------
-        buyFoodButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.buyFood();
-            addChatMessage(result.message);
-            updateUserInfo();
-        });
-
-        visitDoctorButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.visitDoctor();
-            addChatMessage(result.message);
-            updateUserInfo();
-        });
-
         workButton.addActionListener(e -> {
             GameController.ActionResult result = controller.doWork();
             if ("FREELANCER_TASK_DIALOG".equals(result.message)) {
                 showFreelancerTaskDialog();
             } else {
                 addChatMessage(result.message);
-                updateUserInfo();
+            }
+        });
+
+        servicesButton.addActionListener(e -> {
+            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(this), controller, this);
+            dialog.setVisible(true);
+        });
+
+        saveAndExitButton.addActionListener(e -> {
+            GameController.ActionResult result = controller.saveGame();
+            addChatMessage("SYSTEM: " + result.message);
+            if (result.success) {
+                // Close the application after a successful save
+                System.exit(0);
             }
         });
 
@@ -129,6 +151,11 @@ public class GamePanel extends JPanel {
         Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
     }
 
+    @Override
+    public void update() {
+        updateUserInfo();
+    }
+
     public void updateUserInfo() {
         usernameLabel.setText("User: " + userController.getUsername());
         balanceLabel.setText("Balance: $" + userController.getBalance());
@@ -145,9 +172,9 @@ public class GamePanel extends JPanel {
     }
 
     public void disableActions() {
-        buyFoodButton.setEnabled(false);
-        visitDoctorButton.setEnabled(false);
         workButton.setEnabled(false);
+        servicesButton.setEnabled(false);
+        saveAndExitButton.setEnabled(false);
     }
 
     // Add UI helper methods for controller:

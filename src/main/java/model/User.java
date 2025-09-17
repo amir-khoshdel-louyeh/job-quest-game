@@ -10,7 +10,8 @@ public class User {
     private int balance;
     private int health;      // 0 تا 100
     private int energy;      // 0 تا 100,000
-    private List<String> inventory;
+    private Inventory inventory; // Use the Inventory object
+    private List<Skill> skills;
 
     private long blockedUntil = 0;      // timestamp پایان بلاک در میلی‌ثانیه
     private long lastSicknessTime = 0;  // timestamp آخرین مریضی
@@ -22,7 +23,8 @@ public class User {
         this.balance = balance;
         this.health = 100;
         this.energy = 100_000; // انرژی اولیه
-        this.inventory = new ArrayList<>();
+        this.inventory = new Inventory(); // Initialize the Inventory object
+        this.skills = new ArrayList<>();
     }
 
     // ---------------- Getters & Setters ----------------
@@ -44,8 +46,10 @@ public class User {
     public int getEnergy() { return energy; }
     public void setEnergy(int energy) { this.energy = Math.max(0, Math.min(100_000, energy)); }
 
-    public List<String> getInventory() { return inventory; }
-    public void addItem(String item) { inventory.add(item); }
+    public Inventory getInventory() { return inventory; } // Return the Inventory object
+
+    public List<Skill> getSkills() { return skills; }
+    public void setSkills(List<Skill> skills) { this.skills = skills; }
 
     // ---------------- Block / Unblock ----------------
     public void setBlockedUntil(long time) { this.blockedUntil = time; }
