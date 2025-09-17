@@ -1,5 +1,9 @@
 package controller;
 
+import database.DatabaseUtil;
+import model.WorkResult;
+import model.Service;
+import model.ServiceProvider;
 import model.User;
 
 public class GameController {
@@ -9,31 +13,51 @@ public class GameController {
         this.userController = new UserController(user);
     }
 
-    public ActionResult buyFood() {
-        if (userController.deductBalance(50)) {
-            userController.increaseEnergy(5000);
-            return new ActionResult(true, userController.getUsername() + " bought food (+Energy, -$50)");
-        } else {
-            return new ActionResult(false, "Not enough money to buy food!");
+    public ActionResult purchaseService(String serviceName) {
+        Service service = ServiceProvider.getService(serviceName);
+        if (service == null) {
+            return new ActionResult(false, "Service '" + serviceName + "' not found.");
         }
-    }
 
-    public ActionResult visitDoctor() {
-        if (userController.deductBalance(100)) {
-            userController.increaseHealth(20);
-            return new ActionResult(true, userController.getUsername() + " visited doctor (+Health, -$100)");
+        if (userController.deductBalance(service.getCost())) {
+            userController.increaseEnergy(service.getEnergyEffect());
+            userController.increaseHealth(service.getHealthEffect());
+            userController.notifyObservers(); // Notify after all changes are done
+            String message = String.format("%s used %s. Cost: $%d.",
+                    userController.getUsername(),
+                    service.getName(),
+                    service.getCost());
+            return new ActionResult(true, message);
         } else {
-            return new ActionResult(false, "Not enough money to visit doctor!");
+            return new ActionResult(false, "Not enough money for " + service.getName() + "!");
         }
     }
 
     public ActionResult doWork() {
-        User user = userController.getUser();
-        if (user.getIdentity().getClass().getSimpleName().equals("Freelancer")) {
-            return new ActionResult(false, "FREELANCER_TASK_DIALOG");
+        WorkResult workResult = userController.getUser().getIdentity().performDailyWork();
+
+        if (workResult.getType() == WorkResult.Type.REQUIRES_DIALOG) {
+            return new ActionResult(false, "FREELANCER_TASK_DIALOG"); // Special message for the view
+        }
+
+        if (userController.getEnergy() >= workResult.getEnergyCost()) {
+            userController.addBalance(workResult.getMoneyEarned());
+            userController.decreaseEnergy(workResult.getEnergyCost());
+            userController.notifyObservers(); // Notify after all changes are done
+            String message = String.format("%s did daily work. Earned $%d, used %d energy. Current balance: $%d",
+                    userController.getUsername(), workResult.getMoneyEarned(), workResult.getEnergyCost(), userController.getBalance());
+            return new ActionResult(true, message);
         } else {
-            user.getIdentity().performDailyWork(user);
-            return new ActionResult(true, userController.getUsername() + " did daily work. Current balance: $" + userController.getBalance());
+            return new ActionResult(false, "Not enough energy to work!");
+        }
+    }
+
+    public ActionResult saveGame() {
+        boolean success = DatabaseUtil.updateUser(userController.getUser());
+        if (success) {
+            return new ActionResult(true, "Game saved successfully!");
+        } else {
+            return new ActionResult(false, "Error: Could not save game data.");
         }
     }
 

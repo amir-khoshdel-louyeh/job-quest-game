@@ -1,26 +1,21 @@
 package view;
 
 import controller.UserController;
+import model.Task;
+import model.TaskProvider;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.List;
 
 public class TaskDialog extends JDialog {
 
     private UserController userController;
-    private JList<String> taskList;
+    private JList<Task> taskList;
     private JButton uploadButton, submitButton;
     private JLabel selectedFileLabel;
     private File uploadedFile = null;
-
-    private String[] tasks = {
-        "Design a Logo ($300)",
-        "Write an Article ($150)",
-        "Translate Document ($200)",
-        "Create Website Mockup ($400)"
-    };
-    private int[] taskPayments = {300, 150, 200, 400};
 
     public TaskDialog(JFrame parent, UserController userController) {
         super(parent, "Freelancer Tasks", true);
@@ -28,23 +23,34 @@ public class TaskDialog extends JDialog {
 
         setSize(400, 300);
         setLocationRelativeTo(parent);
-        setLayout(new BorderLayout(10,10));
+        setLayout(new BorderLayout(10, 10));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // ---------------- Task Selection ----------------
-        taskList = new JList<>(tasks);
+        List<Task> availableTasks = TaskProvider.getAvailableTasks();
+        taskList = new JList<>(availableTasks.toArray(new Task[0]));
         taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Use a cell renderer to display the task name and payment nicely
+        taskList.setCellRenderer(new TaskCellRenderer());
         add(new JScrollPane(taskList), BorderLayout.CENTER);
 
         // ---------------- File Upload ----------------
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(3,1,5,5));
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 
         selectedFileLabel = new JLabel("No file selected");
         uploadButton = new JButton("Upload File");
         submitButton = new JButton("Submit Task");
 
+        // Center align components in the bottom panel
+        selectedFileLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        uploadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        submitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         bottomPanel.add(selectedFileLabel);
+        bottomPanel.add(Box.createVerticalStrut(5));
         bottomPanel.add(uploadButton);
+        bottomPanel.add(Box.createVerticalStrut(5));
         bottomPanel.add(submitButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
@@ -57,32 +63,46 @@ public class TaskDialog extends JDialog {
     private void chooseFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
-        if(result == JFileChooser.APPROVE_OPTION) {
+        if (result == JFileChooser.APPROVE_OPTION) {
             uploadedFile = fileChooser.getSelectedFile();
             selectedFileLabel.setText("Selected: " + uploadedFile.getName());
         }
     }
 
     private void submitTask() {
-        int index = taskList.getSelectedIndex();
-        if(index == -1) {
+        Task selectedTask = taskList.getSelectedValue();
+        if (selectedTask == null) {
             JOptionPane.showMessageDialog(this, "Please select a task!");
             return;
         }
-        if(uploadedFile == null) {
+        if (uploadedFile == null) {
             JOptionPane.showMessageDialog(this, "Please upload a file!");
             return;
         }
 
-        // Delegate to controller
-        int payment = taskPayments[index];
-        userController.addBalance(payment);
-        userController.decreaseEnergy(2000); // کمی انرژی مصرف می‌شود
-        JOptionPane.showMessageDialog(this, "Task submitted successfully! Earned $" + payment);
-        dispose(); // بستن دیالوگ
+        // Delegate the entire operation to the controller
+        boolean success = userController.completeTask(selectedTask);
+
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Task submitted successfully! Earned $" + selectedTask.getPayment());
+            dispose(); // Close the dialog
+        } else {
+            JOptionPane.showMessageDialog(this, "Not enough energy to complete this task!");
+        }
+    }
+
+    /**
+     * A custom renderer to display Task objects in a JList.
+     */
+    private static class TaskCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (value instanceof Task) {
+                Task task = (Task) value;
+                setText(String.format("%s ($%d, Energy: %d)", task.getName(), task.getPayment(), task.getEnergyCost()));
+            }
+            return this;
+        }
     }
 }
-
-// In GamePanel or wherever you open TaskDialog:
-// TaskDialog dialog = new TaskDialog(parentFrame, userController);
-// dialog.setVisible(true);

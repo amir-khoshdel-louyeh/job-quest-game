@@ -1,12 +1,9 @@
 package model;
 
-public class Chef extends Identity {
-    public Chef() { super("Chef"); }
-
+public class Chef implements Identity {
     @Override
-    public void performDailyWork(User user) {
-        int pay = 250;
-        user.setBalance(user.getBalance() + pay);
-        user.setEnergy(user.getEnergy() - 25);
+    public WorkResult performDailyWork() {
+        // Chefs earn a fixed amount for a fixed energy cost.
+        return new WorkResult(250, 10000, WorkResult.Type.INSTANT_EARNING);
     }
 }

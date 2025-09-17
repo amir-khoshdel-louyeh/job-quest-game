@@ -1,12 +1,12 @@
 package controller;
 
-import view.GamePanel;
+import javax.swing.JOptionPane;
 
 public class RoutineController {
     private UserController userController;
-    private GamePanel panel;
+    private view.GamePanel panel; // Keep for dialogs, but not for UI updates
 
-    public RoutineController(UserController userController, GamePanel panel) {
+    public RoutineController(UserController userController, view.GamePanel panel) {
         this.userController = userController;
         this.panel = panel;
     }
@@ -20,7 +20,6 @@ public class RoutineController {
     public void decreaseEnergy() {
         if (userController.getEnergy() > 0) {
             userController.decreaseEnergy(1);
-            panel.updateUserInfo();
 
             if (userController.getEnergy() <= 10_000 && userController.getEnergy() > 0) {
                 panel.showEnergyWarning();
@@ -44,7 +43,6 @@ public class RoutineController {
             userController.decreaseHealth(healthLoss);
             userController.getUser().setLastSicknessTime(now);
             panel.addChatMessage("💀 " + userController.getUsername() + " got sick! Lost 5% health.");
-            panel.updateUserInfo();
             checkHealth();
         }
     }

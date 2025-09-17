@@ -1,16 +1,22 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Inventory {
-    private List<Item> items = new ArrayList<>();
+    // For now, storing item names as strings to match existing usage.
+    // In a more complex system, this might store Item objects or a Map<Item, Integer> for quantities.
+    private List<String> itemNames = new ArrayList<>();
 
-    public void addItem(Item item) {
-        items.add(item);
+    public void addItem(String itemName) {
+        itemNames.add(itemName);
     }
 
-    public List<Item> getItems() {
-        return items;
+    /**
+     * Returns an unmodifiable list of item names in the inventory.
+     */
+    public List<String> getItemNames() {
+        return Collections.unmodifiableList(itemNames);
     }
 }

@@ -1,12 +1,24 @@
 package controller;
 
 import model.User;
+import observer.Subject;
+import model.ShopItem; // Import ShopItem for clarity, though we'll use its name
+import model.Task;
 
-public class UserController {
+/**
+ * Manages the state and actions of a single user.
+ * This class acts as a buffer between the raw User model and the rest of the application,
+ * providing safe and centralized methods to modify user data.
+ */
+public class UserController extends Subject {
     private User user;
 
     public UserController(User user) {
         this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public String getUsername() {
@@ -17,44 +29,64 @@ public class UserController {
         return user.getBalance();
     }
 
-    public void addBalance(int amount) {
-        user.setBalance(user.getBalance() + amount);
-    }
-
-    public boolean deductBalance(int amount) {
-        if (user.getBalance() >= amount) {
-            user.setBalance(user.getBalance() - amount);
-            return true;
-        }
-        return false;
-    }
-
     public int getHealth() {
         return user.getHealth();
-    }
-
-    public void increaseHealth(int amount) {
-        user.setHealth(Math.min(100, user.getHealth() + amount));
-    }
-
-    public void decreaseHealth(int amount) {
-        user.setHealth(Math.max(0, user.getHealth() - amount));
     }
 
     public int getEnergy() {
         return user.getEnergy();
     }
 
+    public void addBalance(int amount) {
+        if (amount > 0) {
+            user.setBalance(user.getBalance() + amount);
+            notifyObservers();
+        }
+    }
+
+    public boolean deductBalance(int amount) {
+        if (amount > 0 && user.getBalance() >= amount) {
+            user.setBalance(user.getBalance() - amount);
+            return true;
+            // Note: Observers are notified by the calling method (e.g., purchaseService)
+        }
+        return false;
+    }
+
+    public void increaseHealth(int amount) {
+        if (amount > 0) {
+            user.setHealth(user.getHealth() + amount);
+            notifyObservers();
+        }
+    }
+
+    public void decreaseHealth(int amount) {
+        if (amount > 0) {
+            user.setHealth(user.getHealth() - amount);
+            notifyObservers();
+        }
+    }
+
     public void increaseEnergy(int amount) {
-        user.setEnergy(Math.min(100_000, user.getEnergy() + amount));
+        if (amount > 0) {
+            user.setEnergy(user.getEnergy() + amount);
+            notifyObservers();
+        }
     }
 
     public void decreaseEnergy(int amount) {
-        user.setEnergy(Math.max(0, user.getEnergy() - amount));
+        if (amount > 0) {
+            user.setEnergy(user.getEnergy() - amount);
+            notifyObservers();
+        }
     }
 
     public boolean isBlocked() {
         return user.isBlocked();
+    }
+
+    public long getBlockedUntil() {
+        return user.getBlockedUntil();
     }
 
     public void blockUser(long durationMillis) {
@@ -65,11 +97,29 @@ public class UserController {
         user.setBlockedUntil(0);
     }
 
-    public long getBlockedUntil() {
-        return user.getBlockedUntil();
+    /**
+     * Handles the business logic of completing a task.
+     * This is the method that was missing and causing the build failure.
+     * @param task The task to be completed.
+     * @return true if the task was completed successfully, false otherwise.
+     */
+    public boolean completeTask(Task task) {
+        if (getEnergy() >= task.getEnergyCost()) {
+            addBalance(task.getPayment());
+            decreaseEnergy(task.getEnergyCost());
+            notifyObservers();
+            // In the future, you could add the uploaded file to a "completed work" list on the user model
+            return true;
+        }
+        return false;
     }
 
-    public User getUser() {
-        return user;
+    /**
+     * Adds an item to the user's inventory.
+     * @param itemName The name of the item to add.
+     */
+    public void addItemToInventory(String itemName) {
+        user.getInventory().addItem(itemName);
+        notifyObservers(); // Notify in case inventory view needs to update
     }
 }

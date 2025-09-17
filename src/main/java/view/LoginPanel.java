@@ -12,8 +12,16 @@ public class LoginPanel extends JPanel {
     private JButton loginButton;
     private JButton registerButton;
     private LoginController loginController = new LoginController();
+    private MainFrame mainFrame;
 
     public LoginPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
+
+        initUI();
+        initActions();
+    }
+
+    private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5,5,5,5);
@@ -53,31 +61,39 @@ public class LoginPanel extends JPanel {
         gbc.gridwidth = 2;
         add(loginButton, gbc);
 
-        loginButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
-
-            if(username.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter username and password!");
-                return;
-            }
-
-            User user = loginController.login(username, password);
-            if (user != null) {
-                mainFrame.showPanel(new GamePanel(user));
-            } else {
-                JOptionPane.showMessageDialog(this, "Login failed!");
-            }
-        });
-
         registerButton = new JButton("Register");
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         add(registerButton, gbc);
+    }
 
-        registerButton.addActionListener(e -> {
-            mainFrame.showPanel(new RegisterPanel(mainFrame));
-        });
+    private void initActions() {
+        loginButton.addActionListener(e -> performLogin());
+        registerButton.addActionListener(e -> navigateToRegister());
+    }
+
+    private void performLogin() {
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+
+        if(username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter username and password!");
+            return;
+        }
+
+        User user = loginController.login(username, password);
+        if (user != null) {
+            // Clear fields on successful login
+            usernameField.setText("");
+            passwordField.setText("");
+            mainFrame.showPanel(new GamePanel(user));
+        } else {
+            JOptionPane.showMessageDialog(this, "Login failed! Incorrect username or password.");
+        }
+    }
+
+    private void navigateToRegister() {
+        mainFrame.showPanel(new RegisterPanel(mainFrame));
     }
 }

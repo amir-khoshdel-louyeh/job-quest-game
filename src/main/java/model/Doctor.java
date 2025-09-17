@@ -1,12 +1,9 @@
 package model;
 
-public class Doctor extends Identity {
-    public Doctor() { super("Doctor"); }
-
+public class Doctor implements Identity {
     @Override
-    public void performDailyWork(User user) {
-        int pay = 300;
-        user.setBalance(user.getBalance() + pay);
-        user.setEnergy(user.getEnergy() - 30);
+    public WorkResult performDailyWork() {
+        // Doctors earn a high fixed amount for a high energy cost.
+        return new WorkResult(500, 15000, WorkResult.Type.INSTANT_EARNING);
     }
 }
