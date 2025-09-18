@@ -15,9 +15,11 @@ public class IdentityOptionProvider {
     static {
         // To add a new character, just add a new line here.
         // The registration panel will automatically display it.
-        OPTIONS.add(new IdentityOption("Freelancer", "Work online, earn flexible income.", 1000, "images/freelancer.png"));
-        OPTIONS.add(new IdentityOption("Chef", "Cook meals and manage a restaurant.", 1200, "images/chef.png"));
-        OPTIONS.add(new IdentityOption("Doctor", "Heal players and earn big money.", 1500, "images/doctor.png"));
+        OPTIONS.add(new IdentityOption("Doctor", "Heal players and earn big money.", 10000, "images/doctor.png"));
+        OPTIONS.add(new IdentityOption("Programmer", "Write code and solve complex problems.", 100, "images/programmer.png"));
+        OPTIONS.add(new IdentityOption("Logo Designer", "Create logos for clients.", 10, "images/logodesigner.png"));
+        OPTIONS.add(new IdentityOption("Typist", "Type documents for clients.", 10, "images/typist.png"));
+
     }
 
     public static List<IdentityOption> getAvailableOptions() {

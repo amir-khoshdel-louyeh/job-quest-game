@@ -13,13 +13,23 @@ public class RoutineController {
 
     public void performDailyRoutines() {
         decreaseEnergy();
+        decreaseHealth();
         sicknessCheck();
         // Add more routines as needed
     }
 
     public void decreaseEnergy() {
         if (userController.getEnergy() > 0) {
-            userController.decreaseEnergy(1);
+            int energyLoss = 1; // Base energy loss
+            // If health is low (e.g., below 30), you lose energy faster
+            if (userController.getHealth() < 30) {
+                energyLoss = 2;
+            }
+
+            userController.decreaseEnergy(energyLoss);
+            if (energyLoss > 1) {
+                panel.addChatMessage("⚡ Energy decreased by " + energyLoss + " due to poor health.");
+            }
 
             if (userController.getEnergy() <= 10_000 && userController.getEnergy() > 0) {
                 panel.showEnergyWarning();
@@ -28,7 +38,25 @@ public class RoutineController {
             if (userController.getEnergy() == 0) {
                 blockUserFor48Hours("Energy reached 0");
             }
+            userController.notifyObservers(); // Notify the UI to update
         }
+    }
+
+    public void decreaseHealth() {
+        int healthLoss = 1; // Base health loss
+
+        // If energy is critically low (e.g., below 25,000), health deteriorates faster.
+        if (userController.getEnergy() < 25_000) {
+            healthLoss = 3; // Increased health loss
+            panel.addChatMessage("❤️‍🩹 Health decreased by " + healthLoss + " due to extreme fatigue!");
+        } else {
+            // We can keep the regular message for the base case, or remove it to reduce chat spam
+            // panel.addChatMessage("❤️‍🩹 Health decreased by " + healthLoss + " due to fatigue.");
+        }
+
+        userController.decreaseHealth(healthLoss);
+        userController.notifyObservers(); // Notify the UI to update
+        checkHealth();
     }
 
     public void sicknessCheck() {
@@ -43,6 +71,7 @@ public class RoutineController {
             userController.decreaseHealth(healthLoss);
             userController.getUser().setLastSicknessTime(now);
             panel.addChatMessage("💀 " + userController.getUsername() + " got sick! Lost 5% health.");
+            userController.notifyObservers(); // Notify the UI to update
             checkHealth();
         }
     }

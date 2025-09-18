@@ -38,7 +38,7 @@ public class UserController extends Subject {
     public void addBalance(int amount) {
         if (amount > 0) {
             user.setBalance(user.getBalance() + amount);
-            // The calling controller is responsible for notifying observers.
+            notifyObservers();
         }
     }
 
@@ -46,6 +46,7 @@ public class UserController extends Subject {
         if (amount > 0 && user.getBalance() >= amount) {
             user.setBalance(user.getBalance() - amount);
             return true; // The calling method is responsible for notifying observers.
+            // Note: Observers are not notified here to allow for transactional operations.
         }
         return false;
     }
@@ -53,28 +54,28 @@ public class UserController extends Subject {
     public void increaseHealth(int amount) {
         if (amount > 0) {
             user.setHealth(user.getHealth() + amount);
-            // The calling controller is responsible for notifying observers.
+            notifyObservers();
         }
     }
 
     public void decreaseHealth(int amount) {
         if (amount > 0) {
             user.setHealth(user.getHealth() - amount);
-            // The calling controller is responsible for notifying observers.
+            notifyObservers();
         }
     }
 
     public void increaseEnergy(int amount) {
         if (amount > 0) {
             user.setEnergy(user.getEnergy() + amount);
-            // The calling controller is responsible for notifying observers.
+            notifyObservers();
         }
     }
 
     public void decreaseEnergy(int amount) {
         if (amount > 0) {
             user.setEnergy(user.getEnergy() - amount);
-            // The calling controller is responsible for notifying observers.
+            notifyObservers();
         }
     }
 
@@ -92,23 +93,6 @@ public class UserController extends Subject {
 
     public void unblockUser() {
         user.setBlockedUntil(0);
-    }
-
-    /**
-     * Handles the business logic of completing a task.
-     * This is the method that was missing and causing the build failure.
-     * @param task The task to be completed.
-     * @return true if the task was completed successfully, false otherwise.
-     */
-    public boolean completeTask(Task task) {
-        if (getEnergy() >= task.getEnergyCost()) {
-            addBalance(task.getPayment());
-            decreaseEnergy(task.getEnergyCost());
-            notifyObservers();
-            // In the future, you could add the uploaded file to a "completed work" list on the user model
-            return true;
-        }
-        return false;
     }
 
     /**

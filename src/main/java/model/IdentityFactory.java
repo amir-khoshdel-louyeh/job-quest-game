@@ -1,8 +1,9 @@
 package model;
 
-import model.identity.Chef;
 import model.identity.Doctor;
-import model.identity.Freelancer;
+import model.identity.LogoDesigner;
+import model.identity.Programmer;
+import model.identity.Typist;
 
 /**
  * Factory class for creating instances of Identity subclasses.
@@ -19,12 +20,14 @@ public class IdentityFactory {
      */
     public static Identity createIdentity(String identityName) {
         switch (identityName) {
-            case "Freelancer":
-                return new Freelancer();
-            case "Chef":
-                return new Chef();
             case "Doctor":
                 return new Doctor();
+            case "Programmer":
+                return new Programmer();
+            case "LogoDesigner":
+                return new LogoDesigner();
+            case "Typist":
+                return new Typist();
             default:
                 // Or return a default, but throwing an exception is often cleaner.
                 throw new IllegalArgumentException("Unknown identity type: " + identityName);

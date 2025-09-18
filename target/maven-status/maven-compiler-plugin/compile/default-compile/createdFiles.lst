@@ -1,10 +1,10 @@
 utils/Timer.class
 utils/GameSaver.class
 view/LoginPanel.class
+model/Job.class
 view/SkillDialog.class
 model/IdentityOptionProvider.class
 controller/GameController$ActionResult.class
-model/identity/Freelancer.class
 model/ServiceProvider.class
 services/JobService.class
 model/ShopItemProvider.class
@@ -15,7 +15,9 @@ database/DatabaseConnection.class
 model/Service.class
 view/ShopDialog.class
 model/IdentityFactory.class
+model/identity/Typist.class
 model/Identity.class
+view/JobDialog.class
 controller/RoutineController.class
 model/IdentityOption.class
 view/GamePanel$1.class
@@ -27,6 +29,7 @@ model/Tool.class
 controller/LoginController.class
 model/Inventory.class
 model/Skill.class
+model/identity/LogoDesigner.class
 main/Main.class
 services/MarketService.class
 controller/UserController.class
@@ -36,9 +39,9 @@ model/Food.class
 view/TaskDialog.class
 model/WorkResult.class
 model/TaskProvider.class
-model/identity/Chef.class
 controller/GameController.class
 observer/Observer.class
+model/identity/Programmer.class
 view/GamePanel.class
 view/GamePanel$2.class
 database/DatabaseUtil.class
@@ -50,5 +53,6 @@ main/GameLauncher.class
 services/FoodService.class
 model/SkillProvider.class
 model/User.class
+model/JobProvider.class
 model/LearnableSkill.class
 view/RegisterPanel.class

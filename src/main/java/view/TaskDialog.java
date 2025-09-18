@@ -12,16 +12,16 @@ import java.util.List;
 
 public class TaskDialog extends JDialog {
 
-    private final UserController userController;
+    private final GameController gameController;
     private final GamePanel gamePanel;
     private JList<Task> taskList;
     private JButton uploadButton, submitButton;
     private JLabel selectedFileLabel;
     private File uploadedFile = null;
 
-    public TaskDialog(JFrame parent, UserController userController, GamePanel gamePanel) {
+    public TaskDialog(JFrame parent, GameController gameController, GamePanel gamePanel) {
         super(parent, "Freelancer Tasks", true);
-        this.userController = userController;
+        this.gameController = gameController;
         this.gamePanel = gamePanel;
 
         setSize(400, 300);
@@ -84,15 +84,14 @@ public class TaskDialog extends JDialog {
         }
 
         // Delegate the entire operation to the controller
-        boolean success = userController.completeTask(selectedTask);
+        GameController.ActionResult result = gameController.completeTask(selectedTask);
 
-        if (success) {
-            String message = String.format("✅ Completed task '%s' and earned $%d.", selectedTask.getName(), selectedTask.getPayment());
-            gamePanel.addChatMessage(message);
-            JOptionPane.showMessageDialog(this, message, "Task Submitted", JOptionPane.INFORMATION_MESSAGE);
+        if (result.success) {
+            gamePanel.addChatMessage("✅ " + result.message);
+            JOptionPane.showMessageDialog(this, result.message, "Task Submitted", JOptionPane.INFORMATION_MESSAGE);
             dispose(); // Close the dialog
         } else {
-            JOptionPane.showMessageDialog(this, "Not enough energy to complete this task!");
+            JOptionPane.showMessageDialog(this, result.message, "Task Failed", JOptionPane.WARNING_MESSAGE);
         }
     }
 

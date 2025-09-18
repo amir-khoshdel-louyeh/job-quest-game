@@ -5,6 +5,8 @@ import controller.RoutineController;
 import controller.UserController;
 import model.User;
 import model.LearnableSkill;
+import model.Job;
+import model.JobProvider;
 import model.SkillProvider;
 import model.ServiceProvider;
 import model.ShopItemProvider;
@@ -122,8 +124,10 @@ public class GamePanel extends JPanel implements Observer {
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
                             // Section 2: WorkShop
                             GameController.ActionResult result = controller.doWork();
-                            if ("FREELANCER_TASK_DIALOG".equals(result.message)) {
-                                showFreelancerTaskDialog();
+                            if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
+                                java.util.List<Job> availableJobs = JobProvider.getAvailableJobsForUser(currentUser);
+                                JobDialog dialog = new JobDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, availableJobs);
+                                dialog.setVisible(true);
                             } else {
                                 addChatMessage(result.message);
                             }
@@ -179,8 +183,9 @@ public class GamePanel extends JPanel implements Observer {
         });
 
         // Use the Timer utility for periodic routines
-        Timer.runPeriodic(60_000, e -> routineController.decreaseEnergy());
-        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck());
+        Timer.runPeriodic(5_000, e -> routineController.decreaseEnergy()); // Decrease energy every 5 seconds
+        Timer.runPeriodic(60_000, e -> routineController.decreaseHealth()); // Decrease health every 1 minute
+        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck()); // Sickness check once a day
 
         // ---------------- Check if blocked ----------------
         if(userController.isBlocked()) {
@@ -228,11 +233,6 @@ public class GamePanel extends JPanel implements Observer {
         JOptionPane.showMessageDialog(this,
             "Warning! Health is very low (" + userController.getHealth() + ")");
         addChatMessage("⚠️ Health low warning!");
-    }
-
-    public void showFreelancerTaskDialog() {
-        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), userController, this);
-        dialog.setVisible(true);
     }
 
     public void showBlockDialog(String reason, int penalty) {
