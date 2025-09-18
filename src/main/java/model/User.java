@@ -15,6 +15,7 @@ public class User {
 
     private long blockedUntil = 0;      // timestamp پایان بلاک در میلی‌ثانیه
     private long lastSicknessTime = 0;  // timestamp آخرین مریضی
+    private long totalPlayTime = 0;     // Total time played in milliseconds
 
     public User(String username, String password, Identity identity, int balance) {
         this.username = username;
@@ -50,6 +51,9 @@ public class User {
 
     public List<Skill> getSkills() { return skills; }
     public void setSkills(List<Skill> skills) { this.skills = skills; }
+
+    public long getTotalPlayTime() { return totalPlayTime; }
+    public void setTotalPlayTime(long totalPlayTime) { this.totalPlayTime = totalPlayTime; }
 
     // ---------------- Block / Unblock ----------------
     public void setBlockedUntil(long time) { this.blockedUntil = time; }

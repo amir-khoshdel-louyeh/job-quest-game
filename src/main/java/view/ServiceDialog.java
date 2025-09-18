@@ -16,11 +16,11 @@ public class ServiceDialog extends JDialog {
     private final GameController controller;
     private final GamePanel gamePanel;
 
-    public ServiceDialog(JFrame parent, GameController controller, GamePanel gamePanel) {
+    public ServiceDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<Service> services) {
         super(parent, "Available Services", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10)); // Set layout before adding components
         setSize(400, 500);
         setLocationRelativeTo(parent);
 
@@ -29,7 +29,6 @@ public class ServiceDialog extends JDialog {
         servicesContainer.setLayout(new BoxLayout(servicesContainer, BoxLayout.Y_AXIS));
         servicesContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        List<Service> services = ServiceProvider.getAvailableServices();
         for (Service service : services) {
             servicesContainer.add(createServicePanel(service));
             servicesContainer.add(Box.createVerticalStrut(10));

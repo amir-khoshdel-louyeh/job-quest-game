@@ -15,12 +15,12 @@ public class ShopPanel extends JPanel {
     private GamePanel gamePanel;
     private JDialog parentDialog; // To close the dialog after purchase
 
-    public ShopPanel(GameController gameController, GamePanel gamePanel, JDialog parentDialog) {
+    public ShopPanel(GameController gameController, GamePanel gamePanel, JDialog parentDialog, List<Item> itemsForSale) {
         this.gameController = gameController;
         this.userController = gameController.getUserController();
         this.gamePanel = gamePanel;
         this.parentDialog = parentDialog;
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10)); // Set layout before adding components
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Title
@@ -32,8 +32,6 @@ public class ShopPanel extends JPanel {
         JPanel itemsGridPanel = new JPanel();
         // Using a flexible grid layout that wraps
         itemsGridPanel.setLayout(new GridLayout(0, 3, 15, 15)); // 0 rows, 3 columns, with gaps
-
-        List<Item> itemsForSale = ShopItemProvider.getAvailableItems();
 
         for (Item item : itemsForSale) {
             itemsGridPanel.add(createItemPanel(item));

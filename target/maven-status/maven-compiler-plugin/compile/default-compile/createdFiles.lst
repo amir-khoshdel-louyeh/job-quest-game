@@ -1,6 +1,7 @@
 utils/Timer.class
 utils/GameSaver.class
 view/LoginPanel.class
+view/SkillDialog.class
 model/IdentityOptionProvider.class
 controller/GameController$ActionResult.class
 model/identity/Freelancer.class
@@ -17,6 +18,7 @@ model/IdentityFactory.class
 model/Identity.class
 controller/RoutineController.class
 model/IdentityOption.class
+view/GamePanel$1.class
 view/ServiceDialog.class
 utils/RandomUtil.class
 observer/Subject.class
@@ -38,6 +40,7 @@ model/identity/Chef.class
 controller/GameController.class
 observer/Observer.class
 view/GamePanel.class
+view/GamePanel$2.class
 database/DatabaseUtil.class
 services/EventService.class
 model/identity/Doctor.class
@@ -45,5 +48,7 @@ view/TaskDialog$TaskCellRenderer.class
 view/ShopPanel.class
 main/GameLauncher.class
 services/FoodService.class
+model/SkillProvider.class
 model/User.class
+model/LearnableSkill.class
 view/RegisterPanel.class

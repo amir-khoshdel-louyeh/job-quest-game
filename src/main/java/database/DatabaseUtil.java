@@ -18,7 +18,7 @@ public class DatabaseUtil {
 
     // متد برای گرفتن کاربر از دیتابیس
     public static User getUser(String username) {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ?"; // Ensure your table has the new 'total_play_time' column
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -33,6 +33,7 @@ public class DatabaseUtil {
                     long lastSicknessTime = rs.getLong("last_sickness_time");
                     String inventoryStr = rs.getString("inventory");
                     String skillsStr = rs.getString("skills");
+                    long totalPlayTime = rs.getLong("total_play_time");
 
                     Identity identity;
                     switch (identityStr) {
@@ -45,6 +46,7 @@ public class DatabaseUtil {
                     user.setEnergy(energy);
                     user.setBlockedUntil(blockedUntil);
                     user.setLastSicknessTime(lastSicknessTime);
+                    user.setTotalPlayTime(totalPlayTime);
 
                     // Deserialize inventory
                     if (inventoryStr != null && !inventoryStr.isEmpty()) {
@@ -74,7 +76,7 @@ public class DatabaseUtil {
      * @return true if the user was created successfully.
      */
     public static boolean createUser(User user) {
-        String sql = "INSERT INTO users (username, password, identity, balance, health, energy, inventory, skills, blocked_until, last_sickness_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, identity, balance, health, energy, inventory, skills, blocked_until, last_sickness_time, total_play_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getUsername());
@@ -87,6 +89,7 @@ public class DatabaseUtil {
             stmt.setString(8, user.getSkills().stream().map(Skill::getName).reduce((a, b) -> a + "," + b).orElse(""));
             stmt.setLong(9, user.getBlockedUntil());
             stmt.setLong(10, user.getLastSicknessTime());
+            stmt.setLong(11, user.getTotalPlayTime());
             stmt.executeUpdate();
             return true;
         } catch (Exception e) {
@@ -101,7 +104,7 @@ public class DatabaseUtil {
      * @return true if the update was successful.
      */
     public static boolean updateUser(User user) {
-        String sql = "UPDATE users SET balance = ?, health = ?, energy = ?, inventory = ?, skills = ?, blocked_until = ?, last_sickness_time = ? WHERE username = ?";
+        String sql = "UPDATE users SET balance = ?, health = ?, energy = ?, inventory = ?, skills = ?, blocked_until = ?, last_sickness_time = ?, total_play_time = ? WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -112,7 +115,8 @@ public class DatabaseUtil {
             stmt.setString(5, user.getSkills().stream().map(Skill::getName).reduce((a, b) -> a + "," + b).orElse(""));
             stmt.setLong(6, user.getBlockedUntil());
             stmt.setLong(7, user.getLastSicknessTime());
-            stmt.setString(8, user.getUsername());
+            stmt.setLong(8, user.getTotalPlayTime());
+            stmt.setString(9, user.getUsername());
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0; // Return true if at least one row was updated

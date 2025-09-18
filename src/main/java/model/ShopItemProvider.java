@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * Provides a centralized list of all items available in the shop.
@@ -26,6 +27,15 @@ public class ShopItemProvider {
 
     public static List<Item> getAvailableItems() {
         return Collections.unmodifiableList(new ArrayList<>(ITEMS_BY_NAME.values()));
+    }
+
+    /**
+     * Retrieves only items that are instances of Food (i.e., snacks).
+     * @return A list of food items.
+     */
+    public static List<Item> getFoodItems() {
+        return ITEMS_BY_NAME.values().stream()
+                .filter(item -> item instanceof Food).collect(Collectors.toList());
     }
 
     /**
