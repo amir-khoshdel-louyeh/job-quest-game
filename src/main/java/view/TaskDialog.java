@@ -1,6 +1,7 @@
 package view;
 
 import controller.UserController;
+import controller.GameController;
 import model.Task;
 import model.TaskProvider;
 
@@ -11,15 +12,17 @@ import java.util.List;
 
 public class TaskDialog extends JDialog {
 
-    private UserController userController;
+    private final UserController userController;
+    private final GamePanel gamePanel;
     private JList<Task> taskList;
     private JButton uploadButton, submitButton;
     private JLabel selectedFileLabel;
     private File uploadedFile = null;
 
-    public TaskDialog(JFrame parent, UserController userController) {
+    public TaskDialog(JFrame parent, UserController userController, GamePanel gamePanel) {
         super(parent, "Freelancer Tasks", true);
         this.userController = userController;
+        this.gamePanel = gamePanel;
 
         setSize(400, 300);
         setLocationRelativeTo(parent);
@@ -84,7 +87,9 @@ public class TaskDialog extends JDialog {
         boolean success = userController.completeTask(selectedTask);
 
         if (success) {
-            JOptionPane.showMessageDialog(this, "Task submitted successfully! Earned $" + selectedTask.getPayment());
+            String message = String.format("✅ Completed task '%s' and earned $%d.", selectedTask.getName(), selectedTask.getPayment());
+            gamePanel.addChatMessage(message);
+            JOptionPane.showMessageDialog(this, message, "Task Submitted", JOptionPane.INFORMATION_MESSAGE);
             dispose(); // Close the dialog
         } else {
             JOptionPane.showMessageDialog(this, "Not enough energy to complete this task!");
@@ -100,7 +105,7 @@ public class TaskDialog extends JDialog {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof Task) {
                 Task task = (Task) value;
-                setText(String.format("%s ($%d, Energy: %d)", task.getName(), task.getPayment(), task.getEnergyCost()));
+                setText(String.format("%s ($%d, Energy: -%d)", task.getName(), task.getPayment(), task.getEnergyCost()));
             }
             return this;
         }

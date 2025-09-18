@@ -14,13 +14,12 @@ import java.util.List;
 public class ServiceDialog extends JDialog {
 
     private final GameController controller;
-    private final GamePanel gamePanel; // To call back and update the UI
+    private final GamePanel gamePanel;
 
     public ServiceDialog(JFrame parent, GameController controller, GamePanel gamePanel) {
         super(parent, "Available Services", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-
         setLayout(new BorderLayout(10, 10));
         setSize(400, 500);
         setLocationRelativeTo(parent);
@@ -89,8 +88,10 @@ public class ServiceDialog extends JDialog {
         buyButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         buyButton.addActionListener(e -> {
             GameController.ActionResult result = controller.purchaseService(service.getName());
-            gamePanel.addChatMessage(result.message); // Update chat in main panel
-            gamePanel.updateUserInfo(); // Update stats in main panel
+            if (result.success) {
+                gamePanel.addChatMessage(result.message);
+            }
+            JOptionPane.showMessageDialog(this, result.message, "Service Used", result.success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
         });
         actionPanel.add(buyButton, BorderLayout.EAST);
 

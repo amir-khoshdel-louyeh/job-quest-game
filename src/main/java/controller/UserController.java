@@ -1,9 +1,7 @@
 package controller;
 
-import model.User;
+import model.*;
 import observer.Subject;
-import model.ShopItem; // Import ShopItem for clarity, though we'll use its name
-import model.Task;
 
 /**
  * Manages the state and actions of a single user.
@@ -40,15 +38,14 @@ public class UserController extends Subject {
     public void addBalance(int amount) {
         if (amount > 0) {
             user.setBalance(user.getBalance() + amount);
-            notifyObservers();
+            // The calling controller is responsible for notifying observers.
         }
     }
 
     public boolean deductBalance(int amount) {
         if (amount > 0 && user.getBalance() >= amount) {
             user.setBalance(user.getBalance() - amount);
-            return true;
-            // Note: Observers are notified by the calling method (e.g., purchaseService)
+            return true; // The calling method is responsible for notifying observers.
         }
         return false;
     }
@@ -56,28 +53,28 @@ public class UserController extends Subject {
     public void increaseHealth(int amount) {
         if (amount > 0) {
             user.setHealth(user.getHealth() + amount);
-            notifyObservers();
+            // The calling controller is responsible for notifying observers.
         }
     }
 
     public void decreaseHealth(int amount) {
         if (amount > 0) {
             user.setHealth(user.getHealth() - amount);
-            notifyObservers();
+            // The calling controller is responsible for notifying observers.
         }
     }
 
     public void increaseEnergy(int amount) {
         if (amount > 0) {
             user.setEnergy(user.getEnergy() + amount);
-            notifyObservers();
+            // The calling controller is responsible for notifying observers.
         }
     }
 
     public void decreaseEnergy(int amount) {
         if (amount > 0) {
             user.setEnergy(user.getEnergy() - amount);
-            notifyObservers();
+            // The calling controller is responsible for notifying observers.
         }
     }
 
@@ -116,10 +113,10 @@ public class UserController extends Subject {
 
     /**
      * Adds an item to the user's inventory.
-     * @param itemName The name of the item to add.
+     * @param item The item to add.
      */
-    public void addItemToInventory(String itemName) {
-        user.getInventory().addItem(itemName);
-        notifyObservers(); // Notify in case inventory view needs to update
+    public void addItemToInventory(Item item) {
+        user.getInventory().addItem(item);
+        // The calling controller is responsible for notifying observers.
     }
 }

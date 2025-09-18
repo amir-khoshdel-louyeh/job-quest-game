@@ -1,5 +1,9 @@
 package model;
 
+import model.identity.Chef;
+import model.identity.Doctor;
+import model.identity.Freelancer;
+
 /**
  * Factory class for creating instances of Identity subclasses.
  * This centralizes the creation logic, making it easier to add new identities

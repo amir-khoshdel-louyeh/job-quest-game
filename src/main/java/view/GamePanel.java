@@ -20,7 +20,7 @@ public class GamePanel extends JPanel implements Observer {
     private JPanel animationPanel;
     private JPanel rightPanel;
 
-    private JButton workButton, servicesButton, saveAndExitButton;
+    private JButton workButton, shopButton, servicesButton, saveAndExitButton;
 
     public GamePanel(User user) {
         this.currentUser = user;
@@ -71,11 +71,16 @@ public class GamePanel extends JPanel implements Observer {
         saveAndExitButton.setBackground(new Color(220, 53, 69)); // A reddish color for emphasis
         saveAndExitButton.setForeground(Color.WHITE);
 
-        servicesButton = new JButton("Browse Services");
+        shopButton = new JButton("Item Shop");
+        shopButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        servicesButton = new JButton("Use Services");
         servicesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Populate the market panel BEFORE adding it to the main layout
         marketPanel.add(workButton);
+        marketPanel.add(Box.createVerticalStrut(10));
+        marketPanel.add(shopButton);
         marketPanel.add(Box.createVerticalStrut(10));
         marketPanel.add(servicesButton);
 
@@ -120,6 +125,11 @@ public class GamePanel extends JPanel implements Observer {
             } else {
                 addChatMessage(result.message);
             }
+        });
+
+        shopButton.addActionListener(e -> {
+            ShopDialog dialog = new ShopDialog((JFrame) SwingUtilities.getWindowAncestor(this), controller, this);
+            dialog.setVisible(true);
         });
 
         servicesButton.addActionListener(e -> {
@@ -191,7 +201,7 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     public void showFreelancerTaskDialog() {
-        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), userController);
+        TaskDialog dialog = new TaskDialog((JFrame) SwingUtilities.getWindowAncestor(this), userController, this);
         dialog.setVisible(true);
     }
 
