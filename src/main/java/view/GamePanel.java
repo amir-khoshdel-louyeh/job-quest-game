@@ -4,10 +4,17 @@ import controller.GameController;
 import controller.RoutineController;
 import controller.UserController;
 import model.User;
+import model.LearnableSkill;
+import model.SkillProvider;
+import model.ServiceProvider;
+import model.ShopItemProvider;
 import observer.Observer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import utils.Timer; // Add this import
 
 public class GamePanel extends JPanel implements Observer {
@@ -19,12 +26,14 @@ public class GamePanel extends JPanel implements Observer {
     private JTextArea chatArea;
     private JPanel animationPanel;
     private JPanel rightPanel;
-
+    // These buttons are being moved to the world view, so they are removed from here.
     private JButton workButton, shopButton, servicesButton, saveAndExitButton;
+    private final long sessionStartTime;
 
     public GamePanel(User user) {
         this.currentUser = user;
-        this.controller = new GameController(user);
+        this.sessionStartTime = System.currentTimeMillis();
+        this.controller = new GameController(user, sessionStartTime);
         this.userController = controller.getUserController();
         this.userController.addObserver(this); // Register the panel as an observer
         this.routineController = new RoutineController(userController, this);
@@ -61,34 +70,14 @@ public class GamePanel extends JPanel implements Observer {
         identityPanel.add(identityName);
         identityPanel.add(energyLabel);
 
-        // Marketplace Panel
-        JPanel marketPanel = new JPanel();
-        marketPanel.setLayout(new BoxLayout(marketPanel, BoxLayout.Y_AXIS));
-        marketPanel.setBorder(BorderFactory.createTitledBorder("Services"));
-        workButton = new JButton("Availible Jobs");
-        workButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center it for consistent layout
+        // Save & Exit Button
         saveAndExitButton = new JButton("Save & Exit");
         saveAndExitButton.setBackground(new Color(220, 53, 69)); // A reddish color for emphasis
         saveAndExitButton.setForeground(Color.WHITE);
 
-        shopButton = new JButton("Item Shop");
-        shopButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        servicesButton = new JButton("Use Services");
-        servicesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Populate the market panel BEFORE adding it to the main layout
-        marketPanel.add(workButton);
-        marketPanel.add(Box.createVerticalStrut(10));
-        marketPanel.add(shopButton);
-        marketPanel.add(Box.createVerticalStrut(10));
-        marketPanel.add(servicesButton);
-
         rightPanel.add(profilePanel);
         rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(identityPanel);
-        rightPanel.add(Box.createVerticalStrut(10));
-        rightPanel.add(marketPanel);
 
         // Wrap the right panel in a scroll pane to handle overflow
         JScrollPane rightScrollPane = new JScrollPane(rightPanel);
@@ -101,9 +90,71 @@ public class GamePanel extends JPanel implements Observer {
         bottomActionsPanel.add(saveAndExitButton);
 
         // ---------------- Center Animation / World View ----------------
-        animationPanel = new JPanel();
-        animationPanel.setBorder(BorderFactory.createTitledBorder("WORLD VIEW"));
-        animationPanel.setBackground(Color.BLACK);
+        // Load and display the world view image
+        try {
+            java.net.URL imageUrl = getClass().getResource("/images/WorldView.png");
+            if (imageUrl != null) {
+                // Use a custom panel that scales the background image
+                animationPanel = new JPanel() { // No layout needed as we use a MouseListener
+                    private final Image bgImage = new ImageIcon(imageUrl).getImage();
+
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        // Draw the image scaled to fit the panel's current size
+                        g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+                    }
+                };
+                animationPanel.setBorder(BorderFactory.createTitledBorder("WORLD VIEW"));
+
+                // Add a mouse listener to handle clicks on different regions of the image
+                animationPanel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        int panelWidth = animationPanel.getWidth();
+                        int sectionWidth = panelWidth / 5;
+                        int x = e.getX();
+
+                        if (x >= 0 && x < sectionWidth) {
+                            // Section 1: Hospital
+                            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, ServiceProvider.getHealthServices());
+                            dialog.setVisible(true);
+                        } else if (x >= sectionWidth && x < sectionWidth * 2) {
+                            // Section 2: WorkShop
+                            GameController.ActionResult result = controller.doWork();
+                            if ("FREELANCER_TASK_DIALOG".equals(result.message)) {
+                                showFreelancerTaskDialog();
+                            } else {
+                                addChatMessage(result.message);
+                            }
+                        } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
+                            // Section 3: Empty
+                            // No action needed
+                        } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
+                            // Section 4: SuperMarket
+                            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, ServiceProvider.getEnergyServices());
+                            dialog.setVisible(true);
+                        } else if (x >= sectionWidth * 4 && x < panelWidth) {
+                            // Section 5: School
+                            java.util.List<LearnableSkill> availableSkills = SkillProvider.getAvailableSkillsForUser(currentUser);
+                            SkillDialog dialog = new SkillDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, availableSkills);
+                            dialog.setVisible(true);
+                        }
+                    }
+                });
+
+            } else {
+                // Fallback if image is not found
+                animationPanel = new JPanel(new GridBagLayout());
+                animationPanel.setBorder(BorderFactory.createTitledBorder("WORLD VIEW"));
+                animationPanel.setBackground(Color.BLACK);
+                // Fallback if image is not found
+                animationPanel.add(new JLabel("World view image not found."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
+        }
         add(animationPanel, BorderLayout.CENTER);
 
         // ---------------- Chat ----------------
@@ -118,25 +169,6 @@ public class GamePanel extends JPanel implements Observer {
         add(southPanel, BorderLayout.SOUTH);
 
         // ---------------- Action Listeners ----------------
-        workButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.doWork();
-            if ("FREELANCER_TASK_DIALOG".equals(result.message)) {
-                showFreelancerTaskDialog();
-            } else {
-                addChatMessage(result.message);
-            }
-        });
-
-        shopButton.addActionListener(e -> {
-            ShopDialog dialog = new ShopDialog((JFrame) SwingUtilities.getWindowAncestor(this), controller, this);
-            dialog.setVisible(true);
-        });
-
-        servicesButton.addActionListener(e -> {
-            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(this), controller, this);
-            dialog.setVisible(true);
-        });
-
         saveAndExitButton.addActionListener(e -> {
             GameController.ActionResult result = controller.saveGame();
             addChatMessage("SYSTEM: " + result.message);
@@ -182,9 +214,7 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     public void disableActions() {
-        workButton.setEnabled(false);
-        servicesButton.setEnabled(false);
-        saveAndExitButton.setEnabled(false);
+        // This method can be expanded later to disable the world view buttons if needed
     }
 
     // Add UI helper methods for controller:

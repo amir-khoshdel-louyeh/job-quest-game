@@ -4,13 +4,18 @@ import database.DatabaseUtil;
 import model.WorkResult;
 import model.Service;
 import model.ServiceProvider;
+import model.LearnableSkill;
+import model.SkillProvider;
+import model.Skill;
 import model.Item;
 import model.User;
 
 public class GameController {
     private UserController userController;
+    private final long sessionStartTime;
 
-    public GameController(User user) {
+    public GameController(User user, long sessionStartTime) {
+        this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
     }
 
@@ -71,11 +76,38 @@ public class GameController {
     }
 
     public ActionResult saveGame() {
-        boolean success = DatabaseUtil.updateUser(userController.getUser());
+        // Update total play time before saving
+        User user = userController.getUser();
+        long sessionDuration = System.currentTimeMillis() - sessionStartTime;
+        long newTotalPlayTime = user.getTotalPlayTime() + sessionDuration;
+        user.setTotalPlayTime(newTotalPlayTime);
+
+        boolean success = DatabaseUtil.updateUser(user);
         if (success) {
             return new ActionResult(true, "Game saved successfully!");
         } else {
             return new ActionResult(false, "Error: Could not save game data.");
+        }
+    }
+
+    public ActionResult learnSkill(String skillName) {
+        LearnableSkill skillToLearn = SkillProvider.getSkill(skillName);
+        if (skillToLearn == null) {
+            return new ActionResult(false, "Skill '" + skillName + "' not found.");
+        }
+
+        // Check if user has enough money
+        if (userController.deductBalance(skillToLearn.getCost())) {
+            // Add the skill to the user
+            userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));
+            userController.notifyObservers(); // Update UI
+
+            String message = String.format("🎓 You learned %s! Cost: $%d.",
+                    skillToLearn.getName(),
+                    skillToLearn.getCost());
+            return new ActionResult(true, message);
+        } else {
+            return new ActionResult(false, "Not enough money to learn " + skillToLearn.getName() + "!");
         }
     }
 
