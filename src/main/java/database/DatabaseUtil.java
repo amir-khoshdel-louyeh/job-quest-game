@@ -1,16 +1,18 @@
 package database;
 
 import model.User;
-import model.Freelancer;
-import model.Chef;
-import model.Doctor;
+import model.identity.Freelancer;
+import model.identity.Chef;
+import model.identity.Doctor;
 import model.Skill;
 import model.Identity;
+import model.ShopItemProvider;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class DatabaseUtil {
 
@@ -46,7 +48,10 @@ public class DatabaseUtil {
 
                     // Deserialize inventory
                     if (inventoryStr != null && !inventoryStr.isEmpty()) {
-                        Arrays.stream(inventoryStr.split(",")).forEach(itemName -> user.getInventory().addItem(itemName));
+                        Arrays.stream(inventoryStr.split(","))
+                              .map(ShopItemProvider::getItemByName) // Convert name to Item object
+                              .filter(Objects::nonNull) // In case an item was removed from the game
+                              .forEach(item -> user.getInventory().addItem(item));
                     }
 
                     // Deserialize skills
