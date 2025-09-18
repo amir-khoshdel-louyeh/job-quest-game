@@ -7,6 +7,7 @@ import model.ServiceProvider;
 import model.LearnableSkill;
 import model.SkillProvider;
 import model.Skill;
+import model.Job;
 import model.Item;
 import model.User;
 
@@ -58,20 +59,26 @@ public class GameController {
 
     public ActionResult doWork() {
         WorkResult workResult = userController.getUser().getIdentity().performDailyWork();
-
+        // Since all identities now use the job dialog, this is the only path.
         if (workResult.getType() == WorkResult.Type.REQUIRES_DIALOG) {
-            return new ActionResult(false, "FREELANCER_TASK_DIALOG"); // Special message for the view
+            return new ActionResult(false, "JOB_DIALOG_REQUIRED"); // Special message for the view
         }
+        // The old instant-earning logic is no longer reachable and has been removed.
+        return new ActionResult(false, "No work available."); // Fallback
+    }
 
-        if (userController.getEnergy() >= workResult.getEnergyCost()) {
-            userController.addBalance(workResult.getMoneyEarned());
-            userController.decreaseEnergy(workResult.getEnergyCost());
-            userController.notifyObservers(); // Notify UI to update after all changes are made.
-            String message = String.format("%s did daily work. Earned $%d, used %d energy. Current balance: $%d",
-                    userController.getUsername(), workResult.getMoneyEarned(), workResult.getEnergyCost(), userController.getBalance());
+    public ActionResult doJob(Job job) {
+        if (userController.getEnergy() >= job.getEnergyCost()) {
+            userController.addBalance(job.getPayment());
+            userController.decreaseEnergy(job.getEnergyCost());
+            userController.notifyObservers();
+            String message = String.format("Completed '%s'. Earned $%d, used %d energy.",
+                    job.getName(),
+                    job.getPayment(),
+                    job.getEnergyCost());
             return new ActionResult(true, message);
         } else {
-            return new ActionResult(false, "Not enough energy to work!");
+            return new ActionResult(false, "Not enough energy to do this job!");
         }
     }
 
@@ -108,6 +115,22 @@ public class GameController {
             return new ActionResult(true, message);
         } else {
             return new ActionResult(false, "Not enough money to learn " + skillToLearn.getName() + "!");
+        }
+    }
+
+    public ActionResult completeTask(model.Task task) {
+        if (task == null) {
+            return new ActionResult(false, "Task not found.");
+        }
+        if (userController.getEnergy() >= task.getEnergyCost()) {
+            userController.addBalance(task.getPayment());
+            userController.decreaseEnergy(task.getEnergyCost());
+            userController.notifyObservers();
+            String message = String.format("Completed task '%s'. Earned $%d, used %d energy.",
+                    task.getName(), task.getPayment(), task.getEnergyCost());
+            return new ActionResult(true, message);
+        } else {
+            return new ActionResult(false, "Not enough energy to complete this task!");
         }
     }
 

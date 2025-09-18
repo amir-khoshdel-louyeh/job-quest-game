@@ -1,9 +1,10 @@
 package database;
 
 import model.User;
-import model.identity.Freelancer;
-import model.identity.Chef;
+import model.identity.LogoDesigner;
+import model.identity.Programmer;
 import model.identity.Doctor;
+import model.identity.Typist;
 import model.Skill;
 import model.Identity;
 import model.ShopItemProvider;
@@ -36,10 +37,14 @@ public class DatabaseUtil {
                     long totalPlayTime = rs.getLong("total_play_time");
 
                     Identity identity;
+                    // Updated to handle new and removed identities
                     switch (identityStr) {
-                        case "Chef": identity = new Chef(); break;
                         case "Doctor": identity = new Doctor(); break;
-                        default: identity = new Freelancer();
+                        case "Programmer": identity = new Programmer(); break;
+                        case "LogoDesigner": identity = new LogoDesigner(); break;
+                        case "Typist": identity = new Typist(); break;
+                        // A default is good for handling users with old, now-removed identities.
+                        default: identity = new Typist();
                     }
                     User user = new User(username, password, identity, balance);
                     user.setHealth(health);
