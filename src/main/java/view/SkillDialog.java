@@ -72,11 +72,15 @@ public class SkillDialog extends JDialog {
         JButton learnButton = new JButton(String.format("Learn ($%d)", skill.getCost()));
         learnButton.setBackground(new Color(13, 110, 253)); // A blue color for learning
         learnButton.setForeground(Color.WHITE);
-        learnButton.addActionListener(e -> {
+        learnButton.addActionListener(evt -> {
             GameController.ActionResult result = controller.learnSkill(skill.getName());
-            JOptionPane.showMessageDialog(this, result.message, "Skill Training", result.success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
             if (result.success) {
-                dispose(); // Close and re-open to refresh the list
+                // Show success message with achievement and quest updates
+                JOptionPane.showMessageDialog(this, result.message, "Skill Learned! 🎓", JOptionPane.INFORMATION_MESSAGE);
+                gamePanel.updateUserInfo();
+                dispose(); // Close dialog on success
+            } else {
+                JOptionPane.showMessageDialog(this, result.message, "Cannot Learn", JOptionPane.WARNING_MESSAGE);
             }
         });
         panel.add(learnButton, BorderLayout.EAST);

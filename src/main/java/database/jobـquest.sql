@@ -1,8 +1,8 @@
--- ایجاد دیتابیس
+-- Create database
 CREATE DATABASE IF NOT EXISTS job_quest;
 USE job_quest;
 
--- جدول کاربران
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     identity VARCHAR(50) NOT NULL
 );
 
--- جدول آیتم‌ها
+-- Items table
 CREATE TABLE IF NOT EXISTS items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,

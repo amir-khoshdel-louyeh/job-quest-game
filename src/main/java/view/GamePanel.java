@@ -25,11 +25,13 @@ public class GamePanel extends JPanel implements Observer {
     private RoutineController routineController;
     private UserController userController;
     private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
+    private JLabel levelLabel, xpLabel, reputationLabel, streakLabel;
+    private JProgressBar xpProgressBar;
     private JTextArea chatArea;
     private JPanel animationPanel;
     private JPanel rightPanel;
     // These buttons are being moved to the world view, so they are removed from here.
-    private JButton workButton, shopButton, servicesButton, saveAndExitButton;
+    private JButton workButton, shopButton, servicesButton, saveAndExitButton, helpButton;
     private final long sessionStartTime;
 
     public GamePanel(User user) {
@@ -56,30 +58,68 @@ public class GamePanel extends JPanel implements Observer {
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
         profilePanel.setBorder(BorderFactory.createTitledBorder("Your Profile"));
-        usernameLabel = new JLabel("User: " + userController.getUsername());
-        balanceLabel = new JLabel("Balance: $" + userController.getBalance());
-        healthLabel = new JLabel("Health: " + userController.getHealth() + "/100");
+        usernameLabel = new JLabel("👤 " + userController.getUsername());
+        balanceLabel = new JLabel("💰 Balance: $" + userController.getBalance());
+        healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
         profilePanel.add(usernameLabel);
         profilePanel.add(balanceLabel);
         profilePanel.add(healthLabel);
+
+        // Progression Panel
+        JPanel progressPanel = new JPanel();
+        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
+        progressPanel.setBorder(BorderFactory.createTitledBorder("⭐ Progression"));
+        
+        levelLabel = new JLabel("Level: " + currentUser.getLevel());
+        xpLabel = new JLabel("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
+        xpProgressBar = new JProgressBar(0, 100);
+        xpProgressBar.setValue(currentUser.getExperiencePercentage());
+        xpProgressBar.setStringPainted(true);
+        xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
+        
+        reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
+        streakLabel = new JLabel("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
+        
+        progressPanel.add(levelLabel);
+        progressPanel.add(xpLabel);
+        progressPanel.add(xpProgressBar);
+        progressPanel.add(Box.createVerticalStrut(5));
+        progressPanel.add(reputationLabel);
+        progressPanel.add(streakLabel);
 
         // Identity Panel
         JPanel identityPanel = new JPanel();
         identityPanel.setLayout(new BoxLayout(identityPanel, BoxLayout.Y_AXIS));
         identityPanel.setBorder(BorderFactory.createTitledBorder("Current Identity"));
-        JLabel identityName = new JLabel(userController.getUser().getIdentity().getClass().getSimpleName());
-        energyLabel = new JLabel("Energy: " + userController.getEnergy() + "/100000");
+        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getClass().getSimpleName());
+        energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         identityPanel.add(identityName);
         identityPanel.add(energyLabel);
 
-        // Save & Exit Button
-        saveAndExitButton = new JButton("Save & Exit");
-        saveAndExitButton.setBackground(new Color(220, 53, 69)); // A reddish color for emphasis
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        
+        helpButton = new JButton("📖 Help & About");
+        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        saveAndExitButton = new JButton("💾 Save & Exit");
+        saveAndExitButton.setBackground(new Color(220, 53, 69));
         saveAndExitButton.setForeground(Color.WHITE);
+        saveAndExitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        buttonsPanel.add(helpButton);
+        buttonsPanel.add(Box.createVerticalStrut(5));
+        buttonsPanel.add(saveAndExitButton);
 
         rightPanel.add(profilePanel);
         rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(progressPanel);
+        rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(identityPanel);
+        rightPanel.add(Box.createVerticalStrut(10));
+        rightPanel.add(buttonsPanel);
 
         // Wrap the right panel in a scroll pane to handle overflow
         JScrollPane rightScrollPane = new JScrollPane(rightPanel);
@@ -173,6 +213,11 @@ public class GamePanel extends JPanel implements Observer {
         add(southPanel, BorderLayout.SOUTH);
 
         // ---------------- Action Listeners ----------------
+        helpButton.addActionListener(e -> {
+            AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
+            aboutDialog.setVisible(true);
+        });
+        
         saveAndExitButton.addActionListener(e -> {
             GameController.ActionResult result = controller.saveGame();
             addChatMessage("SYSTEM: " + result.message);
@@ -204,10 +249,18 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     public void updateUserInfo() {
-        usernameLabel.setText("User: " + userController.getUsername());
-        balanceLabel.setText("Balance: $" + userController.getBalance());
-        healthLabel.setText("Health: " + userController.getHealth() + "/100");
-        energyLabel.setText("Energy: " + userController.getEnergy() + "/100000");
+        usernameLabel.setText("👤 " + userController.getUsername());
+        balanceLabel.setText("💰 Balance: $" + userController.getBalance());
+        healthLabel.setText("❤️ Health: " + userController.getHealth() + "/100");
+        energyLabel.setText("⚡ Energy: " + userController.getEnergy() + "/100000");
+        
+        // Update progression info
+        levelLabel.setText("Level: " + currentUser.getLevel());
+        xpLabel.setText("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
+        xpProgressBar.setValue(currentUser.getExperiencePercentage());
+        xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
+        reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
+        streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
     }
 
     public void addChatMessage(String msg) {
