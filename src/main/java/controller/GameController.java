@@ -1,23 +1,52 @@
 package controller;
 
 import database.DatabaseUtil;
-import model.WorkResult;
-import model.Service;
-import model.ServiceProvider;
-import model.LearnableSkill;
-import model.SkillProvider;
-import model.Skill;
-import model.Job;
-import model.Item;
-import model.User;
+import model.*;
+import services.*;
+
+import java.util.List;
 
 public class GameController {
     private UserController userController;
     private final long sessionStartTime;
+    private int sessionJobsCompleted = 0;
+    private final AchievementService achievementService;
+    private final QuestService questService;
+    private final EventService eventService;
 
     public GameController(User user, long sessionStartTime) {
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
+        this.achievementService = AchievementService.getInstance();
+        this.questService = QuestService.getInstance();
+        this.eventService = EventService.getInstance();
+        
+        // Initialize quests for new users
+        questService.initializeQuests(user);
+        
+        // Check for daily login streak
+        updateLoginStreak(user);
+    }
+    
+    /**
+     * Update the user's login streak.
+     */
+    private void updateLoginStreak(User user) {
+        long currentTime = System.currentTimeMillis();
+        long lastLogin = user.getLastLoginDate();
+        
+        // Check if this is a consecutive day (within 48 hours)
+        long hoursSinceLastLogin = (currentTime - lastLogin) / (1000 * 60 * 60);
+        
+        if (hoursSinceLastLogin < 48) {
+            // Consecutive login
+            user.setCurrentStreak(user.getCurrentStreak() + 1);
+        } else if (hoursSinceLastLogin >= 48) {
+            // Streak broken
+            user.setCurrentStreak(1);
+        }
+        
+        user.setLastLoginDate(currentTime);
     }
 
     public ActionResult purchaseService(String serviceName) {
@@ -69,14 +98,98 @@ public class GameController {
 
     public ActionResult doJob(Job job) {
         if (userController.getEnergy() >= job.getEnergyCost()) {
-            userController.addBalance(job.getPayment());
+            int payment = job.getPayment();
+            
+            // Apply reputation bonus (up to +50% at max reputation)
+            User user = userController.getUser();
+            double reputationBonus = user.getReputation() / 200.0; // 0% to 50%
+            payment += (int)(payment * reputationBonus);
+            
+            // Apply level bonus (+5% per level)
+            double levelBonus = (user.getLevel() - 1) * 0.05;
+            payment += (int)(payment * levelBonus);
+            
+            // Apply streak bonus (+1% per streak day, max 30%)
+            double streakBonus = Math.min(user.getCurrentStreak() * 0.01, 0.30);
+            payment += (int)(payment * streakBonus);
+            
+            userController.addBalance(payment);
             userController.decreaseEnergy(job.getEnergyCost());
+            userController.getUser().addToTotalMoneyEarned(payment);
+            userController.getUser().incrementJobsCompleted();
+            sessionJobsCompleted++;
+            
+            // Give experience based on job difficulty
+            int xpGain = job.getEnergyCost() / 10;
+            userController.getUser().addExperience(xpGain);
+            
+            // Small chance to gain reputation
+            if (Math.random() < 0.3) {
+                userController.getUser().addReputation(1);
+            }
+            
+            // Update quest progress
+            List<Quest> completedQuests = questService.updateQuestProgress(
+                user, Quest.QuestType.COMPLETE_JOBS, 1
+            );
+            questService.updateQuestProgress(user, Quest.QuestType.EARN_MONEY, payment);
+            
+            // Check for achievements
+            List<Achievement> newAchievements = achievementService.checkAndUnlockAchievements(user);
+            
+            // Check for random events
+            GameEvent event = eventService.checkForRandomEvent(user);
+            
             userController.notifyObservers();
-            String message = String.format("Completed '%s'. Earned $%d, used %d energy.",
-                    job.getName(),
-                    job.getPayment(),
-                    job.getEnergyCost());
-            return new ActionResult(true, message);
+            
+            StringBuilder message = new StringBuilder();
+            message.append(String.format("✅ Completed '%s'\n", job.getName()));
+            message.append(String.format("💰 Earned $%d (Base: $%d)\n", payment, job.getPayment()));
+            message.append(String.format("⚡ Used %d energy | ⭐ +%d XP\n", 
+                job.getEnergyCost(), xpGain));
+            
+            // Add bonus info
+            if (reputationBonus > 0 || levelBonus > 0 || streakBonus > 0) {
+                message.append("\n🎁 Bonuses Applied:\n");
+                if (reputationBonus > 0) {
+                    message.append(String.format("  • Reputation: +%d%%\n", (int)(reputationBonus * 100)));
+                }
+                if (levelBonus > 0) {
+                    message.append(String.format("  • Level: +%d%%\n", (int)(levelBonus * 100)));
+                }
+                if (streakBonus > 0) {
+                    message.append(String.format("  • Streak: +%d%%\n", (int)(streakBonus * 100)));
+                }
+            }
+            
+            // Show completed quests
+            if (!completedQuests.isEmpty()) {
+                message.append("\n🏆 Quest Completed!\n");
+                for (Quest quest : completedQuests) {
+                    message.append(String.format("  '%s' - $%d + %d XP\n", 
+                        quest.getName(), quest.getRewardMoney(), quest.getRewardExperience()));
+                }
+            }
+            
+            // Show new achievements
+            if (!newAchievements.isEmpty()) {
+                message.append("\n🎖️ Achievement Unlocked!\n");
+                for (Achievement ach : newAchievements) {
+                    message.append(String.format("  '%s' - $%d reward!\n", 
+                        ach.getName(), ach.getRewardMoney()));
+                }
+            }
+            
+            // Show random event
+            if (event != null) {
+                message.append(String.format("\n%s %s\n", event.getIcon(), event.getTitle()));
+                message.append(String.format("  %s\n", event.getDescription()));
+                if (!event.getFormattedEffects().isEmpty()) {
+                    message.append(String.format("  Effects: %s\n", event.getFormattedEffects()));
+                }
+            }
+            
+            return new ActionResult(true, message.toString());
         } else {
             return new ActionResult(false, "Not enough energy to do this job!");
         }
@@ -107,12 +220,44 @@ public class GameController {
         if (userController.deductBalance(skillToLearn.getCost())) {
             // Add the skill to the user
             userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));
+            
+            // Update quest progress
+            User user = userController.getUser();
+            List<Quest> completedQuests = questService.updateQuestProgress(
+                user, Quest.QuestType.LEARN_SKILLS, 1
+            );
+            
+            // Check for achievements
+            List<Achievement> newAchievements = achievementService.checkAndUnlockAchievements(user);
+            
+            // Gain reputation for learning
+            user.addReputation(2);
+            
             userController.notifyObservers(); // Update UI
 
-            String message = String.format("🎓 You learned %s! Cost: $%d.",
-                    skillToLearn.getName(),
-                    skillToLearn.getCost());
-            return new ActionResult(true, message);
+            StringBuilder message = new StringBuilder();
+            message.append(String.format("🎓 You learned %s! Cost: $%d.\n",
+                    skillToLearn.getName(), skillToLearn.getCost()));
+            
+            // Show quest completions
+            if (!completedQuests.isEmpty()) {
+                message.append("\n🏆 Quest Completed!\n");
+                for (Quest quest : completedQuests) {
+                    message.append(String.format("  '%s' - $%d + %d XP\n", 
+                        quest.getName(), quest.getRewardMoney(), quest.getRewardExperience()));
+                }
+            }
+            
+            // Show achievements
+            if (!newAchievements.isEmpty()) {
+                message.append("\n🎖️ Achievement Unlocked!\n");
+                for (Achievement ach : newAchievements) {
+                    message.append(String.format("  '%s' - $%d reward!\n", 
+                        ach.getName(), ach.getRewardMoney()));
+                }
+            }
+            
+            return new ActionResult(true, message.toString());
         } else {
             return new ActionResult(false, "Not enough money to learn " + skillToLearn.getName() + "!");
         }
@@ -136,6 +281,69 @@ public class GameController {
 
     public UserController getUserController() {
         return userController;
+    }
+    
+    // ============== New Rich Features ==============
+    
+    /**
+     * Get user's current stats including level, XP, reputation, etc.
+     */
+    public String getDetailedStats() {
+        User user = userController.getUser();
+        StringBuilder stats = new StringBuilder();
+        
+        stats.append("═══════════════════════════════════\n");
+        stats.append(String.format(" 👤 %s - Level %d\n", user.getUsername(), user.getLevel()));
+        stats.append("═══════════════════════════════════\n");
+        stats.append(String.format("⭐ XP: %d/%d (%d%%)\n", 
+            user.getExperience(), 
+            user.getRequiredExperienceForNextLevel(),
+            user.getExperiencePercentage()));
+        stats.append(String.format("🏆 Reputation: %d/100 (%s)\n", 
+            user.getReputation(), 
+            user.getReputationTitle()));
+        stats.append(String.format("🔥 Streak: %d days (Best: %d)\n", 
+            user.getCurrentStreak(), 
+            user.getMaxStreak()));
+        stats.append(String.format("💰 Total Earned: $%,d\n", user.getTotalMoneyEarned()));
+        stats.append(String.format("📊 Jobs Completed: %,d\n", user.getTotalJobsCompleted()));
+        stats.append(String.format("🎖️ Achievements: %d unlocked\n", 
+            user.getUnlockedAchievements().size()));
+        stats.append("═══════════════════════════════════\n");
+        
+        return stats.toString();
+    }
+    
+    /**
+     * Get active quests.
+     */
+    public List<Quest> getActiveQuests() {
+        return questService.getActiveIncompleteQuests(userController.getUser());
+    }
+    
+    /**
+     * Get achievements with status.
+     */
+    public List<Achievement> getAchievements() {
+        return achievementService.getAchievementsWithStatus(userController.getUser());
+    }
+    
+    /**
+     * Trigger a random event manually (for testing).
+     */
+    public GameEvent triggerRandomEvent() {
+        return eventService.checkForRandomEvent(userController.getUser());
+    }
+    
+    /**
+     * Get session statistics.
+     */
+    public String getSessionStats() {
+        long sessionDuration = System.currentTimeMillis() - sessionStartTime;
+        long minutes = sessionDuration / (1000 * 60);
+        
+        return String.format("Session: %d minutes | Jobs: %d", 
+            minutes, sessionJobsCompleted);
     }
     
     // Routine actions can be handled similarly, returning results or status objects

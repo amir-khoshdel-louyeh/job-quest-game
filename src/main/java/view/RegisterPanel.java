@@ -1,15 +1,17 @@
 package view;
 
 import controller.RegisterController;
-import model.IdentityFactory;
 import model.IdentityOption;
 import model.IdentityOptionProvider;
-import model.Identity;
+import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * Professional registration panel with modern design.
+ */
 public class RegisterPanel extends JPanel {
     private MainFrame mainFrame;
     private JTextField usernameField;
@@ -21,128 +23,245 @@ public class RegisterPanel extends JPanel {
 
     public RegisterPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        setLayout(new BorderLayout(10, 10));
+        setBackground(AppTheme.BACKGROUND_COLOR);
+        setLayout(new BorderLayout(AppTheme.PADDING_LARGE, AppTheme.PADDING_LARGE));
+        setBorder(BorderFactory.createEmptyBorder(
+            AppTheme.PADDING_LARGE,
+            AppTheme.PADDING_LARGE,
+            AppTheme.PADDING_LARGE,
+            AppTheme.PADDING_LARGE
+        ));
 
         initUI();
         initActions();
     }
 
     private void initUI() {
+        // Header Panel
+        JPanel headerPanel = new JPanel();
+        headerPanel.setOpaque(false);
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        
+        JLabel title = new JLabel("Create Your Account");
+        title.setFont(AppTheme.FONT_TITLE);
+        title.setForeground(AppTheme.PRIMARY_COLOR);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel subtitle = new JLabel("Choose your career path and start your journey");
+        subtitle.setFont(AppTheme.FONT_BODY);
+        subtitle.setForeground(AppTheme.TEXT_SECONDARY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        headerPanel.add(title);
+        headerPanel.add(Box.createVerticalStrut(8));
+        headerPanel.add(subtitle);
+        headerPanel.add(Box.createVerticalStrut(20));
+        
+        add(headerPanel, BorderLayout.NORTH);
 
-        JLabel title = new JLabel("Create New Account", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 24));
-        add(title, BorderLayout.NORTH);
-
-        // Get options from the central provider instead of defining them here.
+        // Center Panel with Identity Options
         List<IdentityOption> options = IdentityOptionProvider.getAvailableOptions();
 
-        // پنل عمودی برای گزینه‌ها
         JPanel optionsPanel = new JPanel();
+        optionsPanel.setOpaque(false);
         optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
-        optionsPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
 
         identityGroup = new ButtonGroup();
+        
         for(IdentityOption option : options) {
-            JRadioButton radioButton = new JRadioButton(option.getName() + " ($" + option.getPrice() + ")");
-            identityGroup.add(radioButton);
-
-            JTextArea desc = new JTextArea(option.getDescription());
-            desc.setWrapStyleWord(true);
-            desc.setLineWrap(true);
-            desc.setEditable(false);
-            desc.setBackground(getBackground());
-
-            JPanel optionPanel = new JPanel(new BorderLayout());
-            optionPanel.setBorder(BorderFactory.createTitledBorder(option.getName()));
-            optionPanel.add(radioButton, BorderLayout.NORTH);
-            optionPanel.add(desc, BorderLayout.CENTER);
-            optionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
-
-            optionsPanel.add(optionPanel);
-            optionsPanel.add(Box.createVerticalStrut(10));
-
-            // Attach the data model directly to the UI component
-            radioButton.putClientProperty("option", option);
+            JPanel optionCard = createIdentityCard(option);
+            optionsPanel.add(optionCard);
+            optionsPanel.add(Box.createVerticalStrut(12));
         }
 
         JScrollPane scrollPane = new JScrollPane(optionsPanel);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
         add(scrollPane, BorderLayout.CENTER);
 
-        // فرم ثبت‌نام
-        JPanel formPanel = new JPanel(new GridLayout(2,2,5,5));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10,50,10,50));
-
-        formPanel.add(new JLabel("Username:"));
-        usernameField = new JTextField();
-        formPanel.add(usernameField);
-
-        formPanel.add(new JLabel("Password:"));
-        passwordField = new JPasswordField();
-        formPanel.add(passwordField);
-
-        registerButton = new JButton("Register");
-        backButton = new JButton("Back to Login");
-
-        JPanel buttonsPanel = new JPanel(new GridLayout(1,2,10,10));
+        // Bottom Form Panel
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        
+        JPanel formCard = AppTheme.createCard();
+        formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
+        formCard.setMaximumSize(new Dimension(600, 250));
+        formCard.setPreferredSize(new Dimension(600, 250));
+        
+        // Username
+        JLabel userLabel = new JLabel("Username");
+        userLabel.setFont(AppTheme.FONT_BODY);
+        userLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        usernameField = AppTheme.createTextField(20);
+        usernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, AppTheme.INPUT_HEIGHT));
+        usernameField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Password
+        JLabel passLabel = new JLabel("Password");
+        passLabel.setFont(AppTheme.FONT_BODY);
+        passLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        passwordField = AppTheme.createPasswordField(20);
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, AppTheme.INPUT_HEIGHT));
+        passwordField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        formCard.add(userLabel);
+        formCard.add(Box.createVerticalStrut(8));
+        formCard.add(usernameField);
+        formCard.add(Box.createVerticalStrut(16));
+        formCard.add(passLabel);
+        formCard.add(Box.createVerticalStrut(8));
+        formCard.add(passwordField);
+        
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+        buttonsPanel.setOpaque(false);
+        
+        registerButton = AppTheme.createSuccessButton("Create Account");
+        registerButton.setPreferredSize(new Dimension(180, AppTheme.BUTTON_HEIGHT));
+        
+        backButton = AppTheme.createSecondaryButton("Back to Login");
+        backButton.setPreferredSize(new Dimension(180, AppTheme.BUTTON_HEIGHT));
+        
         buttonsPanel.add(registerButton);
         buttonsPanel.add(backButton);
+        
+        bottomPanel.add(formCard);
+        bottomPanel.add(Box.createVerticalStrut(16));
+        bottomPanel.add(buttonsPanel);
+        
+        // Center the bottom panel
+        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomWrapper.setOpaque(false);
+        bottomWrapper.add(bottomPanel);
+        
+        add(bottomWrapper, BorderLayout.SOUTH);
+    }
 
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(formPanel, BorderLayout.CENTER);
-        southPanel.add(buttonsPanel, BorderLayout.SOUTH);
-
-        add(southPanel, BorderLayout.SOUTH);
+    private JPanel createIdentityCard(IdentityOption option) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout(12, 12));
+        card.setBackground(AppTheme.CARD_BACKGROUND);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1),
+            BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        ));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        
+        // Radio button with name and price
+        JRadioButton radioButton = new JRadioButton(
+            String.format("%s - Starting Balance: $%d", option.getName(), option.getPrice())
+        );
+        radioButton.setFont(AppTheme.FONT_SUBHEADING);
+        radioButton.setForeground(AppTheme.TEXT_PRIMARY);
+        radioButton.setOpaque(false);
+        radioButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        identityGroup.add(radioButton);
+        radioButton.putClientProperty("option", option);
+        
+        // Description
+        JTextArea desc = new JTextArea(option.getDescription());
+        desc.setWrapStyleWord(true);
+        desc.setLineWrap(true);
+        desc.setEditable(false);
+        desc.setOpaque(false);
+        desc.setFont(AppTheme.FONT_BODY);
+        desc.setForeground(AppTheme.TEXT_SECONDARY);
+        desc.setBorder(BorderFactory.createEmptyBorder(8, 24, 0, 0));
+        
+        // Add hover effect
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                card.setBackground(AppTheme.PRIMARY_LIGHT.brighter().brighter());
+                card.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(AppTheme.PRIMARY_COLOR, 2),
+                    BorderFactory.createEmptyBorder(15, 15, 15, 15)
+                ));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                card.setBackground(AppTheme.CARD_BACKGROUND);
+                card.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1),
+                    BorderFactory.createEmptyBorder(16, 16, 16, 16)
+                ));
+            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                radioButton.setSelected(true);
+            }
+        });
+        
+        card.add(radioButton, BorderLayout.NORTH);
+        card.add(desc, BorderLayout.CENTER);
+        
+        return card;
     }
 
     private void initActions() {
         registerButton.addActionListener(e -> performRegistration());
         backButton.addActionListener(e -> navigateToLogin());
+        passwordField.addActionListener(e -> performRegistration());
     }
 
     private void performRegistration() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
         IdentityOption selectedOption = getSelectedOption();
 
         if (username.isEmpty() || password.isEmpty() || selectedOption == null) {
-            JOptionPane.showMessageDialog(this, "Please fill all fields and select an identity!");
+            JOptionPane.showMessageDialog(this, 
+                "Please fill all fields and select a career path!",
+                "Registration Error",
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Disable button during registration
+        registerButton.setEnabled(false);
+        registerButton.setText("Creating Account...");
+
         try {
-            // Get details for registration
             String identityStr = selectedOption.getName();
             int startingBalance = selectedOption.getPrice();
 
             boolean success = registerController.register(username, password, identityStr, startingBalance);
 
             if (success) {
-                JOptionPane.showMessageDialog(this, "Registration successful! Please log in.");
+                JOptionPane.showMessageDialog(this, 
+                    "Registration successful! You can now login.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
                 navigateToLogin();
             } else {
-                JOptionPane.showMessageDialog(this, "Registration failed! Username may already exist.");
+                JOptionPane.showMessageDialog(this, 
+                    "Registration failed! Username may already exist.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+                registerButton.setEnabled(true);
+                registerButton.setText("Create Account");
             }
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+            registerButton.setEnabled(true);
+            registerButton.setText("Create Account");
         }
     }
 
     private void navigateToLogin() {
-        // Clear fields when navigating away
         usernameField.setText("");
         passwordField.setText("");
-        // Clear the radio button selection
         identityGroup.clearSelection();
-
         mainFrame.showPanel(new LoginPanel(mainFrame));
     }
 
-    /**
-     * Finds the selected radio button and returns its associated IdentityOption.
-     * @return The selected IdentityOption, or null if none is selected.
-     */
     private IdentityOption getSelectedOption() {
         for (AbstractButton button : java.util.Collections.list(identityGroup.getElements())) {
             if (button.isSelected()) {
