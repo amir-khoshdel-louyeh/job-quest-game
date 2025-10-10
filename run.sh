@@ -41,11 +41,18 @@ if [ $? -eq 0 ]; then
     echo "🚀 Launching game..."
     echo ""
     
-    # Run with cleared environment to avoid snap conflicts
-    env -i HOME="$HOME" USER="$USER" PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    # Copy dependencies and run with system Java (cleared env to avoid snap conflicts)
+    echo "📂 Copying dependencies..."
+    mvn dependency:copy-dependencies -q -DoutputDirectory=target/dependency
+
+    echo "🚀 Launching game..."
+    env -i \
+        HOME="$HOME" \
+        USER="$USER" \
+        PATH="$JAVA_HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
         DISPLAY="$DISPLAY" \
         XAUTHORITY="$XAUTHORITY" \
-        mvn exec:java -Dexec.mainClass="main.Main"
+        java -cp target/classes:target/dependency/* main.Main
 else
     echo "❌ Compilation failed. Please check the errors above."
     exit 1

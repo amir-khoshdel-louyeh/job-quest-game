@@ -31,7 +31,15 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>3.1.0</version>
             <configuration>
-                <mainClass>main.Main</mainClass>
+                <executable>${env.JAVA_HOME}/bin/java</executable>
+                <arguments>
+                    <argument>-classpath</argument>
+                    <argument>%classpath</argument>
+                    <argument>main.Main</argument>
+                </arguments>
+                <environmentVariables>
+                    <LD_LIBRARY_PATH/>
+                </environmentVariables>
             </configuration>
         </plugin>
     </plugins>
