@@ -1,6 +1,6 @@
 package utils;
 
 public class GameSaver {
-    // ذخیره و بازیابی بازی
+    // Save and load game
 }
 

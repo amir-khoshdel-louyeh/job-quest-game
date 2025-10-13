@@ -8,8 +8,8 @@ public class User {
     private String password;
     private Identity identity;
     private int balance;
-    private int health;      // 0 تا 100
-    private int energy;      // 0 تا 100,000
+    private int health;      // 0 to 100
+    private int energy;      // 0 to 100,000
     private Inventory inventory; // Use the Inventory object
     private List<Skill> skills;
 
