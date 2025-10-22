@@ -2,7 +2,7 @@ package view;
 
 import controller.RegisterController;
 import model.IdentityOption;
-import model.IdentityOptionProvider;
+import provider.IdentityOptionProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;

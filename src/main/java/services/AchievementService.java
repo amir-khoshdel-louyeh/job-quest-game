@@ -1,8 +1,10 @@
 package services;
 
-import model.*;
+import model.Achievement;
+import model.User;
 import java.util.ArrayList;
 import java.util.List;
+import provider.AchievementProvider;
 
 /**
  * Manages achievements and checks for unlocking them.
@@ -26,7 +28,7 @@ public class AchievementService {
     public List<Achievement> checkAndUnlockAchievements(User user) {
         List<Achievement> newlyUnlocked = new ArrayList<>();
         
-        for (Achievement achievement : AchievementProvider.getAllAchievements()) {
+    for (Achievement achievement : provider.AchievementProvider.getAllAchievements()) {
             if (!user.hasAchievement(achievement.getId()) && 
                 checkAchievementRequirement(user, achievement)) {
                 

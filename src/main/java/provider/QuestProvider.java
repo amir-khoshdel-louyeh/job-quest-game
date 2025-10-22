@@ -1,7 +1,9 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Quest;
 
 /**
  * Provides available quests for the game.

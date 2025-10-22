@@ -1,11 +1,12 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import model.Service;
 
 /**
  * Provides a centralized catalog of all available services in the game.
@@ -58,7 +59,7 @@ public class ServiceProvider {
     public static Service getService(String name) { return SERVICES_BY_NAME.get(name); }
 
     public static List<Service> getAvailableServices() {
-        return Collections.unmodifiableList(new ArrayList<>(SERVICES_BY_NAME.values()));
+        return new ArrayList<>(SERVICES_BY_NAME.values());
     }
 
     /**

@@ -1,8 +1,10 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import model.Achievement;
 
 /**
  * Provides all available achievements in the game.

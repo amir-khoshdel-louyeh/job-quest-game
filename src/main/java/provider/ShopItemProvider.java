@@ -1,4 +1,4 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
+import model.Item;
+import model.Food;
+import model.Tool;
 
 /**
  * Provides a centralized list of all items available in the shop.

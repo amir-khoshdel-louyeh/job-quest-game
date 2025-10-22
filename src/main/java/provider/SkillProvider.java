@@ -1,9 +1,11 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import model.LearnableSkill;
+import model.Skill;
+import model.User;
 
 /**
  * Provides a centralized catalog of all learnable skills in the game.
@@ -45,6 +47,6 @@ public class SkillProvider {
         return ALL_SKILLS.stream()
                 .filter(skill -> userPlayTimeMinutes >= skill.getRequiredPlayTimeMinutes()) // Check playtime
                 .filter(skill -> !userLearnedSkills.contains(skill.getName())) // Check if already learned
-                .collect(Collectors.toList());
+                .toList();
     }
 }

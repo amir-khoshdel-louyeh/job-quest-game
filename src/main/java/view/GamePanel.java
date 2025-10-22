@@ -6,10 +6,10 @@ import controller.UserController;
 import model.User;
 import model.LearnableSkill;
 import model.Job;
-import model.JobProvider;
-import model.SkillProvider;
-import model.ServiceProvider;
-import model.ShopItemProvider;
+import provider.JobProvider;
+import provider.SkillProvider;
+import provider.ServiceProvider;
+import provider.ShopItemProvider;
 import observer.Observer;
 
 import javax.swing.*;

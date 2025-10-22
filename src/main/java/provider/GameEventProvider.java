@@ -1,7 +1,9 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.GameEvent;
 
 /**
  * Provides all random events that can occur in the game.
