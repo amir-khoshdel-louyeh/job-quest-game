@@ -3,7 +3,7 @@ package view;
 import controller.UserController;
 import controller.GameController;
 import model.Task;
-import model.TaskProvider;
+import provider.TaskProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +30,7 @@ public class TaskDialog extends JDialog {
         getRootPane().setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // ---------------- Task Selection ----------------
-        List<Task> availableTasks = TaskProvider.getAvailableTasks();
+    List<Task> availableTasks = provider.TaskProvider.getAvailableTasks();
         taskList = new JList<>(availableTasks.toArray(new Task[0]));
         taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         // Use a cell renderer to display the task name and payment nicely

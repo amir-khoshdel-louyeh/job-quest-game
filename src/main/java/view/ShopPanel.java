@@ -2,7 +2,7 @@ package view;
 
 import controller.UserController;
 import controller.GameController;
-import model.ShopItemProvider;
+import provider.ShopItemProvider;
 import model.Item;
 
 import javax.swing.*;

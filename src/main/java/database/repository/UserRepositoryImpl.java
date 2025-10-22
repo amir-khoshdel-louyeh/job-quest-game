@@ -1,9 +1,12 @@
 package database.repository;
 
 import database.DatabaseConnection;
-import model.*;
+import model.Inventory;
+import model.Item;
+import model.Identity;
+import model.Skill;
+import model.User;
 import model.identity.*;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -185,7 +188,7 @@ public class UserRepositoryImpl implements UserRepository {
     private void deserializeInventory(User user, String inventoryStr) {
         if (inventoryStr != null && !inventoryStr.isEmpty()) {
             Arrays.stream(inventoryStr.split(","))
-                  .map(ShopItemProvider::getItemByName)
+                  .map(provider.ShopItemProvider::getItemByName)
                   .filter(Objects::nonNull)
                   .forEach(item -> user.getInventory().addItem(item));
         }

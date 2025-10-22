@@ -1,8 +1,10 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import model.Task;
 
 /**
  * Provides a centralized list of all available tasks in the game.

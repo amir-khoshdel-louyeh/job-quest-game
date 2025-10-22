@@ -1,7 +1,8 @@
 package services;
 
-import model.*;
-
+import model.GameEvent;
+import model.User;
+import provider.GameEventProvider;
 /**
  * Manages random events and their effects on the player.
  */
@@ -37,7 +38,7 @@ public class EventService {
             return null;
         }
         
-        GameEvent event = GameEventProvider.getRandomEvent();
+    GameEvent event = provider.GameEventProvider.getRandomEvent();
         if (event != null) {
             applyEventEffects(user, event);
             lastEventTime = currentTime;

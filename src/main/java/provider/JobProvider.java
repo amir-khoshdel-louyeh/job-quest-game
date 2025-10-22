@@ -1,9 +1,13 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import model.Job;
+import model.Skill;
+import model.User;
 
 /**
  * Provides a centralized catalog of all available jobs in the game.

@@ -1,8 +1,10 @@
-package model;
+package provider;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import model.IdentityOption;
 
 /**
  * Provides a centralized, single source of truth for available Identity options in the game.

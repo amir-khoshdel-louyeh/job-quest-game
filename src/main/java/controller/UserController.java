@@ -1,8 +1,9 @@
 package controller;
 
-import model.*;
+import model.Item;
+import model.User;
+import model.Skill;
 import observer.Subject;
-
 /**
  * Manages the state and actions of a single user.
  * This class acts as a buffer between the raw User model and the rest of the application,

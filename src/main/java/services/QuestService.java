@@ -1,8 +1,10 @@
 package services;
 
-import model.*;
+import model.Quest;
+import model.User;
 import java.util.ArrayList;
 import java.util.List;
+import provider.QuestProvider;
 
 /**
  * Manages quests and tracks player progress.
@@ -25,7 +27,7 @@ public class QuestService {
     public void initializeQuests(User user) {
         if (user.getActiveQuests().isEmpty()) {
             // Add main story quests
-            user.getActiveQuests().addAll(QuestProvider.getMainQuests());
+            user.getActiveQuests().addAll(provider.QuestProvider.getMainQuests());
             
             // Add daily quests
             refreshDailyQuests(user);
@@ -42,7 +44,7 @@ public class QuestService {
         );
         
         // Add new daily quests if not already active
-        for (Quest dailyQuest : QuestProvider.getDailyQuests()) {
+            for (Quest dailyQuest : QuestProvider.getDailyQuests()) {
             boolean alreadyActive = user.getActiveQuests().stream()
                 .anyMatch(q -> q.getId().equals(dailyQuest.getId()));
             
