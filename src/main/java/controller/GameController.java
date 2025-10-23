@@ -6,17 +6,13 @@ import model.GameEvent;
 import model.Item;
 import model.Job;
 import model.LearnableSkill;
-import model.Quest;
+import model.Challenge;
 import model.Service;
 import model.User;
 import model.Skill;
 import model.WorkResult;
-import observer.Subject;
 import provider.ServiceProvider;
 import provider.SkillProvider;
-import provider.QuestProvider;
-import provider.AchievementProvider;
-import provider.GameEventProvider;
 import services.*;
 
 import java.util.List;
@@ -26,18 +22,18 @@ public class GameController {
     private final long sessionStartTime;
     private int sessionJobsCompleted = 0;
     private final AchievementService achievementService;
-    private final QuestService questService;
+    private final ChallengeService challengeService;
     private final EventService eventService;
 
     public GameController(User user, long sessionStartTime) {
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
         this.achievementService = AchievementService.getInstance();
-        this.questService = QuestService.getInstance();
+        this.challengeService = ChallengeService.getInstance();
         this.eventService = EventService.getInstance();
         
-        // Initialize quests for new users
-        questService.initializeQuests(user);
+        // Initialize challenges for new users
+        challengeService.initializeChallenges(user);
         
         // Check for daily login streak
         updateLoginStreak(user);
@@ -143,11 +139,11 @@ public class GameController {
                 userController.getUser().addReputation(1);
             }
             
-            // Update quest progress
-            List<Quest> completedQuests = questService.updateQuestProgress(
-                user, Quest.QuestType.COMPLETE_JOBS, 1
+            // Update challenge progress
+            List<Challenge> completedChallenges = challengeService.updateChallengeProgress(
+                user, Challenge.ChallengeType.COMPLETE_JOBS, 1
             );
-            questService.updateQuestProgress(user, Quest.QuestType.EARN_MONEY, payment);
+            challengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, payment);
             
             // Check for achievements
             List<Achievement> newAchievements = achievementService.checkAndUnlockAchievements(user);
@@ -177,12 +173,12 @@ public class GameController {
                 }
             }
             
-            // Show completed quests
-            if (!completedQuests.isEmpty()) {
-                message.append("\n🏆 Quest Completed!\n");
-                for (Quest quest : completedQuests) {
+            // Show completed challenges
+            if (!completedChallenges.isEmpty()) {
+                message.append("\n🏆 Challenge Completed!\n");
+                for (Challenge challenge : completedChallenges) {
                     message.append(String.format("  '%s' - $%d + %d XP\n", 
-                        quest.getName(), quest.getRewardMoney(), quest.getRewardExperience()));
+                        challenge.getName(), challenge.getRewardMoney(), challenge.getRewardExperience()));
                 }
             }
             
@@ -236,10 +232,10 @@ public class GameController {
             // Add the skill to the user
             userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));
             
-            // Update quest progress
+            // Update challenge progress
             User user = userController.getUser();
-            List<Quest> completedQuests = questService.updateQuestProgress(
-                user, Quest.QuestType.LEARN_SKILLS, 1
+            List<Challenge> completedChallenges = challengeService.updateChallengeProgress(
+                user, Challenge.ChallengeType.LEARN_SKILLS, 1
             );
             
             // Check for achievements
@@ -254,12 +250,12 @@ public class GameController {
             message.append(String.format("🎓 You learned %s! Cost: $%d.\n",
                     skillToLearn.getName(), skillToLearn.getCost()));
             
-            // Show quest completions
-            if (!completedQuests.isEmpty()) {
-                message.append("\n🏆 Quest Completed!\n");
-                for (Quest quest : completedQuests) {
+            // Show challenge completions
+            if (!completedChallenges.isEmpty()) {
+                message.append("\n🏆 Challenge Completed!\n");
+                for (Challenge challenge : completedChallenges) {
                     message.append(String.format("  '%s' - $%d + %d XP\n", 
-                        quest.getName(), quest.getRewardMoney(), quest.getRewardExperience()));
+                        challenge.getName(), challenge.getRewardMoney(), challenge.getRewardExperience()));
                 }
             }
             
@@ -330,10 +326,10 @@ public class GameController {
     }
     
     /**
-     * Get active quests.
+     * Get active challenges.
      */
-    public List<Quest> getActiveQuests() {
-        return questService.getActiveIncompleteQuests(userController.getUser());
+    public List<Challenge> getActiveChallenges() {
+        return challengeService.getActiveIncompleteChallenges(userController.getUser());
     }
     
     /**

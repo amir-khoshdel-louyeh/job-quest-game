@@ -1,7 +1,5 @@
 package controller;
 
-import javax.swing.JOptionPane;
-
 public class RoutineController {
     private UserController userController;
     private view.GamePanel panel; // Keep for dialogs, but not for UI updates

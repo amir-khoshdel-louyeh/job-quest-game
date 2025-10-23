@@ -2,7 +2,6 @@ package controller;
 
 import model.Item;
 import model.User;
-import model.Skill;
 import observer.Subject;
 /**
  * Manages the state and actions of a single user.

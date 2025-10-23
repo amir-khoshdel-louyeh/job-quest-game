@@ -37,7 +37,7 @@ model/IdentityOption.class
 controller/RoutineController.class
 view/GamePanel$1.class
 model/Achievement.class
-services/QuestService.class
+model/Challenge.class
 view/ServiceDialog.class
 utils/RandomUtil.class
 model/WorkResult$Type.class
@@ -45,6 +45,7 @@ observer/Subject.class
 model/Tool.class
 controller/LoginController.class
 model/Inventory.class
+services/ChallengeService.class
 main/Main.class
 model/Skill.class
 model/identity/LogoDesigner.class
@@ -53,15 +54,15 @@ controller/UserController.class
 view/theme/AppTheme$2.class
 view/MainFrame.class
 view/AboutDialog.class
+provider/ChallengeProvider.class
 model/Item.class
 model/Food.class
-provider/QuestProvider.class
 model/WorkResult.class
 view/TaskDialog.class
+model/Challenge$ChallengeType.class
 controller/GameController.class
 model/identity/Programmer.class
 observer/Observer.class
-model/Quest.class
 database/repository/UserRepositoryImpl.class
 view/GamePanel.class
 provider/GameEventProvider.class
@@ -75,7 +76,6 @@ view/TaskDialog$TaskCellRenderer.class
 main/GameLauncher.class
 view/ShopPanel.class
 services/FoodService.class
-model/Quest$QuestType.class
 model/User.class
 view/theme/AppTheme$3.class
 model/LearnableSkill.class

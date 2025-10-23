@@ -27,7 +27,7 @@ public class User {
     private int maxStreak = 0;          // Maximum streak achieved
     private long lastLoginDate = 0;     // Last login timestamp
     private List<String> unlockedAchievements = new ArrayList<>();
-    private List<Quest> activeQuests = new ArrayList<>();
+    private List<Challenge> activeChallenges = new ArrayList<>();
 
     public User(String username, String password, Identity identity, int balance) {
         this.username = username;
@@ -125,7 +125,7 @@ public class User {
         if (reputation >= 60) return "Professional";
         if (reputation >= 40) return "Skilled";
         if (reputation >= 20) return "Beginner";
-        return "Novice";
+        return "Newbie";
     }
     
     // ---------------- Statistics ----------------
@@ -178,17 +178,17 @@ public class User {
         return unlockedAchievements.contains(achievementId);
     }
     
-    // ---------------- Quests ----------------
-    public List<Quest> getActiveQuests() { 
-        return activeQuests; 
+    // ---------------- Challenges ----------------
+    public List<Challenge> getActiveChallenges() { 
+        return activeChallenges; 
     }
-    public void setActiveQuests(List<Quest> quests) { 
-        this.activeQuests = quests; 
+    public void setActiveChallenges(List<Challenge> challenges) { 
+        this.activeChallenges = challenges; 
     }
-    public void addQuest(Quest quest) {
-        activeQuests.add(quest);
+    public void addChallenge(Challenge challenge) {
+        activeChallenges.add(challenge);
     }
-    public void removeQuest(Quest quest) {
-        activeQuests.remove(quest);
+    public void removeChallenge(Challenge challenge) {
+        activeChallenges.remove(challenge);
     }
 }
