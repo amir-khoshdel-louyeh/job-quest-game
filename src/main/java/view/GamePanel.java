@@ -9,12 +9,10 @@ import model.Job;
 import provider.JobProvider;
 import provider.SkillProvider;
 import provider.ServiceProvider;
-import provider.ShopItemProvider;
 import observer.Observer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import utils.Timer; // Add this import

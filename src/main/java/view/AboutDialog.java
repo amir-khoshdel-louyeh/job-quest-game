@@ -139,7 +139,7 @@ public class AboutDialog extends JDialog {
             <ul>
                 <li><b>Max Level:</b> 100</li>
                 <li><b>XP Required:</b> Level × 1,000 (e.g., Level 5 needs 5,000 XP)</li>
-                <li><b>Gaining XP:</b> Complete jobs (Energy Cost ÷ 10), complete quests</li>
+                <li><b>Gaining XP:</b> Complete jobs (Energy Cost ÷ 10), complete challenges</li>
                 <li><b>Level Up Bonus:</b> Full health and energy restoration!</li>
                 <li><b>Payment Bonus:</b> +5% per level (Level 10 = +50% earnings!)</li>
             </ul>
@@ -147,14 +147,14 @@ public class AboutDialog extends JDialog {
             <h3>🏆 Reputation System</h3>
             <table border='1' cellpadding='5'>
                 <tr><th>Score</th><th>Title</th><th>Bonus</th></tr>
-                <tr><td>0-19</td><td>Novice</td><td>0-9%</td></tr>
+                <tr><td>0-19</td><td>Newbie</td><td>0-9%</td></tr>
                 <tr><td>20-39</td><td>Beginner</td><td>10-19%</td></tr>
                 <tr><td>40-59</td><td>Skilled</td><td>20-29%</td></tr>
                 <tr><td>60-74</td><td>Professional</td><td>30-37%</td></tr>
                 <tr><td>75-89</td><td>Expert</td><td>38-44%</td></tr>
                 <tr><td>90-100</td><td>Legendary</td><td>45-50%</td></tr>
             </table>
-            <p><b>How to Gain:</b> Complete jobs (30% chance), learn skills (+2), complete quests (+2)</p>
+            <p><b>How to Gain:</b> Complete jobs (30% chance), learn skills (+2), complete challenges (+2)</p>
             
             <h3>🔥 Daily Streak System</h3>
             <ul>
@@ -185,11 +185,11 @@ public class AboutDialog extends JDialog {
                 <li><b>Total Rewards:</b> $39,000+</li>
             </ul>
             
-            <h3>📜 Quest System</h3>
+            <h3>📜 Challenge System</h3>
             <ul>
-                <li><b>Daily Quests:</b> Reset every 24 hours (Complete 3 jobs, Earn $1,000)</li>
-                <li><b>Weekly Quests:</b> Reset every 7 days (Complete 20 jobs, Learn skills)</li>
-                <li><b>Main Story:</b> One-time progressive quests</li>
+                <li><b>Daily Challenges:</b> Reset every 24 hours (Complete 3 jobs, Earn $1,000)</li>
+                <li><b>Weekly Challenges:</b> Reset every 7 days (Complete 20 jobs, Learn skills)</li>
+                <li><b>Main Story:</b> One-time progressive challenges</li>
                 <li><b>Total Value:</b> $56,200 + 10,950 XP</li>
             </ul>
             
@@ -229,14 +229,14 @@ public class AboutDialog extends JDialog {
                 <li>✅ Complete your first jobs</li>
                 <li>✅ Learn your first skill (Typing Proficiency)</li>
                 <li>✅ Start building your login streak</li>
-                <li>✅ Complete daily quests</li>
+                <li>✅ Complete daily challenges</li>
                 <li>💰 <b>Expected Earnings:</b> $5,000-$10,000</li>
             </ul>
             
             <h4>Week 2-3: The Learner (Level 6-15)</h4>
             <ul>
                 <li>✅ Learn 3-5 skills</li>
-                <li>✅ Complete weekly quests</li>
+                <li>✅ Complete weekly challenges</li>
                 <li>✅ Build reputation to 40+</li>
                 <li>✅ Maintain 10+ day streak</li>
                 <li>✅ Unlock first achievements</li>
@@ -247,7 +247,7 @@ public class AboutDialog extends JDialog {
             <ul>
                 <li>✅ Master all 6 skills</li>
                 <li>✅ Reputation 60-80</li>
-                <li>✅ Complete main story quests</li>
+                <li>✅ Complete main story challenges</li>
                 <li>✅ 20+ achievements unlocked</li>
                 <li>✅ Earn $100,000+</li>
                 <li>💰 <b>Expected Earnings:</b> $100,000+</li>
@@ -334,7 +334,7 @@ public class AboutDialog extends JDialog {
                 <li><b>Login Daily:</b> Never break your streak! (+30% max bonus)</li>
                 <li><b>Learn Skills Early:</b> They unlock better jobs quickly</li>
                 <li><b>Build Reputation:</b> 50% payment bonus at max is HUGE!</li>
-                <li><b>Complete Quests:</b> Easy money and XP source</li>
+                <li><b>Complete Challenges:</b> Easy money and XP source</li>
                 <li><b>Level Up Fast:</b> Each level = +5% permanent bonus</li>
                 <li><b>Maintain Health:</b> Low health reduces efficiency</li>
                 <li><b>Save Strategically:</b> Don't overspend early game</li>
@@ -365,7 +365,7 @@ public class AboutDialog extends JDialog {
             <ul>
                 <li>🎯 <b>Focus on Bonuses:</b> Level + Rep + Streak can triple your earnings!</li>
                 <li>🎯 <b>Learn Skills ASAP:</b> Higher-paying jobs require skills</li>
-                <li>🎯 <b>Complete Quests:</b> Free money and XP - don't ignore them!</li>
+                <li>🎯 <b>Complete Challenges:</b> Free money and XP - don't ignore them!</li>
                 <li>🎯 <b>Watch Events:</b> Random events can give free money</li>
                 <li>🎯 <b>Build Streak:</b> 30-day streak = permanent +30% income</li>
             </ul>
@@ -381,9 +381,9 @@ public class AboutDialog extends JDialog {
             <h3>📈 Fast Leveling</h3>
             <ul>
                 <li>⭐ <b>High Energy Jobs:</b> More energy = more XP (Energy ÷ 10)</li>
-                <li>⭐ <b>Quest Rewards:</b> Quests give bonus XP</li>
+                <li>⭐ <b>Challenge Rewards:</b> Challenges give bonus XP</li>
                 <li>⭐ <b>Skill Learning:</b> Each skill = reputation + achievement progress</li>
-                <li>⭐ <b>Consistent Play:</b> Daily quests add up quickly</li>
+                <li>⭐ <b>Consistent Play:</b> Daily challenges add up quickly</li>
             </ul>
             
             <h3>🏆 Achievement Hunting</h3>
@@ -406,13 +406,13 @@ public class AboutDialog extends JDialog {
                 <li>❌ <b>Breaking Streak:</b> Login daily even if just for a minute!</li>
                 <li>❌ <b>Ignoring Health:</b> Low health reduces work efficiency</li>
                 <li>❌ <b>Overspending:</b> Save money for skills, they're investments</li>
-                <li>❌ <b>Skipping Quests:</b> They're the easiest money + XP source</li>
+                <li>❌ <b>Skipping Challenges:</b> They're the easiest money + XP source</li>
                 <li>❌ <b>Working at Low Energy:</b> Rest/eat first for better results</li>
             </ul>
             
             <h3>🔥 Pro Player Strategies</h3>
             <ul>
-                <li>🚀 <b>Morning Routine:</b> Login → Check quests → Complete daily quest</li>
+                <li>🚀 <b>Morning Routine:</b> Login → Check challenges → Complete daily challenge</li>
                 <li>🚀 <b>Skill Order:</b> Typing → Graphic Design → Writing → Web Dev → SEO → Management</li>
                 <li>🚀 <b>Resource Cycle:</b> Work → Earn → Buy food → Restore → Repeat</li>
                 <li>🚀 <b>Reputation Farm:</b> Do many small jobs vs few big ones</li>
@@ -475,7 +475,7 @@ public class AboutDialog extends JDialog {
             <p>
                 Job Quest is a comprehensive career simulation game where you start as a freelancer 
                 and work your way up to becoming a legendary professional. The game features 
-                multiple progression systems, achievements, quests, and random events to keep 
+                multiple progression systems, achievements, challenges, and random events to keep 
                 your journey exciting and rewarding.
             </p>
             
@@ -483,10 +483,10 @@ public class AboutDialog extends JDialog {
             <ul>
                 <li>🎨 <b>Modern Professional UI</b> - Material Design inspired interface</li>
                 <li>⭐ <b>100 Levels</b> of progression with XP system</li>
-                <li>🏆 <b>Reputation System</b> from Novice to Legendary</li>
+                <li>🏆 <b>Reputation System</b> from Newbie to Legendary</li>
                 <li>🔥 <b>Daily Streak</b> rewards for consistent play</li>
                 <li>🎖️ <b>12 Achievements</b> worth $39,000+ in rewards</li>
-                <li>📜 <b>Quest System</b> with daily, weekly, and story quests</li>
+                <li>📜 <b>Challenge System</b> with daily, weekly, and story challenges</li>
                 <li>⚡ <b>15+ Random Events</b> for variety</li>
                 <li>💰 <b>Dynamic Payment</b> system with multiple bonuses</li>
                 <li>🎓 <b>6 Learnable Skills</b> to master</li>
@@ -498,7 +498,7 @@ public class AboutDialog extends JDialog {
                 <tr><td><b>Total Jobs:</b></td><td>16+</td></tr>
                 <tr><td><b>Skills to Learn:</b></td><td>6</td></tr>
                 <tr><td><b>Achievements:</b></td><td>12</td></tr>
-                <tr><td><b>Quest Types:</b></td><td>10</td></tr>
+                <tr><td><b>Challenge Types:</b></td><td>10</td></tr>
                 <tr><td><b>Random Events:</b></td><td>15</td></tr>
                 <tr><td><b>Max Level:</b></td><td>100</td></tr>
                 <tr><td><b>Career Paths:</b></td><td>4</td></tr>

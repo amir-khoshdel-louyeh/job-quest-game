@@ -1,8 +1,6 @@
 package database.repository;
 
 import database.DatabaseConnection;
-import model.Inventory;
-import model.Item;
 import model.Identity;
 import model.Skill;
 import model.User;

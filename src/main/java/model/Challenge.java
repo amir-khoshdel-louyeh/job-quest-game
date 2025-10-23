@@ -1,20 +1,20 @@
 package model;
 
 /**
- * Represents a quest/mission that players can complete for rewards.
+ * Represents a challenge/mission that players can complete for rewards.
  */
-public class Quest {
+public class Challenge {
     private final String id;
     private final String name;
     private final String description;
-    private final QuestType type;
+    private final ChallengeType type;
     private final int targetValue;
     private final int rewardMoney;
     private final int rewardExperience;
     private int currentProgress;
     private boolean completed;
     
-    public enum QuestType {
+    public enum ChallengeType {
         COMPLETE_JOBS,      // Complete X jobs
         EARN_MONEY,         // Earn X money
         LEARN_SKILLS,       // Learn X skills
@@ -23,7 +23,7 @@ public class Quest {
         BUY_ITEMS          // Buy X items from shop
     }
     
-    public Quest(String id, String name, String description, QuestType type,
+    public Challenge(String id, String name, String description, ChallengeType type,
                 int targetValue, int rewardMoney, int rewardExperience) {
         this.id = id;
         this.name = name;
@@ -53,7 +53,7 @@ public class Quest {
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
-    public QuestType getType() { return type; }
+    public ChallengeType getType() { return type; }
     public int getTargetValue() { return targetValue; }
     public int getRewardMoney() { return rewardMoney; }
     public int getRewardExperience() { return rewardExperience; }
