@@ -15,9 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * MySQL implementation of UserRepository.
- * Handles all database operations for User entities.
- * Follows Repository Pattern and Single Responsibility Principle.
+ * MySQL implementation for UserRepository
  */
 public class UserRepositoryImpl implements UserRepository {
     private static final Logger LOGGER = Logger.getLogger(UserRepositoryImpl.class.getName());
@@ -117,9 +115,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    /**
-     * Maps a ResultSet row to a User object.
-     */
+    /** Map a ResultSet row to a User object */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         String username = rs.getString("username");
         String password = rs.getString("password");
@@ -147,9 +143,7 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
     
-    /**
-     * Sets parameters for INSERT statement.
-     */
+    /** Set parameters for INSERT */
     private void setUserParameters(PreparedStatement stmt, User user) throws SQLException {
         stmt.setString(1, user.getUsername());
         stmt.setString(2, user.getPassword());
@@ -164,9 +158,7 @@ public class UserRepositoryImpl implements UserRepository {
         stmt.setLong(11, user.getTotalPlayTime());
     }
     
-    /**
-     * Creates an Identity object from its class name string.
-     */
+    /** Create Identity from class name string */
     private Identity createIdentityFromString(String identityStr) {
         return switch (identityStr) {
             case "Doctor" -> new Doctor();
@@ -180,9 +172,7 @@ public class UserRepositoryImpl implements UserRepository {
         };
     }
     
-    /**
-     * Deserializes inventory from database string.
-     */
+    /** Convert inventory string to Inventory object */
     private void deserializeInventory(User user, String inventoryStr) {
         if (inventoryStr != null && !inventoryStr.isEmpty()) {
             Arrays.stream(inventoryStr.split(","))
@@ -192,9 +182,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    /**
-     * Deserializes skills from database string.
-     */
+    /** Convert skills string to Skill list */
     private void deserializeSkills(User user, String skillsStr) {
         if (skillsStr != null && !skillsStr.isEmpty()) {
             Arrays.stream(skillsStr.split(","))
@@ -202,9 +190,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    /**
-     * Serializes user skills to database string.
-     */
+    /** Convert user skills to string for database storage */
     private String serializeSkills(User user) {
         return user.getSkills().stream()
                    .map(Skill::getName)

@@ -13,26 +13,19 @@ import model.identity.Typist;
  */
 public class IdentityProvider {
 
-    /**
-     * Creates an Identity object based on its name.
-     * @param identityName The simple class name of the Identity (e.g., "Doctor").
-     * @return An instance of the corresponding Identity subclass.
-     * @throws IllegalArgumentException if the identityName is unknown.
-     */
+    /** ساخت یک شیء Identity بر اساس نام */
     public static Identity createIdentity(String identityName) {
-        switch (identityName) {
-            case "Doctor":
-                return new Doctor();
-            case "Programmer":
-                return new Programmer();
-            case "LogoDesigner":
-            case "Logo Designer":
-                return new LogoDesigner();
-            case "Typist":
-                return new Typist();
-            default:
-                // Or return a default, but throwing an exception is often cleaner.
-                throw new IllegalArgumentException("Unknown identity type: " + identityName);
+        if (identityName.equals("Doctor")) {
+            return new Doctor();
+        } else if (identityName.equals("Programmer")) {
+            return new Programmer();
+        } else if (identityName.equals("LogoDesigner") || identityName.equals("Logo Designer")) {
+            return new LogoDesigner();
+        } else if (identityName.equals("Typist")) {
+            return new Typist();
+        } else {
+            // Or return a default, but throwing an exception is often cleaner.
+            throw new IllegalArgumentException("Unknown identity type: " + identityName);
         }
     }
 }

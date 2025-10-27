@@ -1,12 +1,8 @@
 package database;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.stream.Collectors;
 
 /**
  * Handles database and table initialization if they don't exist
@@ -125,20 +121,4 @@ public class DatabaseInitializer {
         }
     }
 
-    /**
-     * Read SQL file content from resources (optional - for direct SQL file execution)
-     */
-    private static String readSqlFile(String filename) throws Exception {
-        InputStream is = DatabaseInitializer.class.getResourceAsStream("/" + filename);
-        if (is == null) {
-            is = DatabaseInitializer.class.getResourceAsStream(filename);
-        }
-        if (is == null) {
-            throw new Exception("SQL file not found: " + filename);
-        }
-        
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
-    }
 }

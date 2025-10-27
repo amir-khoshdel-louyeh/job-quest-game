@@ -33,20 +33,13 @@ public class ShopItemProvider {
         return Collections.unmodifiableList(new ArrayList<>(ITEMS_BY_NAME.values()));
     }
 
-    /**
-     * Retrieves only items that are instances of Food (i.e., snacks).
-     * @return A list of food items.
-     */
+    /** دریافت آیتم‌های خوراکی */
     public static List<Item> getFoodItems() {
         return ITEMS_BY_NAME.values().stream()
                 .filter(item -> item instanceof Food).collect(Collectors.toList());
     }
 
-    /**
-     * Retrieves a fully-formed Item object by its unique name.
-     * @param name The name of the item.
-     * @return The Item object, or null if not found.
-     */
+    /** دریافت آیتم بر اساس نام */
     public static Item getItemByName(String name) {
         return ITEMS_BY_NAME.get(name);
     }
