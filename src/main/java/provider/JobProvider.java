@@ -44,13 +44,7 @@ public class JobProvider {
         ALL_JOBS.add(new Job("Manage a Health Seminar", "Organize and lead an online health seminar.", 10000, 25000, "Doctor", List.of("Project Management", "Content Writing")));
     }
 
-    /**
-     * Gets a list of jobs that the user is eligible to perform based on their
-     * identity and learned skills.
-     *
-     * @param user The user to check against.
-     * @return A list of available jobs.
-     */
+    /** دریافت لیست شغل‌های قابل انجام برای کاربر */
     public static List<Job> getAvailableJobsForUser(User user) {
         final List<String> userSkills = user.getSkills().stream().map(Skill::getName).toList();
         final String userIdentity = user.getIdentity().getClass().getSimpleName();

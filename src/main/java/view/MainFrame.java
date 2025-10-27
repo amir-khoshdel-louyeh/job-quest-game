@@ -83,10 +83,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
     
-    /**
-     * Centralized navigation method with smooth transition.
-     * @param panel The panel to display
-     */
+    /** نمایش یک پنل با جابجایی نرم */
     public void showPanel(JPanel panel) {
         // Fade out effect (simple version)
         SwingUtilities.invokeLater(() -> {
@@ -96,9 +93,7 @@ public class MainFrame extends JFrame {
         });
     }
     
-    /**
-     * Exit fullscreen mode.
-     */
+    /** خروج از حالت تمام‌صفحه */
     private void exitFullscreen() {
         if (graphicsDevice != null && graphicsDevice.getFullScreenWindow() == this) {
             graphicsDevice.setFullScreenWindow(null);
@@ -106,9 +101,7 @@ public class MainFrame extends JFrame {
         dispose();
     }
     
-    /**
-     * Toggle fullscreen mode.
-     */
+    /** تغییر وضعیت تمام‌صفحه */
     private void toggleFullscreen() {
         if (graphicsDevice != null && graphicsDevice.isFullScreenSupported()) {
             if (graphicsDevice.getFullScreenWindow() == this) {

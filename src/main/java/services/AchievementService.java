@@ -21,10 +21,7 @@ public class AchievementService {
         return instance;
     }
     
-    /**
-     * Check all achievements and unlock any that meet requirements.
-     * @return List of newly unlocked achievements
-     */
+    /** Check and unlock new achievements */
     public List<Achievement> checkAndUnlockAchievements(User user) {
         List<Achievement> newlyUnlocked = new ArrayList<>();
         
@@ -45,9 +42,7 @@ public class AchievementService {
         return newlyUnlocked;
     }
     
-    /**
-     * Check if a specific achievement's requirements are met.
-     */
+    /** Check the requirements for unlocking an achievement */
     private boolean checkAchievementRequirement(User user, Achievement achievement) {
         return switch (achievement.getType()) {
             case MONEY_EARNED -> 
@@ -79,9 +74,7 @@ public class AchievementService {
         };
     }
     
-    /**
-     * Get achievement progress for display.
-     */
+    /** Get achievement progress percentage */
     public int getAchievementProgress(User user, Achievement achievement) {
         int current = switch (achievement.getType()) {
             case MONEY_EARNED -> user.getTotalMoneyEarned();
@@ -95,9 +88,7 @@ public class AchievementService {
         return Math.min(100, (current * 100) / achievement.getRequiredValue());
     }
     
-    /**
-     * Get all achievements with user's unlock status.
-     */
+    /** Get the list of achievements with unlock status */
     public List<Achievement> getAchievementsWithStatus(User user) {
         List<Achievement> achievements = new ArrayList<>();
         

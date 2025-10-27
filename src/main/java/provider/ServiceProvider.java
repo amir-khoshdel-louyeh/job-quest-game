@@ -51,31 +51,20 @@ public class ServiceProvider {
         SERVICES_BY_NAME.put(service.getName(), service);
     }
 
-    /**
-     * Retrieves a service by its unique name.
-     * @param name The name of the service.
-     * @return The Service object, or null if not found.
-     */
+    /** دریافت سرویس بر اساس نام */
     public static Service getService(String name) { return SERVICES_BY_NAME.get(name); }
 
     public static List<Service> getAvailableServices() {
         return new ArrayList<>(SERVICES_BY_NAME.values());
     }
 
-    /**
-     * Retrieves only services that have a positive effect on health and no effect on energy.
-     * This is used for the Hospital.
-     * @return A list of health-related services.
-     */
+    /** دریافت سرویس‌های مرتبط با سلامتی */
     public static List<Service> getHealthServices() {
         return SERVICES_BY_NAME.values().stream()
                 .filter(s -> s.getHealthEffect() > 0 && s.getEnergyEffect() == 0).collect(Collectors.toList());
     }
 
-    /**
-     * Retrieves only services that have a positive effect on energy and no effect on health.
-     * @return A list of energy-related services.
-     */
+    /** دریافت سرویس‌های مرتبط با انرژی */
     public static List<Service> getEnergyServices() {
         return SERVICES_BY_NAME.values().stream()
                 .filter(s -> s.getEnergyEffect() > 0 && s.getHealthEffect() == 0)

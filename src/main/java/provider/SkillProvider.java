@@ -25,28 +25,31 @@ public class SkillProvider {
         ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 25000, 480)); // 8 hours playtime
     }
 
-    /**
-     * Retrieves a skill by its unique name.
-     * @param name The name of the skill.
-     * @return The LearnableSkill object, or null if not found.
-     */
+    /** دریافت مهارت بر اساس نام */
     public static LearnableSkill getSkill(String name) {
-        return ALL_SKILLS.stream().filter(s -> s.getName().equals(name)).findFirst().orElse(null);
+        for (LearnableSkill skill : ALL_SKILLS) {
+            if (skill.getName().equals(name)) {
+                return skill;
+            }
+        }
+        return null;
     }
 
-    /**
-     * Gets a list of skills that the user is eligible to learn based on their playtime
-     * and that they haven't learned already.
-     * @param user The user to check against.
-     * @return A list of available skills to learn.
-     */
+    /** دریافت لیست مهارت‌های قابل یادگیری برای کاربر */
     public static List<LearnableSkill> getAvailableSkillsForUser(User user) {
         long userPlayTimeMinutes = user.getTotalPlayTime() / (1000 * 60);
-        List<String> userLearnedSkills = user.getSkills().stream().map(Skill::getName).toList();
+        List<String> userLearnedSkills = new ArrayList<>();
+        for (Skill s : user.getSkills()) {
+            userLearnedSkills.add(s.getName());
+        }
 
-        return ALL_SKILLS.stream()
-                .filter(skill -> userPlayTimeMinutes >= skill.getRequiredPlayTimeMinutes()) // Check playtime
-                .filter(skill -> !userLearnedSkills.contains(skill.getName())) // Check if already learned
-                .toList();
+        List<LearnableSkill> availableSkills = new ArrayList<>();
+        for (LearnableSkill skill : ALL_SKILLS) {
+            if (userPlayTimeMinutes >= skill.getRequiredPlayTimeMinutes() &&
+                !userLearnedSkills.contains(skill.getName())) {
+                availableSkills.add(skill);
+            }
+        }
+        return availableSkills;
     }
 }

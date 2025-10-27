@@ -20,11 +20,7 @@ public class EventService {
         return instance;
     }
     
-    /**
-     * Checks if a random event should occur and applies its effects.
-     * @param user The user to apply the event to
-     * @return The event that occurred, or null if no event
-     */
+    /** Game event for the user */
     public GameEvent checkForRandomEvent(User user) {
         long currentTime = System.currentTimeMillis();
         
@@ -47,9 +43,7 @@ public class EventService {
         return event;
     }
     
-    /**
-     * Apply the effects of an event to the user.
-     */
+    /** Apply the effects of an event to the user */
     private void applyEventEffects(User user, GameEvent event) {
         // Apply money effect
         if (event.getMoneyEffect() != 0) {
@@ -75,9 +69,7 @@ public class EventService {
         }
     }
     
-    /**
-     * Trigger a specific event by ID (for testing or special occasions).
-     */
+    /** Trigger a specific event by ID */
     public void triggerEvent(User user, String eventId) {
         for (GameEvent event : GameEventProvider.getAllEvents()) {
             if (event.getId().equals(eventId)) {

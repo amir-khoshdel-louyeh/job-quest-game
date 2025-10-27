@@ -95,10 +95,6 @@ public class UserController extends Subject {
         user.setBlockedUntil(0);
     }
 
-    /**
-     * Adds an item to the user's inventory.
-     * @param item The item to add.
-     */
     public void addItemToInventory(Item item) {
         user.getInventory().addItem(item);
         // The calling controller is responsible for notifying observers.
