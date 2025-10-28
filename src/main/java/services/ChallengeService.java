@@ -87,7 +87,7 @@ public class ChallengeService {
      * Grant rewards for completing a challenge.
      */
     private void grantChallengeReward(User user, Challenge challenge) {
-        user.setBalance(user.getBalance() + challenge.getRewardMoney());
+    user.deposit(challenge.getRewardMoney());
         user.addExperience(challenge.getRewardExperience());
         user.addReputation(2); // Challenges give reputation
     }

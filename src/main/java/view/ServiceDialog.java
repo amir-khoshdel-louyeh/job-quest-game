@@ -2,7 +2,7 @@ package view;
 
 import controller.GameController;
 import model.Service;
-import provider.ServiceProvider;
+// ...existing code...
 
 import javax.swing.*;
 import java.awt.*;

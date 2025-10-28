@@ -2,7 +2,6 @@ package view;
 
 import controller.UserController;
 import controller.GameController;
-import provider.ShopItemProvider;
 import model.Item;
 
 import javax.swing.*;
@@ -10,10 +9,10 @@ import java.awt.*;
 import java.util.List;
 
 public class ShopPanel extends JPanel {
-    private UserController userController;
     private GameController gameController;
     private GamePanel gamePanel;
-    private JDialog parentDialog; // To close the dialog after purchase
+    private JDialog parentDialog; 
+    private UserController userController;
 
     public ShopPanel(GameController gameController, GamePanel gamePanel, JDialog parentDialog, List<Item> itemsForSale) {
         this.gameController = gameController;

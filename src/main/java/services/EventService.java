@@ -46,23 +46,26 @@ public class EventService {
     /** Apply the effects of an event to the user */
     private void applyEventEffects(User user, GameEvent event) {
         // Apply money effect
-        if (event.getMoneyEffect() != 0) {
-            int newBalance = user.getBalance() + event.getMoneyEffect();
-            user.setBalance(Math.max(0, newBalance));
+        if (event.getMoneyEffect() > 0) {
+            user.deposit(event.getMoneyEffect());
+        } else if (event.getMoneyEffect() < 0) {
+            user.withdraw(-event.getMoneyEffect());
         }
-        
+
         // Apply health effect
-        if (event.getHealthEffect() != 0) {
-            int newHealth = user.getHealth() + event.getHealthEffect();
-            user.setHealth(newHealth);
+        if (event.getHealthEffect() > 0) {
+            user.gainHealth(event.getHealthEffect());
+        } else if (event.getHealthEffect() < 0) {
+            user.loseHealth(-event.getHealthEffect());
         }
-        
+
         // Apply energy effect
-        if (event.getEnergyEffect() != 0) {
-            int newEnergy = user.getEnergy() + event.getEnergyEffect();
-            user.setEnergy(newEnergy);
+        if (event.getEnergyEffect() > 0) {
+            user.gainEnergy(event.getEnergyEffect());
+        } else if (event.getEnergyEffect() < 0) {
+            user.loseEnergy(-event.getEnergyEffect());
         }
-        
+
         // Positive events can give small reputation boost
         if (event.getType() == GameEvent.EventType.POSITIVE) {
             user.addReputation(1);

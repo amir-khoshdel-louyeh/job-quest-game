@@ -5,6 +5,6 @@ package model;
  * Defines the behavior for daily work.
  */
 public interface Identity {
-    /** نتیجه کار روزانه برای این هویت */
+    /** Result of daily work for this identity */
     WorkResult performDailyWork();
 }

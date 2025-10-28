@@ -33,13 +33,13 @@ public class ShopItemProvider {
         return Collections.unmodifiableList(new ArrayList<>(ITEMS_BY_NAME.values()));
     }
 
-    /** دریافت آیتم‌های خوراکی */
+    /** Get food items available in the shop */
     public static List<Item> getFoodItems() {
         return ITEMS_BY_NAME.values().stream()
                 .filter(item -> item instanceof Food).collect(Collectors.toList());
     }
 
-    /** دریافت آیتم بر اساس نام */
+    /** Get an item by its name */
     public static Item getItemByName(String name) {
         return ITEMS_BY_NAME.get(name);
     }
