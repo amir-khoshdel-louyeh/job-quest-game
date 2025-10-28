@@ -21,7 +21,7 @@ public class Timer {
         }};
     }
 
-    // Usage examples (do NOT put these in the class body):
+    // Usage examples:
     // utils.Timer.runPeriodic(60_000, e -> routineController.decreaseEnergy());
     // utils.Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
 }

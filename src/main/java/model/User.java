@@ -51,13 +51,37 @@ public class User {
     public void setIdentity(Identity identity) { this.identity = identity; }
 
     public int getBalance() { return balance; }
-    public void setBalance(int balance) { this.balance = balance; }
+    private void setBalance(int balance) { this.balance = Math.max(0, balance); }
+
+    public void deposit(int amount) {
+        if (amount > 0) setBalance(this.balance + amount);
+    }
+
+    public void withdraw(int amount) {
+        if (amount > 0) setBalance(this.balance - amount);
+    }
 
     public int getHealth() { return health; }
-    public void setHealth(int health) { this.health = Math.max(0, Math.min(100, health)); }
+    private void setHealth(int health) { this.health = Math.max(0, Math.min(100, health)); }
+
+    public void gainHealth(int amount) {
+        if (amount > 0) setHealth(this.health + amount);
+    }
+
+    public void loseHealth(int amount) {
+        if (amount > 0) setHealth(this.health - amount);
+    }
 
     public int getEnergy() { return energy; }
-    public void setEnergy(int energy) { this.energy = Math.max(0, Math.min(100_000, energy)); }
+    private void setEnergy(int energy) { this.energy = Math.max(0, Math.min(100_000, energy)); }
+
+    public void gainEnergy(int amount) {
+        if (amount > 0) setEnergy(this.energy + amount);
+    }
+
+    public void loseEnergy(int amount) {
+        if (amount > 0) setEnergy(this.energy - amount);
+    }
 
     public Inventory getInventory() { return inventory; } // Return the Inventory object
 

@@ -25,7 +25,7 @@ public class SkillProvider {
         ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 25000, 480)); // 8 hours playtime
     }
 
-    /** دریافت مهارت بر اساس نام */
+    /** Get a learnable skill by its name */
     public static LearnableSkill getSkill(String name) {
         for (LearnableSkill skill : ALL_SKILLS) {
             if (skill.getName().equals(name)) {
@@ -35,7 +35,7 @@ public class SkillProvider {
         return null;
     }
 
-    /** دریافت لیست مهارت‌های قابل یادگیری برای کاربر */
+    /** Get list of learnable skills available for the user */
     public static List<LearnableSkill> getAvailableSkillsForUser(User user) {
         long userPlayTimeMinutes = user.getTotalPlayTime() / (1000 * 60);
         List<String> userLearnedSkills = new ArrayList<>();

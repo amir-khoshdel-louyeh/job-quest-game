@@ -26,11 +26,11 @@ public class FoodService {
             System.out.println("Not enough money to buy food!");
             return false;
         }
-        buyer.setBalance(buyer.getBalance() - cost);
+        buyer.withdraw(cost);
         if (seller != null) {
-            seller.setBalance(seller.getBalance() + cost);
+            seller.deposit(cost);
         }
-        buyer.setHealth(Math.min(100, buyer.getHealth() + hungerRestore));
+        buyer.gainHealth(hungerRestore);
         return true;
     }
 

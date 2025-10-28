@@ -1,10 +1,19 @@
+
 package provider;
+import model.achievement.HealthMaintainedAchievement;
+import model.achievement.DaysPlayedAchievement;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import model.Achievement;
+import model.achievement.MoneyEarnedAchievement;
+import model.achievement.JobsCompletedAchievement;
+import model.achievement.SkillsLearnedAchievement;
+import model.achievement.RichPlayerAchievement;
+import model.achievement.SkillMasterAchievement;
+import model.achievement.WorkaholicAchievement;
 
 /**
  * Provides all available achievements in the game.
@@ -15,115 +24,103 @@ public class AchievementProvider {
     
     static {
         // Money achievements
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new MoneyEarnedAchievement(
             "first_dollar", 
             "First Dollar", 
             "Earn your first $100", 
             50, 
-            Achievement.AchievementType.MONEY_EARNED, 
             100
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new MoneyEarnedAchievement(
             "money_maker", 
             "Money Maker", 
             "Earn $5,000 in total", 
             500, 
-            Achievement.AchievementType.MONEY_EARNED, 
             5000
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new MoneyEarnedAchievement(
             "wealthy", 
             "Wealthy", 
             "Earn $50,000 in total", 
             5000, 
-            Achievement.AchievementType.MONEY_EARNED, 
             50000
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new RichPlayerAchievement(
             "millionaire", 
             "Millionaire", 
             "Have $100,000 at once", 
             20000, 
-            Achievement.AchievementType.RICH_PLAYER, 
             100000
         ));
         
         // Job achievements
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new JobsCompletedAchievement(
             "first_job", 
             "First Job", 
             "Complete your first job", 
             100, 
-            Achievement.AchievementType.JOBS_COMPLETED, 
             1
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new JobsCompletedAchievement(
             "hard_worker", 
             "Hard Worker", 
             "Complete 50 jobs", 
             1000, 
-            Achievement.AchievementType.JOBS_COMPLETED, 
             50
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new WorkaholicAchievement(
             "workaholic", 
             "Workaholic", 
             "Complete 10 jobs in one session", 
             2000, 
-            Achievement.AchievementType.WORKAHOLIC, 
             10
         ));
         
         // Skill achievements
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new SkillsLearnedAchievement(
             "student", 
             "Student", 
             "Learn your first skill", 
             200, 
-            Achievement.AchievementType.SKILLS_LEARNED, 
             1
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new SkillsLearnedAchievement(
             "skill_collector", 
             "Skill Collector", 
             "Learn 5 different skills", 
             1000, 
-            Achievement.AchievementType.SKILLS_LEARNED, 
             5
         ));
         
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new SkillMasterAchievement(
             "master", 
             "Master", 
             "Learn all available skills", 
             5000, 
-            Achievement.AchievementType.SKILL_MASTER, 
             1
         ));
         
         // Health achievements
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new HealthMaintainedAchievement(
             "healthy_lifestyle", 
             "Healthy Lifestyle", 
             "Maintain 100 health for 7 days", 
             1500, 
-            Achievement.AchievementType.HEALTH_MAINTAINED, 
             7
         ));
-        
+
         // Play time achievements
-        ALL_ACHIEVEMENTS.add(new Achievement(
+        ALL_ACHIEVEMENTS.add(new DaysPlayedAchievement(
             "dedicated", 
             "Dedicated Player", 
             "Play for 30 days", 
             3000, 
-            Achievement.AchievementType.DAYS_PLAYED, 
             30
         ));
     }

@@ -51,20 +51,20 @@ public class ServiceProvider {
         SERVICES_BY_NAME.put(service.getName(), service);
     }
 
-    /** دریافت سرویس بر اساس نام */
+    /** Get a service by its name */
     public static Service getService(String name) { return SERVICES_BY_NAME.get(name); }
 
     public static List<Service> getAvailableServices() {
         return new ArrayList<>(SERVICES_BY_NAME.values());
     }
 
-    /** دریافت سرویس‌های مرتبط با سلامتی */
+    /** Get health-related services */
     public static List<Service> getHealthServices() {
         return SERVICES_BY_NAME.values().stream()
                 .filter(s -> s.getHealthEffect() > 0 && s.getEnergyEffect() == 0).collect(Collectors.toList());
     }
 
-    /** دریافت سرویس‌های مرتبط با انرژی */
+    /** Get energy-related services */
     public static List<Service> getEnergyServices() {
         return SERVICES_BY_NAME.values().stream()
                 .filter(s -> s.getEnergyEffect() > 0 && s.getHealthEffect() == 0)

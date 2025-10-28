@@ -31,10 +31,8 @@ public class AchievementService {
                 
                 user.unlockAchievement(achievement.getId());
                 achievement.unlock();
-                
                 // Grant reward
-                user.setBalance(user.getBalance() + achievement.getRewardMoney());
-                
+                user.deposit(achievement.getRewardMoney());
                 newlyUnlocked.add(achievement);
             }
         }
@@ -44,48 +42,12 @@ public class AchievementService {
     
     /** Check the requirements for unlocking an achievement */
     private boolean checkAchievementRequirement(User user, Achievement achievement) {
-        return switch (achievement.getType()) {
-            case MONEY_EARNED -> 
-                user.getTotalMoneyEarned() >= achievement.getRequiredValue();
-                
-            case JOBS_COMPLETED -> 
-                user.getTotalJobsCompleted() >= achievement.getRequiredValue();
-                
-            case SKILLS_LEARNED -> 
-                user.getSkills().size() >= achievement.getRequiredValue();
-                
-            case RICH_PLAYER -> 
-                user.getBalance() >= achievement.getRequiredValue();
-                
-            case SKILL_MASTER -> 
-                user.getSkills().size() >= 6; // We have 6 skills total
-                
-            case WORKAHOLIC -> 
-                false; // Checked during session
-                
-            case HEALTH_MAINTAINED -> 
-                false; // Requires time tracking
-                
-            case DAYS_PLAYED -> 
-                false; // Requires time tracking
-                
-            case ENERGY_EFFICIENT -> 
-                false; // Requires tracking efficiency
-        };
+        return achievement.checkRequirement(user);
     }
     
     /** Get achievement progress percentage */
     public int getAchievementProgress(User user, Achievement achievement) {
-        int current = switch (achievement.getType()) {
-            case MONEY_EARNED -> user.getTotalMoneyEarned();
-            case JOBS_COMPLETED -> user.getTotalJobsCompleted();
-            case SKILLS_LEARNED -> user.getSkills().size();
-            case RICH_PLAYER -> user.getBalance();
-            case SKILL_MASTER -> user.getSkills().size();
-            default -> 0;
-        };
-        
-        return Math.min(100, (current * 100) / achievement.getRequiredValue());
+        return achievement.getProgress(user);
     }
     
     /** Get the list of achievements with unlock status */

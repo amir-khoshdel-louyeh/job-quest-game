@@ -83,7 +83,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
     
-    /** نمایش یک پنل با جابجایی نرم */
+    /** Show a panel with a smooth transition */
     public void showPanel(JPanel panel) {
         // Fade out effect (simple version)
         SwingUtilities.invokeLater(() -> {
@@ -93,7 +93,7 @@ public class MainFrame extends JFrame {
         });
     }
     
-    /** خروج از حالت تمام‌صفحه */
+    /** Exit fullscreen mode */
     private void exitFullscreen() {
         if (graphicsDevice != null && graphicsDevice.getFullScreenWindow() == this) {
             graphicsDevice.setFullScreenWindow(null);
@@ -101,7 +101,7 @@ public class MainFrame extends JFrame {
         dispose();
     }
     
-    /** تغییر وضعیت تمام‌صفحه */
+    /** Toggle fullscreen state */
     private void toggleFullscreen() {
         if (graphicsDevice != null && graphicsDevice.isFullScreenSupported()) {
             if (graphicsDevice.getFullScreenWindow() == this) {

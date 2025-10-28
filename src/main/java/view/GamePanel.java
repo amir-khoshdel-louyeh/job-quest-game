@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements Observer {
     private JPanel animationPanel;
     private JPanel rightPanel;
     // These buttons are being moved to the world view, so they are removed from here.
-    private JButton workButton, shopButton, servicesButton, saveAndExitButton, helpButton;
+    private JButton saveAndExitButton, helpButton;
     private final long sessionStartTime;
 
     public GamePanel(User user) {
@@ -260,6 +260,7 @@ public class GamePanel extends JPanel implements Observer {
         reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
         streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
     }
+    
 
     public void addChatMessage(String msg) {
         chatArea.append(msg + "\n");

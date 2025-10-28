@@ -44,7 +44,7 @@ public class JobProvider {
         ALL_JOBS.add(new Job("Manage a Health Seminar", "Organize and lead an online health seminar.", 10000, 25000, "Doctor", List.of("Project Management", "Content Writing")));
     }
 
-    /** دریافت لیست شغل‌های قابل انجام برای کاربر */
+    /** Get the list of jobs available for the user */
     public static List<Job> getAvailableJobsForUser(User user) {
         final List<String> userSkills = user.getSkills().stream().map(Skill::getName).toList();
         final String userIdentity = user.getIdentity().getClass().getSimpleName();

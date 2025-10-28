@@ -3,7 +3,7 @@ package model;
 /**
  * Represents an achievement that players can unlock.
  */
-public class Achievement {
+public abstract class Achievement {
     private final String id;
     private final String name;
     private final String description;
@@ -43,9 +43,12 @@ public class Achievement {
     public AchievementType getType() { return type; }
     public int getRequiredValue() { return requiredValue; }
     public boolean isUnlocked() { return unlocked; }
-    
+
     public void unlock() { this.unlocked = true; }
-    
+
+    public abstract boolean checkRequirement(model.User user);
+    public abstract int getProgress(model.User user);
+
     @Override
     public String toString() {
         return (unlocked ? "✅ " : "🔒 ") + name + " - " + description;
