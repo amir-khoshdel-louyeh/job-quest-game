@@ -131,12 +131,12 @@ public class LoginPanel extends JPanel {
         
         // Simulate async operation
         SwingWorker<User, Void> worker = new SwingWorker<>() {
-            @Override
+            
             protected User doInBackground() {
                 return loginController.login(username, password);
             }
             
-            @Override
+            
             protected void done() {
                 try {
                     User user = get();

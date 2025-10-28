@@ -8,13 +8,13 @@ public class HealthMaintainedAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.HEALTH_MAINTAINED, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         // Requires time tracking, not implemented
         return false;
     }
 
-    @Override
+    
     public int getProgress(User user) {
         // Not tracked here
         return 0;

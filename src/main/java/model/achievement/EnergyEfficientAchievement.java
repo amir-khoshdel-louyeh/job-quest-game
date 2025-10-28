@@ -8,13 +8,13 @@ public class EnergyEfficientAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.ENERGY_EFFICIENT, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         // Requires tracking efficiency, not implemented
         return false;
     }
 
-    @Override
+    
     public int getProgress(User user) {
         // Not tracked here
         return 0;

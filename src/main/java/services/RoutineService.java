@@ -20,8 +20,8 @@ public class RoutineService {
 
     /**
      * Checks if the user gets sick and applies effects if so.
-     * @param userController The controller for the user.
-     * @return A message describing the sickness event, or null if nothing happened.
+     *  userController The controller for the user.
+     *  A message describing the sickness event, or null if nothing happened.
      */
 
     public String processSicknessCheck(UserController userController) {
@@ -44,8 +44,8 @@ public class RoutineService {
 
     /**
      * Decreases the user's energy based on their current health.
-     * @param userController The controller for the user.
-     * @return A message describing the event, or null if no special event occurred.
+     *  userController The controller for the user.
+     *  A message describing the event, or null if no special event occurred.
      */
     public String processEnergyDecrease(UserController userController) {
         if (userController.getEnergy() <= 0) return null;
@@ -68,8 +68,8 @@ public class RoutineService {
 
     /**
      * Decreases the user's health based on their current energy.
-     * @param userController The controller for the user.
-     * @return A message describing the event, or null if no special event occurred.
+     *  userController The controller for the user.
+     *  A message describing the event, or null if no special event occurred.
      */
     public String processHealthDecrease(UserController userController) {
         int healthLoss = 1;
@@ -90,8 +90,8 @@ public class RoutineService {
 
     /**
      * Blocks the user and applies a penalty.
-     * @param userController The controller for the user.
-     * @param reason The reason for blocking.
+     *  userController The controller for the user.
+     *  reason The reason for blocking.
      */
     private void blockUser(UserController userController, String reason) {
         int penalty = 2000;

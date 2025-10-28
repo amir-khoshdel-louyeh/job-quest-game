@@ -29,7 +29,7 @@ public class UserRepositoryImpl implements UserRepository {
         this.dbConnection = dbConnection;
     }
     
-    @Override
+    
     public User findByUsername(String username) throws SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
         
@@ -51,7 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
         return null;
     }
     
-    @Override
+    
     public boolean save(User user) throws SQLException {
         String sql = "INSERT INTO users (username, password, identity, balance, health, energy, " +
                      "inventory, skills, blocked_until, last_sickness_time, total_play_time) " +
@@ -70,7 +70,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    @Override
+    
     public boolean update(User user) throws SQLException {
         String sql = "UPDATE users SET balance = ?, health = ?, energy = ?, inventory = ?, " +
                      "skills = ?, blocked_until = ?, last_sickness_time = ?, total_play_time = ? " +
@@ -98,7 +98,7 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
     
-    @Override
+    
     public boolean delete(String username) throws SQLException {
         String sql = "DELETE FROM users WHERE username = ?";
         
@@ -131,8 +131,16 @@ public class UserRepositoryImpl implements UserRepository {
         
         Identity identity = createIdentityFromString(identityStr);
         User user = new User(username, password, identity, balance);
-        user.setHealth(health);
-        user.setEnergy(energy);
+        if (health > user.getHealth()) {
+            user.gainHealth(health - user.getHealth());
+        } else if (health < user.getHealth()) {
+            user.loseHealth(user.getHealth() - health);
+        }
+        if (energy > user.getEnergy()) {
+            user.gainEnergy(energy - user.getEnergy());
+        } else if (energy < user.getEnergy()) {
+            user.loseEnergy(user.getEnergy() - energy);
+        }
         user.setBlockedUntil(blockedUntil);
         user.setLastSicknessTime(lastSicknessTime);
         user.setTotalPlayTime(totalPlayTime);

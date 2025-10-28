@@ -15,7 +15,6 @@ public class RoutineController {
 
     public void decreaseEnergy() {
         String message = routineService.processEnergyDecrease(userController);
-        String message = routineService.processEnergyDecrease(userController.getUser());
         if (message != null) {
             panel.addChatMessage(message);
         }
@@ -24,7 +23,6 @@ public class RoutineController {
 
     public void decreaseHealth() {
         String message = routineService.processHealthDecrease(userController);
-        String message = routineService.processHealthDecrease(userController.getUser());
         if (message != null) {
             panel.addChatMessage(message);
         }
@@ -32,7 +30,6 @@ public class RoutineController {
 
     public void sicknessCheck() {
         String message = routineService.processSicknessCheck(userController);
-        String message = routineService.processSicknessCheck(userController.getUser());
         if (message != null) {
             panel.addChatMessage(message);
         }

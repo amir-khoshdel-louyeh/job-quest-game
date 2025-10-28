@@ -37,14 +37,14 @@ public class UserController extends Subject {
 
     public void addBalance(int amount) {
         if (amount > 0) {
-            user.setBalance(user.getBalance() + amount);
+            user.deposit(amount);
             notifyObservers();
         }
     }
 
     public boolean deductBalance(int amount) {
         if (amount > 0 && user.getBalance() >= amount) {
-            user.setBalance(user.getBalance() - amount);
+            user.withdraw(amount);
             return true; // The calling method is responsible for notifying observers.
             // Note: Observers are not notified here to allow for transactional operations.
         }
@@ -53,28 +53,28 @@ public class UserController extends Subject {
 
     public void increaseHealth(int amount) {
         if (amount > 0) {
-            user.setHealth(user.getHealth() + amount);
+            user.gainHealth(amount);
             notifyObservers();
         }
     }
 
     public void decreaseHealth(int amount) {
         if (amount > 0) {
-            user.setHealth(user.getHealth() - amount);
+            user.loseHealth(amount);
             notifyObservers();
         }
     }
 
     public void increaseEnergy(int amount) {
         if (amount > 0) {
-            user.setEnergy(user.getEnergy() + amount);
+            user.gainEnergy(amount);
             notifyObservers();
         }
     }
 
     public void decreaseEnergy(int amount) {
         if (amount > 0) {
-            user.setEnergy(user.getEnergy() - amount);
+            user.loseEnergy(amount);
             notifyObservers();
         }
     }

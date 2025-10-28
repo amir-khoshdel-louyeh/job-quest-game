@@ -8,12 +8,12 @@ public class MoneyEarnedAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.MONEY_EARNED, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         return user.getTotalMoneyEarned() >= getRequiredValue();
     }
 
-    @Override
+    
     public int getProgress(User user) {
         int current = user.getTotalMoneyEarned();
         return Math.min(100, (current * 100) / getRequiredValue());

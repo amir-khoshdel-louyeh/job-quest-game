@@ -138,7 +138,7 @@ public class GamePanel extends JPanel implements Observer {
                 animationPanel = new JPanel() { // No layout needed as we use a MouseListener
                     private final Image bgImage = new ImageIcon(imageUrl).getImage();
 
-                    @Override
+                    
                     protected void paintComponent(Graphics g) {
                         super.paintComponent(g);
                         // Draw the image scaled to fit the panel's current size
@@ -149,7 +149,7 @@ public class GamePanel extends JPanel implements Observer {
 
                 // Add a mouse listener to handle clicks on different regions of the image
                 animationPanel.addMouseListener(new MouseAdapter() {
-                    @Override
+                    
                     public void mouseClicked(MouseEvent e) {
                         int panelWidth = animationPanel.getWidth();
                         int sectionWidth = panelWidth / 5;
@@ -241,7 +241,7 @@ public class GamePanel extends JPanel implements Observer {
         Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
     }
 
-    @Override
+    
     public void update() {
         updateUserInfo();
     }

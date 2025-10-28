@@ -63,7 +63,7 @@ public class Challenge {
     public void setCurrentProgress(int progress) { this.currentProgress = progress; }
     public void setCompleted(boolean completed) { this.completed = completed; }
     
-    @Override
+    
     public String toString() {
         return String.format("%s [%d/%d] - Reward: $%d + %d XP",
             name, currentProgress, targetValue, rewardMoney, rewardExperience);
