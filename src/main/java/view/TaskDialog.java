@@ -99,7 +99,7 @@ public class TaskDialog extends JDialog {
      * A custom renderer to display Task objects in a JList.
      */
     private static class TaskCellRenderer extends DefaultListCellRenderer {
-        @Override
+        
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof Task) {

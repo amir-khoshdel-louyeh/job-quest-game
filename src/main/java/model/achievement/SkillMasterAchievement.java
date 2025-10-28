@@ -8,12 +8,12 @@ public class SkillMasterAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.SKILL_MASTER, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         return user.getSkills().size() >= 6; // We have 6 skills total
     }
 
-    @Override
+    
     public int getProgress(User user) {
         int current = user.getSkills().size();
         return Math.min(100, (current * 100) / 6);

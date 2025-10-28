@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
         
         // Add ESC key to exit fullscreen (F11 to toggle)
         addKeyListener(new KeyListener() {
-            @Override
+            
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     int confirm = JOptionPane.showConfirmDialog(
@@ -54,10 +54,10 @@ public class MainFrame extends JFrame {
                 }
             }
             
-            @Override
+            
             public void keyReleased(KeyEvent e) {}
             
-            @Override
+            
             public void keyTyped(KeyEvent e) {}
         });
         

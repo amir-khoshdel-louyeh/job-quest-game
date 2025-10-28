@@ -8,13 +8,13 @@ public class DaysPlayedAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.DAYS_PLAYED, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         // Requires time tracking, not implemented
         return false;
     }
 
-    @Override
+    
     public int getProgress(User user) {
         // Not tracked here
         return 0;

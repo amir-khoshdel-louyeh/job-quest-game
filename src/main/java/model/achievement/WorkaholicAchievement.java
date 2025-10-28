@@ -8,13 +8,13 @@ public class WorkaholicAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.WORKAHOLIC, requiredValue);
     }
 
-    @Override
+    
     public boolean checkRequirement(User user) {
         // This should be checked during session, so always return false here
         return false;
     }
 
-    @Override
+    
     public int getProgress(User user) {
         // Not tracked here
         return 0;
