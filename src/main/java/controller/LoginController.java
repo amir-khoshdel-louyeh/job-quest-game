@@ -8,12 +8,14 @@ package controller;
 
 import model.User;
 import database.DatabaseUtil;
+import java.util.Objects;
 
 public class LoginController {
+    // authenticate user by username and password
     public User login(String username, String password) {
-        // authenticate user by username and password
         User user = DatabaseUtil.getUser(username);
-        if (user != null && user.getPassword().equals(password)) {
+        // Use Objects.equals to avoid potential NPE and make the intent clear.
+        if (user != null && Objects.equals(user.getPassword(), password)) {
             return user;
         }
         return null;

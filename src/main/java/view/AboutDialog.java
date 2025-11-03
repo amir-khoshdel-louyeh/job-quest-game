@@ -55,7 +55,7 @@ public class AboutDialog extends JDialog {
         
         add(tabbedPane, BorderLayout.CENTER);
         
-        // Close button
+        // Close button at the bottom. Kept simple for beginners: click to close.
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         JButton closeButton = AppTheme.createPrimaryButton("Close");
@@ -120,12 +120,8 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        JEditorPane editorPane = new JEditorPane("text/html", content);
-        editorPane.setEditable(false);
-        editorPane.setCaretPosition(0);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+        // Use an editor pane to render simple HTML content and make it scrollable.
+        panel.add(createHtmlScroll(content), BorderLayout.CENTER);
         return panel;
     }
     
@@ -208,12 +204,7 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        JEditorPane editorPane = new JEditorPane("text/html", content);
-        editorPane.setEditable(false);
-        editorPane.setCaretPosition(0);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+        panel.add(createHtmlScroll(content), BorderLayout.CENTER);
         return panel;
     }
     
@@ -348,12 +339,7 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        JEditorPane editorPane = new JEditorPane("text/html", content);
-        editorPane.setEditable(false);
-        editorPane.setCaretPosition(0);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+        panel.add(createHtmlScroll(content), BorderLayout.CENTER);
         return panel;
     }
     
@@ -456,12 +442,7 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        JEditorPane editorPane = new JEditorPane("text/html", content);
-        editorPane.setEditable(false);
-        editorPane.setCaretPosition(0);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
+        panel.add(createHtmlScroll(content), BorderLayout.CENTER);
         return panel;
     }
     
@@ -568,12 +549,15 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        JEditorPane editorPane = new JEditorPane("text/html", content);
+        panel.add(createHtmlScroll(content), BorderLayout.CENTER);
+        return panel;
+    }
+
+    // Small helper that creates a scrollable HTML view from a string.
+    private JScrollPane createHtmlScroll(String html) {
+        JEditorPane editorPane = new JEditorPane("text/html", html);
         editorPane.setEditable(false);
         editorPane.setCaretPosition(0);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
-        return panel;
+        return new JScrollPane(editorPane);
     }
 }

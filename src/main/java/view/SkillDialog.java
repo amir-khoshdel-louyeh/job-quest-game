@@ -23,6 +23,8 @@ public class SkillDialog extends JDialog {
         setLayout(new BorderLayout(10, 10));
         setSize(450, 500);
         setLocationRelativeTo(parent);
+        // Close this dialog when the user closes the window
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         JPanel skillsContainer = new JPanel();
         skillsContainer.setLayout(new BoxLayout(skillsContainer, BoxLayout.Y_AXIS));
@@ -74,19 +76,22 @@ public class SkillDialog extends JDialog {
         JButton learnButton = new JButton(String.format("Learn ($%d)", skill.getCost()));
         learnButton.setBackground(new Color(13, 110, 253)); // A blue color for learning
         learnButton.setForeground(Color.WHITE);
-        learnButton.addActionListener(evt -> {
-            GameController.ActionResult result = controller.learnSkill(skill.getName());
-            if (result.success) {
-                // Show success message with achievement and quest updates
-                JOptionPane.showMessageDialog(this, result.message, "Skill Learned! 🎓", JOptionPane.INFORMATION_MESSAGE);
-                gamePanel.updateUserInfo();
-                dispose(); // Close dialog on success
-            } else {
-                JOptionPane.showMessageDialog(this, result.message, "Cannot Learn", JOptionPane.WARNING_MESSAGE);
-            }
-        });
+        // Delegate the learning action to a small helper to keep this UI method short.
+        learnButton.addActionListener(evt -> handleLearnSkill(skill));
         panel.add(learnButton, BorderLayout.EAST);
 
         return panel;
+    }
+
+    // Helper method to perform learning via controller and show results simply.
+    private void handleLearnSkill(LearnableSkill skill) {
+        GameController.ActionResult result = controller.learnSkill(skill.getName());
+        if (result.success) {
+            JOptionPane.showMessageDialog(this, result.message, "Skill Learned! 🎓", JOptionPane.INFORMATION_MESSAGE);
+            gamePanel.updateUserInfo();
+            dispose(); // Close dialog on success
+        } else {
+            JOptionPane.showMessageDialog(this, result.message, "Cannot Learn", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

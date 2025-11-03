@@ -63,19 +63,41 @@ public class ShopPanel extends JPanel {
         descriptionArea.setBackground(panel.getBackground());
         panel.add(descriptionArea, BorderLayout.CENTER);
 
-        // Buy Button
+        // Buy Button (delegates to a helper to keep this method short)
         JButton buyButton = new JButton("Buy ($" + item.getPrice() + ")");
-        buyButton.addActionListener(e -> {
-            GameController.ActionResult result = gameController.purchaseItem(item);
-            if (result.success) {
-                gamePanel.addChatMessage(result.message);
-                parentDialog.dispose(); // Close the shop dialog
-            } else {
-                JOptionPane.showMessageDialog(this, result.message, "Purchase Failed", JOptionPane.WARNING_MESSAGE);
-            }
-        });
+        buyButton.addActionListener(e -> handleBuy(item));
         panel.add(buyButton, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    // Helper that performs the purchase flow with small client-side checks.
+    private void handleBuy(Item item) {
+        // Quick client-side checks before requesting purchase
+        if (userController.isBlocked()) {
+            JOptionPane.showMessageDialog(this,
+                    "Your account is blocked. You cannot make purchases.",
+                    "Purchase Failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (userController.getBalance() < item.getPrice()) {
+            JOptionPane.showMessageDialog(this,
+                    "You don't have enough money to buy this item.",
+                    "Purchase Failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        GameController.ActionResult result = gameController.purchaseItem(item);
+        if (result.success) {
+            gamePanel.addChatMessage(result.message);
+            if (parentDialog != null) {
+                parentDialog.dispose(); // Close the shop dialog
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, result.message, "Purchase Failed", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

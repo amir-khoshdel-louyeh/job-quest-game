@@ -42,7 +42,6 @@ controller/JobController.class
 model/Achievement$AchievementType.class
 model/achievement/SkillsLearnedAchievement.class
 model/User.class
-view/theme/AppTheme$3.class
 view/RegisterPanel.class
 view/LoginPanel$1.class
 utils/Timer.class
@@ -60,7 +59,6 @@ provider/ServiceProvider.class
 model/GameEvent.class
 model/Task.class
 view/MainFrame$1.class
-view/theme/AppTheme$4.class
 database/DatabaseConnection.class
 view/ShopDialog.class
 model/achievement/MoneyEarnedAchievement.class

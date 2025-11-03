@@ -109,15 +109,8 @@ public class AppTheme {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(button.getPreferredSize().width, BUTTON_HEIGHT));
         
-        // Hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(PRIMARY_DARK);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(PRIMARY_COLOR);
-            }
-        });
+        // Hover effect (kept in a helper to avoid repeating the same listener everywhere)
+        addHoverEffect(button, PRIMARY_COLOR, PRIMARY_DARK);
         
         return button;
     }
@@ -137,16 +130,7 @@ public class AppTheme {
         button.setPreferredSize(new Dimension(button.getPreferredSize().width, BUTTON_HEIGHT));
         
         // Hover effect
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(PRIMARY_LIGHT);
-                button.setForeground(Color.WHITE);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(SURFACE_COLOR);
-                button.setForeground(PRIMARY_COLOR);
-            }
-        });
+        addHoverEffect(button, SURFACE_COLOR, PRIMARY_LIGHT, Color.WHITE, PRIMARY_COLOR);
         
         return button;
     }
@@ -155,15 +139,7 @@ public class AppTheme {
     public static JButton createSuccessButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(SUCCESS_COLOR);
-        
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(SUCCESS_COLOR.darker());
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(SUCCESS_COLOR);
-            }
-        });
+        addHoverEffect(button, SUCCESS_COLOR, SUCCESS_COLOR.darker());
         
         return button;
     }
@@ -172,15 +148,7 @@ public class AppTheme {
     public static JButton createDangerButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(ERROR_COLOR);
-        
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(ERROR_COLOR.darker());
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(ERROR_COLOR);
-            }
-        });
+        addHoverEffect(button, ERROR_COLOR, ERROR_COLOR.darker());
         
         return button;
     }
@@ -207,6 +175,38 @@ public class AppTheme {
         ));
         field.setPreferredSize(new Dimension(field.getPreferredSize().width, INPUT_HEIGHT));
         return field;
+    }
+
+    // Helper to add a simple hover effect that only changes background color
+    private static void addHoverEffect(JButton button, Color base, Color hover) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(hover);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(base);
+            }
+        });
+    }
+
+    // Helper to add a hover effect that also updates the foreground color
+    private static void addHoverEffect(JButton button, Color base, Color hover, Color hoverForeground, Color baseForeground) {
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(hover);
+                button.setForeground(hoverForeground);
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(base);
+                button.setForeground(baseForeground);
+            }
+        });
     }
     
     // Create a styled card panel

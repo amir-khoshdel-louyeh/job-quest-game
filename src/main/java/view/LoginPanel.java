@@ -15,6 +15,7 @@ public class LoginPanel extends JPanel {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
+    // Controller handles the login logic (keeps UI and logic separated)
     private LoginController loginController = new LoginController();
     private MainFrame mainFrame;
 
@@ -107,11 +108,13 @@ public class LoginPanel extends JPanel {
 
     // Attach action listeners for buttons and fields
     private void initActions() {
+        // When user clicks the login button or presses Enter in password -> try login
         loginButton.addActionListener(e -> performLogin());
         registerButton.addActionListener(e -> navigateToRegister());
-        
-        // Enter key support
+
+        // Enter key support: pressing Enter in password field triggers login
         passwordField.addActionListener(e -> performLogin());
+        // Pressing Enter in username moves focus to password
         usernameField.addActionListener(e -> passwordField.requestFocus());
     }
 
@@ -146,7 +149,7 @@ public class LoginPanel extends JPanel {
                         passwordField.setText("");
                         mainFrame.showPanel(new GamePanel(user));
                     } else {
-                        showError("Login failed! Incorrect username or password.");
+                        showError("Login failed: incorrect username or password.");
                     }
                 } catch (Exception e) {
                     showError("An error occurred during login.");

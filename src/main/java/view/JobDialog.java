@@ -79,20 +79,23 @@ public class JobDialog extends JDialog {
         actionPanel.add(rewardLabel, BorderLayout.CENTER);
 
         JButton doItButton = new JButton("Do It!");
-        doItButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.doJob(job);
-            if (result.success) {
-                // Show success message with all details
-                JOptionPane.showMessageDialog(this, result.message, "Success!", JOptionPane.INFORMATION_MESSAGE);
-                gamePanel.updateUserInfo();
-                dispose(); // Close the dialog after successfully completing the job
-            } else {
-                JOptionPane.showMessageDialog(this, result.message, "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        // When clicked, attempt the job via the controller and show the result.
+        doItButton.addActionListener(e -> handleDoJob(job));
         actionPanel.add(doItButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);
         return panel;
+    }
+
+    // Small helper that executes the job and shows messages in a consistent way.
+    private void handleDoJob(Job job) {
+        GameController.ActionResult result = controller.doJob(job);
+        if (result.success) {
+            JOptionPane.showMessageDialog(this, result.message, "Success!", JOptionPane.INFORMATION_MESSAGE);
+            gamePanel.updateUserInfo();
+            dispose(); // Close the dialog after success
+        } else {
+            JOptionPane.showMessageDialog(this, result.message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
