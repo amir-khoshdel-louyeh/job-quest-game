@@ -8,23 +8,15 @@ import java.sql.SQLException;
  * Follows Repository Pattern and Dependency Inversion Principle.
  */
 public interface UserRepository {
-    /**
-     * Find a user by username.
-     */
+    // find user by username
     User findByUsername(String username) throws SQLException;
-    
-    /**
-     * Save a new user to the database.
-     */
+
+    // save a new user
     boolean save(User user) throws SQLException;
-    
-    /**
-     * Update an existing user in the database.
-     */
+
+    // update an existing user
     boolean update(User user) throws SQLException;
-    
-    /**
-     * Delete a user from the database.
-     */
+
+    // delete a user by username
     boolean delete(String username) throws SQLException;
 }

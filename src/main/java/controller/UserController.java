@@ -12,6 +12,7 @@ public class UserController extends Subject {
     private User user;
 
     public UserController(User user) {
+    // create user controller wrapping a User model
         this.user = user;
     }
 
@@ -43,6 +44,7 @@ public class UserController extends Subject {
     }
 
     public boolean deductBalance(int amount) {
+    // try to deduct amount from user's balance (no notify)
         if (amount > 0 && user.getBalance() >= amount) {
             user.withdraw(amount);
             return true; // The calling method is responsible for notifying observers.
@@ -88,10 +90,12 @@ public class UserController extends Subject {
     }
 
     public void blockUser(long durationMillis) {
+    // block the user for the given duration
         user.setBlockedUntil(System.currentTimeMillis() + durationMillis);
     }
 
     public void unblockUser() {
+    // remove any block on the user
         user.setBlockedUntil(0);
     }
 

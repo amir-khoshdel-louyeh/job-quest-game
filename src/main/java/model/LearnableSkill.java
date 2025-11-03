@@ -30,4 +30,5 @@ public class LearnableSkill {
     }
 
     public long getRequiredPlayTimeMinutes() { return requiredPlayTimeMinutes; }
+
 }

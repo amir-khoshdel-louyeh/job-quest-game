@@ -1,5 +1,11 @@
 package view;
 
+/**
+ * UI panel for the in-game shop where users can browse and buy items or services.
+ *
+ * Follows Single Responsibility Principle by encapsulating shop UI logic only.
+ */
+
 import controller.UserController;
 import controller.GameController;
 import model.Item;
@@ -14,6 +20,7 @@ public class ShopPanel extends JPanel {
     private JDialog parentDialog; 
     private UserController userController;
 
+    // Construct the shop panel listing items for sale
     public ShopPanel(GameController gameController, GamePanel gamePanel, JDialog parentDialog, List<Item> itemsForSale) {
         this.gameController = gameController;
         this.userController = gameController.getUserController();
@@ -43,6 +50,7 @@ public class ShopPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Create UI panel for a single shop item with buy action
     private JPanel createItemPanel(Item item) {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBorder(BorderFactory.createTitledBorder(item.getName()));

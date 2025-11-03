@@ -1,5 +1,11 @@
 package view;
 
+/**
+ * Dialog allowing the player to view and perform tasks within the game.
+ *
+ * Follows Single Responsibility Principle by providing only task-related UI behavior.
+ */
+
 // ...existing code...
 import controller.GameController;
 import model.Task;
@@ -19,6 +25,7 @@ public class TaskDialog extends JDialog {
     private JLabel selectedFileLabel;
     private File uploadedFile = null;
 
+    // Dialog for selecting and submitting freelancer tasks
     public TaskDialog(JFrame parent, GameController gameController, GamePanel gamePanel) {
         super(parent, "Freelancer Tasks", true);
         this.gameController = gameController;
@@ -63,6 +70,7 @@ public class TaskDialog extends JDialog {
         submitButton.addActionListener(e -> submitTask());
     }
 
+    // Open a file chooser to select a submission file
     private void chooseFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
@@ -72,6 +80,7 @@ public class TaskDialog extends JDialog {
         }
     }
 
+    // Submit the selected task and uploaded file through the controller
     private void submitTask() {
         Task selectedTask = taskList.getSelectedValue();
         if (selectedTask == null) {
@@ -98,8 +107,10 @@ public class TaskDialog extends JDialog {
     /**
      * A custom renderer to display Task objects in a JList.
      */
+    // Custom renderer to display task name, payment, and energy cost
     private static class TaskCellRenderer extends DefaultListCellRenderer {
         
+        // Render a Task object into a single-line summary for the list
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof Task) {

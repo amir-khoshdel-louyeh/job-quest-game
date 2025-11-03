@@ -35,7 +35,6 @@ public class Challenge {
         this.currentProgress = 0;
         this.completed = false;
     }
-    
     public void addProgress(int amount) {
         if (!completed) {
             currentProgress = Math.min(currentProgress + amount, targetValue);
@@ -44,7 +43,6 @@ public class Challenge {
             }
         }
     }
-    
     public int getProgressPercentage() {
         return (int) ((currentProgress / (double) targetValue) * 100);
     }
@@ -59,8 +57,8 @@ public class Challenge {
     public int getRewardExperience() { return rewardExperience; }
     public int getCurrentProgress() { return currentProgress; }
     public boolean isCompleted() { return completed; }
-    
     public void setCurrentProgress(int progress) { this.currentProgress = progress; }
+    // mark challenge completed or not
     public void setCompleted(boolean completed) { this.completed = completed; }
     
     

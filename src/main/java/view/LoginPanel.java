@@ -18,6 +18,7 @@ public class LoginPanel extends JPanel {
     private LoginController loginController = new LoginController();
     private MainFrame mainFrame;
 
+    // Create the login panel and wire UI/actions
     public LoginPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         setBackground(AppTheme.BACKGROUND_COLOR);
@@ -25,6 +26,7 @@ public class LoginPanel extends JPanel {
         initActions();
     }
 
+    // Build UI components and layout for the login form
     private void initUI() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -77,8 +79,6 @@ public class LoginPanel extends JPanel {
         registerButton = AppTheme.createSecondaryButton("Create New Account");
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, AppTheme.BUTTON_HEIGHT));
-        
-        // Add components to card
         cardPanel.add(titleLabel);
         cardPanel.add(subtitleLabel);
         cardPanel.add(userLabel);
@@ -92,8 +92,6 @@ public class LoginPanel extends JPanel {
         cardPanel.add(Box.createVerticalStrut(15));
         cardPanel.add(registerButton);
         cardPanel.add(Box.createVerticalGlue());
-        
-        // Add card to main panel
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(cardPanel, gbc);
@@ -107,6 +105,7 @@ public class LoginPanel extends JPanel {
         add(footerLabel, gbc);
     }
 
+    // Attach action listeners for buttons and fields
     private void initActions() {
         loginButton.addActionListener(e -> performLogin());
         registerButton.addActionListener(e -> navigateToRegister());
@@ -116,6 +115,7 @@ public class LoginPanel extends JPanel {
         usernameField.addActionListener(e -> passwordField.requestFocus());
     }
 
+    // Perform login asynchronously and handle navigation on success
     private void performLogin() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
@@ -160,10 +160,12 @@ public class LoginPanel extends JPanel {
         worker.execute();
     }
 
+    // Navigate to the account registration panel
     private void navigateToRegister() {
         mainFrame.showPanel(new RegisterPanel(mainFrame));
     }
     
+    // Show an error dialog with the provided message
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Login Error", 
             JOptionPane.ERROR_MESSAGE);

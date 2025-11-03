@@ -48,6 +48,7 @@ public class ServiceProvider {
     }
 
     private static void addService(Service service) {
+        // register a service in the internal map
         SERVICES_BY_NAME.put(service.getName(), service);
     }
 

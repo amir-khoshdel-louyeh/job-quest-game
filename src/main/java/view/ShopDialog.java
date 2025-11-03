@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class ShopDialog extends JDialog {
 
+    // Dialog wrapper that hosts the shop panel
     public ShopDialog(JFrame parent, GameController gameController, GamePanel gamePanel, List<Item> items) {
         super(parent, "Shop", true); // 'true' for modal
         ShopPanel shopPanel = new ShopPanel(gameController, gamePanel, this, items);

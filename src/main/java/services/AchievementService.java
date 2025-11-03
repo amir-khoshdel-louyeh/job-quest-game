@@ -13,6 +13,7 @@ public class AchievementService {
     private static AchievementService instance;
     
     private AchievementService() {}
+    // private constructor for singleton
     
     public static AchievementService getInstance() {
         if (instance == null) {
@@ -20,8 +21,6 @@ public class AchievementService {
         }
         return instance;
     }
-    
-    /** Check and unlock new achievements */
     public List<Achievement> checkAndUnlockAchievements(User user) {
         List<Achievement> newlyUnlocked = new ArrayList<>();
         
@@ -40,17 +39,13 @@ public class AchievementService {
         return newlyUnlocked;
     }
     
-    /** Check the requirements for unlocking an achievement */
+    // evaluate a single achievement's requirement
     private boolean checkAchievementRequirement(User user, Achievement achievement) {
         return achievement.checkRequirement(user);
     }
-    
-    /** Get achievement progress percentage */
     public int getAchievementProgress(User user, Achievement achievement) {
         return achievement.getProgress(user);
     }
-    
-    /** Get the list of achievements with unlock status */
     public List<Achievement> getAchievementsWithStatus(User user) {
         List<Achievement> achievements = new ArrayList<>();
         

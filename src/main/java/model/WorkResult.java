@@ -20,7 +20,6 @@ public class WorkResult {
         this.energyCost = energyCost;
         this.type = type;
     }
-
     public int getMoneyEarned() { return moneyEarned; }
     public int getEnergyCost() { return energyCost; }
     public Type getType() { return type; }

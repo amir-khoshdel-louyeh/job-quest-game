@@ -49,7 +49,6 @@ public class Job {
 
     /** Check if the user is eligible to take this job */
     public boolean isAvailableFor(String userIdentity, List<String> userSkills) {
-        // Check if the identity matches and if the user's skills contain all required skills for this job.
         return userIdentity.equals(requiredIdentity) && userSkills.containsAll(requiredSkills);
     }
 }

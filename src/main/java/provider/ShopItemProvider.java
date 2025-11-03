@@ -26,6 +26,7 @@ public class ShopItemProvider {
     }
 
     private static void addItem(Item item) {
+        // register an item in the shop catalog
         ITEMS_BY_NAME.put(item.getName(), item);
     }
 
@@ -41,6 +42,7 @@ public class ShopItemProvider {
 
     /** Get an item by its name */
     public static Item getItemByName(String name) {
+        // lookup item by name
         return ITEMS_BY_NAME.get(name);
     }
 }

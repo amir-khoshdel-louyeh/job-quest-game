@@ -22,6 +22,7 @@ public class UserRepositoryImpl implements UserRepository {
     private final DatabaseConnection dbConnection;
     
     public UserRepositoryImpl() {
+        // default constructor using singleton DBConnection
         this.dbConnection = DatabaseConnection.getInstance();
     }
     
@@ -31,6 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public User findByUsername(String username) throws SQLException {
+        // find and return a user by username
         String sql = "SELECT * FROM users WHERE username = ?";
         
         try (Connection conn = dbConnection.createConnection();
@@ -53,6 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public boolean save(User user) throws SQLException {
+        // insert a new user record into the database
         String sql = "INSERT INTO users (username, password, identity, balance, health, energy, " +
                      "inventory, skills, blocked_until, last_sickness_time, total_play_time) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -72,6 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public boolean update(User user) throws SQLException {
+        // update fields of an existing user record
         String sql = "UPDATE users SET balance = ?, health = ?, energy = ?, inventory = ?, " +
                      "skills = ?, blocked_until = ?, last_sickness_time = ?, total_play_time = ? " +
                      "WHERE username = ?";
@@ -100,6 +104,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public boolean delete(String username) throws SQLException {
+        // delete a user record by username
         String sql = "DELETE FROM users WHERE username = ?";
         
         try (Connection conn = dbConnection.createConnection();
@@ -117,6 +122,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Map a ResultSet row to a User object */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        // build a User object from a DB row
         String username = rs.getString("username");
         String password = rs.getString("password");
         String identityStr = rs.getString("identity");
@@ -153,6 +159,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Set parameters for INSERT */
     private void setUserParameters(PreparedStatement stmt, User user) throws SQLException {
+        // bind user fields to an INSERT prepared statement
         stmt.setString(1, user.getUsername());
         stmt.setString(2, user.getPassword());
         stmt.setString(3, user.getIdentity().getClass().getSimpleName());
@@ -168,6 +175,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Create Identity from class name string */
     private Identity createIdentityFromString(String identityStr) {
+        // convert stored identity name to an Identity object
         return switch (identityStr) {
             case "Doctor" -> new Doctor();
             case "Programmer" -> new Programmer();
@@ -182,6 +190,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Convert inventory string to Inventory object */
     private void deserializeInventory(User user, String inventoryStr) {
+        // parse inventory CSV and add items to the user's inventory
         if (inventoryStr != null && !inventoryStr.isEmpty()) {
             Arrays.stream(inventoryStr.split(","))
                   .map(provider.ShopItemProvider::getItemByName)
@@ -192,6 +201,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Convert skills string to Skill list */
     private void deserializeSkills(User user, String skillsStr) {
+        // parse skills CSV and add Skill objects to the user
         if (skillsStr != null && !skillsStr.isEmpty()) {
             Arrays.stream(skillsStr.split(","))
                   .forEach(skillName -> user.getSkills().add(new Skill(skillName)));
@@ -200,6 +210,7 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Convert user skills to string for database storage */
     private String serializeSkills(User user) {
+        // serialize user's skills to a CSV string
         return user.getSkills().stream()
                    .map(Skill::getName)
                    .reduce((a, b) -> a + "," + b)

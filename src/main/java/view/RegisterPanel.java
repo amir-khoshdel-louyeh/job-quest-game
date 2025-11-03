@@ -20,7 +20,6 @@ public class RegisterPanel extends JPanel {
     private JButton backButton;
     private RegisterController registerController = new RegisterController();
     private ButtonGroup identityGroup;
-
     public RegisterPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         setBackground(AppTheme.BACKGROUND_COLOR);
@@ -36,6 +35,7 @@ public class RegisterPanel extends JPanel {
         initActions();
     }
 
+    // Build UI components for the registration screen
     private void initUI() {
         // Header Panel
         JPanel headerPanel = new JPanel();
@@ -144,6 +144,7 @@ public class RegisterPanel extends JPanel {
         add(bottomWrapper, BorderLayout.SOUTH);
     }
 
+    // Create a selectable identity option card
     private JPanel createIdentityCard(IdentityOption option) {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout(12, 12));
@@ -175,8 +176,6 @@ public class RegisterPanel extends JPanel {
         desc.setFont(AppTheme.FONT_BODY);
         desc.setForeground(AppTheme.TEXT_SECONDARY);
         desc.setBorder(BorderFactory.createEmptyBorder(8, 24, 0, 0));
-        
-        // Add hover effect
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 card.setBackground(AppTheme.PRIMARY_LIGHT.brighter().brighter());
@@ -203,12 +202,14 @@ public class RegisterPanel extends JPanel {
         return card;
     }
 
+    // Attach action listeners for registration and navigation
     private void initActions() {
         registerButton.addActionListener(e -> performRegistration());
         backButton.addActionListener(e -> navigateToLogin());
         passwordField.addActionListener(e -> performRegistration());
     }
 
+    // Validate input and perform account registration
     private void performRegistration() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
@@ -255,13 +256,13 @@ public class RegisterPanel extends JPanel {
         }
     }
 
+    // Navigate back to the login panel and reset form
     private void navigateToLogin() {
         usernameField.setText("");
         passwordField.setText("");
         identityGroup.clearSelection();
         mainFrame.showPanel(new LoginPanel(mainFrame));
     }
-
     private IdentityOption getSelectedOption() {
         for (AbstractButton button : java.util.Collections.list(identityGroup.getElements())) {
             if (button.isSelected()) {

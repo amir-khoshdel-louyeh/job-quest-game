@@ -15,6 +15,7 @@ public class JobDialog extends JDialog {
     private final GameController controller;
     private final GamePanel gamePanel;
 
+    // Dialog that lists available jobs for the user
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<Job> jobs) {
         super(parent, "Available Jobs", true);
         this.controller = controller;
@@ -45,6 +46,7 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Create a single job entry panel with action button
     private JPanel createJobPanel(Job job) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(

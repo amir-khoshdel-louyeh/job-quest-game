@@ -14,10 +14,8 @@ public class DatabaseInitializer {
     private static final String USER = "jobuser";
     private static final String PASSWORD = "jobpass";
 
-    /**
-     * Check and create database and tables if needed
-     */
     public static void initialize() {
+        // ensure database and tables exist, creating them if necessary
         try {
             System.out.println("Checking and initializing database...");
             
@@ -36,10 +34,8 @@ public class DatabaseInitializer {
         }
     }
 
-    /**
-     * Create database if it doesn't exist
-     */
     private static void createDatabaseIfNotExists() throws Exception {
+        // create the database and user if missing
         // Try to connect with defined user
         try (Connection conn = DriverManager.getConnection(MYSQL_URL, USER, PASSWORD);
              Statement stmt = conn.createStatement()) {
@@ -77,10 +73,8 @@ public class DatabaseInitializer {
         }
     }
 
-    /**
-     * Create tables if they don't exist
-     */
     private static void createTablesIfNotExists() throws Exception {
+        // create required tables in the database if absent
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             

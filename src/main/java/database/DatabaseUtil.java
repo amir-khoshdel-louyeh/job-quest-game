@@ -12,11 +12,6 @@ import java.sql.SQLException;
  */
 public class DatabaseUtil {
     private static final UserRepository userRepository = new UserRepositoryImpl();
-    
-    /**
-     * Get user from database by username.
-     */
-    
     public static User getUser(String username) {
         try {
             return userRepository.findByUsername(username);
@@ -26,10 +21,7 @@ public class DatabaseUtil {
         }
     }
     
-    /**
-     * Create a new user in the database.
-     */
-    
+    // create a new user record
     public static boolean createUser(User user) {
         try {
             return userRepository.save(user);
@@ -39,10 +31,7 @@ public class DatabaseUtil {
         }
     }
     
-    /**
-     * Update an existing user in the database.
-     */
-    
+    // update an existing user record
     public static boolean updateUser(User user) {
         try {
             return userRepository.update(user);
