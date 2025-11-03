@@ -24,6 +24,8 @@ public class ServiceDialog extends JDialog {
         setLayout(new BorderLayout(10, 10)); // Set layout before adding components
         setSize(400, 500);
         setLocationRelativeTo(parent);
+        // Keep dialog behavior simple for beginners: dispose when closed
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         // Panel to hold all the service cards
         JPanel servicesContainer = new JPanel();
@@ -87,17 +89,21 @@ public class ServiceDialog extends JDialog {
         buyButton.setForeground(Color.WHITE);
         buyButton.setFocusPainted(false);
         buyButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        buyButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.purchaseService(service.getName());
-            if (result.success) {
-                gamePanel.addChatMessage(result.message);
-            }
-            JOptionPane.showMessageDialog(this, result.message, "Service Used", result.success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
-        });
+        // Delegate purchase handling to a helper method to keep the UI code short and clear
+        buyButton.addActionListener(e -> handleBuyService(service));
         actionPanel.add(buyButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    // Helper to handle service purchase flow. Keeps the UI method readable for beginners.
+    private void handleBuyService(Service service) {
+        GameController.ActionResult result = controller.purchaseService(service.getName());
+        if (result.success) {
+            gamePanel.addChatMessage(result.message);
+        }
+        JOptionPane.showMessageDialog(this, result.message, "Service Used", result.success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
 }

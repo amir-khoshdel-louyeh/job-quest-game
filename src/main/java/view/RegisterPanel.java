@@ -18,7 +18,9 @@ public class RegisterPanel extends JPanel {
     private JPasswordField passwordField;
     private JButton registerButton;
     private JButton backButton;
+    // Controller that performs registration logic
     private RegisterController registerController = new RegisterController();
+    // Group of radio buttons for identity selection
     private ButtonGroup identityGroup;
     public RegisterPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -176,7 +178,9 @@ public class RegisterPanel extends JPanel {
         desc.setFont(AppTheme.FONT_BODY);
         desc.setForeground(AppTheme.TEXT_SECONDARY);
         desc.setBorder(BorderFactory.createEmptyBorder(8, 24, 0, 0));
+        // Simple hover effect and click selects the radio button
         card.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 card.setBackground(AppTheme.PRIMARY_LIGHT.brighter().brighter());
                 card.setBorder(BorderFactory.createCompoundBorder(
@@ -184,6 +188,7 @@ public class RegisterPanel extends JPanel {
                     BorderFactory.createEmptyBorder(15, 15, 15, 15)
                 ));
             }
+            @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 card.setBackground(AppTheme.CARD_BACKGROUND);
                 card.setBorder(BorderFactory.createCompoundBorder(
@@ -191,6 +196,7 @@ public class RegisterPanel extends JPanel {
                     BorderFactory.createEmptyBorder(16, 16, 16, 16)
                 ));
             }
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 radioButton.setSelected(true);
             }

@@ -93,12 +93,13 @@ public class TaskDialog extends JDialog {
         }
 
         // Delegate the entire operation to the controller
+        // Call controller to complete the task. Controller handles validation and persistence.
         GameController.ActionResult result = gameController.completeTask(selectedTask);
 
         if (result.success) {
             gamePanel.addChatMessage("✅ " + result.message);
             JOptionPane.showMessageDialog(this, result.message, "Task Submitted", JOptionPane.INFORMATION_MESSAGE);
-            dispose(); // Close the dialog
+            dispose(); // Close the dialog after success
         } else {
             JOptionPane.showMessageDialog(this, result.message, "Task Failed", JOptionPane.WARNING_MESSAGE);
         }
@@ -111,6 +112,7 @@ public class TaskDialog extends JDialog {
     private static class TaskCellRenderer extends DefaultListCellRenderer {
         
         // Render a Task object into a single-line summary for the list
+        @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value instanceof Task) {

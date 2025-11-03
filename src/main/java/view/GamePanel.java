@@ -232,10 +232,9 @@ public class GamePanel extends JPanel implements Observer {
             }
         });
 
-        // Use the Timer utility for periodic routines
-        Timer.runPeriodic(5_000, e -> routineController.decreaseEnergy()); // Decrease energy every 5 seconds
-        Timer.runPeriodic(60_000, e -> routineController.decreaseHealth()); // Decrease health every 1 minute
-        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck()); // Sickness check once a day
+    // Start periodic background tasks (timers). We keep them in a small helper
+    // method to make the constructor easier to read for beginners.
+    setupTimers();
 
         // ---------------- Check if blocked ----------------
         if(userController.isBlocked()) {
@@ -268,6 +267,19 @@ public class GamePanel extends JPanel implements Observer {
         xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
         reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
         streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
+    }
+
+    // Helper to start periodic timers used by the panel. Kept small and readable.
+    private void setupTimers() {
+        // Decrease energy every 5 seconds
+        Timer.runPeriodic(5_000, e -> routineController.decreaseEnergy());
+        // Decrease health every 1 minute
+        Timer.runPeriodic(60_000, e -> routineController.decreaseHealth());
+        // Sickness check once a day
+        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck());
+
+        // Unblocking user after 48 hours (in milliseconds)
+        Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
     }
     
 
