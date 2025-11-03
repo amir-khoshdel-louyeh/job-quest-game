@@ -10,6 +10,7 @@ public class RoutineService {
     private static RoutineService instance;
 
     private RoutineService() {}
+    // private constructor for singleton
 
     public static RoutineService getInstance() {
         if (instance == null) {
@@ -17,13 +18,6 @@ public class RoutineService {
         }
         return instance;
     }
-
-    /**
-     * Checks if the user gets sick and applies effects if so.
-     *  userController The controller for the user.
-     *  A message describing the sickness event, or null if nothing happened.
-     */
-
     public String processSicknessCheck(UserController userController) {
         long now = System.currentTimeMillis();
         // Only allow sickness once per 24 hours
@@ -41,12 +35,6 @@ public class RoutineService {
         userController.getUser().setLastSicknessTime(now); // Mark checked for today
         return null;
     }
-
-    /**
-     * Decreases the user's energy based on their current health.
-     *  userController The controller for the user.
-     *  A message describing the event, or null if no special event occurred.
-     */
     public String processEnergyDecrease(UserController userController) {
         if (userController.getEnergy() <= 0) return null;
 
@@ -65,12 +53,6 @@ public class RoutineService {
         }
         return message;
     }
-
-    /**
-     * Decreases the user's health based on their current energy.
-     *  userController The controller for the user.
-     *  A message describing the event, or null if no special event occurred.
-     */
     public String processHealthDecrease(UserController userController) {
         int healthLoss = 1;
         String message = null;
@@ -88,11 +70,8 @@ public class RoutineService {
         return message;
     }
 
-    /**
-     * Blocks the user and applies a penalty.
-     *  userController The controller for the user.
-     *  reason The reason for blocking.
-     */
+    
+    // apply block penalty and set blocked-until on the user
     private void blockUser(UserController userController, String reason) {
         int penalty = 2000;
         userController.deductBalance(penalty);

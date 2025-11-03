@@ -12,6 +12,7 @@ import java.awt.event.KeyListener;
 public class MainFrame extends JFrame {
     private GraphicsDevice graphicsDevice;
     
+    // Main application frame constructor and initialization
     public MainFrame() {
         // Initialize theme before creating UI
         AppTheme.initialize();
@@ -21,11 +22,7 @@ public class MainFrame extends JFrame {
         
         // Remove window decorations for true fullscreen
         setUndecorated(true);
-        
-        // Get screen dimensions
         graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        
-        // Set fullscreen mode
         if (graphicsDevice.isFullScreenSupported()) {
             graphicsDevice.setFullScreenWindow(this);
         } else {
@@ -33,8 +30,6 @@ public class MainFrame extends JFrame {
             setExtendedState(JFrame.MAXIMIZED_BOTH);
             setSize(Toolkit.getDefaultToolkit().getScreenSize());
         }
-        
-        // Add ESC key to exit fullscreen (F11 to toggle)
         addKeyListener(new KeyListener() {
             
             public void keyPressed(KeyEvent e) {
@@ -64,8 +59,6 @@ public class MainFrame extends JFrame {
         // Make sure frame can receive key events
         setFocusable(true);
         requestFocusInWindow();
-        
-        // Set application icon (if available)
         try {
             setIconImage(Toolkit.getDefaultToolkit().getImage(
                 getClass().getResource("/images/icon.png")
@@ -73,8 +66,6 @@ public class MainFrame extends JFrame {
         } catch (Exception e) {
             // Icon not found, continue without it
         }
-        
-        // Set background color
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         
         // Show login panel
@@ -83,7 +74,7 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
     
-    /** Show a panel with a smooth transition */
+    // Show a panel with a smooth transition
     public void showPanel(JPanel panel) {
         // Fade out effect (simple version)
         SwingUtilities.invokeLater(() -> {
@@ -93,7 +84,7 @@ public class MainFrame extends JFrame {
         });
     }
     
-    /** Exit fullscreen mode */
+    // Exit fullscreen mode
     private void exitFullscreen() {
         if (graphicsDevice != null && graphicsDevice.getFullScreenWindow() == this) {
             graphicsDevice.setFullScreenWindow(null);
@@ -101,7 +92,7 @@ public class MainFrame extends JFrame {
         dispose();
     }
     
-    /** Toggle fullscreen state */
+    // Toggle fullscreen state on F11
     private void toggleFullscreen() {
         if (graphicsDevice != null && graphicsDevice.isFullScreenSupported()) {
             if (graphicsDevice.getFullScreenWindow() == this) {

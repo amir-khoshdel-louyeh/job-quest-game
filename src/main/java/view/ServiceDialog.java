@@ -16,6 +16,7 @@ public class ServiceDialog extends JDialog {
     private final GameController controller;
     private final GamePanel gamePanel;
 
+    // Dialog showing available services the user can purchase
     public ServiceDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<Service> services) {
         super(parent, "Available Services", true);
         this.controller = controller;
@@ -43,6 +44,7 @@ public class ServiceDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Create UI panel for a single service with buy action
     private JPanel createServicePanel(Service service) {
         // This UI creation logic is moved from GamePanel for a consistent look and feel.
         JPanel panel = new JPanel(new BorderLayout(10, 10));

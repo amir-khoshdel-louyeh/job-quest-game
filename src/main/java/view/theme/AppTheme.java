@@ -1,12 +1,15 @@
 package view.theme;
 
+/**
+ * Centralized application theme and look-and-feel options used by the UI.
+ *
+ * Follows Single Responsibility Principle by holding theme configuration only.
+ */
+
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Professional theme configuration for the application.
- * Provides consistent colors, fonts, and styling across all UI components.
- */
+// Professional theme configuration and helpers for UI styling
 public class AppTheme {
     
     // Color Palette - Modern Professional Colors
@@ -52,10 +55,7 @@ public class AppTheme {
     public static final int BUTTON_HEIGHT = 40;
     public static final int INPUT_HEIGHT = 36;
     
-    /**
-     * Initialize the application theme.
-     * Should be called before creating any UI components.
-     */
+    // Initialize the application theme (call before creating UI)
     public static void initialize() {
         try {
             // Set system look and feel as fallback
@@ -69,9 +69,7 @@ public class AppTheme {
         }
     }
     
-    /**
-     * Customize UIManager defaults for consistent styling.
-     */
+    // Apply UIManager default customizations for consistent styling
     private static void customizeDefaults() {
         // Button styling
         UIManager.put("Button.font", FONT_BUTTON);
@@ -99,9 +97,7 @@ public class AppTheme {
         UIManager.put("OptionPane.buttonFont", FONT_BUTTON);
     }
     
-    /**
-     * Creates a styled primary button.
-     */
+    // Create a styled primary button
     public static JButton createPrimaryButton(String text) {
         JButton button = new JButton(text);
         button.setFont(FONT_BUTTON);
@@ -126,9 +122,7 @@ public class AppTheme {
         return button;
     }
     
-    /**
-     * Creates a styled secondary button.
-     */
+    // Create a styled secondary button
     public static JButton createSecondaryButton(String text) {
         JButton button = new JButton(text);
         button.setFont(FONT_BUTTON);
@@ -157,9 +151,7 @@ public class AppTheme {
         return button;
     }
     
-    /**
-     * Creates a styled success button.
-     */
+    // Create a styled success button (green)
     public static JButton createSuccessButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(SUCCESS_COLOR);
@@ -176,9 +168,7 @@ public class AppTheme {
         return button;
     }
     
-    /**
-     * Creates a styled danger button.
-     */
+    // Create a styled danger button (red)
     public static JButton createDangerButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(ERROR_COLOR);
@@ -195,9 +185,7 @@ public class AppTheme {
         return button;
     }
     
-    /**
-     * Creates a styled text field.
-     */
+    // Create a styled text field with padding
     public static JTextField createTextField(int columns) {
         JTextField field = new JTextField(columns);
         field.setFont(FONT_BODY);
@@ -209,9 +197,7 @@ public class AppTheme {
         return field;
     }
     
-    /**
-     * Creates a styled password field.
-     */
+    // Create a styled password field with padding
     public static JPasswordField createPasswordField(int columns) {
         JPasswordField field = new JPasswordField(columns);
         field.setFont(FONT_BODY);
@@ -223,9 +209,7 @@ public class AppTheme {
         return field;
     }
     
-    /**
-     * Creates a styled card panel.
-     */
+    // Create a styled card panel
     public static JPanel createCard() {
         JPanel panel = new JPanel();
         panel.setBackground(CARD_BACKGROUND);
@@ -236,9 +220,7 @@ public class AppTheme {
         return panel;
     }
     
-    /**
-     * Creates a styled label with icon.
-     */
+    // Create a styled statistic label with given color
     public static JLabel createStatLabel(String text, Color color) {
         JLabel label = new JLabel(text);
         label.setFont(FONT_BODY);

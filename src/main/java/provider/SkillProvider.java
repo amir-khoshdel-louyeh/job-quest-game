@@ -27,6 +27,7 @@ public class SkillProvider {
 
     /** Get a learnable skill by its name */
     public static LearnableSkill getSkill(String name) {
+        // find a learnable skill by name
         for (LearnableSkill skill : ALL_SKILLS) {
             if (skill.getName().equals(name)) {
                 return skill;

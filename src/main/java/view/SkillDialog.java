@@ -15,6 +15,7 @@ public class SkillDialog extends JDialog {
     private final GameController controller;
     private final GamePanel gamePanel;
 
+    // Dialog showing learnable skills available to the user
     public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<LearnableSkill> skills) {
         super(parent, "School of Skills", true);
         this.controller = controller;
@@ -44,6 +45,7 @@ public class SkillDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Create UI panel for a single learnable skill with purchase action
     private JPanel createSkillPanel(LearnableSkill skill) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(

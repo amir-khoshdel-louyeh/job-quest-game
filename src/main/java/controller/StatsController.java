@@ -1,9 +1,16 @@
 package controller;
 
+/**
+ * Controller responsible for computing and exposing user statistics and summaries.
+ *
+ * Follows Single Responsibility Principle by encapsulating only stats-related logic.
+ */
+
 import model.User;
 
 public class StatsController {
     public String getDetailedStats(User user) {
+        // build and return a formatted detailed stats string for the user
         StringBuilder stats = new StringBuilder();
         stats.append("═══════════════════════════════════\n");
         stats.append(String.format(" 👤 %s - Level %d\n", user.getUsername(), user.getLevel()));

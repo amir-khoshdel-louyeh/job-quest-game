@@ -142,6 +142,7 @@ public class GameEventProvider {
     }
     
     public static GameEvent getRandomEvent() {
+        // pick a random event based on defined probabilities
         double rand = Math.random();
         double cumulative = 0.0;
         

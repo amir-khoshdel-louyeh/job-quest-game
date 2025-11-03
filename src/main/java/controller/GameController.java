@@ -1,5 +1,11 @@
 package controller;
 
+/**
+ * Central game controller coordinating sub-controllers and high-level game actions.
+ *
+ * Follows Single Responsibility Principle by coordinating game flow without mixing UI or persistence.
+ */
+
 import model.*;
 public class GameController {
     private final UserController userController;
@@ -13,6 +19,7 @@ public class GameController {
     private int sessionJobsCompleted = 0;
 
     public GameController(User user, long sessionStartTime) {
+        // construct the main game controller and its sub-controllers
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
         this.economyController = new EconomyController(userController);
@@ -24,6 +31,7 @@ public class GameController {
     }
 
     public ActionResult purchaseService(String serviceName) {
+        // purchase a service via the economy controller
         boolean result = economyController.purchaseService(serviceName);
         if (result) {
             return new ActionResult(true, "Service purchased successfully.");
@@ -33,6 +41,7 @@ public class GameController {
     }
 
     public ActionResult purchaseItem(Item item) {
+        // purchase an item via the economy controller
         boolean result = economyController.purchaseItem(item);
         if (result) {
             return new ActionResult(true, "Item purchased successfully.");
@@ -42,11 +51,13 @@ public class GameController {
     }
 
     public ActionResult doWork() {
+        // placeholder for generic work action (not implemented)
         // This would be handled by JobController in a real refactor
         return new ActionResult(false, "Not implemented: doWork");
     }
 
     public ActionResult doJob(Job job) {
+        // perform a job via JobController and update session stats
         boolean result = jobController.doJob(job);
         if (result) {
             sessionJobsCompleted++;
@@ -57,6 +68,7 @@ public class GameController {
     }
 
     public ActionResult saveGame() {
+        // save current user game state
         boolean success = saveController.saveGame(userController.getUser(), sessionStartTime);
         if (success) {
             return new ActionResult(true, "Game saved successfully!");
@@ -66,6 +78,7 @@ public class GameController {
     }
 
     public ActionResult learnSkill(String skillName) {
+        // learn a skill via the skill controller
         boolean result = skillController.learnSkill(skillName);
         if (result) {
             return new ActionResult(true, "Skill learned successfully.");
@@ -75,25 +88,30 @@ public class GameController {
     }
 
     public ActionResult completeTask(Task task) {
+        // placeholder for task completion (not implemented)
         // This would be handled by JobController or TaskController in a real refactor
         return new ActionResult(false, "Not implemented: completeTask");
     }
 
     public UserController getUserController() {
+        // return the user controller instance
         return userController;
     }
 
     public String getDetailedStats() {
+        // get a detailed stats string for the current user
         return statsController.getDetailedStats(userController.getUser());
     }
 
     // For brevity, getActiveChallenges, getAchievements, etc. would be delegated to their own controllers/services.
 
     public GameEvent triggerRandomEvent() {
+        // trigger a random game event for the current user
         return eventController.triggerRandomEvent(userController.getUser());
     }
 
     public String getSessionStats() {
+        // return a short summary of the current session stats
         long sessionDuration = System.currentTimeMillis() - sessionStartTime;
         long minutes = sessionDuration / (1000 * 60);
         return String.format("Session: %d minutes | Jobs: %d", minutes, sessionJobsCompleted);
@@ -103,6 +121,7 @@ public class GameController {
         public final boolean success;
         public final String message;
         public ActionResult(boolean success, String message) {
+            // construct an action result reporting success and a message
             this.success = success;
             this.message = message;
         }

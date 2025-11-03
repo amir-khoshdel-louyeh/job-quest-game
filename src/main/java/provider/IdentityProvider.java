@@ -13,7 +13,7 @@ import model.identity.Typist;
  */
 public class IdentityProvider {
 
-    /** Create an Identity instance based on its name */
+    // create an Identity instance based on its name
     public static Identity createIdentity(String identityName) {
         if (identityName.equals("Doctor")) {
             return new Doctor();

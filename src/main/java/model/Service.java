@@ -18,7 +18,6 @@ public class Service {
         this.healthEffect = healthEffect;
         this.energyEffect = energyEffect;
     }
-
     public String getName() { return name; }
     public String getDescription() { return description; }
     public int getCost() { return cost; }

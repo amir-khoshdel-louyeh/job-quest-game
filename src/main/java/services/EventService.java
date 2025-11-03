@@ -12,6 +12,7 @@ public class EventService {
     private static final long EVENT_COOLDOWN = 5 * 60 * 1000; // 5 minutes between events
     
     private EventService() {}
+    // private constructor for singleton
     
     public static EventService getInstance() {
         if (instance == null) {
@@ -20,7 +21,7 @@ public class EventService {
         return instance;
     }
     
-    /** Game event for the user */
+    // possibly trigger a random event for a user, respecting cooldown and chance
     public GameEvent checkForRandomEvent(User user) {
         long currentTime = System.currentTimeMillis();
         
@@ -43,7 +44,7 @@ public class EventService {
         return event;
     }
     
-    /** Apply the effects of an event to the user */
+    // apply event numeric effects (money/health/energy) to the user
     private void applyEventEffects(User user, GameEvent event) {
         // Apply money effect
         if (event.getMoneyEffect() > 0) {
@@ -72,7 +73,7 @@ public class EventService {
         }
     }
     
-    /** Trigger a specific event by ID */
+    // trigger a specific event immediately by id
     public void triggerEvent(User user, String eventId) {
         for (GameEvent event : GameEventProvider.getAllEvents()) {
             if (event.getId().equals(eventId)) {

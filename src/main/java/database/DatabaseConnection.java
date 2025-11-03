@@ -13,6 +13,7 @@ public class DatabaseConnection {
     private final DatabaseConfig config;
     
     private DatabaseConnection(DatabaseConfig config) {
+        // create connection manager with given config
         this.config = config;
     }
     
@@ -31,6 +32,7 @@ public class DatabaseConnection {
     }
     
     public Connection createConnection() throws SQLException {
+        // open and return a new SQL connection
         return DriverManager.getConnection(
             config.getUrl(),
             config.getUser(),
@@ -40,6 +42,7 @@ public class DatabaseConnection {
     
     // For backward compatibility - delegates to instance method
     public static Connection getConnection() throws SQLException {
+        // shortcut to create a connection from the singleton
         return getInstance().createConnection();
     }
 }

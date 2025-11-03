@@ -14,7 +14,6 @@ public class Task {
         this.payment = payment;
         this.energyCost = energyCost;
     }
-
     public String getName() { return name; }
     public int getPayment() { return payment; }
     public int getEnergyCost() { return energyCost; }

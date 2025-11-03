@@ -17,7 +17,7 @@ public class FoodService {
         return instance;
     }
 
-    /** Purchase and consume food by the user */
+    // purchase and consume food for buyer, optionally paying a seller
     public boolean processFoodPurchase(User buyer, int hungerRestore, int cost, User seller) {
         if (buyer == null) {
             throw new IllegalArgumentException("Buyer cannot be null");
@@ -35,6 +35,7 @@ public class FoodService {
     }
 
     // Static method for backward compatibility
+    // backward-compatible static helper to eat food
     public static void eatFood(User user, int hungerRestore, int cost, User seller) {
         getInstance().processFoodPurchase(user, hungerRestore, cost, seller);
     }

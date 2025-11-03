@@ -9,6 +9,7 @@ import java.awt.*;
  */
 public class AboutDialog extends JDialog {
     
+    // Dialog constructor
     public AboutDialog(JFrame parent) {
         super(parent, "📖 About Job Quest Game", true);
         setSize(900, 700);
@@ -18,6 +19,7 @@ public class AboutDialog extends JDialog {
         initComponents();
     }
     
+    // Initialize dialog components and layout
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
@@ -62,6 +64,7 @@ public class AboutDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
     
+    // Create "How to Play" tab panel
     private JPanel createHowToPlayPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -126,6 +129,7 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
+    // Create "Game Mechanics" tab panel
     private JPanel createMechanicsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -213,6 +217,7 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
+    // Create "Progression" tab panel
     private JPanel createProgressionPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -352,6 +357,7 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
+    // Create "Tips & Tricks" tab panel
     private JPanel createTipsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -459,6 +465,7 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
+    // Create "About" tab panel
     private JPanel createAboutPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);

@@ -130,6 +130,7 @@ public class AchievementProvider {
     }
     
     public static Achievement getAchievementById(String id) {
+        // find an achievement by its id
         return ALL_ACHIEVEMENTS.stream()
             .filter(a -> a.getId().equals(id))
             .findFirst()

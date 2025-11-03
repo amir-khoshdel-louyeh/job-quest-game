@@ -1,5 +1,11 @@
 package view;
 
+/**
+ * Main game UI panel that renders the core game interface and user interactions.
+ *
+ * Follows Single Responsibility Principle by containing only UI-related code for the game panel.
+ */
+
 import controller.GameController;
 import controller.RoutineController;
 import controller.UserController;
@@ -32,6 +38,7 @@ public class GamePanel extends JPanel implements Observer {
     private JButton saveAndExitButton, helpButton;
     private final long sessionStartTime;
 
+    // Construct the main game panel for the given user
     public GamePanel(User user) {
         this.currentUser = user;
         this.sessionStartTime = System.currentTimeMillis();
@@ -242,10 +249,12 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     
+    // Observer callback: refresh panel when observed state changes
     public void update() {
         updateUserInfo();
     }
 
+    // Update UI labels and progress bars with the latest user info
     public void updateUserInfo() {
         usernameLabel.setText("👤 " + userController.getUsername());
         balanceLabel.setText("💰 Balance: $" + userController.getBalance());
@@ -262,31 +271,37 @@ public class GamePanel extends JPanel implements Observer {
     }
     
 
+    // Append a message to the chat / notifications area
     public void addChatMessage(String msg) {
         chatArea.append(msg + "\n");
     }
 
+    // Return the panel that displays the world view animation/image
     public JPanel getAnimationPanel() {
         return animationPanel;
     }
 
+    // Disable interactive actions (placeholder for future use)
     public void disableActions() {
         // This method can be expanded later to disable the world view buttons if needed
     }
 
     // Add UI helper methods for controller:
+    // Show an energy warning dialog and log it
     public void showEnergyWarning() {
         JOptionPane.showMessageDialog(this,
             "Warning! Energy low (" + userController.getEnergy() + ")");
         addChatMessage("⚠️ Energy low warning!");
     }
 
+    // Show a health warning dialog and log it
     public void showHealthWarning() {
         JOptionPane.showMessageDialog(this,
             "Warning! Health is very low (" + userController.getHealth() + ")");
         addChatMessage("⚠️ Health low warning!");
     }
 
+    // Notify the user about account blocking with penalty info
     public void showBlockDialog(String reason, int penalty) {
         JOptionPane.showMessageDialog(this, reason + "! Account blocked for 48 hours. Penalty: $" + penalty);
     }
