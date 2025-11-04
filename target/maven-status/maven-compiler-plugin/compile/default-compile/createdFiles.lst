@@ -1,6 +1,7 @@
 provider/TaskProvider.class
 model/Job.class
 view/SkillDialog.class
+controller/delegator/Delegator.class
 services/JobService.class
 controller/StatsController.class
 database/repository/UserRepository.class
@@ -33,11 +34,13 @@ view/TaskDialog.class
 model/Challenge$ChallengeType.class
 model/identity/Programmer.class
 model/achievement/DaysPlayedAchievement.class
+controller/delegator/EconomyDelegator.class
 model/achievement/EnergyEfficientAchievement.class
 model/achievement/WorkaholicAchievement.class
 view/GamePanel.class
 provider/GameEventProvider.class
 database/DatabaseUtil.class
+controller/delegator/SkillDelegator.class
 controller/JobController.class
 model/Achievement$AchievementType.class
 model/achievement/SkillsLearnedAchievement.class
@@ -45,6 +48,7 @@ model/User.class
 view/RegisterPanel.class
 view/LoginPanel$1.class
 utils/Timer.class
+controller/delegator/JobDelegator.class
 view/LoginPanel.class
 view/RegisterPanel$1.class
 database/DatabaseConfig.class
@@ -60,6 +64,7 @@ model/GameEvent.class
 model/Task.class
 view/MainFrame$1.class
 database/DatabaseConnection.class
+controller/delegator/SaveDelegator.class
 view/ShopDialog.class
 model/achievement/MoneyEarnedAchievement.class
 model/identity/Typist.class

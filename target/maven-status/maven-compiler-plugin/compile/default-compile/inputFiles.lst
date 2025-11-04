@@ -14,13 +14,16 @@
 /home/amir/GitHub/job-quest-game/src/main/java/view/TaskDialog.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/identity/Typist.java
 /home/amir/GitHub/job-quest-game/src/main/java/database/DatabaseUtil.java
+/home/amir/GitHub/job-quest-game/src/main/java/controller/delegator/EconomyDelegator.java
 /home/amir/GitHub/job-quest-game/src/main/java/services/RoutineService.java
 /home/amir/GitHub/job-quest-game/src/main/java/provider/SkillProvider.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/GameEvent.java
 /home/amir/GitHub/job-quest-game/src/main/java/services/FoodService.java
+/home/amir/GitHub/job-quest-game/src/main/java/controller/delegator/Delegator.java
 /home/amir/GitHub/job-quest-game/src/main/java/controller/UserController.java
 /home/amir/GitHub/job-quest-game/src/main/java/database/repository/UserRepository.java
 /home/amir/GitHub/job-quest-game/src/main/java/provider/AchievementProvider.java
+/home/amir/GitHub/job-quest-game/src/main/java/controller/delegator/SaveDelegator.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/Service.java
 /home/amir/GitHub/job-quest-game/src/main/java/database/DatabaseInitializer.java
 /home/amir/GitHub/job-quest-game/src/main/java/view/SkillDialog.java
@@ -46,6 +49,7 @@
 /home/amir/GitHub/job-quest-game/src/main/java/model/Challenge.java
 /home/amir/GitHub/job-quest-game/src/main/java/controller/EventController.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/achievement/HealthMaintainedAchievement.java
+/home/amir/GitHub/job-quest-game/src/main/java/controller/delegator/JobDelegator.java
 /home/amir/GitHub/job-quest-game/src/main/java/database/DatabaseConfig.java
 /home/amir/GitHub/job-quest-game/src/main/java/provider/TaskProvider.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/achievement/WorkaholicAchievement.java
@@ -74,6 +78,7 @@
 /home/amir/GitHub/job-quest-game/src/main/java/view/GamePanel.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/IdentityOption.java
 /home/amir/GitHub/job-quest-game/src/main/java/controller/RoutineController.java
+/home/amir/GitHub/job-quest-game/src/main/java/controller/delegator/SkillDelegator.java
 /home/amir/GitHub/job-quest-game/src/main/java/database/repository/UserRepositoryImpl.java
 /home/amir/GitHub/job-quest-game/src/main/java/model/WorkResult.java
 /home/amir/GitHub/job-quest-game/src/main/java/controller/SaveController.java

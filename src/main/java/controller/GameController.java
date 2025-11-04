@@ -6,15 +6,20 @@ package controller;
  * Follows Single Responsibility Principle by coordinating game flow without mixing UI or persistence.
  */
 
+import controller.delegator.EconomyDelegator;
+import controller.delegator.JobDelegator;
+import controller.delegator.SaveDelegator;
+import controller.delegator.SkillDelegator;
 import model.*;
+
 public class GameController {
     private final UserController userController;
-    private final EconomyController economyController;
-    private final JobController jobController;
-    private final SkillController skillController;
-    private final SaveController saveController;
     private final StatsController statsController;
     private final EventController eventController;
+    private final EconomyDelegator economyDelegator;
+    private final SkillDelegator skillDelegator;
+    private final JobDelegator jobDelegator;
+    private final SaveDelegator saveDelegator;
     private final long sessionStartTime;
     private int sessionJobsCompleted = 0;
 
@@ -22,81 +27,50 @@ public class GameController {
         // construct the main game controller and its sub-controllers
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
-        this.economyController = new EconomyController(userController);
-        this.jobController = new JobController(userController);
-        this.skillController = new SkillController(userController);
-        this.saveController = new SaveController();
+        EconomyController economyHandler = new EconomyController(userController);
+        JobController jobHandler = new JobController(userController);
+        SkillController skillHandler = new SkillController(userController);
+        SaveController saveHandler = new SaveController();
         this.statsController = new StatsController();
         this.eventController = new EventController();
+        this.economyDelegator = new EconomyDelegator(economyHandler);
+        this.skillDelegator = new SkillDelegator(skillHandler);
+        this.jobDelegator = new JobDelegator(jobHandler, userController);
+        this.saveDelegator = new SaveDelegator(saveHandler, userController);
     }
 
     public ActionResult purchaseService(String serviceName) {
-        // purchase a service via the economy controller
-        boolean result = economyController.purchaseService(serviceName);
-        if (result) {
-            return new ActionResult(true, "Service purchased successfully.");
-        } else {
-            return new ActionResult(false, "Failed to purchase service.");
-        }
+        // purchase a service via the economy delegator
+        return economyDelegator.purchaseService(serviceName);
     }
 
     public ActionResult purchaseItem(Item item) {
-        // purchase an item via the economy controller
-        boolean result = economyController.purchaseItem(item);
-        if (result) {
-            return new ActionResult(true, "Item purchased successfully.");
-        } else {
-            return new ActionResult(false, "Failed to purchase item.");
-        }
+        // purchase an item via the economy delegator
+        return economyDelegator.purchaseItem(item);
     }
 
     public ActionResult doWork() {
-        // Show available jobs when the user clicks the Workshop in the world view.
-        // If there are jobs available for the current user, the UI expects the
-        // special message "JOB_DIALOG_REQUIRED" so it can open the JobDialog.
-        try {
-            java.util.List<Job> availableJobs = provider.JobProvider.getAvailableJobsForUser(userController.getUser());
-            if (availableJobs != null && !availableJobs.isEmpty()) {
-                return new ActionResult(true, "JOB_DIALOG_REQUIRED");
-            } else {
-                return new ActionResult(false, "No jobs are available for your current identity/skills.");
-            }
-        } catch (Exception ex) {
-            // In case of any unexpected error, return a friendly message and log the error.
-            ex.printStackTrace();
-            return new ActionResult(false, "Error checking available jobs.");
-        }
+        // Request job availability via the job delegator
+        return jobDelegator.requestJobDialog();
     }
 
     public ActionResult doJob(Job job) {
-        // perform a job via JobController and update session stats
-        boolean result = jobController.doJob(job);
-        if (result) {
+        // perform a job via JobDelegator and update session stats
+        ActionResult result = jobDelegator.performJob(job);
+        if (result.success) {
             sessionJobsCompleted++;
-            return new ActionResult(true, "Job completed successfully.");
-        } else {
-            return new ActionResult(false, "Failed to complete job.");
         }
+        return result;
     }
 
     public ActionResult saveGame() {
-        // save current user game state
-        boolean success = saveController.saveGame(userController.getUser(), sessionStartTime);
-        if (success) {
-            return new ActionResult(true, "Game saved successfully!");
-        } else {
-            return new ActionResult(false, "Error: Could not save game data.");
-        }
+        // save current user game state via delegator
+        return saveDelegator.saveGame(sessionStartTime);
     }
 
     public ActionResult learnSkill(String skillName) {
-        // learn a skill via the skill controller
-        boolean result = skillController.learnSkill(skillName);
-        if (result) {
-            return new ActionResult(true, "Skill learned successfully.");
-        } else {
-            return new ActionResult(false, "Failed to learn skill.");
-        }
+        // learn a skill via the skill delegator
+        return skillDelegator.learnSkill(skillName);
     }
 
     public ActionResult completeTask(Task task) {
