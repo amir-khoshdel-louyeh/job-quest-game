@@ -79,6 +79,8 @@ public class DatabaseInitializer {
              Statement stmt = conn.createStatement()) {
             
             // Create users table with all required columns
+            // Step 4: progression columns persist level/XP/reputation,
+            // lifetime stats, streaks and unlocks (Repository can round-trip User).
             String createUsersTable = """
                 CREATE TABLE IF NOT EXISTS users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -87,17 +89,30 @@ public class DatabaseInitializer {
                     identity VARCHAR(50) NOT NULL,
                     balance INT DEFAULT 0,
                     health INT DEFAULT 100,
-                    energy INT DEFAULT 100,
+                    energy INT DEFAULT 100000,
                     blocked_until BIGINT DEFAULT 0,
                     last_sickness_time BIGINT DEFAULT 0,
                     inventory TEXT,
                     skills TEXT,
-                    total_play_time BIGINT DEFAULT 0
+                    total_play_time BIGINT DEFAULT 0,
+                    level INT DEFAULT 1,
+                    experience INT DEFAULT 0,
+                    reputation INT DEFAULT 0,
+                    total_money_earned INT DEFAULT 0,
+                    total_jobs_completed INT DEFAULT 0,
+                    current_streak INT DEFAULT 0,
+                    max_streak INT DEFAULT 0,
+                    last_login_date BIGINT DEFAULT 0,
+                    unlocked_achievements TEXT,
+                    active_challenges TEXT
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
                 """;
             
             stmt.executeUpdate(createUsersTable);
             System.out.println("✓ Table 'users' is ready.");
+
+            // Auto-migrate databases created before Step 4 (idempotent).
+            ensureProgressionColumns(conn);
             
             // Create items table (for future use)
             String createItemsTable = """
@@ -112,6 +127,53 @@ public class DatabaseInitializer {
             
             stmt.executeUpdate(createItemsTable);
             System.out.println("✓ Table 'items' is ready.");
+        }
+    }
+
+    /**
+     * Add Step-4 progression columns to pre-existing installs.
+     * Idempotent: checks INFORMATION_SCHEMA first, so fresh and old DBs converge.
+     * Encapsulated here so Repository code stays clean (SRP).
+     */
+    private static void ensureProgressionColumns(java.sql.Connection conn) {
+        String[][] columns = {
+            {"level", "INT DEFAULT 1"},
+            {"experience", "INT DEFAULT 0"},
+            {"reputation", "INT DEFAULT 0"},
+            {"total_money_earned", "INT DEFAULT 0"},
+            {"total_jobs_completed", "INT DEFAULT 0"},
+            {"current_streak", "INT DEFAULT 0"},
+            {"max_streak", "INT DEFAULT 0"},
+            {"last_login_date", "BIGINT DEFAULT 0"},
+            {"unlocked_achievements", "TEXT"},
+            {"active_challenges", "TEXT"},
+        };
+        // NOTE: DB_NAME is fixed for this project; table is `users`.
+        for (String[] col : columns) {
+            String name = col[0];
+            String def = col[1];
+            try (java.sql.PreparedStatement check = conn.prepareStatement(
+                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS " +
+                    "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = ?")) {
+                check.setString(1, name);
+                try (java.sql.ResultSet rs = check.executeQuery()) {
+                    boolean exists = rs.next() && rs.getInt(1) > 0;
+                    if (!exists) {
+                        try (java.sql.Statement alter = conn.createStatement()) {
+                            alter.executeUpdate("ALTER TABLE users ADD COLUMN " + name + " " + def);
+                            System.out.println("✓ Migrated users." + name + " column.");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("⚠️ Could not ensure column users." + name + ": " + e.getMessage());
+            }
+        }
+        // Fix legacy default: energy was 100, game uses 100_000.
+        try (java.sql.Statement fix = conn.createStatement()) {
+            fix.executeUpdate("ALTER TABLE users ALTER COLUMN energy SET DEFAULT 100000");
+        } catch (Exception e) {
+            System.err.println("ℹ Could not update energy default: " + e.getMessage());
         }
     }
 

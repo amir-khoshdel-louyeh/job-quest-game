@@ -55,10 +55,12 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public boolean save(User user) throws SQLException {
-        // insert a new user record into the database
+        // insert a new user record into the database (incl. Step-4 progression)
         String sql = "INSERT INTO users (username, password, identity, balance, health, energy, " +
-                     "inventory, skills, blocked_until, last_sickness_time, total_play_time) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                      "inventory, skills, blocked_until, last_sickness_time, total_play_time, " +
+                      "level, experience, reputation, total_money_earned, total_jobs_completed, " +
+                      "current_streak, max_streak, last_login_date, unlocked_achievements, active_challenges) " +
+                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = dbConnection.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -75,10 +77,13 @@ public class UserRepositoryImpl implements UserRepository {
     
     
     public boolean update(User user) throws SQLException {
-        // update fields of an existing user record
+        // update fields of an existing user record (incl. Step-4 progression)
         String sql = "UPDATE users SET balance = ?, health = ?, energy = ?, inventory = ?, " +
-                     "skills = ?, blocked_until = ?, last_sickness_time = ?, total_play_time = ? " +
-                     "WHERE username = ?";
+                      "skills = ?, blocked_until = ?, last_sickness_time = ?, total_play_time = ?, " +
+                      "level = ?, experience = ?, reputation = ?, total_money_earned = ?, " +
+                      "total_jobs_completed = ?, current_streak = ?, max_streak = ?, " +
+                      "last_login_date = ?, unlocked_achievements = ?, active_challenges = ? " +
+                      "WHERE username = ?";
         
         try (Connection conn = dbConnection.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -91,7 +96,17 @@ public class UserRepositoryImpl implements UserRepository {
             stmt.setLong(6, user.getBlockedUntil());
             stmt.setLong(7, user.getLastSicknessTime());
             stmt.setLong(8, user.getTotalPlayTime());
-            stmt.setString(9, user.getUsername());
+            stmt.setInt(9, user.getLevel());
+            stmt.setInt(10, user.getExperience());
+            stmt.setInt(11, user.getReputation());
+            stmt.setInt(12, user.getTotalMoneyEarned());
+            stmt.setInt(13, user.getTotalJobsCompleted());
+            stmt.setInt(14, user.getCurrentStreak());
+            stmt.setInt(15, user.getMaxStreak());
+            stmt.setLong(16, user.getLastLoginDate());
+            stmt.setString(17, String.join(",", user.getUnlockedAchievements()));
+            stmt.setString(18, serializeChallenges(user));
+            stmt.setString(19, user.getUsername());
             
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
@@ -150,6 +165,19 @@ public class UserRepositoryImpl implements UserRepository {
         user.setBlockedUntil(blockedUntil);
         user.setLastSicknessTime(lastSicknessTime);
         user.setTotalPlayTime(totalPlayTime);
+
+        // Step-4 progression restore (tolerant: missing columns on very old
+        // DBs read as 0/null — game still starts, next save backfills).
+        try { user.setLevel(Math.max(1, rs.getInt("level"))); } catch (SQLException ignored) {}
+        try { user.setExperience(Math.max(0, rs.getInt("experience"))); } catch (SQLException ignored) {}
+        try { user.setReputation(rs.getInt("reputation")); } catch (SQLException ignored) {}
+        try { user.setTotalMoneyEarned(Math.max(0, rs.getInt("total_money_earned"))); } catch (SQLException ignored) {}
+        try { user.setTotalJobsCompleted(Math.max(0, rs.getInt("total_jobs_completed"))); } catch (SQLException ignored) {}
+        try { user.setCurrentStreak(Math.max(0, rs.getInt("current_streak"))); } catch (SQLException ignored) {}
+        try { user.setMaxStreak(Math.max(user.getMaxStreak(), rs.getInt("max_streak"))); } catch (SQLException ignored) {}
+        try { user.setLastLoginDate(rs.getLong("last_login_date")); } catch (SQLException ignored) {}
+        try { deserializeAchievements(user, rs.getString("unlocked_achievements")); } catch (SQLException ignored) {}
+        try { deserializeChallenges(user, rs.getString("active_challenges")); } catch (SQLException ignored) {}
         
         deserializeInventory(user, inventoryStr);
         deserializeSkills(user, skillsStr);
@@ -157,7 +185,7 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
     
-    /** Set parameters for INSERT */
+    /** Set parameters for INSERT (incl. Step-4 progression) */
     private void setUserParameters(PreparedStatement stmt, User user) throws SQLException {
         // bind user fields to an INSERT prepared statement
         stmt.setString(1, user.getUsername());
@@ -171,6 +199,16 @@ public class UserRepositoryImpl implements UserRepository {
         stmt.setLong(9, user.getBlockedUntil());
         stmt.setLong(10, user.getLastSicknessTime());
         stmt.setLong(11, user.getTotalPlayTime());
+        stmt.setInt(12, user.getLevel());
+        stmt.setInt(13, user.getExperience());
+        stmt.setInt(14, user.getReputation());
+        stmt.setInt(15, user.getTotalMoneyEarned());
+        stmt.setInt(16, user.getTotalJobsCompleted());
+        stmt.setInt(17, user.getCurrentStreak());
+        stmt.setInt(18, user.getMaxStreak());
+        stmt.setLong(19, user.getLastLoginDate());
+        stmt.setString(20, String.join(",", user.getUnlockedAchievements()));
+        stmt.setString(21, serializeChallenges(user));
     }
     
     /** Create Identity from class name string */
@@ -215,5 +253,77 @@ public class UserRepositoryImpl implements UserRepository {
                    .map(Skill::getName)
                    .reduce((a, b) -> a + "," + b)
                    .orElse("");
+    }
+
+    /**
+     * Serialize challenges as id|progress|completed CSV.
+     * Templates (name/rewards) come from ChallengeProvider on load,
+     * so only mutable progress is stored (Encapsulation).
+     */
+    private String serializeChallenges(User user) {
+        if (user.getActiveChallenges() == null || user.getActiveChallenges().isEmpty()) {
+            return "";
+        }
+        return user.getActiveChallenges().stream()
+                .map(c -> c.getId() + "|" + c.getCurrentProgress() + "|" + (c.isCompleted() ? 1 : 0))
+                .reduce((a, b) -> a + "," + b)
+                .orElse("");
+    }
+
+    /** Restore unlocked achievement ids (CSV). */
+    private void deserializeAchievements(User user, String achievementsStr) {
+        if (achievementsStr == null || achievementsStr.isBlank()) return;
+        java.util.List<String> ids = new java.util.ArrayList<>();
+        for (String id : achievementsStr.split(",")) {
+            String trimmed = id.trim();
+            if (!trimmed.isEmpty() && !ids.contains(trimmed)) {
+                ids.add(trimmed);
+            }
+        }
+        user.setUnlockedAchievements(ids);
+    }
+
+    /**
+     * Restore challenges: template by id from provider, then replay progress.
+     * Unknown ids are skipped (forward-compatible with removed challenges).
+     */
+    private void deserializeChallenges(User user, String challengesStr) {
+        if (challengesStr == null || challengesStr.isBlank()) return;
+        java.util.Map<String, model.Challenge> templates = new java.util.HashMap<>();
+        for (model.Challenge t : provider.ChallengeProvider.getMainChallenges()) {
+            templates.putIfAbsent(t.getId(), t);
+        }
+        for (model.Challenge t : provider.ChallengeProvider.getDailyChallenges()) {
+            templates.putIfAbsent(t.getId(), t);
+        }
+        for (model.Challenge t : provider.ChallengeProvider.getWeeklyChallenges()) {
+            templates.putIfAbsent(t.getId(), t);
+        }
+        java.util.List<model.Challenge> restored = new java.util.ArrayList<>();
+        for (String entry : challengesStr.split(",")) {
+            String[] parts = entry.split("\\|");
+            if (parts.length == 0) continue;
+            String id = parts[0].trim();
+            model.Challenge template = templates.get(id);
+            if (template == null || id.isEmpty()) continue;
+            model.Challenge copy = new model.Challenge(
+                    template.getId(), template.getName(), template.getDescription(),
+                    template.getType(), template.getTargetValue(),
+                    template.getRewardMoney(), template.getRewardExperience());
+            if (parts.length >= 2) {
+                try {
+                    copy.setCurrentProgress(Math.max(0, Integer.parseInt(parts[1].trim())));
+                } catch (NumberFormatException ignored) {}
+            }
+            if (parts.length >= 3) {
+                copy.setCompleted("1".equals(parts[2].trim()));
+            } else if (copy.getCurrentProgress() >= copy.getTargetValue()) {
+                copy.setCompleted(true);
+            }
+            restored.add(copy);
+        }
+        if (!restored.isEmpty()) {
+            user.setActiveChallenges(restored);
+        }
     }
 }
