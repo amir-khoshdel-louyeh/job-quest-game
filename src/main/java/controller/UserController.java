@@ -103,4 +103,56 @@ public class UserController extends Subject {
         user.getInventory().addItem(item);
         // The calling controller is responsible for notifying observers.
     }
+
+    // ---------------- Progression (Encapsulation + Observer) ----------------
+    // Delegates keep User fields encapsulated: outside code must go through
+    // here so every mutation notifies observers consistently.
+
+    /** Return the wrapped User model (escape hatch for read-only providers). */
+    // Note: prefer the delegates below for mutations.
+
+    public int getLevel() {
+        return user.getLevel();
+    }
+
+    public int getExperience() {
+        return user.getExperience();
+    }
+
+    public int getReputation() {
+        return user.getReputation();
+    }
+
+    public int getTotalJobsCompleted() {
+        return user.getTotalJobsCompleted();
+    }
+
+    public int getTotalMoneyEarned() {
+        return user.getTotalMoneyEarned();
+    }
+
+    /** Add XP (may trigger level-up inside User) and notify observers. */
+    public void addExperience(int amount) {
+        if (amount > 0) {
+            user.addExperience(amount);
+            notifyObservers();
+        }
+    }
+
+    /** Add reputation (clamped 0-100 in User) and notify observers. */
+    public void addReputation(int amount) {
+        if (amount != 0) {
+            user.addReputation(amount);
+            notifyObservers();
+        }
+    }
+
+    /** Record one completed job and lifetime earnings. */
+    public void recordJobCompletion(int moneyEarned) {
+        user.incrementJobsCompleted();
+        if (moneyEarned > 0) {
+            user.addToTotalMoneyEarned(moneyEarned);
+        }
+        notifyObservers();
+    }
 }

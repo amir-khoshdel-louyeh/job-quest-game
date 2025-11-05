@@ -70,12 +70,14 @@ public class GameController {
 
     public ActionResult doJob(Job job) {
         // perform a job via JobController and update session stats
-        boolean result = jobController.doJob(job);
-        if (result) {
+        // JobController returns a rich JobResult DTO; this facade unwraps it
+        // into a UI-friendly ActionResult (Facade/Coordinator role, stays thin).
+        JobResult result = jobController.doJob(job);
+        if (result.isSuccess()) {
             sessionJobsCompleted++;
-            return new ActionResult(true, "Job completed successfully.");
+            return new ActionResult(true, result.getMessage());
         } else {
-            return new ActionResult(false, "Failed to complete job.");
+            return new ActionResult(false, result.getMessage());
         }
     }
 
