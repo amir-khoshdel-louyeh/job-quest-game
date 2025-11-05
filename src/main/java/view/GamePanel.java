@@ -16,6 +16,7 @@ import provider.JobProvider;
 import provider.SkillProvider;
 import provider.ServiceProvider;
 import observer.Observer;
+import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +36,8 @@ public class GamePanel extends JPanel implements Observer {
     private JPanel animationPanel;
     private JPanel rightPanel;
     // These buttons are being moved to the world view, so they are removed from here.
-    private JButton saveAndExitButton, helpButton;
+    private JButton saveAndExitButton, helpButton, bottomSaveButton;
+    private javax.swing.Action saveAndExitAction;
     private final long sessionStartTime;
 
     // Construct the main game panel for the given user
@@ -47,10 +49,13 @@ public class GamePanel extends JPanel implements Observer {
         this.userController.addObserver(this); // Register the panel as an observer
         this.routineController = new RoutineController(userController, this);
         setLayout(new BorderLayout(10,10));
+        // Step-5: one design system — same background as login/register.
+        setBackground(AppTheme.BACKGROUND_COLOR);
 
         // ---------------- Title ----------------
         JLabel titleLabel = new JLabel("Job-Quest-Game", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 32));
+        titleLabel.setFont(AppTheme.FONT_TITLE);
+        titleLabel.setForeground(AppTheme.PRIMARY_COLOR);
         add(titleLabel, BorderLayout.NORTH);
 
         // ---------------- Right Side Bar ----------------
@@ -58,32 +63,43 @@ public class GamePanel extends JPanel implements Observer {
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setPreferredSize(new Dimension(240, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        // Profile Panel
-        JPanel profilePanel = new JPanel();
-        profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
-        profilePanel.setBorder(BorderFactory.createTitledBorder("Your Profile"));
+        // Profile Panel (themed section — same card system as dialogs)
+        JPanel profilePanel = AppTheme.createSectionPanel("Your Profile");
         usernameLabel = new JLabel("👤 " + userController.getUsername());
+        usernameLabel.setFont(AppTheme.FONT_BODY);
         balanceLabel = new JLabel("💰 Balance: $" + userController.getBalance());
+        balanceLabel.setFont(AppTheme.FONT_BODY);
+        balanceLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
+        healthLabel.setFont(AppTheme.FONT_BODY);
+        healthLabel.setForeground(AppTheme.HEALTH_COLOR);
         profilePanel.add(usernameLabel);
         profilePanel.add(balanceLabel);
         profilePanel.add(healthLabel);
 
         // Progression Panel
-        JPanel progressPanel = new JPanel();
-        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.Y_AXIS));
-        progressPanel.setBorder(BorderFactory.createTitledBorder("⭐ Progression"));
+        JPanel progressPanel = AppTheme.createSectionPanel("⭐ Progression");
         
         levelLabel = new JLabel("Level: " + currentUser.getLevel());
+        levelLabel.setFont(AppTheme.FONT_BODY);
         xpLabel = new JLabel("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
+        xpLabel.setFont(AppTheme.FONT_SMALL);
+        xpLabel.setForeground(AppTheme.TEXT_SECONDARY);
         xpProgressBar = new JProgressBar(0, 100);
         xpProgressBar.setValue(currentUser.getExperiencePercentage());
         xpProgressBar.setStringPainted(true);
         xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
+        xpProgressBar.setForeground(AppTheme.PRIMARY_COLOR);
+        xpProgressBar.setBackground(AppTheme.DIVIDER_COLOR);
+        xpProgressBar.setFont(AppTheme.FONT_SMALL);
         
         reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
+        reputationLabel.setFont(AppTheme.FONT_BODY);
         streakLabel = new JLabel("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
+        streakLabel.setFont(AppTheme.FONT_BODY);
+        streakLabel.setForeground(AppTheme.WARNING_COLOR.darker());
         
         progressPanel.add(levelLabel);
         progressPanel.add(xpLabel);
@@ -93,11 +109,12 @@ public class GamePanel extends JPanel implements Observer {
         progressPanel.add(streakLabel);
 
         // Identity Panel
-        JPanel identityPanel = new JPanel();
-        identityPanel.setLayout(new BoxLayout(identityPanel, BoxLayout.Y_AXIS));
-        identityPanel.setBorder(BorderFactory.createTitledBorder("Current Identity"));
+        JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
         JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getClass().getSimpleName());
+        identityName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
+        energyLabel.setFont(AppTheme.FONT_BODY);
+        energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
         identityPanel.add(identityName);
         identityPanel.add(energyLabel);
 
@@ -105,14 +122,29 @@ public class GamePanel extends JPanel implements Observer {
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        buttonsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         
-        helpButton = new JButton("📖 Help & About");
+        helpButton = AppTheme.createSecondaryButton("📖 Help & About");
         helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        saveAndExitButton = new JButton("💾 Save & Exit");
-        saveAndExitButton.setBackground(new Color(220, 53, 69));
-        saveAndExitButton.setForeground(Color.WHITE);
+
+        // Step-5 fix: one shared Action, two separate buttons.
+        // Previously the SAME JButton instance was added to buttonsPanel AND
+        // bottomActionsPanel — Swing re-parents it, so one location went blank.
+        saveAndExitAction = new AbstractAction("💾 Save & Exit") {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GameController.ActionResult result = controller.saveGame();
+                addChatMessage("SYSTEM: " + result.message);
+                if (result.success) {
+                    System.exit(0);
+                }
+            }
+        };
+        saveAndExitButton = AppTheme.createDangerButton("💾 Save & Exit");
+        saveAndExitButton.setAction(saveAndExitAction);
         saveAndExitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bottomSaveButton = AppTheme.createDangerButton("💾 Save & Exit");
+        bottomSaveButton.setAction(saveAndExitAction);
         
         buttonsPanel.add(helpButton);
         buttonsPanel.add(Box.createVerticalStrut(5));
@@ -134,7 +166,8 @@ public class GamePanel extends JPanel implements Observer {
         add(rightScrollPane, BorderLayout.EAST);
 
         JPanel bottomActionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        bottomActionsPanel.add(saveAndExitButton);
+        bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
+        bottomActionsPanel.add(bottomSaveButton);
 
         // ---------------- Center Animation / World View ----------------
         // Load and display the world view image
@@ -152,7 +185,10 @@ public class GamePanel extends JPanel implements Observer {
                         g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
                     }
                 };
-                animationPanel.setBorder(BorderFactory.createTitledBorder("WORLD VIEW"));
+                animationPanel.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
+                    javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+                    AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
 
                 // Add a mouse listener to handle clicks on different regions of the image
                 animationPanel.addMouseListener(new MouseAdapter() {
@@ -195,7 +231,10 @@ public class GamePanel extends JPanel implements Observer {
             } else {
                 // Fallback if image is not found
                 animationPanel = new JPanel(new GridBagLayout());
-                animationPanel.setBorder(BorderFactory.createTitledBorder("WORLD VIEW"));
+                animationPanel.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
+                    javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+                    AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
                 animationPanel.setBackground(Color.BLACK);
                 // Fallback if image is not found
                 animationPanel.add(new JLabel("World view image not found."));
@@ -209,8 +248,17 @@ public class GamePanel extends JPanel implements Observer {
         // ---------------- Chat ----------------
         chatArea = new JTextArea(5,50);
         chatArea.setEditable(false);
-        chatArea.setBorder(BorderFactory.createTitledBorder("Chat / Notifications"));
+        chatArea.setFont(AppTheme.FONT_BODY);
+        chatArea.setBackground(AppTheme.SURFACE_COLOR);
+        chatArea.setForeground(AppTheme.TEXT_PRIMARY);
+        chatArea.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1),
+            BorderFactory.createEmptyBorder(6, 8, 6, 8)));
         JScrollPane chatScroll = new JScrollPane(chatArea);
+        chatScroll.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "Chat / Notifications",
+            javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+            AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
 
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(chatScroll, BorderLayout.CENTER);
@@ -222,15 +270,8 @@ public class GamePanel extends JPanel implements Observer {
             AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
             aboutDialog.setVisible(true);
         });
-        
-        saveAndExitButton.addActionListener(e -> {
-            GameController.ActionResult result = controller.saveGame();
-            addChatMessage("SYSTEM: " + result.message);
-            if (result.success) {
-                // Close the application after a successful save
-                System.exit(0);
-            }
-        });
+        // NOTE: save/exit is handled by the shared saveAndExitAction above —
+        // no per-button listener, so both buttons stay in sync (DRY).
 
     // Start periodic background tasks (timers). We keep them in a small helper
     // method to make the constructor easier to read for beginners.

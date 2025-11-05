@@ -2,6 +2,7 @@ package view;
 
 import controller.GameController;
 import model.LearnableSkill;
+import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,17 +22,21 @@ public class SkillDialog extends JDialog {
         this.controller = controller;
         this.gamePanel = gamePanel;
         setLayout(new BorderLayout(10, 10));
-        setSize(450, 500);
-        setLocationRelativeTo(parent);
+        // Step-5: shared dialog look
+        AppTheme.styleDialog(this, 450, 500);
         // Close this dialog when the user closes the window
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         JPanel skillsContainer = new JPanel();
         skillsContainer.setLayout(new BoxLayout(skillsContainer, BoxLayout.Y_AXIS));
         skillsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        skillsContainer.setBackground(AppTheme.BACKGROUND_COLOR);
 
         if (skills.isEmpty()) {
-            skillsContainer.add(new JLabel("No new skills available for you at this time. Play more to unlock!"));
+            JLabel empty = new JLabel("No new skills available for you at this time. Play more to unlock!");
+            empty.setFont(AppTheme.FONT_BODY);
+            empty.setForeground(AppTheme.TEXT_SECONDARY);
+            skillsContainer.add(empty);
         } else {
             for (LearnableSkill skill : skills) {
                 skillsContainer.add(createSkillPanel(skill));
@@ -49,23 +54,15 @@ public class SkillDialog extends JDialog {
 
     // Create UI panel for a single learnable skill with purchase action
     private JPanel createSkillPanel(LearnableSkill skill) {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
-        panel.setBackground(Color.WHITE);
+        JPanel panel = AppTheme.createItemCard();
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        JLabel nameLabel = new JLabel(skill.getName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel nameLabel = AppTheme.createCardTitle(skill.getName());
 
-        JLabel descriptionLabel = new JLabel("<html>" + skill.getDescription() + "</html>"); // Use HTML for wrapping
-        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        descriptionLabel.setForeground(Color.GRAY);
+        JLabel descriptionLabel = AppTheme.createCardDescription(skill.getDescription()); // Use HTML for wrapping
 
         infoPanel.add(nameLabel);
         infoPanel.add(Box.createVerticalStrut(2));
@@ -73,9 +70,7 @@ public class SkillDialog extends JDialog {
 
         panel.add(infoPanel, BorderLayout.CENTER);
 
-        JButton learnButton = new JButton(String.format("Learn ($%d)", skill.getCost()));
-        learnButton.setBackground(new Color(13, 110, 253)); // A blue color for learning
-        learnButton.setForeground(Color.WHITE);
+        JButton learnButton = AppTheme.createPrimaryButton(String.format("Learn ($%d)", skill.getCost()));
         // Delegate the learning action to a small helper to keep this UI method short.
         learnButton.addActionListener(evt -> handleLearnSkill(skill));
         panel.add(learnButton, BorderLayout.EAST);
@@ -84,13 +79,13 @@ public class SkillDialog extends JDialog {
     }
 
     // Helper method to perform learning via controller and show results simply.
+    // Step-5 UX: stays open after success (previously dispose() forced reopen);
+    // learned skills disappear only when the dialog is reopened (School click).
     private void handleLearnSkill(LearnableSkill skill) {
         GameController.ActionResult result = controller.learnSkill(skill.getName());
-        if (result.success) {
-            JOptionPane.showMessageDialog(this, result.message, "Skill Learned! 🎓", JOptionPane.INFORMATION_MESSAGE);
-            gamePanel.updateUserInfo();
-            dispose(); // Close dialog on success
-        } else {
+        gamePanel.addChatMessage(result.message);
+        gamePanel.updateUserInfo();
+        if (!result.success) {
             JOptionPane.showMessageDialog(this, result.message, "Cannot Learn", JOptionPane.WARNING_MESSAGE);
         }
     }

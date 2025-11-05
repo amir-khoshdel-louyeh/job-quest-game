@@ -219,6 +219,64 @@ public class AppTheme {
         ));
         return panel;
     }
+
+    /**
+     * Step-5: themed section panel with a title border.
+     * Encapsulates TitledBorder styling so GamePanel/dialogs share one look
+     * (previously Arial + hardcoded grays scattered across views).
+     */
+    public static JPanel createSectionPanel(String title) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
+        panel.setBackground(CARD_BACKGROUND);
+        javax.swing.border.TitledBorder border = BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1), title);
+        border.setTitleFont(FONT_SUBHEADING);
+        border.setTitleColor(TEXT_PRIMARY);
+        panel.setBorder(BorderFactory.createCompoundBorder(border,
+            BorderFactory.createEmptyBorder(PADDING_SMALL, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL)));
+        return panel;
+    }
+
+    /**
+     * Step-5: apply shared dialog defaults (background, size, location).
+     * Keeps every game dialog on the same design system.
+     */
+    public static void styleDialog(JDialog dialog, int width, int height) {
+        dialog.getContentPane().setBackground(BACKGROUND_COLOR);
+        dialog.setSize(width, height);
+        dialog.setLocationRelativeTo(dialog.getParent());
+    }
+
+    /**
+     * Step-5: themed item card used by job/skill/service/shop lists.
+     * Single factory replaces duplicated CompoundBorder + Arial code.
+     */
+    public static JPanel createItemCard() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(CARD_BACKGROUND);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        return panel;
+    }
+
+    /** Step-5: title label for dialog headers. */
+    public static JLabel createCardTitle(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(FONT_SUBHEADING);
+        label.setForeground(TEXT_PRIMARY);
+        return label;
+    }
+
+    /** Step-5: secondary/description label for cards. */
+    public static JLabel createCardDescription(String htmlText) {
+        JLabel label = new JLabel("<html>" + htmlText + "</html>");
+        label.setFont(FONT_SMALL);
+        label.setForeground(TEXT_SECONDARY);
+        return label;
+    }
     
     // Create a styled statistic label with given color
     public static JLabel createStatLabel(String text, Color color) {

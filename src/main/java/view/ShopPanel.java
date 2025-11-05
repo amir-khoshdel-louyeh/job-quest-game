@@ -9,6 +9,7 @@ package view;
 import controller.UserController;
 import controller.GameController;
 import model.Item;
+import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,16 +29,19 @@ public class ShopPanel extends JPanel {
         this.parentDialog = parentDialog;
         setLayout(new BorderLayout(10, 10)); // Set layout before adding components
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBackground(AppTheme.BACKGROUND_COLOR);
 
         // Title
         JLabel titleLabel = new JLabel("Welcome to the Shop", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(AppTheme.FONT_HEADING);
+        titleLabel.setForeground(AppTheme.PRIMARY_COLOR);
         add(titleLabel, BorderLayout.NORTH);
 
         // Panel for the list of items
         JPanel itemsGridPanel = new JPanel();
         // Using a flexible grid layout that wraps
         itemsGridPanel.setLayout(new GridLayout(0, 3, 15, 15)); // 0 rows, 3 columns, with gaps
+        itemsGridPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
         for (Item item : itemsForSale) {
             itemsGridPanel.add(createItemPanel(item));
@@ -52,19 +56,25 @@ public class ShopPanel extends JPanel {
 
     // Create UI panel for a single shop item with buy action
     private JPanel createItemPanel(Item item) {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder(item.getName()));
+        JPanel panel = AppTheme.createItemCard();
+        panel.setLayout(new BorderLayout(5, 5));
+
+        // Title + effect (Step-3 items now carry real effects)
+        JLabel nameLabel = AppTheme.createCardTitle(item.getName());
+        panel.add(nameLabel, BorderLayout.NORTH);
 
         // Description
-        JTextArea descriptionArea = new JTextArea(item.getDescription());
+        JTextArea descriptionArea = new JTextArea(item.getDescription() + "\nEffect: " + item.getEffectDescription());
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setLineWrap(true);
         descriptionArea.setEditable(false);
-        descriptionArea.setBackground(panel.getBackground());
+        descriptionArea.setFont(AppTheme.FONT_SMALL);
+        descriptionArea.setForeground(AppTheme.TEXT_SECONDARY);
+        descriptionArea.setBackground(AppTheme.CARD_BACKGROUND);
         panel.add(descriptionArea, BorderLayout.CENTER);
 
         // Buy Button (delegates to a helper to keep this method short)
-        JButton buyButton = new JButton("Buy ($" + item.getPrice() + ")");
+        JButton buyButton = AppTheme.createSuccessButton("Buy ($" + item.getPrice() + ")");
         buyButton.addActionListener(e -> handleBuy(item));
         panel.add(buyButton, BorderLayout.SOUTH);
 
@@ -72,6 +82,8 @@ public class ShopPanel extends JPanel {
     }
 
     // Helper that performs the purchase flow with small client-side checks.
+    // Step-5 UX: stays open after success for multi-buy (previously dispose()
+    // closed the shop every purchase); result goes to chat + HUD.
     private void handleBuy(Item item) {
         // Quick client-side checks before requesting purchase
         if (userController.isBlocked()) {
@@ -91,12 +103,9 @@ public class ShopPanel extends JPanel {
         }
 
         GameController.ActionResult result = gameController.purchaseItem(item);
-        if (result.success) {
-            gamePanel.addChatMessage(result.message);
-            if (parentDialog != null) {
-                parentDialog.dispose(); // Close the shop dialog
-            }
-        } else {
+        gamePanel.addChatMessage(result.message);
+        gamePanel.updateUserInfo();
+        if (!result.success) {
             JOptionPane.showMessageDialog(this, result.message, "Purchase Failed", JOptionPane.WARNING_MESSAGE);
         }
     }

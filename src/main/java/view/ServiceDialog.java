@@ -2,6 +2,7 @@ package view;
 
 import controller.GameController;
 import model.Service;
+import view.theme.AppTheme;
 // ...existing code...
 
 import javax.swing.*;
@@ -22,8 +23,8 @@ public class ServiceDialog extends JDialog {
         this.controller = controller;
         this.gamePanel = gamePanel;
         setLayout(new BorderLayout(10, 10)); // Set layout before adding components
-        setSize(400, 500);
-        setLocationRelativeTo(parent);
+        // Step-5: shared dialog look
+        AppTheme.styleDialog(this, 400, 500);
         // Keep dialog behavior simple for beginners: dispose when closed
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -31,6 +32,7 @@ public class ServiceDialog extends JDialog {
         JPanel servicesContainer = new JPanel();
         servicesContainer.setLayout(new BoxLayout(servicesContainer, BoxLayout.Y_AXIS));
         servicesContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        servicesContainer.setBackground(AppTheme.BACKGROUND_COLOR);
 
         for (Service service : services) {
             servicesContainer.add(createServicePanel(service));
@@ -49,25 +51,17 @@ public class ServiceDialog extends JDialog {
     // Create UI panel for a single service with buy action
     private JPanel createServicePanel(Service service) {
         // This UI creation logic is moved from GamePanel for a consistent look and feel.
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
-        panel.setBackground(Color.WHITE);
+        JPanel panel = AppTheme.createItemCard();
 
         // --- Top section for Name and Description ---
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        JLabel nameLabel = new JLabel(service.getName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel nameLabel = AppTheme.createCardTitle(service.getName());
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel descriptionLabel = new JLabel(service.getDescription());
-        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        descriptionLabel.setForeground(Color.GRAY);
+        JLabel descriptionLabel = AppTheme.createCardDescription(service.getDescription());
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         infoPanel.add(nameLabel);
@@ -81,14 +75,11 @@ public class ServiceDialog extends JDialog {
         actionPanel.setOpaque(false);
 
         JLabel costLabel = new JLabel(String.format("$%d", service.getCost()));
-        costLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        costLabel.setFont(AppTheme.FONT_HEADING);
+        costLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         actionPanel.add(costLabel, BorderLayout.WEST);
 
-        JButton buyButton = new JButton("Buy");
-        buyButton.setBackground(new Color(25, 135, 84));
-        buyButton.setForeground(Color.WHITE);
-        buyButton.setFocusPainted(false);
-        buyButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        JButton buyButton = AppTheme.createSuccessButton("Buy");
         // Delegate purchase handling to a helper method to keep the UI code short and clear
         buyButton.addActionListener(e -> handleBuyService(service));
         actionPanel.add(buyButton, BorderLayout.EAST);
@@ -99,11 +90,14 @@ public class ServiceDialog extends JDialog {
     }
 
     // Helper to handle service purchase flow. Keeps the UI method readable for beginners.
+    // Step-5 UX: stays open for repeat buys; success goes to chat + HUD,
+    // only failures pop a dialog (previously every purchase popped one).
     private void handleBuyService(Service service) {
         GameController.ActionResult result = controller.purchaseService(service.getName());
-        if (result.success) {
-            gamePanel.addChatMessage(result.message);
+        gamePanel.addChatMessage(result.message);
+        gamePanel.updateUserInfo();
+        if (!result.success) {
+            JOptionPane.showMessageDialog(this, result.message, "Cannot Purchase", JOptionPane.WARNING_MESSAGE);
         }
-        JOptionPane.showMessageDialog(this, result.message, "Service Used", result.success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
 }

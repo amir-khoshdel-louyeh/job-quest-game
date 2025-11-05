@@ -2,6 +2,7 @@ package view;
 
 import controller.GameController;
 import model.Job;
+import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,17 +22,22 @@ public class JobDialog extends JDialog {
         this.controller = controller;
         this.gamePanel = gamePanel;
         setLayout(new BorderLayout(10, 10));
-        setSize(500, 600);
-        setLocationRelativeTo(parent);
+        // Step-5: shared dialog look + themed empty state
+        AppTheme.styleDialog(this, 500, 600);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         if (jobs.isEmpty()) {
-            add(new JLabel("No jobs available for your current identity and skill level. Learn more skills!", SwingConstants.CENTER));
+            JLabel empty = new JLabel("No jobs available for your current identity and skill level. Learn more skills!", SwingConstants.CENTER);
+            empty.setFont(AppTheme.FONT_BODY);
+            empty.setForeground(AppTheme.TEXT_SECONDARY);
+            add(empty);
             return;
         }
 
         JPanel jobsContainer = new JPanel();
         jobsContainer.setLayout(new BoxLayout(jobsContainer, BoxLayout.Y_AXIS));
         jobsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        jobsContainer.setBackground(AppTheme.BACKGROUND_COLOR);
 
         for (Job job : jobs) {
             jobsContainer.add(createJobPanel(job));
@@ -48,24 +54,17 @@ public class JobDialog extends JDialog {
 
     // Create a single job entry panel with action button
     private JPanel createJobPanel(Job job) {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
-        panel.setBackground(Color.WHITE);
+        // Step-5: one card factory — no more duplicated CompoundBorder + Arial
+        JPanel panel = AppTheme.createItemCard();
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        JLabel nameLabel = new JLabel(job.getName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel nameLabel = AppTheme.createCardTitle(job.getName());
         infoPanel.add(nameLabel);
 
-        JLabel descriptionLabel = new JLabel("<html>" + job.getDescription() + "</html>");
-        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        descriptionLabel.setForeground(Color.GRAY);
+        JLabel descriptionLabel = AppTheme.createCardDescription(job.getDescription());
         infoPanel.add(descriptionLabel);
 
         panel.add(infoPanel, BorderLayout.CENTER);
@@ -75,12 +74,13 @@ public class JobDialog extends JDialog {
 
         String rewardText = String.format("Pay: $%d | Energy: -%d", job.getPayment(), job.getEnergyCost());
         JLabel rewardLabel = new JLabel(rewardText);
-        rewardLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        rewardLabel.setFont(AppTheme.FONT_BUTTON);
+        rewardLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         actionPanel.add(rewardLabel, BorderLayout.CENTER);
 
-        JButton doItButton = new JButton("Do It!");
+        JButton doItButton = AppTheme.createSuccessButton("Do It!");
         // When clicked, attempt the job via the controller and show the result.
-        doItButton.addActionListener(e -> handleDoJob(job));
+        doItButton.addActionListener(e -> handleDoJob(job, doItButton));
         actionPanel.add(doItButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);
@@ -88,14 +88,14 @@ public class JobDialog extends JDialog {
     }
 
     // Small helper that executes the job and shows messages in a consistent way.
-    private void handleDoJob(Job job) {
+    // Step-5 UX: stays open after success for grinding (previously dispose()
+    // forced reopen every job); result goes to chat + HUD via Observer.
+    private void handleDoJob(Job job, JButton source) {
         GameController.ActionResult result = controller.doJob(job);
-        if (result.success) {
-            JOptionPane.showMessageDialog(this, result.message, "Success!", JOptionPane.INFORMATION_MESSAGE);
-            gamePanel.updateUserInfo();
-            dispose(); // Close the dialog after success
-        } else {
-            JOptionPane.showMessageDialog(this, result.message, "Error", JOptionPane.ERROR_MESSAGE);
+        gamePanel.addChatMessage(result.message);
+        gamePanel.updateUserInfo();
+        if (!result.success) {
+            JOptionPane.showMessageDialog(this, result.message, "Cannot Work", JOptionPane.WARNING_MESSAGE);
         }
     }
 }
