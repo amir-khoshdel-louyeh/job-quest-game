@@ -155,4 +155,13 @@ public class UserController extends Subject {
         }
         notifyObservers();
     }
+
+    /**
+     * Re-notify observers after domain Singleton services mutate the
+     * wrapped {@link User} directly (e.g. challenge/achievement rewards).
+     * Keeps Observer pattern consistent without breaking service APIs.
+     */
+    public void refresh() {
+        notifyObservers();
+    }
 }

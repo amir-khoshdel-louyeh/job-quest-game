@@ -22,8 +22,21 @@ public class SkillController {
         // attempt to learn a named skill, charging the user if needed
         LearnableSkill skillToLearn = SkillProvider.getSkill(skillName);
         if (skillToLearn == null) return false;
+        // Prevent duplicate learning (encapsulation: skills list owned by User).
+        boolean alreadyKnown = userController.getUser().getSkills().stream()
+                .anyMatch(s -> s.getName().equals(skillToLearn.getName()));
+        if (alreadyKnown) return false;
         if (userController.deductBalance(skillToLearn.getCost())) {
             userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));
+            // Step 2: progression wiring — same Singleton services as JobController.
+            // Mutations via UserController where possible; services mutate User
+            // directly for rewards, so refresh() re-syncs Observers.
+            services.ChallengeService.getInstance().updateChallengeProgress(
+                    userController.getUser(),
+                    model.Challenge.ChallengeType.LEARN_SKILLS, 1);
+            services.AchievementService.getInstance()
+                    .checkAndUnlockAchievements(userController.getUser());
+            userController.refresh();
             userController.notifyObservers();
             return true;
         }

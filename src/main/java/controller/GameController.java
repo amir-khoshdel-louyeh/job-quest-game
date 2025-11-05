@@ -28,6 +28,9 @@ public class GameController {
         this.saveController = new SaveController();
         this.statsController = new StatsController();
         this.eventController = new EventController();
+        // Step 2: ensure progression exists for new + legacy saves.
+        // Singleton service, idempotent (no-op if challenges already present).
+        services.ChallengeService.getInstance().initializeChallenges(user);
     }
 
     public ActionResult purchaseService(String serviceName) {
@@ -118,6 +121,25 @@ public class GameController {
     }
 
     // For brevity, getActiveChallenges, getAchievements, etc. would be delegated to their own controllers/services.
+
+    /**
+     * Thin Facade getters for future dashboards (Step 7).
+     * Abstraction: UI depends on these, not on Singleton services directly.
+     */
+    public java.util.List<Challenge> getActiveChallenges() {
+        return services.ChallengeService.getInstance()
+                .getActiveIncompleteChallenges(userController.getUser());
+    }
+
+    public java.util.List<Challenge> getCompletedChallenges() {
+        return services.ChallengeService.getInstance()
+                .getCompletedChallenges(userController.getUser());
+    }
+
+    public java.util.List<Achievement> getAchievementsWithStatus() {
+        return services.AchievementService.getInstance()
+                .getAchievementsWithStatus(userController.getUser());
+    }
 
     public GameEvent triggerRandomEvent() {
         // trigger a random game event for the current user
