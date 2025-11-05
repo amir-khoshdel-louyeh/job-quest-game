@@ -3,15 +3,7 @@
 # Job Quest Game Launcher
 # This script handles library conflicts and runs the game properly
 
-
-# ================= CONFIG =================
-# UI scaling factor - EDIT THIS VALUE to change zoom:
-#   1.0  = 100% (small / Fedora default)
-#   1.25 = 125% (like Windows)
-#   1.5  = 150% (recommended)
-#   2.0  = 200% (large / HiDPI)
 UI_SCALE="2.0"
-# ============================================
 
 echo "🎮 Starting Job Quest Game (UI scale: $UI_SCALE)..."
 echo ""
