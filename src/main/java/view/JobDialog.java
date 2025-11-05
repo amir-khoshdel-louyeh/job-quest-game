@@ -88,14 +88,56 @@ public class JobDialog extends JDialog {
     }
 
     // Small helper that executes the job and shows messages in a consistent way.
-    // Step-5 UX: stays open after success for grinding (previously dispose()
-    // forced reopen every job); result goes to chat + HUD via Observer.
+    // Step-9 UX: every job first plays the identity's work mini-game
+    // (Typist retypes · Programmer writes a tiny program · Doctor diagnoses ·
+    // Designer answers the brief). Cancel = no job, no penalty. The game score
+    // scales pay/XP via GameController.doJob(job, game).
     private void handleDoJob(Job job, JButton source) {
-        GameController.ActionResult result = controller.doJob(job);
+        JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+        String identity = gamePanel.getUserIdentity();
+        GameController.ActionResult result;
+        if (isGameIdentity(identity)) {
+            model.minigame.MiniGameResult game = playWorkGame(parent, identity);
+            if (game == null) {
+                return; // cancelled — nothing happens, dialog stays open
+            }
+            result = controller.doJob(job, game);
+        } else {
+            result = controller.doJob(job); // unknown identity → legacy path
+        }
         gamePanel.addChatMessage(result.message);
         gamePanel.updateUserInfo();
         if (!result.success) {
             JOptionPane.showMessageDialog(this, result.message, "Cannot Work", JOptionPane.WARNING_MESSAGE);
         }
+    }
+
+    private static boolean isGameIdentity(String identity) {
+        return "Typist".equals(identity) || "Programmer".equals(identity)
+                || "Doctor".equals(identity) || "LogoDesigner".equals(identity);
+    }
+
+    /**
+     * Strategy pick by identity (Strategy pattern): each profession plays its
+     * own game, the dialog only orchestrates (SRP).
+     *
+     * @return accepted game result, or null when cancelled
+     */
+    private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity) {
+        return switch (identity) {
+            case "Typist" -> new view.minigame.TypingGameDialog(
+                    parent, "Typing Sprint", provider.TypingTaskProvider.getAll(), null, false)
+                    .showAndPlay();
+            case "Programmer" -> new view.minigame.TypingGameDialog(
+                    parent, "Write the Program", provider.CodeTaskProvider.getAll(), null, true)
+                    .showAndPlay();
+            case "Doctor" -> new view.minigame.QuizGameDialog(
+                    parent, "Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null)
+                    .showAndPlay();
+            case "LogoDesigner" -> new view.minigame.QuizGameDialog(
+                    parent, "Client Brief Round", provider.QuizProvider.getDesignQuestions(), null)
+                    .showAndPlay();
+            default -> null;
+        };
     }
 }

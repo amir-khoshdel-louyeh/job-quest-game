@@ -93,6 +93,27 @@ public final class JobResult {
                 completedChallenges, newAchievements);
     }
 
+    /**
+     * Mini-game overload (Open/Closed): same as above plus the game summary
+     * line from {@link model.minigame.MiniGameResult#summaryLine()}.
+     */
+    public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
+                                    int xpGained, int reputationGained,
+                                    int levelBefore, int levelAfter,
+                                    List<Challenge> completedChallenges,
+                                    List<Achievement> newAchievements,
+                                    model.minigame.MiniGameResult game) {
+        JobResult base = success(job, basePayment, bonusAmount, finalPayment,
+                xpGained, reputationGained, levelBefore, levelAfter,
+                completedChallenges, newAchievements);
+        if (game == null) return base;
+        String withGame = base.getMessage() + String.format("%n%s", game.summaryLine());
+        return new JobResult(true, withGame, job,
+                basePayment, bonusAmount, finalPayment,
+                xpGained, reputationGained, levelBefore, levelAfter,
+                completedChallenges, newAchievements);
+    }
+
     /** Factory for failed job attempts (no state mutated). */
     public static JobResult failure(Job job, String reason) {
         String jobName = (job == null) ? "Job" : job.getName();

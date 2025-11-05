@@ -427,6 +427,11 @@ public class GamePanel extends JPanel implements Observer {
         return animationPanel;
     }
 
+    /** Identity simple name (Typist/Programmer/LogoDesigner/Doctor) for game routing. */
+    public String getUserIdentity() {
+        return currentUser.getIdentity().getClass().getSimpleName();
+    }
+
     // ---------------- Step-6: navigation + affordance ----------------
     // One helper per destination (SRP, DRY): nav buttons and image zones share them.
 

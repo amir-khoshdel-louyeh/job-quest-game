@@ -7,6 +7,7 @@ package controller;
  */
 
 import model.*;
+import model.minigame.MiniGameResult;
 public class GameController {
     private final UserController userController;
     private final EconomyController economyController;
@@ -106,6 +107,20 @@ public class GameController {
         // JobController returns a rich JobResult DTO; this facade unwraps it
         // into a UI-friendly ActionResult (Facade/Coordinator role, stays thin).
         JobResult result = jobController.doJob(job);
+        if (result.isSuccess()) {
+            sessionJobsCompleted++;
+            return new ActionResult(true, result.getMessage());
+        } else {
+            return new ActionResult(false, result.getMessage());
+        }
+    }
+
+    /**
+     * Mini-game overload: same facade, performance-scaled reward.
+     * Thin by design — all math stays in JobController/JobService.
+     */
+    public ActionResult doJob(Job job, MiniGameResult game) {
+        JobResult result = jobController.doJob(job, game);
         if (result.isSuccess()) {
             sessionJobsCompleted++;
             return new ActionResult(true, result.getMessage());

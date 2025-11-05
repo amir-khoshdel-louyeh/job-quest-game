@@ -59,6 +59,20 @@ public class JobController {
      * Single Responsibility: coordination only, math lives in {@link JobService}.
      */
     public JobResult doJob(Job job) {
+        return execute(job, null);
+    }
+
+    /**
+     * Mini-game overload: the work-time game result scales pay and XP
+     * (score 0 → half, 100 → 1.5x) and grants +1 bonus rep on 80+.
+     * A {@code null} game behaves exactly like {@link #doJob(Job)}.
+     */
+    public JobResult doJob(Job job, model.minigame.MiniGameResult game) {
+        return execute(job, game);
+    }
+
+    /** Shared core so both overloads validate and progress identically (DRY). */
+    private JobResult execute(Job job, model.minigame.MiniGameResult game) {
         // attempt to perform the given job for the user
         if (job == null) {
             return JobResult.failure(null, "No job selected.");
@@ -83,10 +97,23 @@ public class JobController {
         // Pure calculations first (no side effects) — easy to unit test.
         model.User user = userController.getUser();
         int base = job.getPayment();
-        int finalPay = jobService.calculateFinalPayment(job, user);
-        int bonus = Math.max(0, finalPay - base);
+        int scaledBase = base;
         int xp = jobService.calculateXpReward(job);
         int rep = jobService.calculateReputationGain(job);
+        if (game != null) {
+            // Mini-game performance scales the job (0.5x … 1.5x).
+            scaledBase = Math.max(1, (int) Math.round(base * game.rewardMultiplier()));
+            xp = Math.max(1, (int) Math.round(xp * game.rewardMultiplier()));
+            if (game.getScore() >= 80) rep++;
+        }
+        int finalPay = jobService.calculateFinalPayment(job, user);
+        // Re-apply performance on top of seniority bonuses proportionally:
+        // scale the bonus part too so veterans still feel the game.
+        if (game != null && base > 0) {
+            double ratio = scaledBase / (double) base;
+            finalPay = Math.max(1, (int) Math.round(finalPay * ratio));
+        }
+        int bonus = Math.max(0, finalPay - base);
         int levelBefore = user.getLevel();
 
         // Mutations go through UserController so Observers are notified (Observer pattern).
@@ -118,6 +145,10 @@ public class JobController {
         // re-sync observers so HUD stays consistent.
         userController.refresh();
 
+        if (game != null) {
+            return JobResult.success(job, base, bonus, finalPay, xp, rep,
+                    levelBefore, levelAfter, completed, unlocked, game);
+        }
         return JobResult.success(job, base, bonus, finalPay, xp, rep,
                 levelBefore, levelAfter, completed, unlocked);
     }
