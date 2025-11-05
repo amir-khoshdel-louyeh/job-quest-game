@@ -15,6 +15,7 @@ import model.Job;
 import provider.JobProvider;
 import provider.SkillProvider;
 import provider.ServiceProvider;
+import provider.ShopItemProvider;
 import observer.Observer;
 import view.theme.AppTheme;
 
@@ -31,7 +32,7 @@ public class GamePanel extends JPanel implements Observer {
     private UserController userController;
     private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
     private JLabel levelLabel, xpLabel, reputationLabel, streakLabel;
-    private JProgressBar xpProgressBar;
+    private JProgressBar xpProgressBar, healthBar, energyBar;
     private JTextArea chatArea;
     private JPanel animationPanel;
     private JPanel rightPanel;
@@ -39,6 +40,10 @@ public class GamePanel extends JPanel implements Observer {
     private JButton saveAndExitButton, helpButton, bottomSaveButton;
     private javax.swing.Action saveAndExitAction;
     private final long sessionStartTime;
+    // Step-6: single non-blocking toast reused for success feedback.
+    private JDialog toastDialog;
+    private JLabel toastLabel;
+    private javax.swing.Timer toastTimer;
 
     // Construct the main game panel for the given user
     public GamePanel(User user) {
@@ -75,9 +80,18 @@ public class GamePanel extends JPanel implements Observer {
         healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
         healthLabel.setFont(AppTheme.FONT_BODY);
         healthLabel.setForeground(AppTheme.HEALTH_COLOR);
+        // Step-6: live HUD bar — Observer.update() refreshes it, no polling.
+        healthBar = new JProgressBar(0, 100);
+        healthBar.setValue(userController.getHealth());
+        healthBar.setStringPainted(true);
+        healthBar.setString(userController.getHealth() + "%");
+        healthBar.setForeground(AppTheme.HEALTH_COLOR);
+        healthBar.setBackground(AppTheme.DIVIDER_COLOR);
+        healthBar.setFont(AppTheme.FONT_SMALL);
         profilePanel.add(usernameLabel);
         profilePanel.add(balanceLabel);
         profilePanel.add(healthLabel);
+        profilePanel.add(healthBar);
 
         // Progression Panel
         JPanel progressPanel = AppTheme.createSectionPanel("⭐ Progression");
@@ -115,8 +129,17 @@ public class GamePanel extends JPanel implements Observer {
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         energyLabel.setFont(AppTheme.FONT_BODY);
         energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
+        // Step-6: live HUD bar for the 0–100k energy pool.
+        energyBar = new JProgressBar(0, 100000);
+        energyBar.setValue(userController.getEnergy());
+        energyBar.setStringPainted(true);
+        energyBar.setString((userController.getEnergy() * 100 / 100000) + "%");
+        energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
+        energyBar.setBackground(AppTheme.DIVIDER_COLOR);
+        energyBar.setFont(AppTheme.FONT_SMALL);
         identityPanel.add(identityName);
         identityPanel.add(energyLabel);
+        identityPanel.add(energyBar);
 
         // Buttons Panel
         JPanel buttonsPanel = new JPanel();
@@ -191,6 +214,10 @@ public class GamePanel extends JPanel implements Observer {
                     AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
 
                 // Add a mouse listener to handle clicks on different regions of the image
+                // Step-6: image zones delegate to the same openX() helpers as the
+                // nav bar below (DRY) — blind clicks are now discoverable.
+                animationPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                animationPanel.setToolTipText("Hospital | Workshop | Market | School — or use the buttons above");
                 animationPanel.addMouseListener(new MouseAdapter() {
                     
                     public void mouseClicked(MouseEvent e) {
@@ -199,31 +226,15 @@ public class GamePanel extends JPanel implements Observer {
                         int x = e.getX();
 
                         if (x >= 0 && x < sectionWidth) {
-                            // Section 1: Hospital
-                            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, ServiceProvider.getHealthServices());
-                            dialog.setVisible(true);
+                            openHospital();
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
-                            // Section 2: WorkShop
-                            GameController.ActionResult result = controller.doWork();
-                            if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
-                                java.util.List<Job> availableJobs = JobProvider.getAvailableJobsForUser(currentUser);
-                                JobDialog dialog = new JobDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, availableJobs);
-                                dialog.setVisible(true);
-                            } else {
-                                addChatMessage(result.message);
-                            }
+                            openWorkshop();
                         } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
-                            // Section 3: Empty
-                            // No action needed
+                            addChatMessage("Empty lot — try the buttons above: Hospital, Workshop, Market, School, Shop, Inventory.");
                         } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
-                            // Section 4: SuperMarket
-                            ServiceDialog dialog = new ServiceDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, ServiceProvider.getEnergyServices());
-                            dialog.setVisible(true);
+                            openMarket();
                         } else if (x >= sectionWidth * 4 && x < panelWidth) {
-                            // Section 5: School
-                            java.util.List<LearnableSkill> availableSkills = SkillProvider.getAvailableSkillsForUser(currentUser);
-                            SkillDialog dialog = new SkillDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this), controller, GamePanel.this, availableSkills);
-                            dialog.setVisible(true);
+                            openSchool();
                         }
                     }
                 });
@@ -243,7 +254,13 @@ public class GamePanel extends JPanel implements Observer {
             e.printStackTrace();
             animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
         }
-        add(animationPanel, BorderLayout.CENTER);
+        // Step-6: labeled nav bar with tooltips — the fix for blind image-click.
+        // Same openX() helpers as image zones, plus previously unreachable Shop/Inventory.
+        JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
+        centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
+        centerPanel.add(buildNavBar(), BorderLayout.NORTH);
+        centerPanel.add(animationPanel, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
 
         // ---------------- Chat ----------------
         chatArea = new JTextArea(5,50);
@@ -295,11 +312,21 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     // Update UI labels and progress bars with the latest user info
+    // Called directly AND via Observer.update() on every stat mutation.
     public void updateUserInfo() {
         usernameLabel.setText("👤 " + userController.getUsername());
         balanceLabel.setText("💰 Balance: $" + userController.getBalance());
-        healthLabel.setText("❤️ Health: " + userController.getHealth() + "/100");
-        energyLabel.setText("⚡ Energy: " + userController.getEnergy() + "/100000");
+        int hp = userController.getHealth();
+        healthLabel.setText("❤️ Health: " + hp + "/100");
+        healthBar.setValue(Math.max(0, Math.min(100, hp)));
+        healthBar.setString(hp + "%");
+        // Low-HP flash: switch to warning color under 30 (simulator readability).
+        healthBar.setForeground(hp < 30 ? AppTheme.WARNING_COLOR : AppTheme.HEALTH_COLOR);
+        int en = userController.getEnergy();
+        energyLabel.setText("⚡ Energy: " + en + "/100000");
+        energyBar.setValue(Math.max(0, Math.min(100000, en)));
+        energyBar.setString((en * 100 / 100000) + "%");
+        energyBar.setForeground(en < 25000 ? AppTheme.WARNING_COLOR : AppTheme.ENERGY_COLOR.darker());
         
         // Update progression info
         levelLabel.setText("Level: " + currentUser.getLevel());
@@ -325,13 +352,120 @@ public class GamePanel extends JPanel implements Observer {
     
 
     // Append a message to the chat / notifications area
+    // Step-6: auto-scroll + non-blocking toast for success lines so rewards
+    // are noticed without modal spam (dialogs already stopped popping).
     public void addChatMessage(String msg) {
         chatArea.append(msg + "\n");
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
+        if (msg != null && (msg.contains("✅") || msg.contains("🏆") || msg.contains("🏅")
+                || msg.contains("🎉") || msg.contains("✨") || msg.contains("🛒"))) {
+            String firstLine = msg.split("\n")[0];
+            if (firstLine.length() > 90) {
+                firstLine = firstLine.substring(0, 87) + "...";
+            }
+            showToast(firstLine);
+        }
+    }
+
+    /**
+     * Non-blocking toast bottom-right of the game window, auto-hides.
+     * Reuses one dialog instance (no window spam on rapid jobs).
+     */
+    private void showToast(String text) {
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        if (owner == null) return;
+        if (toastDialog == null) {
+            toastDialog = new JDialog(owner);
+            toastDialog.setUndecorated(true);
+            toastDialog.setFocusableWindowState(false);
+            toastLabel = new JLabel();
+            toastLabel.setFont(AppTheme.FONT_BODY);
+            toastLabel.setForeground(Color.WHITE);
+            toastLabel.setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 16));
+            JPanel p = new JPanel(new BorderLayout());
+            p.setBackground(new Color(50, 50, 50, 230));
+            p.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 60), 1));
+            p.add(toastLabel, BorderLayout.CENTER);
+            toastDialog.getContentPane().add(p);
+            toastDialog.pack();
+        }
+        toastLabel.setText(text);
+        toastDialog.pack();
+        Point ownerLoc = owner.getLocationOnScreen();
+        int x = ownerLoc.x + owner.getWidth() - toastDialog.getWidth() - 24;
+        int y = ownerLoc.y + owner.getHeight() - toastDialog.getHeight() - 70;
+        toastDialog.setLocation(Math.max(ownerLoc.x, x), Math.max(ownerLoc.y, y));
+        toastDialog.setVisible(true);
+        if (toastTimer != null && toastTimer.isRunning()) {
+            toastTimer.stop();
+        }
+        toastTimer = new javax.swing.Timer(2500, e -> toastDialog.setVisible(false));
+        toastTimer.setRepeats(false);
+        toastTimer.start();
     }
 
     // Return the panel that displays the world view animation/image
     public JPanel getAnimationPanel() {
         return animationPanel;
+    }
+
+    // ---------------- Step-6: navigation + affordance ----------------
+    // One helper per destination (SRP, DRY): nav buttons and image zones share them.
+
+    private JFrame parentFrame() {
+        return (JFrame) SwingUtilities.getWindowAncestor(this);
+    }
+
+    private void openHospital() {
+        new ServiceDialog(parentFrame(), controller, this, ServiceProvider.getHealthServices()).setVisible(true);
+    }
+
+    private void openWorkshop() {
+        GameController.ActionResult result = controller.doWork();
+        if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
+            java.util.List<Job> availableJobs = JobProvider.getAvailableJobsForUser(currentUser);
+            new JobDialog(parentFrame(), controller, this, availableJobs).setVisible(true);
+        } else {
+            addChatMessage(result.message);
+        }
+    }
+
+    private void openMarket() {
+        new ServiceDialog(parentFrame(), controller, this, ServiceProvider.getEnergyServices()).setVisible(true);
+    }
+
+    private void openSchool() {
+        java.util.List<LearnableSkill> availableSkills = SkillProvider.getAvailableSkillsForUser(currentUser);
+        new SkillDialog(parentFrame(), controller, this, availableSkills).setVisible(true);
+    }
+
+    private void openShop() {
+        new ShopDialog(parentFrame(), controller, this, ShopItemProvider.getAvailableItems()).setVisible(true);
+    }
+
+    private void openInventory() {
+        new InventoryDialog(parentFrame(), controller, this).setVisible(true);
+    }
+
+    /** Labeled nav bar: icon + tooltip per destination, themed buttons. */
+    private JPanel buildNavBar() {
+        JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
+        nav.setBackground(AppTheme.BACKGROUND_COLOR);
+        nav.add(navButton("🏥 Hospital", "Buy health services (heal)", true, e -> openHospital()));
+        nav.add(navButton("🔨 Workshop", "Do jobs to earn money and XP", true, e -> openWorkshop()));
+        nav.add(navButton("🛒 Market", "Buy energy services (eat)", true, e -> openMarket()));
+        nav.add(navButton("🎓 School", "Learn skills to unlock better jobs", true, e -> openSchool()));
+        nav.add(navButton("🛍️ Shop", "Buy storable items, then use from inventory", false, e -> openShop()));
+        nav.add(navButton("🎒 Inventory", "Use owned items (" + controller.getInventoryItems().size() + ")", false, e -> openInventory()));
+        return nav;
+    }
+
+    private JButton navButton(String text, String tooltip, boolean primary,
+                              java.awt.event.ActionListener action) {
+        JButton b = primary ? AppTheme.createPrimaryButton(text) : AppTheme.createSecondaryButton(text);
+        b.setToolTipText(tooltip);
+        b.addActionListener(action);
+        return b;
     }
 
     // Disable interactive actions (placeholder for future use)
