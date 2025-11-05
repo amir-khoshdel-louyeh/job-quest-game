@@ -447,6 +447,10 @@ public class GamePanel extends JPanel implements Observer {
         new InventoryDialog(parentFrame(), controller, this).setVisible(true);
     }
 
+    private void openProgress() {
+        new ProgressDialog(parentFrame(), controller, this).setVisible(true);
+    }
+
     /** Labeled nav bar: icon + tooltip per destination, themed buttons. */
     private JPanel buildNavBar() {
         JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
@@ -457,6 +461,7 @@ public class GamePanel extends JPanel implements Observer {
         nav.add(navButton("🎓 School", "Learn skills to unlock better jobs", true, e -> openSchool()));
         nav.add(navButton("🛍️ Shop", "Buy storable items, then use from inventory", false, e -> openShop()));
         nav.add(navButton("🎒 Inventory", "Use owned items (" + controller.getInventoryItems().size() + ")", false, e -> openInventory()));
+        nav.add(navButton("📊 Progress", "Challenges, achievements and stats", false, e -> openProgress()));
         return nav;
     }
 
