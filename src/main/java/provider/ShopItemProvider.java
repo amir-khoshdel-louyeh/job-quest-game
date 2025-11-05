@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import model.Item;
 import model.Food;
-import model.Tool;
+import model.Item;
 
 /**
  * Provides a centralized list of all items available in the shop.
+ *
+ * <p>Items carry real effects via {@link ItemFactory} (Factory Method) so
+ * the shop is usable — previously effect-less and dead vs Services.
+ * Names are stable: {@code UserRepositoryImpl} persists inventory by name.</p>
  */
 public class ShopItemProvider {
 
@@ -20,9 +23,12 @@ public class ShopItemProvider {
 
     static {
         // To add a new item to the shop, just add a new line here.
-        addItem(new Food("Basic Food", "Restores a small amount of energy.", 50));
-        addItem(new Food("Energy Drink", "Restores a medium amount of energy.", 120));
-        addItem(new Tool("First-Aid Kit", "A basic kit to restore some health.", 100));
+        // Effects mirror ServiceProvider value curve (~100 Energy per $1).
+        addItem(ItemFactory.createFood("Basic Food", "A simple meal. Storable — use from inventory.", 50, 4000, 0));
+        addItem(ItemFactory.createFood("Energy Drink", "Quick boost. Storable — use from inventory.", 120, 10000, 0));
+        addItem(ItemFactory.createTool("First-Aid Kit", "Basic treatment. Storable — use from inventory.", 100, 0, 20));
+        addItem(ItemFactory.createFood("Trail Mix", "Hiker's snack. Storable — use from inventory.", 30, 2500, 0));
+        addItem(ItemFactory.createTool("Vitamin Pack", "Daily vitamins. Storable — use from inventory.", 80, 1000, 5));
     }
 
     private static void addItem(Item item) {

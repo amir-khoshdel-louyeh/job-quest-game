@@ -44,13 +44,43 @@ public class GameController {
     }
 
     public ActionResult purchaseItem(Item item) {
-        // purchase an item via the economy controller
+        // purchase an item via the economy controller (storable, use later)
+        if (item == null) {
+            return new ActionResult(false, "No item selected.");
+        }
         boolean result = economyController.purchaseItem(item);
         if (result) {
-            return new ActionResult(true, "Item purchased successfully.");
+            int owned = userController.getUser().getInventory().countByName(item.getName());
+            return new ActionResult(true, String.format(
+                    "🛒 %s purchased (-$%d). Effect on use: %s. Owned: %d. Open inventory to use it.",
+                    item.getName(), item.getPrice(),
+                    item.getEffectDescription(), owned));
         } else {
-            return new ActionResult(false, "Failed to purchase item.");
+            return new ActionResult(false, String.format(
+                    "Failed to purchase %s ($%d). Not enough balance ($%d).",
+                    item.getName(), item.getPrice(), userController.getBalance()));
         }
+    }
+
+    /**
+     * Use one owned inventory item (polymorphic effect, consumable removed).
+     * Thin Facade over {@link EconomyController#useItem(String)}.
+     */
+    public ActionResult useItem(String itemName) {
+        if (itemName == null || itemName.isBlank()) {
+            return new ActionResult(false, "No item selected.");
+        }
+        String effect = economyController.useItem(itemName);
+        if (effect != null) {
+            return new ActionResult(true, String.format(
+                    "✨ Used %s: %s.", itemName, effect));
+        }
+        return new ActionResult(false, "Item not in inventory: " + itemName);
+    }
+
+    /** Inventory snapshot for future UI (Step 6/7), unmodifiable. */
+    public java.util.List<Item> getInventoryItems() {
+        return userController.getUser().getInventory().getItems();
     }
 
     public ActionResult doWork() {
