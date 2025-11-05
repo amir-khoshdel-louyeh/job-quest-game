@@ -15,6 +15,7 @@ public class LoginPanel extends JPanel {
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
+    private JLabel errorLabel;
     // Controller handles the login logic (keeps UI and logic separated)
     private LoginController loginController = new LoginController();
     private MainFrame mainFrame;
@@ -70,6 +71,13 @@ public class LoginPanel extends JPanel {
         passwordField = AppTheme.createPasswordField(20);
         passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, AppTheme.INPUT_HEIGHT));
         passwordField.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Step-8: inline error label — empty/short input no longer needs a modal.
+        errorLabel = new JLabel(" ");
+        errorLabel.setFont(AppTheme.FONT_SMALL);
+        errorLabel.setForeground(AppTheme.ERROR_COLOR);
+        errorLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        errorLabel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 0));
         
         // Login button
         loginButton = AppTheme.createPrimaryButton("Login");
@@ -88,6 +96,7 @@ public class LoginPanel extends JPanel {
         cardPanel.add(passLabel);
         cardPanel.add(Box.createVerticalStrut(8));
         cardPanel.add(passwordField);
+        cardPanel.add(errorLabel);
         cardPanel.add(Box.createVerticalStrut(30));
         cardPanel.add(loginButton);
         cardPanel.add(Box.createVerticalStrut(15));
@@ -123,10 +132,13 @@ public class LoginPanel extends JPanel {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
-        if(username.isEmpty() || password.isEmpty()) {
-            showError("Please enter both username and password!");
+        // Step-8: inline validation (OOP: rule lives next to the form, SRP).
+        String error = validateInput(username, password);
+        if (error != null) {
+            showError(error);
             return;
         }
+        clearError();
 
         // Disable button during login
         loginButton.setEnabled(false);
@@ -169,8 +181,26 @@ public class LoginPanel extends JPanel {
     }
     
     // Show an error dialog with the provided message
+    // Step-8: inline label first (non-blocking); modal only for auth failures.
     private void showError(String message) {
-        JOptionPane.showMessageDialog(this, message, "Login Error", 
-            JOptionPane.ERROR_MESSAGE);
+        errorLabel.setText(message);
+    }
+
+    private void clearError() {
+        errorLabel.setText(" ");
+    }
+
+    /** Null when valid, otherwise the inline message to show. */
+    private static String validateInput(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            return "Please enter both username and password.";
+        }
+        if (username.length() < 3) {
+            return "Username must be at least 3 characters.";
+        }
+        if (password.length() < 4) {
+            return "Password must be at least 4 characters.";
+        }
+        return null;
     }
 }

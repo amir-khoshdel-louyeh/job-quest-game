@@ -293,6 +293,8 @@ public class GamePanel extends JPanel implements Observer {
     // Start periodic background tasks (timers). We keep them in a small helper
     // method to make the constructor easier to read for beginners.
     setupTimers();
+    // Step-8: first-run onboarding — tutorial evaporated after login before.
+    maybeShowOnboarding();
 
         // ---------------- Check if blocked ----------------
         if(userController.isBlocked()) {
@@ -338,9 +340,12 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     // Helper to start periodic timers used by the panel. Kept small and readable.
+    // Step-8 tuning: energy ticks were chat-noisy at 5s; RoutineService only
+    // messages on poor-health/low-energy edge cases, so a calmer 30s cadence
+    // preserves survival pressure without log spam. Health/sickness unchanged.
     private void setupTimers() {
-        // Decrease energy every 5 seconds
-        Timer.runPeriodic(5_000, e -> routineController.decreaseEnergy());
+        // Decrease energy every 30 seconds (was 5s — same totals, less noise)
+        Timer.runPeriodic(30_000, e -> routineController.decreaseEnergy());
         // Decrease health every 1 minute
         Timer.runPeriodic(60_000, e -> routineController.decreaseHealth());
         // Sickness check once a day
@@ -348,6 +353,19 @@ public class GamePanel extends JPanel implements Observer {
 
         // Unblocking user after 48 hours (in milliseconds)
         Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
+    }
+
+    /**
+     * Step-8: onboarding checklist for fresh accounts (SRP: view-only hints,
+     * game state untouched). Veterans (jobs/skills done) see nothing.
+     */
+    private void maybeShowOnboarding() {
+        boolean fresh = currentUser.getTotalJobsCompleted() == 0
+                && currentUser.getSkills().isEmpty();
+        if (!fresh) return;
+        addChatMessage("👋 Welcome to Job Quest! Your goal: earn, learn skills, unlock better jobs.");
+        addChatMessage("🎯 Next: 1) 🔨 Workshop — do your first job  2) 📊 Progress — track challenges  3) 🎓 School — learn a skill");
+        addChatMessage("💡 Tip: low bars? 🛒 Market restores energy, 🏥 Hospital restores health, 🛍️ Shop stocks 🎒 Inventory. F11 toggles windowed mode.");
     }
     
 
@@ -479,18 +497,16 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     // Add UI helper methods for controller:
+    // Step-8: previously modal popups; now chat + toast (non-blocking) since
+    // decay ticks run in the background and modals would interrupt play.
     // Show an energy warning dialog and log it
     public void showEnergyWarning() {
-        JOptionPane.showMessageDialog(this,
-            "Warning! Energy low (" + userController.getEnergy() + ")");
-        addChatMessage("⚠️ Energy low warning!");
+        addChatMessage("⚠️ Energy low (" + userController.getEnergy() + ") — visit 🛒 Market or use 🎒 Inventory.");
     }
 
     // Show a health warning dialog and log it
     public void showHealthWarning() {
-        JOptionPane.showMessageDialog(this,
-            "Warning! Health is very low (" + userController.getHealth() + ")");
-        addChatMessage("⚠️ Health low warning!");
+        addChatMessage("⚠️ Health very low (" + userController.getHealth() + ") — visit 🏥 Hospital.");
     }
 
     // Notify the user about account blocking with penalty info

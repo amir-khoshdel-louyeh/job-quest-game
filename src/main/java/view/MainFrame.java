@@ -34,10 +34,14 @@ public class MainFrame extends JFrame {
 
 
         // Escape to exit, F11 to toggle fullscreen
+        // Step-8: undecorated fullscreen trapped users (ESC-exit only).
+        // F11 now toggles a decorated windowed mode for multitasking.
         addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     handleExitRequest();
+                } else if (e.getKeyCode() == KeyEvent.VK_F11) {
+                    toggleFullscreen();
                 }
             }
         });
@@ -74,13 +78,39 @@ public class MainFrame extends JFrame {
     private void handleExitRequest() {
         int confirm = JOptionPane.showConfirmDialog(
             this,
-            "Are you sure you want to exit the game?",
+            "Are you sure you want to exit the game?\n(Hint: F11 toggles windowed mode)",
             "Exit Game",
             JOptionPane.YES_NO_OPTION
         );
         if (confirm == JOptionPane.YES_OPTION) {
             exitFullscreenAndShutdown();
         }
+    }
+
+    /**
+     * Step-8: toggle between fullscreen and decorated windowed mode.
+     * Changing undecorated requires dispose/recreate — encapsulated here
+     * so callers just call toggleFullscreen() (SRP, Encapsulation).
+     */
+    private void toggleFullscreen() {
+        boolean isFullscreen = (device != null && device.getFullScreenWindow() == this);
+        dispose();
+        if (isFullscreen) {
+            device.setFullScreenWindow(null);
+            setUndecorated(false);
+            setSize(1280, 800);
+            setLocationRelativeTo(null);
+            setExtendedState(JFrame.NORMAL);
+        } else {
+            setUndecorated(true);
+            if (device != null && device.isFullScreenSupported()) {
+                device.setFullScreenWindow(this);
+            } else {
+                setExtendedState(JFrame.MAXIMIZED_BOTH);
+            }
+        }
+        setVisible(true);
+        requestFocusInWindow();
     }
     
     // A helper method to exit fullscreen and then shut down the application

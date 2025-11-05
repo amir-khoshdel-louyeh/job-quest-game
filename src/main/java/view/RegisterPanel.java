@@ -18,6 +18,7 @@ public class RegisterPanel extends JPanel {
     private JPasswordField passwordField;
     private JButton registerButton;
     private JButton backButton;
+    private JLabel errorLabel;
     // Controller that performs registration logic
     private RegisterController registerController = new RegisterController();
     // Group of radio buttons for identity selection
@@ -120,6 +121,14 @@ public class RegisterPanel extends JPanel {
         formCard.add(passLabel);
         formCard.add(Box.createVerticalStrut(8));
         formCard.add(passwordField);
+
+        // Step-8: inline error label under the form (no modal for fixable input).
+        errorLabel = new JLabel(" ");
+        errorLabel.setFont(AppTheme.FONT_SMALL);
+        errorLabel.setForeground(AppTheme.ERROR_COLOR);
+        errorLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        errorLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+        formCard.add(errorLabel);
         
         // Buttons Panel
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
@@ -222,13 +231,13 @@ public class RegisterPanel extends JPanel {
 
         IdentityOption selectedOption = getSelectedOption();
 
-        if (username.isEmpty() || password.isEmpty() || selectedOption == null) {
-            JOptionPane.showMessageDialog(this, 
-                "Please fill all fields and select a career path!",
-                "Registration Error",
-                JOptionPane.WARNING_MESSAGE);
+        // Step-8: inline validation with specific guidance.
+        String error = validateInput(username, password, selectedOption);
+        if (error != null) {
+            errorLabel.setText(error);
             return;
         }
+        errorLabel.setText(" ");
 
         // Disable button during registration
         registerButton.setEnabled(false);
@@ -268,6 +277,23 @@ public class RegisterPanel extends JPanel {
         passwordField.setText("");
         identityGroup.clearSelection();
         mainFrame.showPanel(new LoginPanel(mainFrame));
+    }
+
+    /** Null when valid, otherwise the inline message to show. */
+    private static String validateInput(String username, String password, IdentityOption option) {
+        if (username.isEmpty() || password.isEmpty()) {
+            return "Please fill all fields and select a career path.";
+        }
+        if (username.length() < 3) {
+            return "Username must be at least 3 characters.";
+        }
+        if (password.length() < 4) {
+            return "Password must be at least 4 characters.";
+        }
+        if (option == null) {
+            return "Please select a career path above.";
+        }
+        return null;
     }
     private IdentityOption getSelectedOption() {
         for (AbstractButton button : java.util.Collections.list(identityGroup.getElements())) {
