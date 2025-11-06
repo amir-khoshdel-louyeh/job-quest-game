@@ -137,10 +137,6 @@ public class GameEventProvider {
         ));
     }
     
-    public static List<GameEvent> getAllEvents() {
-        return new ArrayList<>(ALL_EVENTS);
-    }
-    
     public static GameEvent getRandomEvent() {
         // pick a random event based on defined probabilities
         double rand = Math.random();

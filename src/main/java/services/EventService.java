@@ -72,14 +72,4 @@ public class EventService {
             user.addReputation(1);
         }
     }
-    
-    // trigger a specific event immediately by id
-    public void triggerEvent(User user, String eventId) {
-        for (GameEvent event : GameEventProvider.getAllEvents()) {
-            if (event.getId().equals(eventId)) {
-                applyEventEffects(user, event);
-                break;
-            }
-        }
-    }
 }
