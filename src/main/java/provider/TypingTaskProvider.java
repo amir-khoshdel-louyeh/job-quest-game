@@ -48,4 +48,15 @@ public final class TypingTaskProvider {
     public static TextTask getById(String id) {
         return TASKS.stream().filter(t -> t.getId().equals(id)).findFirst().orElse(null);
     }
+
+    /**
+     * Deterministic job → challenge binding (single-pick flow).
+     * Each job always maps to the same passage so the Workshop's
+     * "Available Jobs" pick never opens an unrelated second picker.
+     */
+    public static TextTask getTaskForJob(String jobName) {
+        if (TASKS.isEmpty()) throw new IllegalStateException("No typing tasks");
+        if (jobName == null || jobName.isBlank()) return TASKS.get(0);
+        return TASKS.get(Math.floorMod(jobName.hashCode(), TASKS.size()));
+    }
 }

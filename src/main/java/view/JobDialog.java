@@ -97,7 +97,9 @@ public class JobDialog extends JDialog {
         String identity = gamePanel.getUserIdentity();
         GameController.ActionResult result;
         if (isGameIdentity(identity)) {
-            model.minigame.MiniGameResult game = playWorkGame(parent, identity);
+            // Single-pick flow: the job chosen above IS the work —
+            // the mini-game opens locked to that job, no second picker.
+            model.minigame.MiniGameResult game = playWorkGame(parent, identity, job);
             if (game == null) {
                 return; // cancelled — nothing happens, dialog stays open
             }
@@ -120,22 +122,28 @@ public class JobDialog extends JDialog {
     /**
      * Strategy pick by identity (Strategy pattern): each profession plays its
      * own game, the dialog only orchestrates (SRP).
+     * Single-pick: the given job determines the challenge content and the
+     * window title, so "Fix a CSS Bug" opens "Fix a CSS Bug — Write the
+     * Program" locked to that job instead of a generic second task list.
      *
      * @return accepted game result, or null when cancelled
      */
-    private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity) {
+    private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity, Job job) {
+        String jobName = job != null ? job.getName() : "Job";
         return switch (identity) {
             case "Typist" -> new view.minigame.TypingGameDialog(
-                    parent, "Typing Sprint", provider.TypingTaskProvider.getAll(), null, false)
+                    parent, jobName + " — Typing Sprint",
+                    provider.TypingTaskProvider.getTaskForJob(jobName), null, false)
                     .showAndPlay();
             case "Programmer" -> new view.minigame.TypingGameDialog(
-                    parent, "Write the Program", provider.CodeTaskProvider.getAll(), null, true)
+                    parent, jobName + " — Write the Program",
+                    provider.CodeTaskProvider.getTaskForJob(jobName), null, true)
                     .showAndPlay();
             case "Doctor" -> new view.minigame.QuizGameDialog(
-                    parent, "Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null)
+                    parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null)
                     .showAndPlay();
             case "LogoDesigner" -> new view.minigame.QuizGameDialog(
-                    parent, "Client Brief Round", provider.QuizProvider.getDesignQuestions(), null)
+                    parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null)
                     .showAndPlay();
             default -> null;
         };

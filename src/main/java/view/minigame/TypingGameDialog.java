@@ -23,6 +23,8 @@ public class TypingGameDialog extends JDialog {
     private final List<TextTask> tasks;
     private final TypingScorer scorer;
     private final boolean codeMode;
+    /** When true the dialog is locked to one job's challenge — no second picker. */
+    private final boolean lockedToJob;
 
     private JComboBox<TextTask> taskBox;
     private JTextArea targetArea;
@@ -48,6 +50,26 @@ public class TypingGameDialog extends JDialog {
         this.tasks = tasks;
         this.scorer = scorer != null ? scorer : new TypingScorer();
         this.codeMode = codeMode;
+        this.lockedToJob = false;
+        AppTheme.styleDialog(this, 620, 640);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        buildUi();
+    }
+
+    /**
+     * Job-locked mode: the challenge IS the selected job's work, so there is
+     * no second "Pick a task" dropdown. Title should already contain the job
+     * name (e.g. "Fix a CSS Bug — Write the Program").
+     */
+    public TypingGameDialog(JFrame parent, String gameName, TextTask jobTask,
+                            TypingScorer scorer, boolean codeMode) {
+        super(parent, gameName, true);
+        if (jobTask == null) throw new IllegalArgumentException("jobTask required");
+        this.gameName = gameName;
+        this.tasks = List.of(jobTask);
+        this.scorer = scorer != null ? scorer : new TypingScorer();
+        this.codeMode = codeMode;
+        this.lockedToJob = true;
         AppTheme.styleDialog(this, 620, 640);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         buildUi();
@@ -66,26 +88,35 @@ public class TypingGameDialog extends JDialog {
         root.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         // ---- picker row ----
+        // Job-locked mode: no second dropdown — the Workshop's job pick IS the
+        // selection. Show the fixed challenge name instead of "Pick a task".
         JPanel pick = new JPanel(new BorderLayout(8, 8));
         pick.setBackground(AppTheme.BACKGROUND_COLOR);
-        taskBox = new JComboBox<>(tasks.toArray(new TextTask[0]));
-        taskBox.setFont(AppTheme.FONT_BODY);
-        taskBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> l, Object v, int i,
-                                                          boolean sel, boolean foc) {
-                super.getListCellRendererComponent(l, v, i, sel, foc);
-                if (v instanceof TextTask t) {
-                    setText(t.getTitle() + "  " + t.difficultyStars());
-                }
-                return this;
-            }
-        });
-        taskBox.addActionListener(e -> previewSelected());
         startButton = AppTheme.createPrimaryButton("▶ Start");
         startButton.addActionListener(e -> startRound());
-        pick.add(new JLabel("Pick a task:"), BorderLayout.WEST);
-        pick.add(taskBox, BorderLayout.CENTER);
+        if (lockedToJob) {
+            TextTask only = tasks.get(0);
+            JLabel fixed = new JLabel(only.getTitle() + "  " + only.difficultyStars());
+            fixed.setFont(AppTheme.FONT_BODY);
+            pick.add(fixed, BorderLayout.CENTER);
+        } else {
+            taskBox = new JComboBox<>(tasks.toArray(new TextTask[0]));
+            taskBox.setFont(AppTheme.FONT_BODY);
+            taskBox.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> l, Object v, int i,
+                                                              boolean sel, boolean foc) {
+                    super.getListCellRendererComponent(l, v, i, sel, foc);
+                    if (v instanceof TextTask t) {
+                        setText(t.getTitle() + "  " + t.difficultyStars());
+                    }
+                    return this;
+                }
+            });
+            taskBox.addActionListener(e -> previewSelected());
+            pick.add(new JLabel("Pick a challenge:"), BorderLayout.WEST);
+            pick.add(taskBox, BorderLayout.CENTER);
+        }
         pick.add(startButton, BorderLayout.EAST);
         root.add(pick, BorderLayout.NORTH);
 
@@ -117,7 +148,7 @@ public class TypingGameDialog extends JDialog {
         bottom.setBackground(AppTheme.BACKGROUND_COLOR);
         timeBar = new JProgressBar(0, 100);
         timeBar.setStringPainted(true);
-        timeBar.setString("Pick a task and press Start");
+        timeBar.setString(lockedToJob ? "Press Start to begin this job's work" : "Pick a challenge and press Start");
         timeBar.setForeground(AppTheme.PRIMARY_COLOR);
         timeBar.setBackground(AppTheme.DIVIDER_COLOR);
         statusLabel = new JLabel(" ");
@@ -147,7 +178,7 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void previewSelected() {
-        TextTask t = (TextTask) taskBox.getSelectedItem();
+        TextTask t = lockedToJob ? tasks.get(0) : (TextTask) taskBox.getSelectedItem();
         if (t == null) return;
         targetArea.setText(t.getContent());
         statusLabel.setText(String.format("%s · par %ds — exact copy wins, speed gives bonus",
@@ -155,12 +186,12 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void startRound() {
-        current = (TextTask) taskBox.getSelectedItem();
+        current = lockedToJob ? tasks.get(0) : (TextTask) taskBox.getSelectedItem();
         if (current == null) return;
         inputArea.setText("");
         inputArea.setEnabled(true);
         inputArea.requestFocus();
-        taskBox.setEnabled(false);
+        if (taskBox != null) taskBox.setEnabled(false);
         startButton.setEnabled(false);
         submitButton.setEnabled(true);
         startMillis = System.currentTimeMillis();
@@ -213,9 +244,9 @@ public class TypingGameDialog extends JDialog {
             dispose();
         } else if (choice == 1) {
             result = null;
-            taskBox.setEnabled(true);
+            if (taskBox != null) taskBox.setEnabled(true);
             startButton.setEnabled(true);
-            statusLabel.setText("Pick a task (or the same one) and press Start");
+            statusLabel.setText(lockedToJob ? "Press Start to retry this job's work" : "Pick a challenge (or the same one) and press Start");
             timeBar.setValue(timeBar.getMaximum());
             timeBar.setString("Ready");
         } else {

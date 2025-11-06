@@ -149,12 +149,6 @@ public class GameController {
         }
     }
 
-    public ActionResult completeTask(Task task) {
-        // placeholder for task completion (not implemented)
-        // This would be handled by JobController or TaskController in a real refactor
-        return new ActionResult(false, "Not implemented: completeTask");
-    }
-
     public UserController getUserController() {
         // return the user controller instance
         return userController;

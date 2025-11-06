@@ -50,4 +50,15 @@ public final class CodeTaskProvider {
     public static TextTask getById(String id) {
         return TASKS.stream().filter(t -> t.getId().equals(id)).findFirst().orElse(null);
     }
+
+    /**
+     * Deterministic job → challenge binding (single-pick flow).
+     * Each job always maps to the same program so "Fix a CSS Bug" never
+     * shows an unrelated picker — the challenge IS the job's work.
+     */
+    public static TextTask getTaskForJob(String jobName) {
+        if (TASKS.isEmpty()) throw new IllegalStateException("No code tasks");
+        if (jobName == null || jobName.isBlank()) return TASKS.get(0);
+        return TASKS.get(Math.floorMod(jobName.hashCode(), TASKS.size()));
+    }
 }
