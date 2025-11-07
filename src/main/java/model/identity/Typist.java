@@ -7,12 +7,6 @@ package model.identity;
  */
 
 import model.Identity;
-import model.WorkResult;
 
 public class Typist implements Identity {
-    
-    public WorkResult performDailyWork() {
-        // perform daily work action for Typist identity
-        return new WorkResult(0, 0, WorkResult.Type.REQUIRES_DIALOG);
-    }
 }
