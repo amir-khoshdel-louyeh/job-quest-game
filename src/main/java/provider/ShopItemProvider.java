@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
-import model.Food;
 import model.Item;
 
 /**
@@ -38,12 +36,6 @@ public class ShopItemProvider {
 
     public static List<Item> getAvailableItems() {
         return Collections.unmodifiableList(new ArrayList<>(ITEMS_BY_NAME.values()));
-    }
-
-    /** Get food items available in the shop */
-    public static List<Item> getFoodItems() {
-        return ITEMS_BY_NAME.values().stream()
-                .filter(item -> item instanceof Food).collect(Collectors.toList());
     }
 
     /** Get an item by its name */

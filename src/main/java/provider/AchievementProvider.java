@@ -128,12 +128,4 @@ public class AchievementProvider {
     public static List<Achievement> getAllAchievements() {
         return Collections.unmodifiableList(ALL_ACHIEVEMENTS);
     }
-    
-    public static Achievement getAchievementById(String id) {
-        // find an achievement by its id
-        return ALL_ACHIEVEMENTS.stream()
-            .filter(a -> a.getId().equals(id))
-            .findFirst()
-            .orElse(null);
-    }
 }

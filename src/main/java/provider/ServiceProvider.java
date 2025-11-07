@@ -1,6 +1,5 @@
 package provider;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,10 +53,6 @@ public class ServiceProvider {
 
     /** Get a service by its name */
     public static Service getService(String name) { return SERVICES_BY_NAME.get(name); }
-
-    public static List<Service> getAvailableServices() {
-        return new ArrayList<>(SERVICES_BY_NAME.values());
-    }
 
     /** Get health-related services */
     public static List<Service> getHealthServices() {
