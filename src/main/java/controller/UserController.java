@@ -115,22 +115,6 @@ public class UserController extends Subject {
         return user.getLevel();
     }
 
-    public int getExperience() {
-        return user.getExperience();
-    }
-
-    public int getReputation() {
-        return user.getReputation();
-    }
-
-    public int getTotalJobsCompleted() {
-        return user.getTotalJobsCompleted();
-    }
-
-    public int getTotalMoneyEarned() {
-        return user.getTotalMoneyEarned();
-    }
-
     /** Add XP (may trigger level-up inside User) and notify observers. */
     public void addExperience(int amount) {
         if (amount > 0) {

@@ -152,12 +152,4 @@ public class JobController {
         return JobResult.success(job, base, bonus, finalPay, xp, rep,
                 levelBefore, levelAfter, completed, unlocked);
     }
-
-    /**
-     * Legacy boolean API kept for backward compatibility (Open/Closed):
-     * new code should use {@link #doJob(Job)} returning {@link JobResult}.
-     */
-    public boolean doJobLegacy(Job job) {
-        return doJob(job).isSuccess();
-    }
 }
