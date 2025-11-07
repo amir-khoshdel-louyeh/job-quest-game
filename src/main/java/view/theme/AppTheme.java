@@ -277,13 +277,4 @@ public class AppTheme {
         label.setForeground(TEXT_SECONDARY);
         return label;
     }
-    
-    // Create a styled statistic label with given color
-    public static JLabel createStatLabel(String text, Color color) {
-        JLabel label = new JLabel(text);
-        label.setFont(FONT_BODY);
-        label.setForeground(color);
-        label.setBorder(BorderFactory.createEmptyBorder(4, 0, 4, 0));
-        return label;
-    }
 }

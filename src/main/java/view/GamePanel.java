@@ -300,7 +300,6 @@ public class GamePanel extends JPanel implements Observer {
         if(userController.isBlocked()) {
             JOptionPane.showMessageDialog(this,
                 "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
-            disableActions();
         }
 
         // Unblocking user after 48 hours (in milliseconds)
@@ -422,11 +421,6 @@ public class GamePanel extends JPanel implements Observer {
         toastTimer.start();
     }
 
-    // Return the panel that displays the world view animation/image
-    public JPanel getAnimationPanel() {
-        return animationPanel;
-    }
-
     /** Identity simple name (Typist/Programmer/LogoDesigner/Doctor) for game routing. */
     public String getUserIdentity() {
         return currentUser.getIdentity().getClass().getSimpleName();
@@ -494,28 +488,5 @@ public class GamePanel extends JPanel implements Observer {
         b.setToolTipText(tooltip);
         b.addActionListener(action);
         return b;
-    }
-
-    // Disable interactive actions (placeholder for future use)
-    public void disableActions() {
-        // This method can be expanded later to disable the world view buttons if needed
-    }
-
-    // Add UI helper methods for controller:
-    // Step-8: previously modal popups; now chat + toast (non-blocking) since
-    // decay ticks run in the background and modals would interrupt play.
-    // Show an energy warning dialog and log it
-    public void showEnergyWarning() {
-        addChatMessage("⚠️ Energy low (" + userController.getEnergy() + ") — visit 🛒 Market or use 🎒 Inventory.");
-    }
-
-    // Show a health warning dialog and log it
-    public void showHealthWarning() {
-        addChatMessage("⚠️ Health very low (" + userController.getHealth() + ") — visit 🏥 Hospital.");
-    }
-
-    // Notify the user about account blocking with penalty info
-    public void showBlockDialog(String reason, int penalty) {
-        JOptionPane.showMessageDialog(this, reason + "! Account blocked for 48 hours. Penalty: $" + penalty);
     }
 }
