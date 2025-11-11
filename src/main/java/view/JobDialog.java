@@ -9,16 +9,18 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * A dialog window that displays a list of available jobs for the user.
+ * A dialog window that displays ALL jobs: available ones can be started,
+ * locked ones are visible but disabled with the unlock requirement shown.
  */
 public class JobDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
 
-    // Dialog that lists available jobs for the user
-    public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<Job> jobs) {
-        super(parent, "Available Jobs", true);
+    // Dialog that lists the full job catalog for the user
+    public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
+                     List<Job> allJobs, model.User user) {
+        super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
         setLayout(new BorderLayout(10, 10));
@@ -26,21 +28,54 @@ public class JobDialog extends JDialog {
         AppTheme.styleDialog(this, 500, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        if (jobs.isEmpty()) {
-            JLabel empty = new JLabel("No jobs available for your current identity and skill level. Learn more skills!", SwingConstants.CENTER);
+        if (allJobs.isEmpty()) {
+            JLabel empty = new JLabel("No jobs exist yet.", SwingConstants.CENTER);
             empty.setFont(AppTheme.FONT_BODY);
             empty.setForeground(AppTheme.TEXT_SECONDARY);
             add(empty);
             return;
         }
 
+        String userIdentity = user.getIdentity().getClass().getSimpleName();
+        List<String> userSkills = user.getSkills().stream()
+                .map(model.Skill::getName).toList();
+
+        // Available first, locked after — one pick, no second list.
+        List<Job> available = new java.util.ArrayList<>();
+        List<Job> locked = new java.util.ArrayList<>();
+        for (Job job : allJobs) {
+            if (job.isAvailableFor(userIdentity, userSkills)) {
+                available.add(job);
+            } else {
+                locked.add(job);
+            }
+        }
+
+        JLabel hint = new JLabel("Do available jobs now — locked ones show what 🎓 School skills unlock.",
+                SwingConstants.CENTER);
+        hint.setFont(AppTheme.FONT_SMALL);
+        hint.setForeground(AppTheme.TEXT_SECONDARY);
+        hint.setBorder(BorderFactory.createEmptyBorder(8, 10, 0, 10));
+        add(hint, BorderLayout.NORTH);
+
         JPanel jobsContainer = new JPanel();
         jobsContainer.setLayout(new BoxLayout(jobsContainer, BoxLayout.Y_AXIS));
         jobsContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         jobsContainer.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        for (Job job : jobs) {
-            jobsContainer.add(createJobPanel(job));
+        for (Job job : available) {
+            jobsContainer.add(createJobPanel(job, true, null));
+            jobsContainer.add(Box.createVerticalStrut(10));
+        }
+        if (!available.isEmpty() && !locked.isEmpty()) {
+            JLabel lockedHeader = new JLabel("🔒 Locked");
+            lockedHeader.setFont(AppTheme.FONT_SUBHEADING);
+            lockedHeader.setForeground(AppTheme.TEXT_SECONDARY);
+            jobsContainer.add(lockedHeader);
+            jobsContainer.add(Box.createVerticalStrut(10));
+        }
+        for (Job job : locked) {
+            jobsContainer.add(createJobPanel(job, false, lockReason(job, userIdentity, userSkills)));
             jobsContainer.add(Box.createVerticalStrut(10));
         }
 
@@ -52,8 +87,23 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /** Human-readable reason a job is locked (identity and/or missing skills). */
+    private static String lockReason(Job job, String userIdentity, List<String> userSkills) {
+        List<String> parts = new java.util.ArrayList<>();
+        if (!job.getRequiredIdentity().equals(userIdentity)) {
+            parts.add("requires " + job.getRequiredIdentity() + " identity");
+        }
+        List<String> missing = job.getRequiredSkills().stream()
+                .filter(s -> !userSkills.contains(s)).toList();
+        if (!missing.isEmpty()) {
+            parts.add("requires skills: " + String.join(", ", missing));
+        }
+        if (parts.isEmpty()) return "Not available yet";
+        return "🔒 " + String.join("; ", parts);
+    }
+
     // Create a single job entry panel with action button
-    private JPanel createJobPanel(Job job) {
+    private JPanel createJobPanel(Job job, boolean available, String lockReason) {
         // Step-5: one card factory — no more duplicated CompoundBorder + Arial
         JPanel panel = AppTheme.createItemCard();
 
@@ -61,11 +111,18 @@ public class JobDialog extends JDialog {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        JLabel nameLabel = AppTheme.createCardTitle(job.getName());
+        JLabel nameLabel = AppTheme.createCardTitle(available ? job.getName() : job.getName() + " 🔒");
         infoPanel.add(nameLabel);
 
         JLabel descriptionLabel = AppTheme.createCardDescription(job.getDescription());
         infoPanel.add(descriptionLabel);
+
+        if (!available) {
+            JLabel lockLabel = new JLabel("<html>" + lockReason + "</html>");
+            lockLabel.setFont(AppTheme.FONT_SMALL);
+            lockLabel.setForeground(AppTheme.ERROR_COLOR);
+            infoPanel.add(lockLabel);
+        }
 
         panel.add(infoPanel, BorderLayout.CENTER);
 
@@ -79,8 +136,13 @@ public class JobDialog extends JDialog {
         actionPanel.add(rewardLabel, BorderLayout.CENTER);
 
         JButton doItButton = AppTheme.createSuccessButton("Do It!");
-        // When clicked, attempt the job via the controller and show the result.
-        doItButton.addActionListener(e -> handleDoJob(job, doItButton));
+        doItButton.setEnabled(available);
+        if (!available) {
+            doItButton.setToolTipText(lockReason);
+        } else {
+            // When clicked, attempt the job via the controller and show the result.
+            doItButton.addActionListener(e -> handleDoJob(job, doItButton));
+        }
         actionPanel.add(doItButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);

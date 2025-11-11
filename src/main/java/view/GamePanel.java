@@ -440,8 +440,8 @@ public class GamePanel extends JPanel implements Observer {
     private void openWorkshop() {
         GameController.ActionResult result = controller.doWork();
         if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
-            java.util.List<Job> availableJobs = JobProvider.getAvailableJobsForUser(currentUser);
-            new JobDialog(parentFrame(), controller, this, availableJobs).setVisible(true);
+            java.util.List<Job> allJobs = JobProvider.getAllJobs();
+            new JobDialog(parentFrame(), controller, this, allJobs, currentUser).setVisible(true);
         } else {
             addChatMessage(result.message);
         }

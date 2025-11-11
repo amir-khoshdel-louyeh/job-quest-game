@@ -44,6 +44,11 @@ public class JobProvider {
         ALL_JOBS.add(new Job("Manage a Health Seminar", "Organize and lead an online health seminar.", 10000, 25000, "Doctor", List.of("Project Management", "Content Writing")));
     }
 
+    /** Get the full job catalog (available + locked) for browsing. */
+    public static List<Job> getAllJobs() {
+        return Collections.unmodifiableList(ALL_JOBS);
+    }
+
     /** Get the list of jobs available for the user */
     public static List<Job> getAvailableJobsForUser(User user) {
         final List<String> userSkills = user.getSkills().stream().map(Skill::getName).toList();

@@ -85,12 +85,12 @@ public class GameController {
     }
 
     public ActionResult doWork() {
-        // Show available jobs when the user clicks the Workshop in the world view.
-        // If there are jobs available for the current user, the UI expects the
-        // special message "JOB_DIALOG_REQUIRED" so it can open the JobDialog.
+        // Show the job catalog when the user clicks the Workshop in the world view.
+        // The dialog lists ALL jobs; locked ones are visible but disabled, so the
+        // UI expects "JOB_DIALOG_REQUIRED" whenever the catalog is non-empty.
         try {
-            java.util.List<Job> availableJobs = provider.JobProvider.getAvailableJobsForUser(userController.getUser());
-            if (availableJobs != null && !availableJobs.isEmpty()) {
+            java.util.List<Job> allJobs = provider.JobProvider.getAllJobs();
+            if (allJobs != null && !allJobs.isEmpty()) {
                 return new ActionResult(true, "JOB_DIALOG_REQUIRED");
             } else {
                 return new ActionResult(false, "No jobs are available for your current identity/skills.");
