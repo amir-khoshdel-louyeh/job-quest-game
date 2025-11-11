@@ -15,6 +15,11 @@ public class SaveController {
         long sessionDuration = System.currentTimeMillis() - sessionStartTime;
         long newTotalPlayTime = user.getTotalPlayTime() + sessionDuration;
         user.setTotalPlayTime(newTotalPlayTime);
-        return DatabaseUtil.updateUser(user);
+        if (DatabaseUtil.updateUser(user)) {
+            return true;
+        }
+        // Row missing (e.g. Quick Demo user never registered) → insert instead.
+        // If the DB itself is down, both attempts fail and we report failure.
+        return DatabaseUtil.createUser(user);
     }
 }

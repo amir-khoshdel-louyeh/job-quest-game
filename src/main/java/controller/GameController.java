@@ -135,7 +135,7 @@ public class GameController {
         if (success) {
             return new ActionResult(true, "Game saved successfully!");
         } else {
-            return new ActionResult(false, "Error: Could not save game data.");
+            return new ActionResult(false, "Error: Could not save game data. Check that MySQL is running (run.sh starts it).");
         }
     }
 
