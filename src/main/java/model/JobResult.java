@@ -121,6 +121,27 @@ public final class JobResult {
                 0, 0, 0, 0, 0, 0, 0, Collections.emptyList(), Collections.emptyList());
     }
 
+    /**
+     * Factory for a started-but-failed attempt (Fail state): unlike
+     * {@link #failure}, energy WAS spent doing the work, so this DTO reports
+     * an already-applied penalty. No pay, XP, rep gain or progression.
+     */
+    public static JobResult failedAttempt(Job job, int score, int energyLost, int repLost,
+                                          model.minigame.MiniGameResult game) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("❌ %s failed! Score %d/100 (need 50+). Energy -%d",
+                job.getName(), score, energyLost));
+        if (repLost > 0) {
+            sb.append(String.format(", Reputation -%d (botched job)", repLost));
+        }
+        sb.append(". No pay, XP or progress. Rest up and retry — Cancel stays free.");
+        if (game != null) {
+            sb.append(String.format("%n%s", game.summaryLine()));
+        }
+        return new JobResult(false, sb.toString(), job,
+                0, 0, 0, 0, 0, 0, 0, Collections.emptyList(), Collections.emptyList());
+    }
+
     public boolean isSuccess() { return success; }
     public String getMessage() { return message; }
     public Job getJob() { return job; }

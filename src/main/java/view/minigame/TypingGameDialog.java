@@ -238,7 +238,7 @@ public class TypingGameDialog extends JDialog {
                 result.summaryLine().replace("🎮 ", ""));
         int choice = JOptionPane.showOptionDialog(this, html, "Result — " + gameName,
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                new Object[]{"✔ Accept (" + payHint() + ")", "↻ Retry", "✖ Cancel job"}, "✔ Accept");
+                new Object[]{acceptLabel(), "↻ Retry", "✖ Cancel job"}, "✔ Accept");
         if (choice == 0) {
             accepted = true;
             dispose();
@@ -254,6 +254,15 @@ public class TypingGameDialog extends JDialog {
             accepted = false;
             dispose();
         }
+    }
+
+    private String acceptLabel() {
+        // Fail state is visible before accepting: below 50 means no pay and
+        // the job's energy is lost, so the button says so (Retry stays free).
+        if (!result.isPassed()) {
+            return "✔ Accept (FAIL — no pay, energy lost)";
+        }
+        return "✔ Accept (" + payHint() + ")";
     }
 
     private String payHint() {

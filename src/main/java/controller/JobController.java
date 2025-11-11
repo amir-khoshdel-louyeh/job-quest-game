@@ -94,6 +94,21 @@ public class JobController {
                             job.getEnergyCost(), userController.getEnergy()));
         }
 
+        // Fail state: the job was started (mini-game played and accepted) but
+        // the result is below par (score < 50). Effort is spent — full energy
+        // cost deducted — with no pay, XP, rep gain or progression. A score of
+        // 0 (botched job) additionally costs 1 reputation. Cancel stays free:
+        // it returns null from the dialog before reaching here.
+        if (game != null && !game.isPassed()) {
+            userController.decreaseEnergy(job.getEnergyCost());
+            int repLoss = 0;
+            if (game.getScore() == 0) {
+                userController.addReputation(-1);
+                repLoss = 1;
+            }
+            return JobResult.failedAttempt(job, game.getScore(), job.getEnergyCost(), repLoss, game);
+        }
+
         // Pure calculations first (no side effects) — easy to unit test.
         model.User user = userController.getUser();
         int base = job.getPayment();
