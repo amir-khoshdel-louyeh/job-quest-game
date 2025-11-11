@@ -29,7 +29,12 @@ public class QuizGameDialog extends JDialog {
 
     private JLabel promptLabel;
     private JPanel optionsPanel;
-    private JLabel feedbackLabel;
+
+    /**
+     * Test affordance: marks the correct option with " *" so question-based
+     * jobs are easy to verify manually. Set to false for production builds.
+     */
+    private static final boolean SHOW_CORRECT_MARKER = true;    private JLabel feedbackLabel;
     private JButton nextButton;
     private JProgressBar timeBar;
 
@@ -141,7 +146,11 @@ public class QuizGameDialog extends JDialog {
         List<String> opts = q.getOptions();
         for (int i = 0; i < opts.size(); i++) {
             final int choice = i;
-            JButton b = AppTheme.createSecondaryButton(opts.get(i));
+            String label = opts.get(i);
+            if (SHOW_CORRECT_MARKER && i == q.getCorrectIndex()) {
+                label += " *";
+            }
+            JButton b = AppTheme.createSecondaryButton(label);
             b.setAlignmentX(Component.LEFT_ALIGNMENT);
             b.addActionListener(e -> answer(choice));
             optionsPanel.add(b);
