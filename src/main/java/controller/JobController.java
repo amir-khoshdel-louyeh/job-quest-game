@@ -94,11 +94,12 @@ public class JobController {
                             job.getEnergyCost(), userController.getEnergy()));
         }
 
-        // Fail state: the job was started (mini-game played and accepted) but
-        // the result is below par (score < 50). Effort is spent — full energy
-        // cost deducted — with no pay, XP, rep gain or progression. A score of
-        // 0 (botched job) additionally costs 1 reputation. Cancel stays free:
-        // it returns null from the dialog before reaching here.
+        // Fail state: the job was started and the submitted score is final
+        // (mini-game results are auto-accepted, no retry). A below-par result
+        // (score < 50) spends the effort — full energy cost deducted — with no
+        // pay, XP, rep gain or progression. A score of 0 (botched job)
+        // additionally costs 1 reputation. Cancel stays free only before
+        // submitting: closing the game returns null before reaching here.
         if (game != null && !game.isPassed()) {
             userController.decreaseEnergy(job.getEnergyCost());
             int repLoss = 0;

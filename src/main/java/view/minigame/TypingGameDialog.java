@@ -15,7 +15,9 @@ import view.theme.AppTheme;
  * <p>Pure view (SRP): measures time and collects input, grading lives in
  * {@link TypingScorer} (DIP, injectable for tests). Modal — call
  * {@link #showAndPlay()} and get a {@link MiniGameResult} or {@code null}
- * when the player cancels (no penalty then).</p>
+ * when the player cancels before submitting (no penalty then). Once
+ * submitted, the score is final and auto-accepted: the result screen is
+ * info-only, with no retry and no cancel-after-seeing-it.</p>
  */
 public class TypingGameDialog extends JDialog {
 
@@ -75,7 +77,7 @@ public class TypingGameDialog extends JDialog {
         buildUi();
     }
 
-    /** Blocking play: returns the accepted result, or null on cancel. */
+    /** Blocking play: returns the submitted result, or null on pre-submit cancel. */
     public MiniGameResult showAndPlay() {
         setVisible(true);
         return accepted ? result : null;
@@ -228,46 +230,20 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void showResult() {
+        // Started work counts: the submitted score is final — no retry, no
+        // cancel-after-seeing-it. The result is shown info-only and auto-accepted.
         String html = String.format(
                 "<html><center><h2>Score %d/100 %s</h2>"
-                        + "Accuracy %d%% · %s · %ds<br>%s</center></html>",
+                        + "Accuracy %d%% · %s · %ds<br>Job pay ×%.2f<br>%s</center></html>",
                 result.getScore(), result.isPassed() ? "✅" : "❌",
                 result.getAccuracy(),
                 result.getWpm() > 0 ? result.getWpm() + " WPM" : "",
                 result.getElapsedSeconds(),
+                result.rewardMultiplier(),
                 result.summaryLine().replace("🎮 ", ""));
-        int choice = JOptionPane.showOptionDialog(this, html, "Result — " + gameName,
-                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                new Object[]{acceptLabel(), "↻ Retry", "✖ Cancel job"}, "✔ Accept");
-        if (choice == 0) {
-            accepted = true;
-            dispose();
-        } else if (choice == 1) {
-            result = null;
-            if (taskBox != null) taskBox.setEnabled(true);
-            startButton.setEnabled(true);
-            statusLabel.setText(lockedToJob ? "Press Start to retry this job's work" : "Pick a challenge (or the same one) and press Start");
-            timeBar.setValue(timeBar.getMaximum());
-            timeBar.setString("Ready");
-        } else {
-            result = null;
-            accepted = false;
-            dispose();
-        }
-    }
-
-    private String acceptLabel() {
-        // Fail state is visible before accepting: below 50 means no pay and
-        // the job's energy is lost, so the button says so (Retry stays free).
-        if (!result.isPassed()) {
-            return "✔ Accept (FAIL — no pay, energy lost)";
-        }
-        return "✔ Accept (" + payHint() + ")";
-    }
-
-    private String payHint() {
-        // preview of the multiplier at the achieved score
-        double m = result.rewardMultiplier();
-        return String.format("x%.2f pay", m);
+        JOptionPane.showMessageDialog(this, html, "Result — " + gameName,
+                result.isPassed() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+        accepted = true;
+        dispose();
     }
 }

@@ -153,8 +153,9 @@ public class JobDialog extends JDialog {
     // Small helper that executes the job and shows messages in a consistent way.
     // Step-9 UX: every job first plays the identity's work mini-game
     // (Typist retypes · Programmer writes a tiny program · Doctor diagnoses ·
-    // Designer answers the brief). Cancel = no job, no penalty. The game score
-    // scales pay/XP via GameController.doJob(job, game).
+    // Designer answers the brief). The submitted score is final and resolves
+    // the job immediately via GameController.doJob(job, game) (score scales
+    // pay/XP). Cancel before submitting = no job, no penalty.
     private void handleDoJob(Job job, JButton source) {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         String identity = gamePanel.getUserIdentity();

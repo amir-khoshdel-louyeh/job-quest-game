@@ -17,7 +17,9 @@ import view.theme.AppTheme;
  * <p>Pure view (SRP): asks 3 random questions one at a time with a round
  * timer, grading lives in {@link QuizScorer}. Modal — call
  * {@link #showAndPlay()} and get a {@link MiniGameResult} or {@code null}
- * when the player cancels.</p>
+ * when the player cancels before finishing (no penalty then). Once finished,
+ * the score is final and auto-accepted: the result screen is info-only, with
+ * no retry and no cancel-after-seeing-it.</p>
  */
 public class QuizGameDialog extends JDialog {
 
@@ -50,7 +52,7 @@ public class QuizGameDialog extends JDialog {
         buildUi();
     }
 
-    /** Blocking play: returns the accepted result, or null on cancel. */
+    /** Blocking play: returns the submitted result, or null on pre-finish cancel. */
     public MiniGameResult showAndPlay() {
         startRound();
         setVisible(true);
@@ -186,34 +188,17 @@ public class QuizGameDialog extends JDialog {
             if (picked.get(i) == -2) picked.set(i, -1);
         }
         result = scorer.score(gameName, round, picked, Math.max(1, elapsedSeconds()));
+        // Finished work counts: the score is final — no retry, no
+        // cancel-after-seeing-it. The result is shown info-only and auto-accepted.
         String html = String.format(
-                "<html><center><h2>Score %d/100 %s</h2>%s<br>%ds</center></html>",
+                "<html><center><h2>Score %d/100 %s</h2>%s<br>%ds · Job pay ×%.2f</center></html>",
                 result.getScore(), result.isPassed() ? "✅" : "❌",
-                String.join(" · ", result.getHighlights()), result.getElapsedSeconds());
-        int choice = JOptionPane.showOptionDialog(this, html, "Result — " + gameName,
-                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
-                new Object[]{acceptLabel(), "↻ Retry", "✖ Cancel job"}, "✔ Accept");
-        if (choice == 0) {
-            accepted = true;
-            dispose();
-        } else if (choice == 1) {
-            result = null;
-            nextButton.setText("Next →");
-            startRound();
-        } else {
-            result = null;
-            accepted = false;
-            dispose();
-        }
-    }
-
-    private String acceptLabel() {
-        // Fail state is visible before accepting: below 50 means no pay and
-        // the job's energy is lost, so the button says so (Retry stays free).
-        if (!result.isPassed()) {
-            return "✔ Accept (FAIL — no pay, energy lost)";
-        }
-        return "✔ Accept (x" + String.format("%.2f", result.rewardMultiplier()) + " pay)";
+                String.join(" · ", result.getHighlights()), result.getElapsedSeconds(),
+                result.rewardMultiplier());
+        JOptionPane.showMessageDialog(this, html, "Result — " + gameName,
+                result.isPassed() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+        accepted = true;
+        dispose();
     }
 
     private void stopTick() {
