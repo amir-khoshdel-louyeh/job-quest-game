@@ -49,6 +49,17 @@ public class JobProvider {
         return Collections.unmodifiableList(ALL_JOBS);
     }
 
+    /**
+     * Get the workshop jobs of one profession only (identity simple name,
+     * e.g. "Doctor"). A character never sees another profession's jobs —
+     * cross-profession entries are filtered out, not shown as locked.
+     */
+    public static List<Job> getJobsForIdentity(String identitySimpleName) {
+        return ALL_JOBS.stream()
+                .filter(job -> job.isForIdentity(identitySimpleName))
+                .collect(Collectors.toList());
+    }
+
     /** Get the list of jobs available for the user */
     public static List<Job> getAvailableJobsForUser(User user) {
         final List<String> userSkills = user.getSkills().stream().map(Skill::getName).toList();

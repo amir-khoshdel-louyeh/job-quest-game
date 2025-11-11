@@ -22,6 +22,10 @@ public class SkillController {
         // attempt to learn a named skill, charging the user if needed
         LearnableSkill skillToLearn = SkillProvider.getSkill(skillName);
         if (skillToLearn == null) return false;
+        // A character can only learn its own profession's lessons —
+        // defense in depth behind the school UI filter.
+        String identity = userController.getUser().getIdentity().getClass().getSimpleName();
+        if (!skillToLearn.isForIdentity(identity)) return false;
         // Prevent duplicate learning (encapsulation: skills list owned by User).
         boolean alreadyKnown = userController.getUser().getSkills().stream()
                 .anyMatch(s -> s.getName().equals(skillToLearn.getName()));

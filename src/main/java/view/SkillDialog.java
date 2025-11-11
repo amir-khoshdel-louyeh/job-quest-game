@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A dialog window that displays ALL skills: available ones can be learned,
- * locked ones are visible but disabled with the unlock requirement shown.
- * Mirrors the workshop {@link JobDialog} pattern (available first, then locked).
+ * A dialog window that displays ONE profession's school lessons: available
+ * ones can be learned, locked ones are visible but disabled with the unlock
+ * requirement shown. Mirrors the workshop {@link JobDialog} pattern
+ * (available first, then locked). The list is pre-filtered by identity, so a
+ * Doctor never sees Programmer lessons.
  */
 public class SkillDialog extends JDialog {
 
@@ -22,7 +24,7 @@ public class SkillDialog extends JDialog {
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
-    // Dialog that lists the full skill catalog for the user
+    // Dialog that lists the user's own profession school lessons
     public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel,
                        List<LearnableSkill> allSkills, model.User user) {
         super(parent, "School of Skills", true);
@@ -30,6 +32,8 @@ public class SkillDialog extends JDialog {
         this.gamePanel = gamePanel;
         this.allSkills = allSkills != null ? new ArrayList<>(allSkills) : new ArrayList<>();
         this.user = user;
+        String userIdentity = user.getIdentity().getClass().getSimpleName();
+        setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
         // Same shared dialog look as the workshop jobs dialog
         AppTheme.styleDialog(this, 500, 600);
@@ -73,6 +77,7 @@ public class SkillDialog extends JDialog {
         skillsContainer.removeAll();
 
         long playMinutes = user.getTotalPlayTime() / (1000 * 60);
+        String userIdentity = user.getIdentity().getClass().getSimpleName();
         List<String> learnedNames = user.getSkills().stream()
                 .map(model.Skill::getName).toList();
 
@@ -80,6 +85,10 @@ public class SkillDialog extends JDialog {
         List<LearnableSkill> locked = new ArrayList<>();
         List<LearnableSkill> learned = new ArrayList<>();
         for (LearnableSkill skill : allSkills) {
+            // Defensive: drop other professions' lessons if an unfiltered list arrives.
+            if (!skill.isForIdentity(userIdentity)) {
+                continue;
+            }
             if (learnedNames.contains(skill.getName())) {
                 learned.add(skill);
             } else if (playMinutes >= skill.getRequiredPlayTimeMinutes()) {

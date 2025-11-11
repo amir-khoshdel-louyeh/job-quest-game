@@ -9,20 +9,24 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * A dialog window that displays ALL jobs: available ones can be started,
- * locked ones are visible but disabled with the unlock requirement shown.
+ * A dialog window that displays ONE profession's jobs: available ones can be
+ * started, locked ones are visible but disabled with the missing skills shown.
+ * The list is pre-filtered by identity (GamePanel passes only my jobs), so a
+ * Doctor never sees Typist work — locking here is skills-only.
  */
 public class JobDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
 
-    // Dialog that lists the full job catalog for the user
+    // Dialog that lists the user's own profession job catalog
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
                      List<Job> allJobs, model.User user) {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
+        String userIdentity = user.getIdentity().getClass().getSimpleName();
+        setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         // Step-5: shared dialog look + themed empty state
         AppTheme.styleDialog(this, 500, 600);
@@ -36,14 +40,17 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        String userIdentity = user.getIdentity().getClass().getSimpleName();
         List<String> userSkills = user.getSkills().stream()
                 .map(model.Skill::getName).toList();
 
         // Available first, locked after — one pick, no second list.
+        // Defensive: drop other professions' jobs if an unfiltered list arrives.
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
+            if (!job.isForIdentity(userIdentity)) {
+                continue;
+            }
             if (job.isAvailableFor(userIdentity, userSkills)) {
                 available.add(job);
             } else {
@@ -75,7 +82,7 @@ public class JobDialog extends JDialog {
             jobsContainer.add(Box.createVerticalStrut(10));
         }
         for (Job job : locked) {
-            jobsContainer.add(createJobPanel(job, false, lockReason(job, userIdentity, userSkills)));
+            jobsContainer.add(createJobPanel(job, false, lockReason(job, userSkills)));
             jobsContainer.add(Box.createVerticalStrut(10));
         }
 
@@ -87,19 +94,13 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    /** Human-readable reason a job is locked (identity and/or missing skills). */
-    private static String lockReason(Job job, String userIdentity, List<String> userSkills) {
-        List<String> parts = new java.util.ArrayList<>();
-        if (!job.getRequiredIdentity().equals(userIdentity)) {
-            parts.add("requires " + job.getRequiredIdentity() + " identity");
-        }
+    /** Human-readable reason a job is locked (missing profession skills). */
+    private static String lockReason(Job job, List<String> userSkills) {
         List<String> missing = job.getRequiredSkills().stream()
                 .filter(s -> !userSkills.contains(s)).toList();
-        if (!missing.isEmpty()) {
-            parts.add("requires skills: " + String.join(", ", missing));
-        }
-        if (parts.isEmpty()) return "Not available yet";
-        return "🔒 " + String.join("; ", parts);
+        if (missing.isEmpty()) return "Not available yet";
+        return "🔒 Requires skills: " + String.join(", ", missing)
+                + " — learn at 🎓 School";
     }
 
     // Create a single job entry panel with action button

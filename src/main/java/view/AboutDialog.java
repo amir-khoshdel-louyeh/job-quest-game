@@ -223,7 +223,7 @@ public class AboutDialog extends JDialog {
             <h4>Week 1: The Beginner (Level 1-5)</h4>
             <ul>
                 <li>✅ Complete your first jobs</li>
-                <li>✅ Learn your first skill (Typing Proficiency)</li>
+                <li>✅ Learn your first profession skill at 🎓 School</li>
                 <li>✅ Start building your login streak</li>
                 <li>✅ Complete daily challenges</li>
                 <li>💰 <b>Expected Earnings:</b> $5,000-$10,000</li>
@@ -241,7 +241,7 @@ public class AboutDialog extends JDialog {
             
             <h4>Month 2: The Professional (Level 16-30)</h4>
             <ul>
-                <li>✅ Master all 6 skills</li>
+                <li>✅ Master your profession's school lessons</li>
                 <li>✅ Reputation 60-80</li>
                 <li>✅ Complete main story challenges</li>
                 <li>✅ 20+ achievements unlocked</li>
@@ -405,7 +405,7 @@ public class AboutDialog extends JDialog {
             <h3>🔥 Pro Player Strategies</h3>
             <ul>
                 <li>🚀 <b>Morning Routine:</b> Login → Check challenges → Complete daily challenge</li>
-                <li>🚀 <b>Skill Order:</b> Typing → Graphic Design → Writing → Web Dev → SEO → Management</li>
+                <li>🚀 <b>Skill Order:</b> Each character has its own 🎓 School track — learn lessons in listed order</li>
                 <li>🚀 <b>Resource Cycle:</b> Work → Earn → Buy food → Restore → Repeat</li>
                 <li>🚀 <b>Reputation Farm:</b> Do many small jobs vs few big ones</li>
                 <li>🚀 <b>Achievement Synergy:</b> Complete jobs that progress multiple achievements</li>

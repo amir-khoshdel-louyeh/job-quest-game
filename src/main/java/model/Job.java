@@ -47,6 +47,11 @@ public class Job {
         return Collections.unmodifiableList(requiredSkills);
     }
 
+    /** Check if this job belongs to the given identity's profession. */
+    public boolean isForIdentity(String userIdentity) {
+        return requiredIdentity.equals(userIdentity);
+    }
+
     /** Check if the user is eligible to take this job */
     public boolean isAvailableFor(String userIdentity, List<String> userSkills) {
         return userIdentity.equals(requiredIdentity) && userSkills.containsAll(requiredSkills);

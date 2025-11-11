@@ -440,8 +440,9 @@ public class GamePanel extends JPanel implements Observer {
     private void openWorkshop() {
         GameController.ActionResult result = controller.doWork();
         if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
-            java.util.List<Job> allJobs = JobProvider.getAllJobs();
-            new JobDialog(parentFrame(), controller, this, allJobs, currentUser).setVisible(true);
+            String identity = currentUser.getIdentity().getClass().getSimpleName();
+            java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(identity);
+            new JobDialog(parentFrame(), controller, this, myJobs, currentUser).setVisible(true);
         } else {
             addChatMessage(result.message);
         }
@@ -452,8 +453,9 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     private void openSchool() {
-        java.util.List<LearnableSkill> allSkills = SkillProvider.getAllSkills();
-        new SkillDialog(parentFrame(), controller, this, allSkills, currentUser).setVisible(true);
+        String identity = currentUser.getIdentity().getClass().getSimpleName();
+        java.util.List<LearnableSkill> mySkills = SkillProvider.getSkillsForIdentity(identity);
+        new SkillDialog(parentFrame(), controller, this, mySkills, currentUser).setVisible(true);
     }
 
     private void openShop() {
