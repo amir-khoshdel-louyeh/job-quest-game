@@ -2,7 +2,9 @@ package view;
 
 import controller.RegisterController;
 import model.IdentityOption;
+import model.User;
 import provider.IdentityOptionProvider;
+import provider.IdentityProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -17,6 +19,7 @@ public class RegisterPanel extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton registerButton;
+    private JButton demoButton;
     private JButton backButton;
     private JLabel errorLabel;
     // Controller that performs registration logic
@@ -136,11 +139,16 @@ public class RegisterPanel extends JPanel {
         
         registerButton = AppTheme.createSuccessButton("Create Account");
         registerButton.setPreferredSize(new Dimension(180, AppTheme.BUTTON_HEIGHT));
+
+        demoButton = AppTheme.createSecondaryButton("⚡ Quick Demo");
+        demoButton.setPreferredSize(new Dimension(180, AppTheme.BUTTON_HEIGHT));
+        demoButton.setToolTipText("Skip registration: enter the game now with the selected career path");
         
         backButton = AppTheme.createSecondaryButton("Back to Login");
         backButton.setPreferredSize(new Dimension(180, AppTheme.BUTTON_HEIGHT));
         
         buttonsPanel.add(registerButton);
+        buttonsPanel.add(demoButton);
         buttonsPanel.add(backButton);
         
         bottomPanel.add(formCard);
@@ -220,6 +228,7 @@ public class RegisterPanel extends JPanel {
     // Attach action listeners for registration and navigation
     private void initActions() {
         registerButton.addActionListener(e -> performRegistration());
+        demoButton.addActionListener(e -> quickDemoPlay());
         backButton.addActionListener(e -> navigateToLogin());
         passwordField.addActionListener(e -> performRegistration());
     }
@@ -277,6 +286,29 @@ public class RegisterPanel extends JPanel {
         passwordField.setText("");
         identityGroup.clearSelection();
         mainFrame.showPanel(new LoginPanel(mainFrame));
+    }
+
+    /**
+     * Quick demo entry: only the career path is required — no username,
+     * password or database account. Builds an in-memory user and jumps
+     * straight into the game (ideal for live demos and manual testing).
+     */
+    private void quickDemoPlay() {
+        IdentityOption selectedOption = getSelectedOption();
+        if (selectedOption == null) {
+            errorLabel.setText("Please select a career path above for the demo.");
+            return;
+        }
+        try {
+            User demoUser = new User("DemoPlayer", "",
+                    IdentityProvider.createIdentity(selectedOption.getName()),
+                    selectedOption.getPrice());
+            demoUser.setCurrentStreak(1);
+            demoUser.setLastLoginDate(System.currentTimeMillis());
+            mainFrame.showPanel(new GamePanel(demoUser));
+        } catch (IllegalArgumentException ex) {
+            errorLabel.setText("Error: " + ex.getMessage());
+        }
     }
 
     /** Null when valid, otherwise the inline message to show. */
