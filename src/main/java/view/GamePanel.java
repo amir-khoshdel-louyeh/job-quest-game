@@ -452,8 +452,8 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     private void openSchool() {
-        java.util.List<LearnableSkill> availableSkills = SkillProvider.getAvailableSkillsForUser(currentUser);
-        new SkillDialog(parentFrame(), controller, this, availableSkills).setVisible(true);
+        java.util.List<LearnableSkill> allSkills = SkillProvider.getAllSkills();
+        new SkillDialog(parentFrame(), controller, this, allSkills, currentUser).setVisible(true);
     }
 
     private void openShop() {

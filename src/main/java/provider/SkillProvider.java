@@ -36,6 +36,11 @@ public class SkillProvider {
         return null;
     }
 
+    /** Get the full skill catalog (available + locked + learned) for browsing. */
+    public static List<LearnableSkill> getAllSkills() {
+        return java.util.Collections.unmodifiableList(ALL_SKILLS);
+    }
+
     /** Get list of learnable skills available for the user */
     public static List<LearnableSkill> getAvailableSkillsForUser(User user) {
         long userPlayTimeMinutes = user.getTotalPlayTime() / (1000 * 60);
