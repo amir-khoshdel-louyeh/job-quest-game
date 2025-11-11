@@ -31,7 +31,7 @@ public class InventoryDialog extends JDialog {
         AppTheme.styleDialog(this, 450, 500);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        JLabel title = new JLabel("Your items — click Use to consume", SwingConstants.CENTER);
+        JLabel title = new JLabel("Your items — click Use to apply (tools ♾️ reusable)", SwingConstants.CENTER);
         title.setFont(AppTheme.FONT_HEADING);
         title.setForeground(AppTheme.PRIMARY_COLOR);
         title.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
@@ -77,8 +77,9 @@ public class InventoryDialog extends JDialog {
         JPanel info = new JPanel();
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
         info.setOpaque(false);
-        info.add(AppTheme.createCardTitle(item.getName()));
-        info.add(AppTheme.createCardDescription(item.getDescription() + "<br>Effect: " + item.getEffectDescription()));
+        info.add(AppTheme.createCardTitle(item.getName() + (item.isConsumable() ? "" : " ♾️")));
+        info.add(AppTheme.createCardDescription(item.getDescription() + "<br>Effect: " + item.getEffectDescription()
+                + (item.isConsumable() ? "" : " (reusable)")));
         row.add(info, BorderLayout.CENTER);
 
         JButton use = AppTheme.createPrimaryButton("Use");

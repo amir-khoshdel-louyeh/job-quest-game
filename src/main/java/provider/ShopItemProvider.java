@@ -24,9 +24,9 @@ public class ShopItemProvider {
         // Effects mirror ServiceProvider value curve (~100 Energy per $1).
         addItem(ItemFactory.createFood("Basic Food", "A simple meal. Storable — use from inventory.", 50, 4000, 0));
         addItem(ItemFactory.createFood("Energy Drink", "Quick boost. Storable — use from inventory.", 120, 10000, 0));
-        addItem(ItemFactory.createTool("First-Aid Kit", "Basic treatment. Storable — use from inventory.", 100, 0, 20));
+        addItem(ItemFactory.createTool("First-Aid Kit", "Reusable tool — stays in inventory, use any time.", 100, 0, 20));
         addItem(ItemFactory.createFood("Trail Mix", "Hiker's snack. Storable — use from inventory.", 30, 2500, 0));
-        addItem(ItemFactory.createTool("Vitamin Pack", "Daily vitamins. Storable — use from inventory.", 80, 1000, 5));
+        addItem(ItemFactory.createTool("Vitamin Pack", "Reusable tool — stays in inventory, use any time.", 80, 1000, 5));
     }
 
     private static void addItem(Item item) {

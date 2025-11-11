@@ -1,10 +1,11 @@
 package model;
 
 /**
- * Model representing a food item that a player can consume to gain effects.
+ * Model representing a consumable food item (e.g. Energy Drink).
  *
- * <p>OOP <b>Inheritance</b>: effect state and behavior live in
- * {@link ConsumableItem}; this class is the food-flavored extension point.
+ * <p>OOP Step 2: the counterpart to {@link Tool}. Same effect state inherited
+ * from {@link ConsumableItem}, but {@link #isConsumable()} stays {@code true},
+ * so {@link Inventory#useItem(User, String)} removes one unit per use.
  * Immutable.</p>
  */
 
@@ -19,4 +20,8 @@ public class Food extends ConsumableItem {
     public Food(String name, String description, int price) {
         this(name, description, price, 0, 0);
     }
+
+    /** Food is single-use: explicit so the Food/Tool contract reads clearly. */
+    @Override
+    public boolean isConsumable() { return true; }
 }

@@ -1,13 +1,13 @@
 package model;
 
 /**
- * Shared base for consumable inventory items with energy/health effects.
+ * Shared base for inventory items with energy/health effects.
  *
- * <p>OOP <b>DRY via Inheritance</b>: {@link Food} and {@link Tool} previously
- * duplicated these fields and both method bodies line-for-line. The single
- * implementation lives here; subclasses remain as named extension points
- * (Open/Closed) for future distinct behavior such as durable tools
- * overriding {@link #isConsumable()}.</p>
+ * <p>OOP Step 2: holds the effect state + {@link #apply} implementation once
+ * (DRY). Lifecycle differs by subclass via polymorphic
+ * {@link Item#isConsumable()}: {@link Food} returns {@code true} (one use),
+ * {@link Tool} returns {@code false} (reusable). The name is historical —
+ * think "effect item".</p>
  */
 public abstract class ConsumableItem extends Item {
     private final int energyEffect;

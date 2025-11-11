@@ -52,10 +52,12 @@ public class GameController {
         boolean result = economyController.purchaseItem(item);
         if (result) {
             int owned = userController.getUser().getInventory().countByName(item.getName());
+            // OOP Step 2: polymorphic lifecycle tag — no instanceof, just isConsumable().
+            String lifecycle = item.isConsumable() ? "single-use" : "reusable ♾️";
             return new ActionResult(true, String.format(
-                    "🛒 %s purchased (-$%d). Effect on use: %s. Owned: %d. Open inventory to use it.",
+                    "🛒 %s purchased (-$%d). Effect on use: %s (%s). Owned: %d. Open inventory to use it.",
                     item.getName(), item.getPrice(),
-                    item.getEffectDescription(), owned));
+                    item.getEffectDescription(), lifecycle, owned));
         } else {
             return new ActionResult(false, String.format(
                     "Failed to purchase %s ($%d). Not enough balance ($%d).",

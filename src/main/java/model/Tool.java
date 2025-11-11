@@ -1,12 +1,13 @@
 package model;
 
 /**
- * Model representing a tool that can be used during jobs or tasks.
+ * Model representing a durable, reusable tool (e.g. First-Aid Kit).
  *
- * <p>OOP <b>Inheritance</b>: effect state and behavior live in
- * {@link ConsumableItem}; this class is the tool-flavored extension point
- * (typically health/repair focused, durable tools may override
- * {@link #isConsumable()} later). Immutable.</p>
+ * <p>OOP Step 2: real behavioral difference via <b>Polymorphism</b>.
+ * {@link Food} is consumed on use; a {@code Tool} stays in inventory
+ * ({@link #isConsumable()} returns {@code false}), so
+ * {@link Inventory#useItem(User, String)} applies the effect without removing it.
+ * Same {@link ConsumableItem} effect state, opposite lifecycle. Immutable.</p>
  */
 
 public class Tool extends ConsumableItem {
@@ -20,4 +21,12 @@ public class Tool extends ConsumableItem {
     public Tool(String name, String description, int price) {
         this(name, description, price, 0, 0);
     }
+
+    /**
+     * Tools are durable: using one applies its effect but keeps it.
+     * This single override is what makes Food vs Tool a true subclass
+     * distinction instead of two identical labels.
+     */
+    @Override
+    public boolean isConsumable() { return false; }
 }
