@@ -217,7 +217,7 @@ public class GamePanel extends JPanel implements Observer {
                 // Step-6: image zones delegate to the same openX() helpers as the
                 // nav bar below (DRY) — blind clicks are now discoverable.
                 animationPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                animationPanel.setToolTipText("Hospital | Workshop | Market | School — or use the buttons above");
+                animationPanel.setToolTipText("Hospital | Workshop | Shop | Market | School — or use the buttons above");
                 animationPanel.addMouseListener(new MouseAdapter() {
                     
                     public void mouseClicked(MouseEvent e) {
@@ -230,7 +230,7 @@ public class GamePanel extends JPanel implements Observer {
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
                             openWorkshop();
                         } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
-                            addChatMessage("Empty lot — try the buttons above: Hospital, Workshop, Market, School, Shop, Inventory.");
+                            openShop();
                         } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
                             openMarket();
                         } else if (x >= sectionWidth * 4 && x < panelWidth) {
