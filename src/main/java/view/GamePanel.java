@@ -124,7 +124,7 @@ public class GamePanel extends JPanel implements Observer {
 
         // Identity Panel
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
-        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getClass().getSimpleName());
+        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getProfessionName());
         identityName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         energyLabel.setFont(AppTheme.FONT_BODY);
@@ -423,7 +423,7 @@ public class GamePanel extends JPanel implements Observer {
 
     /** Identity simple name (Typist/Programmer/LogoDesigner/Doctor) for game routing. */
     public String getUserIdentity() {
-        return currentUser.getIdentity().getClass().getSimpleName();
+        return currentUser.getIdentity().getProfessionName();
     }
 
     // ---------------- Step-6: navigation + affordance ----------------
@@ -440,8 +440,7 @@ public class GamePanel extends JPanel implements Observer {
     private void openWorkshop() {
         GameController.ActionResult result = controller.doWork();
         if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
-            String identity = currentUser.getIdentity().getClass().getSimpleName();
-            java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(identity);
+            java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(currentUser.getIdentity());
             new JobDialog(parentFrame(), controller, this, myJobs, currentUser).setVisible(true);
         } else {
             addChatMessage(result.message);
@@ -453,8 +452,7 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     private void openSchool() {
-        String identity = currentUser.getIdentity().getClass().getSimpleName();
-        java.util.List<LearnableSkill> mySkills = SkillProvider.getSkillsForIdentity(identity);
+        java.util.List<LearnableSkill> mySkills = SkillProvider.getSkillsForIdentity(currentUser.getIdentity());
         new SkillDialog(parentFrame(), controller, this, mySkills, currentUser).setVisible(true);
     }
 

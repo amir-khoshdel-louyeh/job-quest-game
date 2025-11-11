@@ -81,10 +81,8 @@ public class JobController {
             return JobResult.failure(job, "You are blocked. Rest and try later.");
         }
         // Eligibility: identity + required skills (Polymorphism via Job#isAvailableFor).
-        java.util.List<String> userSkills = userController.getUser().getSkills()
-                .stream().map(model.Skill::getName).toList();
-        String userIdentity = userController.getUser().getIdentity().getClass().getSimpleName();
-        if (!job.isAvailableFor(userIdentity, userSkills)) {
+        // OOP Step 1: object-based check — no getClass().getSimpleName(), no List<String> mapping.
+        if (!job.isAvailableFor(userController.getUser())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
         // Simple pre-check: ensure user has enough energy to start the job.

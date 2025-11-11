@@ -25,7 +25,7 @@ public class JobDialog extends JDialog {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        String userIdentity = user.getIdentity().getClass().getSimpleName();
+        String userIdentity = user.getIdentity().getProfessionName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         // Step-5: shared dialog look + themed empty state
@@ -45,13 +45,14 @@ public class JobDialog extends JDialog {
 
         // Available first, locked after — one pick, no second list.
         // Defensive: drop other professions' jobs if an unfiltered list arrives.
+        // OOP Step 1: object-based eligibility, no String identity/skills.
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
-            if (!job.isForIdentity(userIdentity)) {
+            if (!job.isForIdentity(user.getIdentity())) {
                 continue;
             }
-            if (job.isAvailableFor(userIdentity, userSkills)) {
+            if (job.isAvailableFor(user)) {
                 available.add(job);
             } else {
                 locked.add(job);

@@ -57,20 +57,30 @@ public class SkillProvider {
         return result;
     }
 
+    /**
+     * OOP Step 1: object-based overload — pass the Identity object.
+     */
+    public static List<LearnableSkill> getSkillsForIdentity(model.Identity identity) {
+        if (identity == null) return List.of();
+        List<LearnableSkill> result = new ArrayList<>();
+        for (LearnableSkill skill : ALL_SKILLS) {
+            if (skill.isForIdentity(identity)) {
+                result.add(skill);
+            }
+        }
+        return result;
+    }
+
     /** Get list of learnable skills available for the user (own profession only) */
     public static List<LearnableSkill> getAvailableSkillsForUser(User user) {
-        String identity = user.getIdentity().getClass().getSimpleName();
+        if (user == null || user.getIdentity() == null) return List.of();
         long userPlayTimeMinutes = user.getTotalPlayTime() / (1000 * 60);
-        List<String> userLearnedSkills = new ArrayList<>();
-        for (Skill s : user.getSkills()) {
-            userLearnedSkills.add(s.getName());
-        }
 
         List<LearnableSkill> availableSkills = new ArrayList<>();
         for (LearnableSkill skill : ALL_SKILLS) {
-            if (!skill.isForIdentity(identity)) continue;
+            if (!skill.isForIdentity(user.getIdentity())) continue;
             if (userPlayTimeMinutes >= skill.getRequiredPlayTimeMinutes() &&
-                !userLearnedSkills.contains(skill.getName())) {
+                !user.hasSkill(skill.getName())) {
                 availableSkills.add(skill);
             }
         }

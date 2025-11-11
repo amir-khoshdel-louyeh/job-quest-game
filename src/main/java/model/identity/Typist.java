@@ -9,4 +9,6 @@ package model.identity;
 import model.Identity;
 
 public class Typist implements Identity {
+    @Override
+    public String getProfessionName() { return "Typist"; }
 }

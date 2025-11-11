@@ -190,7 +190,7 @@ public class UserRepositoryImpl implements UserRepository {
         // bind user fields to an INSERT prepared statement
         stmt.setString(1, user.getUsername());
         stmt.setString(2, user.getPassword());
-        stmt.setString(3, user.getIdentity().getClass().getSimpleName());
+        stmt.setString(3, user.getIdentity().getProfessionName());
         stmt.setInt(4, user.getBalance());
         stmt.setInt(5, user.getHealth());
         stmt.setInt(6, user.getEnergy());

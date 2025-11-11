@@ -24,11 +24,10 @@ public class SkillController {
         if (skillToLearn == null) return false;
         // A character can only learn its own profession's lessons —
         // defense in depth behind the school UI filter.
-        String identity = userController.getUser().getIdentity().getClass().getSimpleName();
-        if (!skillToLearn.isForIdentity(identity)) return false;
+        // OOP Step 1: object-based check, no getClass().getSimpleName().
+        if (!skillToLearn.isForIdentity(userController.getUser().getIdentity())) return false;
         // Prevent duplicate learning (encapsulation: skills list owned by User).
-        boolean alreadyKnown = userController.getUser().getSkills().stream()
-                .anyMatch(s -> s.getName().equals(skillToLearn.getName()));
+        boolean alreadyKnown = userController.getUser().hasSkill(skillToLearn.getName());
         if (alreadyKnown) return false;
         if (userController.deductBalance(skillToLearn.getCost())) {
             userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));

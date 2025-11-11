@@ -110,6 +110,21 @@ public class User {
     // replace skills list
     public void setSkills(List<Skill> skills) { this.skills = skills; }
 
+    /**
+     * OOP Step 1: encapsulated skill check — callers ask the User,
+     * they don't stream/map its internal list to Strings.
+     */
+    public boolean hasSkill(Skill skill) {
+        if (skill == null) return false;
+        return skills.contains(skill);
+    }
+
+    /** String convenience for DB/UI boundaries. */
+    public boolean hasSkill(String skillName) {
+        if (skillName == null) return false;
+        return skills.contains(new Skill(skillName));
+    }
+
     // return total play time in ms
     public long getTotalPlayTime() { return totalPlayTime; }
     // set total play time in ms

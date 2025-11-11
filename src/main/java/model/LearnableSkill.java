@@ -49,4 +49,13 @@ public class LearnableSkill {
         return identities.contains(identitySimpleName);
     }
 
+    /**
+     * OOP Step 1: object-based overload — pass the Identity object,
+     * never {@code getClass().getSimpleName()}.
+     */
+    public boolean isForIdentity(Identity identity) {
+        if (identity == null) return false;
+        return identities.contains(identity.getProfessionName());
+    }
+
 }

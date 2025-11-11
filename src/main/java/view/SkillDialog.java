@@ -32,7 +32,7 @@ public class SkillDialog extends JDialog {
         this.gamePanel = gamePanel;
         this.allSkills = allSkills != null ? new ArrayList<>(allSkills) : new ArrayList<>();
         this.user = user;
-        String userIdentity = user.getIdentity().getClass().getSimpleName();
+        String userIdentity = user.getIdentity().getProfessionName();
         setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
         // Same shared dialog look as the workshop jobs dialog
@@ -77,19 +77,16 @@ public class SkillDialog extends JDialog {
         skillsContainer.removeAll();
 
         long playMinutes = user.getTotalPlayTime() / (1000 * 60);
-        String userIdentity = user.getIdentity().getClass().getSimpleName();
-        List<String> learnedNames = user.getSkills().stream()
-                .map(model.Skill::getName).toList();
-
+        // OOP Step 1: object-based checks — no getClass().getSimpleName(), no learnedNames list.
         List<LearnableSkill> available = new ArrayList<>();
         List<LearnableSkill> locked = new ArrayList<>();
         List<LearnableSkill> learned = new ArrayList<>();
         for (LearnableSkill skill : allSkills) {
             // Defensive: drop other professions' lessons if an unfiltered list arrives.
-            if (!skill.isForIdentity(userIdentity)) {
+            if (!skill.isForIdentity(user.getIdentity())) {
                 continue;
             }
-            if (learnedNames.contains(skill.getName())) {
+            if (user.hasSkill(skill.getName())) {
                 learned.add(skill);
             } else if (playMinutes >= skill.getRequiredPlayTimeMinutes()) {
                 available.add(skill);

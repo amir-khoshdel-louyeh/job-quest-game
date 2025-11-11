@@ -60,13 +60,22 @@ public class JobProvider {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * OOP Step 1: object-based overload — pass the Identity object,
+     * never its {@code getClass().getSimpleName()}.
+     */
+    public static List<Job> getJobsForIdentity(model.Identity identity) {
+        if (identity == null) return List.of();
+        return ALL_JOBS.stream()
+                .filter(job -> job.isForIdentity(identity))
+                .collect(Collectors.toList());
+    }
+
     /** Get the list of jobs available for the user */
     public static List<Job> getAvailableJobsForUser(User user) {
-        final List<String> userSkills = user.getSkills().stream().map(Skill::getName).toList();
-        final String userIdentity = user.getIdentity().getClass().getSimpleName();
-
+        if (user == null || user.getIdentity() == null) return List.of();
         return ALL_JOBS.stream()
-                .filter(job -> job.isAvailableFor(userIdentity, userSkills))
+                .filter(job -> job.isAvailableFor(user))
                 .collect(Collectors.toList());
     }
 }
