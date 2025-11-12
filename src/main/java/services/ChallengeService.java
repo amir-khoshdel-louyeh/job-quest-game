@@ -24,23 +24,19 @@ public class ChallengeService {
     
     // initialize main and daily challenges for a new user
     public void initializeChallenges(User user) {
+        // OOP Step 4: no direct getActiveChallenges().addAll — bulk add via owner.
         if (user.getActiveChallenges().isEmpty()) {
-            user.getActiveChallenges().addAll(provider.ChallengeProvider.getMainChallenges());
+            user.addChallenges(provider.ChallengeProvider.getMainChallenges());
             refreshDailyChallenges(user);
         }
     }
     
     // refresh daily challenges for the user (call daily)
     public void refreshDailyChallenges(User user) {
-        // Remove completed daily challenges
-        user.getActiveChallenges().removeIf(q -> 
-            q.getId().startsWith("daily_") && q.isCompleted()
-        );
+        // Remove completed daily challenges via owner behavior.
+        user.pruneCompletedDailyChallenges();
             for (Challenge dailyChallenge : ChallengeProvider.getDailyChallenges()) {
-            boolean alreadyActive = user.getActiveChallenges().stream()
-                .anyMatch(q -> q.getId().equals(dailyChallenge.getId()));
-            
-            if (!alreadyActive) {
+            if (!user.hasChallenge(dailyChallenge.getId())) {
                 user.addChallenge(new Challenge(
                     dailyChallenge.getId(),
                     dailyChallenge.getName(),

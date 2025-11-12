@@ -106,9 +106,22 @@ public class User {
     public Inventory getInventory() { return inventory; } // Return the Inventory object
 
     // return list of skills
-    public List<Skill> getSkills() { return skills; }
+    public List<Skill> getSkills() { return java.util.Collections.unmodifiableList(skills); }
     // replace skills list
-    public void setSkills(List<Skill> skills) { this.skills = skills; }
+    public void setSkills(List<Skill> skills) {
+        this.skills = new ArrayList<>(skills != null ? skills : List.of());
+    }
+
+    /**
+     * OOP Step 4: encapsulated mutation — callers add via this method,
+     * never via {@code getSkills().add(...)} (that list is now unmodifiable).
+     * @return true when the skill was newly added
+     */
+    public boolean addSkill(Skill skill) {
+        if (skill == null || skills.contains(skill)) return false;
+        skills.add(skill);
+        return true;
+    }
 
     /**
      * OOP Step 1: encapsulated skill check — callers ask the User,
@@ -256,12 +269,12 @@ public class User {
     
     // ---------------- Achievements ----------------
     // return unlocked achievement ids
-    public List<String> getUnlockedAchievements() { 
-        return unlockedAchievements; 
+    public List<String> getUnlockedAchievements() {
+        return java.util.Collections.unmodifiableList(unlockedAchievements);
     }
     // replace unlocked achievements
-    public void setUnlockedAchievements(List<String> achievements) { 
-        this.unlockedAchievements = achievements; 
+    public void setUnlockedAchievements(List<String> achievements) {
+        this.unlockedAchievements = new ArrayList<>(achievements != null ? achievements : List.of());
     }
     // unlock an achievement by id
     public void unlockAchievement(String achievementId) {
@@ -276,16 +289,41 @@ public class User {
     
     // ---------------- Challenges ----------------
     // return active challenges
-    public List<Challenge> getActiveChallenges() { 
-        return activeChallenges; 
+    public List<Challenge> getActiveChallenges() {
+        return java.util.Collections.unmodifiableList(activeChallenges);
     }
     // replace active challenges
-    public void setActiveChallenges(List<Challenge> challenges) { 
-        this.activeChallenges = challenges; 
+    public void setActiveChallenges(List<Challenge> challenges) {
+        this.activeChallenges = new ArrayList<>(challenges != null ? challenges : List.of());
     }
     // add a challenge to active list
     public void addChallenge(Challenge challenge) {
-        activeChallenges.add(challenge);
+        if (challenge != null && !hasChallenge(challenge.getId())) {
+            activeChallenges.add(challenge);
+        }
+    }
+    /**
+     * OOP Step 4: bulk add without exposing the live list.
+     * Skips duplicates by id.
+     */
+    public void addChallenges(java.util.Collection<Challenge> challenges) {
+        if (challenges == null) return;
+        for (Challenge c : challenges) addChallenge(c);
+    }
+    /** Check by id (encapsulated lookup, no stream in callers). */
+    public boolean hasChallenge(String challengeId) {
+        if (challengeId == null) return false;
+        return activeChallenges.stream().anyMatch(c -> challengeId.equals(c.getId()));
+    }
+    /**
+     * OOP Step 4: behavior lives in the owner — prune completed daily
+     * challenges internally instead of callers calling
+     * {@code getActiveChallenges().removeIf(...)}.
+     */
+    public void pruneCompletedDailyChallenges() {
+        activeChallenges.removeIf(q ->
+            q.getId().startsWith("daily_") && q.isCompleted()
+        );
     }
     // remove a challenge from active list
     public void removeChallenge(Challenge challenge) {

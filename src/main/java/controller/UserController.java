@@ -104,6 +104,20 @@ public class UserController extends Subject {
         // The calling controller is responsible for notifying observers.
     }
 
+    /**
+     * OOP Step 4: encapsulated skill learning — the only sanctioned way to
+     * mutate skills via the controller (notifies observers). Callers must
+     * not use {@code getUser().getSkills().add(...)} (unmodifiable now).
+     * @return true when newly learned
+     */
+    public boolean addSkill(model.Skill skill) {
+        if (user.addSkill(skill)) {
+            notifyObservers();
+            return true;
+        }
+        return false;
+    }
+
     // ---------------- Progression (Encapsulation + Observer) ----------------
     // Delegates keep User fields encapsulated: outside code must go through
     // here so every mutation notifies observers consistently.

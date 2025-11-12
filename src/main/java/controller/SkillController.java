@@ -30,7 +30,8 @@ public class SkillController {
         boolean alreadyKnown = userController.getUser().hasSkill(skillToLearn.getName());
         if (alreadyKnown) return false;
         if (userController.deductBalance(skillToLearn.getCost())) {
-            userController.getUser().getSkills().add(new Skill(skillToLearn.getName()));
+            // OOP Step 4: mutate via controller, never getSkills().add() directly.
+            userController.addSkill(new Skill(skillToLearn.getName()));
             // Step 2: progression wiring — same Singleton services as JobController.
             // Mutations via UserController where possible; services mutate User
             // directly for rewards, so refresh() re-syncs Observers.

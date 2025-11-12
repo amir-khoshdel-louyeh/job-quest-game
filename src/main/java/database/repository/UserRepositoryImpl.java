@@ -239,10 +239,13 @@ public class UserRepositoryImpl implements UserRepository {
     
     /** Convert skills string to Skill list */
     private void deserializeSkills(User user, String skillsStr) {
-        // parse skills CSV and add Skill objects to the user
+        // parse skills CSV and add Skill objects to the user.
+        // OOP Step 4: use encapsulated addSkill (getSkills() is unmodifiable now).
         if (skillsStr != null && !skillsStr.isEmpty()) {
             Arrays.stream(skillsStr.split(","))
-                  .forEach(skillName -> user.getSkills().add(new Skill(skillName)));
+                  .map(String::trim)
+                  .filter(s -> !s.isEmpty())
+                  .forEach(skillName -> user.addSkill(new Skill(skillName)));
         }
     }
     
