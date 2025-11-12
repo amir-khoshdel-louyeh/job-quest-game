@@ -13,7 +13,7 @@ package model;
  * and its own use-behavior.</p>
  */
 
-public abstract class Item {
+public abstract class Item implements Purchasable {
     private final String name;
     private final String description;
     private final int price;
@@ -36,6 +36,7 @@ public abstract class Item {
     // return item description
     public String getDescription() { return description; }
     // return item price
+    @Override
     public int getPrice() { return price; }
 
     /**
@@ -43,9 +44,11 @@ public abstract class Item {
      * Polymorphic: each subclass implements its own effect.
      * @param user target, must not be null
      */
+    @Override
     public abstract void apply(User user);
 
     /** Human-readable effect line for shop tooltips and messages. */
+    @Override
     public abstract String getEffectDescription();
 
     /**

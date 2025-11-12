@@ -35,12 +35,18 @@ public class GameController {
     }
 
     public ActionResult purchaseService(String serviceName) {
-        // purchase a service via the economy controller
+        // purchase a service via the economy controller (instant effect).
+        // OOP Step 3: message shows the Purchasable effect, same as purchaseItem.
         boolean result = economyController.purchaseService(serviceName);
+        model.Service service = provider.ServiceProvider.getService(serviceName);
+        String effect = service != null ? service.getEffectDescription() : "";
         if (result) {
-            return new ActionResult(true, "Service purchased successfully.");
+            return new ActionResult(true, String.format(
+                    "✨ %s purchased. Effect: %s.", serviceName, effect));
         } else {
-            return new ActionResult(false, "Failed to purchase service.");
+            return new ActionResult(false, String.format(
+                    "Failed to purchase %s. Not enough balance ($%d).",
+                    serviceName, userController.getBalance()));
         }
     }
 

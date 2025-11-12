@@ -36,13 +36,6 @@ public abstract class ConsumableItem extends Item {
 
     @Override
     public String getEffectDescription() {
-        if (energyEffect == 0 && healthEffect == 0) return "No effect";
-        StringBuilder sb = new StringBuilder();
-        if (energyEffect > 0) sb.append("+").append(String.format("%,d", energyEffect)).append(" Energy");
-        if (healthEffect > 0) {
-            if (sb.length() > 0) sb.append(", ");
-            sb.append("+").append(healthEffect).append(" Health");
-        }
-        return sb.toString();
+        return formatEffect(energyEffect, healthEffect);
     }
 }

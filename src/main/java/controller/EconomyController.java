@@ -19,12 +19,14 @@ public class EconomyController {
     }
 
     public boolean purchaseService(String serviceName) {
-        // attempt to buy a named service for the user
+        // attempt to buy a named service for the user.
+        // OOP Step 3: polymorphic apply — Service implements Purchasable,
+        // same contract as Item, so effect logic lives in the model, not here.
         Service service = ServiceProvider.getService(serviceName);
         if (service == null) return false;
-        if (userController.deductBalance(service.getCost())) {
-            userController.increaseEnergy(service.getEnergyEffect());
-            userController.increaseHealth(service.getHealthEffect());
+        if (userController.deductBalance(service.getPrice())) {
+            service.apply(userController.getUser());
+            userController.refresh();
             userController.notifyObservers();
             return true;
         }
