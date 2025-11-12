@@ -312,6 +312,15 @@ public class GamePanel extends JPanel implements Observer {
         updateUserInfo();
     }
 
+    /**
+     * OOP Step 5: push variant — receives what changed ("balance", "health"...).
+     * Full refresh for now (selective label updates are a future optimization).
+     */
+    @Override
+    public void update(String whatChanged) {
+        updateUserInfo();
+    }
+
     // Update UI labels and progress bars with the latest user info
     // Called directly AND via Observer.update() on every stat mutation.
     public void updateUserInfo() {

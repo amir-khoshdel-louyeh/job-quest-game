@@ -2,19 +2,44 @@ package controller;
 
 import model.Item;
 import model.User;
+import observer.SimpleSubject;
 import observer.Subject;
 /**
  * Manages the state and actions of a single user.
  * This class acts as a buffer between the raw User model and the rest of the application,
  * providing safe and centralized methods to modify user data.
+ *
+ * <p>OOP Step 5: implements {@link Subject} via composition
+ * (holds a {@link SimpleSubject}) instead of {@code extends Subject},
+ * so the single-inheritance slot stays free.</p>
  */
-public class UserController extends Subject {
-    private User user;
+public class UserController implements Subject {
+    private final User user;
+    private final SimpleSubject subject = new SimpleSubject();
 
     public UserController(User user) {
     // create user controller wrapping a User model
+        if (user == null) {
+            throw new IllegalArgumentException("user must not be null");
+        }
         this.user = user;
     }
+
+    // ---- Subject delegation (composition) ----
+    @Override
+    public void addObserver(observer.Observer observer) { subject.addObserver(observer); }
+
+    @Override
+    public void removeObserver(observer.Observer observer) { subject.removeObserver(observer); }
+
+    @Override
+    public void notifyObservers() { subject.notifyObservers(); }
+
+    @Override
+    public void notifyObservers(String whatChanged) { subject.notifyObservers(whatChanged); }
+
+    @Override
+    public int observerCount() { return subject.observerCount(); }
 
     public User getUser() {
         return user;
@@ -39,7 +64,7 @@ public class UserController extends Subject {
     public void addBalance(int amount) {
         if (amount > 0) {
             user.deposit(amount);
-            notifyObservers();
+            notifyObservers("balance");
         }
     }
 
@@ -56,28 +81,28 @@ public class UserController extends Subject {
     public void increaseHealth(int amount) {
         if (amount > 0) {
             user.gainHealth(amount);
-            notifyObservers();
+            notifyObservers("health");
         }
     }
 
     public void decreaseHealth(int amount) {
         if (amount > 0) {
             user.loseHealth(amount);
-            notifyObservers();
+            notifyObservers("health");
         }
     }
 
     public void increaseEnergy(int amount) {
         if (amount > 0) {
             user.gainEnergy(amount);
-            notifyObservers();
+            notifyObservers("energy");
         }
     }
 
     public void decreaseEnergy(int amount) {
         if (amount > 0) {
             user.loseEnergy(amount);
-            notifyObservers();
+            notifyObservers("energy");
         }
     }
 
@@ -112,7 +137,7 @@ public class UserController extends Subject {
      */
     public boolean addSkill(model.Skill skill) {
         if (user.addSkill(skill)) {
-            notifyObservers();
+            notifyObservers("skills");
             return true;
         }
         return false;
@@ -133,7 +158,7 @@ public class UserController extends Subject {
     public void addExperience(int amount) {
         if (amount > 0) {
             user.addExperience(amount);
-            notifyObservers();
+            notifyObservers("xp");
         }
     }
 
@@ -141,7 +166,7 @@ public class UserController extends Subject {
     public void addReputation(int amount) {
         if (amount != 0) {
             user.addReputation(amount);
-            notifyObservers();
+            notifyObservers("reputation");
         }
     }
 
@@ -151,7 +176,7 @@ public class UserController extends Subject {
         if (moneyEarned > 0) {
             user.addToTotalMoneyEarned(moneyEarned);
         }
-        notifyObservers();
+        notifyObservers("jobs");
     }
 
     /**
