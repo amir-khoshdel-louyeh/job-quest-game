@@ -1,9 +1,13 @@
 package model;
 
 /**
- * Domain model representing a player/user, their stats, progression and inventories.
+ * Domain model representing a player/user — now a composition root (facade).
  *
- * Follows Single Responsibility Principle by containing only user-related data and behavior.
+ * <p>OOP Step 6: money lives in {@link Wallet}, health/energy in
+ * {@link Vitals}, level/XP/reputation in {@link CareerProgress}. This class
+ * keeps identity, inventory, skills, streaks and social state, delegating
+ * stat calls so the public API is unchanged (zero caller breakage).
+ * Streaks/statistics are the next split candidates.</p>
  */
 
 import java.util.ArrayList;
@@ -13,21 +17,17 @@ public class User {
     private String username;
     private String password;
     private Identity identity;
-    private int balance;
-    private int health;      // 0 to 100
-    private int energy;      // 0 to 100,000
+    private final Wallet wallet;
+    private final Vitals vitals = new Vitals();
+    private final CareerProgress progress = new CareerProgress();
     private Inventory inventory; // Use the Inventory object
     private List<Skill> skills;
 
     private long blockedUntil = 0;      // timestamp end of block in milliseconds
     private long lastSicknessTime = 0;  // timestamp of last sickness
     private long totalPlayTime = 0;     // Total time played in milliseconds
-    
-    // New progression fields
-    private int level = 1;              // Player level
-    private int experience = 0;         // Current experience points
-    private int reputation = 0;         // Reputation score (0-100)
-    private int totalMoneyEarned = 0;   // Total money earned (lifetime)
+
+    // Career activity (next split candidates — kept here for this step)
     private int totalJobsCompleted = 0; // Total jobs completed
     private int currentStreak = 0;      // Current daily login streak
     private int maxStreak = 0;          // Maximum streak achieved
@@ -40,9 +40,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.identity = identity;
-        this.balance = balance;
-        this.health = 100;
-        this.energy = 100_000; // Initial energy
+        this.wallet = new Wallet(balance);
         this.inventory = new Inventory(); // Initialize the Inventory object
         this.skills = new ArrayList<>();
     }
@@ -61,46 +59,31 @@ public class User {
     public void setIdentity(Identity identity) { this.identity = identity; }
 
     // return current balance
-    public int getBalance() { return balance; }
-    private void setBalance(int balance) { this.balance = Math.max(0, balance); }
+    public int getBalance() { return wallet.getBalance(); }
 
     // add amount to balance
-    public void deposit(int amount) {
-        if (amount > 0) setBalance(this.balance + amount);
-    }
+    public void deposit(int amount) { wallet.deposit(amount); }
 
     // subtract amount from balance
-    public void withdraw(int amount) {
-        if (amount > 0) setBalance(this.balance - amount);
-    }
+    public void withdraw(int amount) { wallet.withdraw(amount); }
 
     // return current health
-    public int getHealth() { return health; }
-    private void setHealth(int health) { this.health = Math.max(0, Math.min(100, health)); }
+    public int getHealth() { return vitals.getHealth(); }
 
     // increase health by amount
-    public void gainHealth(int amount) {
-        if (amount > 0) setHealth(this.health + amount);
-    }
+    public void gainHealth(int amount) { vitals.gainHealth(amount); }
 
     // decrease health by amount
-    public void loseHealth(int amount) {
-        if (amount > 0) setHealth(this.health - amount);
-    }
+    public void loseHealth(int amount) { vitals.loseHealth(amount); }
 
     // return current energy
-    public int getEnergy() { return energy; }
-    private void setEnergy(int energy) { this.energy = Math.max(0, Math.min(100_000, energy)); }
+    public int getEnergy() { return vitals.getEnergy(); }
 
     // increase energy by amount
-    public void gainEnergy(int amount) {
-        if (amount > 0) setEnergy(this.energy + amount);
-    }
+    public void gainEnergy(int amount) { vitals.gainEnergy(amount); }
 
     // decrease energy by amount
-    public void loseEnergy(int amount) {
-        if (amount > 0) setEnergy(this.energy - amount);
-    }
+    public void loseEnergy(int amount) { vitals.loseEnergy(amount); }
 
     // return the Inventory object
     public Inventory getInventory() { return inventory; } // Return the Inventory object
@@ -157,80 +140,55 @@ public class User {
     // get last sickness timestamp
     public long getLastSicknessTime() { return lastSicknessTime; }
     
-    // ---------------- Progression System ----------------
+    // ---------------- Progression System (delegates to CareerProgress) ----------------
     // return player level
-    public int getLevel() { return level; }
+    public int getLevel() { return progress.getLevel(); }
     // set player level
-    public void setLevel(int level) { this.level = level; }
+    public void setLevel(int level) { progress.setLevel(level); }
     
     // return current experience
-    public int getExperience() { return experience; }
+    public int getExperience() { return progress.getExperience(); }
     // set experience and check for level up
-    public void setExperience(int experience) { 
-        this.experience = experience;
-        checkLevelUp();
+    public void setExperience(int experience) {
+        if (progress.setExperience(experience)) vitals.restoreFull();
     }
     
     // add experience and check level up
     public void addExperience(int amount) {
-        this.experience += amount;
-        checkLevelUp();
-    }
-    
-    // check and handle level up
-    private void checkLevelUp() {
-        int requiredXP = getRequiredExperienceForNextLevel();
-        if (experience >= requiredXP && level < 100) {
-            level++;
-            experience -= requiredXP;
-            // Level up bonus
-            setHealth(100);
-            setEnergy(100_000);
-        }
+        if (progress.addExperience(amount)) vitals.restoreFull();
     }
     
     // compute XP required for next level
     public int getRequiredExperienceForNextLevel() {
-        return level * 1000; // Each level requires level * 1000 XP
+        return progress.getRequiredExperienceForNextLevel();
     }
     
     // return experience as percentage of next level
     public int getExperiencePercentage() {
-        return (int) ((experience / (double) getRequiredExperienceForNextLevel()) * 100);
+        return progress.getExperiencePercentage();
     }
     
     // ---------------- Reputation ----------------
     // return reputation (0-100)
-    public int getReputation() { return reputation; }
+    public int getReputation() { return progress.getReputation(); }
     // set reputation clamped to 0-100
-    public void setReputation(int reputation) { 
-        this.reputation = Math.max(0, Math.min(100, reputation)); 
-    }
+    public void setReputation(int reputation) { progress.setReputation(reputation); }
     // add to reputation
-    public void addReputation(int amount) { 
-        setReputation(reputation + amount); 
-    }
+    public void addReputation(int amount) { progress.addReputation(amount); }
     
     // return a title describing reputation level
-    public String getReputationTitle() {
-        if (reputation >= 90) return "Legendary";
-        if (reputation >= 75) return "Expert";
-        if (reputation >= 60) return "Professional";
-        if (reputation >= 40) return "Skilled";
-        if (reputation >= 20) return "Beginner";
-        return "Newbie";
-    }
+    public String getReputationTitle() { return progress.getReputationTitle(); }
     
     // ---------------- Statistics ----------------
     // return total lifetime money earned
-    public int getTotalMoneyEarned() { return totalMoneyEarned; }
+    public int getTotalMoneyEarned() { return wallet.getTotalMoneyEarned(); }
     // set total lifetime money earned
-    public void setTotalMoneyEarned(int totalMoneyEarned) { 
-        this.totalMoneyEarned = totalMoneyEarned; 
+    public void setTotalMoneyEarned(int totalMoneyEarned) {
+        wallet.setTotalMoneyEarned(totalMoneyEarned);
     }
     // add to lifetime money earned
-    public void addToTotalMoneyEarned(int amount) { 
-        this.totalMoneyEarned += amount; 
+    public void addToTotalMoneyEarned(int amount) {
+        wallet.addToTotalMoneyEarned(amount);
     }
     
     // return total jobs completed
