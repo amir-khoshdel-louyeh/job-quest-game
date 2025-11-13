@@ -13,12 +13,7 @@ export LD_LIBRARY_PATH=""
 # Suppress Guice/sun.misc.Unsafe warnings from Maven on Java 25
 export MAVEN_OPTS="--sun-misc-unsafe-memory-access=allow"
 
-# Check if MySQL is running
-if ! systemctl is-active --quiet mysql; then
-    echo "⚠️  MySQL is not running. Starting MySQL..."
-    sudo systemctl start mysql
-    sleep 2
-fi
+# No database needed - game runs fully in memory.
 
 # Check if Java is available
 if ! command -v java &> /dev/null; then

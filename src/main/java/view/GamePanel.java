@@ -37,8 +37,8 @@ public class GamePanel extends JPanel implements Observer {
     private JPanel animationPanel;
     private JPanel rightPanel;
     // These buttons are being moved to the world view, so they are removed from here.
-    private JButton saveAndExitButton, helpButton, bottomSaveButton;
-    private javax.swing.Action saveAndExitAction;
+    private JButton exitButton, helpButton, bottomExitButton, newGameButton;
+    private javax.swing.Action exitAction;
     private final long sessionStartTime;
     // Step-6: single non-blocking toast reused for success feedback.
     private JDialog toastDialog;
@@ -54,7 +54,7 @@ public class GamePanel extends JPanel implements Observer {
         this.userController.addObserver(this); // Register the panel as an observer
         this.routineController = new RoutineController(userController, this);
         setLayout(new BorderLayout(10,10));
-        // Step-5: one design system — same background as login/register.
+        // Step-5: one design system — same background as start screen.
         setBackground(AppTheme.BACKGROUND_COLOR);
 
         // ---------------- Title ----------------
@@ -150,28 +150,35 @@ public class GamePanel extends JPanel implements Observer {
         helpButton = AppTheme.createSecondaryButton("📖 Help & About");
         helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Step-5 fix: one shared Action, two separate buttons.
-        // Previously the SAME JButton instance was added to buttonsPanel AND
-        // bottomActionsPanel — Swing re-parents it, so one location went blank.
-        saveAndExitAction = new AbstractAction("💾 Save & Exit") {
+        // No save - in-memory only. Exit closes, New Game goes back to career pick.
+        exitAction = new AbstractAction("❌ Exit") {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GameController.ActionResult result = controller.saveGame();
-                addChatMessage("SYSTEM: " + result.message);
-                if (result.success) {
-                    System.exit(0);
-                }
+                System.exit(0);
             }
         };
-        saveAndExitButton = AppTheme.createDangerButton("💾 Save & Exit");
-        saveAndExitButton.setAction(saveAndExitAction);
-        saveAndExitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        bottomSaveButton = AppTheme.createDangerButton("💾 Save & Exit");
-        bottomSaveButton.setAction(saveAndExitAction);
+        exitButton = AppTheme.createDangerButton("❌ Exit");
+        exitButton.setAction(exitAction);
+        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bottomExitButton = AppTheme.createDangerButton("❌ Exit");
+        bottomExitButton.setAction(exitAction);
+
+        newGameButton = AppTheme.createSecondaryButton("🔄 New Game");
+        newGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        newGameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
+                if (frame instanceof MainFrame) {
+                    ((MainFrame) frame).showPanel(new StartPanel((MainFrame) frame));
+                }
+            }
+        });
         
         buttonsPanel.add(helpButton);
         buttonsPanel.add(Box.createVerticalStrut(5));
-        buttonsPanel.add(saveAndExitButton);
+        buttonsPanel.add(newGameButton);
+        buttonsPanel.add(Box.createVerticalStrut(5));
+        buttonsPanel.add(exitButton);
 
         rightPanel.add(profilePanel);
         rightPanel.add(Box.createVerticalStrut(10));
@@ -190,7 +197,7 @@ public class GamePanel extends JPanel implements Observer {
 
         JPanel bottomActionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
-        bottomActionsPanel.add(bottomSaveButton);
+        bottomActionsPanel.add(bottomExitButton);
 
         // ---------------- Center Animation / World View ----------------
         // Load and display the world view image
@@ -289,8 +296,7 @@ public class GamePanel extends JPanel implements Observer {
                 aboutDialog.setVisible(true);
             }
         });
-        // NOTE: save/exit is handled by the shared saveAndExitAction above —
-        // no per-button listener, so both buttons stay in sync (DRY).
+        // NOTE: exit is handled by the shared exitAction above.
 
     // Start periodic background tasks (timers). We keep them in a small helper
     // method to make the constructor easier to read for beginners.

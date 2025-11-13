@@ -21,7 +21,6 @@ public class GameController {
     private EconomyController economyController;
     private JobController jobController;
     private SkillController skillController;
-    private SaveController saveController;
     private StatsController statsController;
     private EventController eventController;
     private long sessionStartTime;
@@ -34,7 +33,6 @@ public class GameController {
         this.economyController = new EconomyController(userController);
         this.jobController = new JobController(userController);
         this.skillController = new SkillController(userController);
-        this.saveController = new SaveController();
         this.statsController = new StatsController();
         this.eventController = new EventController();
         // make sure new users have challenges
@@ -130,14 +128,13 @@ public class GameController {
         }
     }
 
-    // Save game
+    // No persistence - game runs in memory only. Just track play time.
     public ActionResult saveGame() {
-        boolean ok = saveController.saveGame(userController.getUser(), sessionStartTime);
-        if (ok) {
-            return new ActionResult(true, "Game saved successfully!");
-        } else {
-            return new ActionResult(false, "Error: Could not save game data. Check that MySQL is running.");
-        }
+        long sessionDuration = System.currentTimeMillis() - sessionStartTime;
+        userController.getUser().setTotalPlayTime(
+            userController.getUser().getTotalPlayTime() + sessionDuration);
+        sessionStartTime = System.currentTimeMillis();
+        return new ActionResult(true, "Progress kept for this session (no save file).");
     }
 
     // Learn a skill

@@ -7,9 +7,8 @@ import java.util.List;
 // It shows Encapsulation: all fields are private, we use getters and setters.
 // It also shows Composition: User HAS-A Wallet, Vitals, CareerProgress, Inventory.
 public class User {
-    // basic info
+    // display name (no login - just for showing in UI)
     private String username;
-    private String password;
     // profession of player, example Programmer or Doctor
     // Identity is an interface, so this shows Polymorphism
     private Identity identity;
@@ -35,10 +34,9 @@ public class User {
     private ArrayList<String> unlockedAchievements = new ArrayList<String>();
     private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
-    // Constructor: create a new user
-    public User(String username, String password, Identity identity, int balance) {
+    // Constructor: create a new player starting from 0 (no login).
+    public User(String username, Identity identity, int balance) {
         this.username = username;
-        this.password = password;
         this.identity = identity;
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
@@ -55,16 +53,6 @@ public class User {
     // set username
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    // return password
-    public String getPassword() {
-        return password;
-    }
-
-    // set password
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     // return identity (profession)

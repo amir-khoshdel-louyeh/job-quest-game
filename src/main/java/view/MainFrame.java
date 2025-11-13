@@ -58,8 +58,8 @@ public class MainFrame extends JFrame {
         }
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         
-        // Show login panel
-        showPanel(new LoginPanel(this));
+        // Show start panel - pick a career, no login needed
+        showPanel(new StartPanel(this));
         
         setVisible(true);
     }
