@@ -1,18 +1,13 @@
 package observer;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * OOP Step 5: reusable composition helper for the {@link Subject} interface.
- *
- * <p>Previously {@code Subject} was a concrete base class, so
- * {@code UserController extends Subject} burned Java's single inheritance
- * slot. Now subjects <em>implement</em> {@link Subject} and <em>hold</em> a
- * {@code SimpleSubject} (composition over inheritance).</p>
- */
+// This class holds a list of observers and notifies them.
+// It shows Observer pattern: when data changes, GUI updates.
+// Uses simple ArrayList (beginner way, no CopyOnWriteArrayList).
 public class SimpleSubject implements Subject {
-    private final List<Observer> observers = new CopyOnWriteArrayList<>();
+    private ArrayList<Observer> observers = new ArrayList<Observer>();
 
     @Override
     public void addObserver(Observer observer) {
@@ -36,27 +31,33 @@ public class SimpleSubject implements Subject {
 
     @Override
     public void notifyObservers() {
-        // notify all observers, safely handling exceptions
-        for (Observer observer : observers) {
+        // Tell all observers, uses simple for loop.
+        // Make a copy first so removing during notify is safe.
+        ArrayList<Observer> copy = new ArrayList<Observer>();
+        for (int i = 0; i < observers.size(); i++) {
+            copy.add(observers.get(i));
+        }
+        for (int i = 0; i < copy.size(); i++) {
             try {
-                observer.update();
-            } catch (RuntimeException e) {
-                System.err.println("Observer threw exception during update: " + e.getMessage());
-                e.printStackTrace(System.err);
+                copy.get(i).update();
+            } catch (Exception e) {
+                System.out.println("Observer error: " + e.getMessage());
             }
         }
     }
 
     @Override
     public void notifyObservers(String whatChanged) {
-        // push variant: observers that care about the hint use it,
-        // others fall back to pull via update()
-        for (Observer observer : observers) {
+        // Tell all observers what changed.
+        ArrayList<Observer> copy = new ArrayList<Observer>();
+        for (int i = 0; i < observers.size(); i++) {
+            copy.add(observers.get(i));
+        }
+        for (int i = 0; i < copy.size(); i++) {
             try {
-                observer.update(whatChanged);
-            } catch (RuntimeException e) {
-                System.err.println("Observer threw exception during update: " + e.getMessage());
-                e.printStackTrace(System.err);
+                copy.get(i).update(whatChanged);
+            } catch (Exception e) {
+                System.out.println("Observer error: " + e.getMessage());
             }
         }
     }
