@@ -1,103 +1,104 @@
 package controller;
 
-/**
- * Controller handling job-related game actions such as performing jobs and awarding rewards.
- *
- * Follows Single Responsibility Principle by managing job workflows and coordination only.
- */
-
 import model.Achievement;
 import model.Challenge;
 import model.Job;
 import model.JobResult;
+import model.User;
+import model.minigame.MiniGameResult;
 import services.AchievementService;
 import services.ChallengeService;
 import services.JobService;
+import java.util.ArrayList;
+import java.util.List;
 
+// This class handles doing jobs: checks, payments, rewards.
 public class JobController {
-    private final UserController userController;
-    private final JobService jobService;
-    private final ChallengeService challengeService;
-    private final AchievementService achievementService;
+    private UserController userController;
+    private JobService jobService;
+    private ChallengeService challengeService;
+    private AchievementService achievementService;
 
+    // Simple constructor with default services
     public JobController(UserController userController) {
-        // default wiring: real domain services incl. progression Singletons
-        this(userController, new JobService(),
-                ChallengeService.getInstance(), AchievementService.getInstance());
-    }
-
-    /**
-     * Injectable constructor for tests / OOP Dependency Inversion:
-     * callers depend on service abstractions, not inline math or statics.
-     */
-    public JobController(UserController userController, JobService jobService) {
-        this(userController, jobService,
-                ChallengeService.getInstance(), AchievementService.getInstance());
-    }
-
-    /**
-     * Full injection (Singletons passable as test doubles).
-     * Preserves Singleton pattern in production, DIP in tests.
-     */
-    public JobController(UserController userController, JobService jobService,
-                         ChallengeService challengeService,
-                         AchievementService achievementService) {
-        // construct job controller with a user controller and services
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
         }
         this.userController = userController;
-        this.jobService = (jobService != null) ? jobService : new JobService();
-        this.challengeService = (challengeService != null) ? challengeService : ChallengeService.getInstance();
-        this.achievementService = (achievementService != null) ? achievementService : AchievementService.getInstance();
+        this.jobService = new JobService();
+        this.challengeService = ChallengeService.getInstance();
+        this.achievementService = AchievementService.getInstance();
     }
 
-    /**
-     * Perform a job: validate → apply costs/rewards via controllers only
-     * (keeps {@link model.User} encapsulated) → update progression
-     * (challenges + achievements via Singleton services) → rich {@link JobResult}.
-     * Single Responsibility: coordination only, math lives in {@link JobService}.
-     */
+    // Constructor for tests (can pass own JobService)
+    public JobController(UserController userController, JobService jobService) {
+        if (userController == null) {
+            throw new IllegalArgumentException("userController must not be null");
+        }
+        this.userController = userController;
+        if (jobService != null) {
+            this.jobService = jobService;
+        } else {
+            this.jobService = new JobService();
+        }
+        this.challengeService = ChallengeService.getInstance();
+        this.achievementService = AchievementService.getInstance();
+    }
+
+    // Full constructor
+    public JobController(UserController userController, JobService jobService,
+                         ChallengeService challengeService,
+                         AchievementService achievementService) {
+        if (userController == null) {
+            throw new IllegalArgumentException("userController must not be null");
+        }
+        this.userController = userController;
+        if (jobService != null) {
+            this.jobService = jobService;
+        } else {
+            this.jobService = new JobService();
+        }
+        if (challengeService != null) {
+            this.challengeService = challengeService;
+        } else {
+            this.challengeService = ChallengeService.getInstance();
+        }
+        if (achievementService != null) {
+            this.achievementService = achievementService;
+        } else {
+            this.achievementService = AchievementService.getInstance();
+        }
+    }
+
+    // Do a job without mini-game
     public JobResult doJob(Job job) {
         return execute(job, null);
     }
 
-    /**
-     * Mini-game overload: the work-time game result scales pay and XP
-     * (score 0 → half, 100 → 1.5x) and grants +1 bonus rep on 80+.
-     * A {@code null} game behaves exactly like {@link #doJob(Job)}.
-     */
-    public JobResult doJob(Job job, model.minigame.MiniGameResult game) {
+    // Do a job with mini-game result
+    public JobResult doJob(Job job, MiniGameResult game) {
         return execute(job, game);
     }
 
-    /** Shared core so both overloads validate and progress identically (DRY). */
-    private JobResult execute(Job job, model.minigame.MiniGameResult game) {
-        // attempt to perform the given job for the user
+    // Main logic, uses simple if and for, no String.format, no nested Math.
+    private JobResult execute(Job job, MiniGameResult game) {
         if (job == null) {
             return JobResult.failure(null, "No job selected.");
         }
         if (userController.isBlocked()) {
             return JobResult.failure(job, "You are blocked. Rest and try later.");
         }
-        // Eligibility: identity + required skills (Polymorphism via Job#isAvailableFor).
-        // OOP Step 1: object-based check — no getClass().getSimpleName(), no List<String> mapping.
+        // Check identity + skills
         if (!job.isAvailableFor(userController.getUser())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
-        // Simple pre-check: ensure user has enough energy to start the job.
+        // Check energy
         if (userController.getEnergy() < job.getEnergyCost()) {
-            return JobResult.failure(job,
-                    String.format("Not enough energy (need %d, have %d). Eat or rest first.",
-                            job.getEnergyCost(), userController.getEnergy()));
+            String msg = "Not enough energy (need " + job.getEnergyCost() + ", have " + userController.getEnergy() + "). Eat or rest first.";
+            return JobResult.failure(job, msg);
         }
 
-        // Fail state: the job was started and the submitted score is final
-        // (mini-game results are auto-accepted, no retry). A below-par result
-        // (score < 50) spends the effort — full energy cost deducted — with no
-        // pay, XP, rep gain or progression. A score of 0 (botched job)
-        // additionally costs 1 reputation. Cancel stays free only before
-        // submitting: closing the game returns null before reaching here.
+        // If mini-game failed (score < 50), lose energy but get nothing
         if (game != null && !game.isPassed()) {
             userController.decreaseEnergy(job.getEnergyCost());
             int repLoss = 0;
@@ -108,29 +109,40 @@ public class JobController {
             return JobResult.failedAttempt(job, game.getScore(), job.getEnergyCost(), repLoss, game);
         }
 
-        // Pure calculations first (no side effects) — easy to unit test.
-        model.User user = userController.getUser();
+        // Calculate rewards
+        User user = userController.getUser();
         int base = job.getPayment();
         int scaledBase = base;
         int xp = jobService.calculateXpReward(job);
         int rep = jobService.calculateReputationGain(job);
         if (game != null) {
-            // Mini-game performance scales the job (0.5x … 1.5x).
-            scaledBase = Math.max(1, (int) Math.round(base * game.rewardMultiplier()));
-            xp = Math.max(1, (int) Math.round(xp * game.rewardMultiplier()));
-            if (game.getScore() >= 80) rep++;
+            scaledBase = (int) Math.round(base * game.rewardMultiplier());
+            if (scaledBase < 1) {
+                scaledBase = 1;
+            }
+            xp = (int) Math.round(xp * game.rewardMultiplier());
+            if (xp < 1) {
+                xp = 1;
+            }
+            if (game.getScore() >= 80) {
+                rep = rep + 1;
+            }
         }
         int finalPay = jobService.calculateFinalPayment(job, user);
-        // Re-apply performance on top of seniority bonuses proportionally:
-        // scale the bonus part too so veterans still feel the game.
         if (game != null && base > 0) {
             double ratio = scaledBase / (double) base;
-            finalPay = Math.max(1, (int) Math.round(finalPay * ratio));
+            finalPay = (int) Math.round(finalPay * ratio);
+            if (finalPay < 1) {
+                finalPay = 1;
+            }
         }
-        int bonus = Math.max(0, finalPay - base);
+        int bonus = finalPay - base;
+        if (bonus < 0) {
+            bonus = 0;
+        }
         int levelBefore = user.getLevel();
 
-        // Mutations go through UserController so Observers are notified (Observer pattern).
+        // Give rewards through controller (so GUI updates)
         userController.decreaseEnergy(job.getEnergyCost());
         userController.addBalance(finalPay);
         userController.addExperience(xp);
@@ -139,31 +151,31 @@ public class JobController {
 
         int levelAfter = userController.getLevel();
 
-        // ---- Progression wiring (Step 2): challenges + achievements ----
-        // Defensive: ensure main/daily challenges exist even for legacy saves.
+        // Update challenges
         if (user.getActiveChallenges().isEmpty()) {
             challengeService.initializeChallenges(user);
         }
-        java.util.List<Challenge> completed = new java.util.ArrayList<>();
-        completed.addAll(challengeService.updateChallengeProgress(
-                user, Challenge.ChallengeType.COMPLETE_JOBS, 1));
-        completed.addAll(challengeService.updateChallengeProgress(
-                user, Challenge.ChallengeType.EARN_MONEY, finalPay));
-        completed.addAll(challengeService.updateChallengeProgress(
-                user, Challenge.ChallengeType.SPEND_ENERGY, job.getEnergyCost()));
+        ArrayList<Challenge> completed = new ArrayList<Challenge>();
+        List<Challenge> c1 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1);
+        for (int i = 0; i < c1.size(); i++) {
+            completed.add(c1.get(i));
+        }
+        List<Challenge> c2 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay);
+        for (int i = 0; i < c2.size(); i++) {
+            completed.add(c2.get(i));
+        }
+        List<Challenge> c3 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.SPEND_ENERGY, job.getEnergyCost());
+        for (int i = 0; i < c3.size(); i++) {
+            completed.add(c3.get(i));
+        }
 
-        java.util.List<Achievement> unlocked =
-                achievementService.checkAndUnlockAchievements(user);
+        List<Achievement> unlocked = achievementService.checkAndUnlockAchievements(user);
 
-        // Challenge/Achievement services mutate User directly (deposit/XP);
-        // re-sync observers so HUD stays consistent.
         userController.refresh();
 
         if (game != null) {
-            return JobResult.success(job, base, bonus, finalPay, xp, rep,
-                    levelBefore, levelAfter, completed, unlocked, game);
+            return JobResult.success(job, base, bonus, finalPay, xp, rep, levelBefore, levelAfter, completed, unlocked, game);
         }
-        return JobResult.success(job, base, bonus, finalPay, xp, rep,
-                levelBefore, levelAfter, completed, unlocked);
+        return JobResult.success(job, base, bonus, finalPay, xp, rep, levelBefore, levelAfter, completed, unlocked);
     }
 }

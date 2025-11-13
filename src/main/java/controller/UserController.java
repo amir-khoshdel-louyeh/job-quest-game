@@ -1,18 +1,15 @@
 package controller;
 
 import model.Item;
+import model.Skill;
 import model.User;
+import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
-/**
- * Manages the state and actions of a single user.
- * This class acts as a buffer between the raw User model and the rest of the application,
- * providing safe and centralized methods to modify user data.
- *
- * <p>OOP Step 5: implements {@link Subject} via composition
- * (holds a {@link SimpleSubject}) instead of {@code extends Subject},
- * so the single-inheritance slot stays free.</p>
- */
+
+// This class controls one user.
+// It sits between User data and the game, so GUI never changes User directly.
+// It shows Observer pattern: when data changes, GUI is notified.
 public class UserController implements Subject {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
@@ -25,12 +22,12 @@ public class UserController implements Subject {
         this.user = user;
     }
 
-    // ---- Subject delegation (composition) ----
+    // ---- Observer methods, just pass to helper object ----
     @Override
-    public void addObserver(observer.Observer observer) { subject.addObserver(observer); }
+    public void addObserver(Observer observer) { subject.addObserver(observer); }
 
     @Override
-    public void removeObserver(observer.Observer observer) { subject.removeObserver(observer); }
+    public void removeObserver(Observer observer) { subject.removeObserver(observer); }
 
     @Override
     public void notifyObservers() { subject.notifyObservers(); }
@@ -129,13 +126,9 @@ public class UserController implements Subject {
         // The calling controller is responsible for notifying observers.
     }
 
-    /**
-     * OOP Step 4: encapsulated skill learning — the only sanctioned way to
-     * mutate skills via the controller (notifies observers). Callers must
-     * not use {@code getUser().getSkills().add(...)} (unmodifiable now).
-     * @return true when newly learned
-     */
-    public boolean addSkill(model.Skill skill) {
+    // Add a new skill and tell GUI about it.
+    // Returns true if skill is new.
+    public boolean addSkill(Skill skill) {
         if (user.addSkill(skill)) {
             notifyObservers("skills");
             return true;
@@ -170,7 +163,7 @@ public class UserController implements Subject {
         }
     }
 
-    /** Record one completed job and lifetime earnings. */
+    // Add one completed job to stats
     public void recordJobCompletion(int moneyEarned) {
         user.incrementJobsCompleted();
         if (moneyEarned > 0) {
@@ -179,11 +172,7 @@ public class UserController implements Subject {
         notifyObservers("jobs");
     }
 
-    /**
-     * Re-notify observers after domain Singleton services mutate the
-     * wrapped {@link User} directly (e.g. challenge/achievement rewards).
-     * Keeps Observer pattern consistent without breaking service APIs.
-     */
+    // Tell GUI to refresh after services change User directly
     public void refresh() {
         notifyObservers();
     }

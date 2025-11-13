@@ -1,26 +1,34 @@
 package controller;
 
-/**
- * Central game controller coordinating sub-controllers and high-level game actions.
- *
- * Follows Single Responsibility Principle by coordinating game flow without mixing UI or persistence.
- */
-
-import model.*;
+import model.Achievement;
+import model.Challenge;
+import model.GameEvent;
+import model.Item;
+import model.Job;
+import model.User;
+import model.Service;
 import model.minigame.MiniGameResult;
+import provider.JobProvider;
+import provider.ServiceProvider;
+import services.AchievementService;
+import services.ChallengeService;
+import java.util.List;
+
+// Main controller that connects all small controllers.
+// It shows Composition: GameController HAS-A UserController, JobController, etc.
 public class GameController {
-    private final UserController userController;
-    private final EconomyController economyController;
-    private final JobController jobController;
-    private final SkillController skillController;
-    private final SaveController saveController;
-    private final StatsController statsController;
-    private final EventController eventController;
-    private final long sessionStartTime;
+    private UserController userController;
+    private EconomyController economyController;
+    private JobController jobController;
+    private SkillController skillController;
+    private SaveController saveController;
+    private StatsController statsController;
+    private EventController eventController;
+    private long sessionStartTime;
     private int sessionJobsCompleted = 0;
 
+    // Constructor: create all sub-controllers
     public GameController(User user, long sessionStartTime) {
-        // construct the main game controller and its sub-controllers
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
         this.economyController = new EconomyController(userController);
@@ -29,128 +37,113 @@ public class GameController {
         this.saveController = new SaveController();
         this.statsController = new StatsController();
         this.eventController = new EventController();
-        // Step 2: ensure progression exists for new + legacy saves.
-        // Singleton service, idempotent (no-op if challenges already present).
-        services.ChallengeService.getInstance().initializeChallenges(user);
+        // make sure new users have challenges
+        ChallengeService.getInstance().initializeChallenges(user);
     }
 
+    // Buy a service (instant effect)
     public ActionResult purchaseService(String serviceName) {
-        // purchase a service via the economy controller (instant effect).
-        // OOP Step 3: message shows the Purchasable effect, same as purchaseItem.
-        boolean result = economyController.purchaseService(serviceName);
-        model.Service service = provider.ServiceProvider.getService(serviceName);
-        String effect = service != null ? service.getEffectDescription() : "";
-        if (result) {
-            return new ActionResult(true, String.format(
-                    "✨ %s purchased. Effect: %s.", serviceName, effect));
+        boolean ok = economyController.purchaseService(serviceName);
+        Service service = ServiceProvider.getService(serviceName);
+        String effect = "";
+        if (service != null) {
+            effect = service.getEffectDescription();
+        }
+        if (ok) {
+            return new ActionResult(true, "Service " + serviceName + " purchased. Effect: " + effect + ".");
         } else {
-            return new ActionResult(false, String.format(
-                    "Failed to purchase %s. Not enough balance ($%d).",
-                    serviceName, userController.getBalance()));
+            return new ActionResult(false, "Failed to purchase " + serviceName + ". Not enough balance ($" + userController.getBalance() + ").");
         }
     }
 
+    // Buy an item (goes to inventory)
     public ActionResult purchaseItem(Item item) {
-        // purchase an item via the economy controller (storable, use later)
         if (item == null) {
             return new ActionResult(false, "No item selected.");
         }
-        boolean result = economyController.purchaseItem(item);
-        if (result) {
+        boolean ok = economyController.purchaseItem(item);
+        if (ok) {
             int owned = userController.getUser().getInventory().countByName(item.getName());
-            // OOP Step 2: polymorphic lifecycle tag — no instanceof, just isConsumable().
-            String lifecycle = item.isConsumable() ? "single-use" : "reusable ♾️";
-            return new ActionResult(true, String.format(
-                    "🛒 %s purchased (-$%d). Effect on use: %s (%s). Owned: %d. Open inventory to use it.",
-                    item.getName(), item.getPrice(),
-                    item.getEffectDescription(), lifecycle, owned));
+            String life = "single-use";
+            if (!item.isConsumable()) {
+                life = "reusable";
+            }
+            String msg = "Bought " + item.getName() + " (-$" + item.getPrice() + "). Effect: " + item.getEffectDescription();
+            msg = msg + " (" + life + "). Owned: " + owned + ". Open inventory to use it.";
+            return new ActionResult(true, msg);
         } else {
-            return new ActionResult(false, String.format(
-                    "Failed to purchase %s ($%d). Not enough balance ($%d).",
-                    item.getName(), item.getPrice(), userController.getBalance()));
+            return new ActionResult(false, "Failed to purchase " + item.getName() + " ($" + item.getPrice() + "). Balance ($" + userController.getBalance() + ").");
         }
     }
 
-    /**
-     * Use one owned inventory item (polymorphic effect, consumable removed).
-     * Thin Facade over {@link EconomyController#useItem(String)}.
-     */
+    // Use an item from inventory
     public ActionResult useItem(String itemName) {
-        if (itemName == null || itemName.isBlank()) {
+        if (itemName == null || itemName.trim().equals("")) {
             return new ActionResult(false, "No item selected.");
         }
         String effect = economyController.useItem(itemName);
         if (effect != null) {
-            return new ActionResult(true, String.format(
-                    "✨ Used %s: %s.", itemName, effect));
+            return new ActionResult(true, "Used " + itemName + ": " + effect + ".");
         }
         return new ActionResult(false, "Item not in inventory: " + itemName);
     }
 
-    /** Inventory snapshot for future UI (Step 6/7), unmodifiable. */
-    public java.util.List<Item> getInventoryItems() {
+    // Return inventory items
+    public List<Item> getInventoryItems() {
         return userController.getUser().getInventory().getItems();
     }
 
+    // Check jobs (workshop always opens dialog if jobs exist)
     public ActionResult doWork() {
-        // Show the job catalog when the user clicks the Workshop in the world view.
-        // The dialog lists ALL jobs; locked ones are visible but disabled, so the
-        // UI expects "JOB_DIALOG_REQUIRED" whenever the catalog is non-empty.
         try {
-            java.util.List<Job> allJobs = provider.JobProvider.getAllJobs();
+            List<Job> allJobs = JobProvider.getAllJobs();
             if (allJobs != null && !allJobs.isEmpty()) {
                 return new ActionResult(true, "JOB_DIALOG_REQUIRED");
             } else {
                 return new ActionResult(false, "No jobs are available for your current identity/skills.");
             }
         } catch (Exception ex) {
-            // In case of any unexpected error, return a friendly message and log the error.
             ex.printStackTrace();
             return new ActionResult(false, "Error checking available jobs.");
         }
     }
 
+    // Do one job
     public ActionResult doJob(Job job) {
-        // perform a job via JobController and update session stats
-        // JobController returns a rich JobResult DTO; this facade unwraps it
-        // into a UI-friendly ActionResult (Facade/Coordinator role, stays thin).
-        JobResult result = jobController.doJob(job);
-        if (result.isSuccess()) {
+        model.JobResult r = jobController.doJob(job);
+        if (r.isSuccess()) {
             sessionJobsCompleted++;
-            return new ActionResult(true, result.getMessage());
+            return new ActionResult(true, r.getMessage());
         } else {
-            return new ActionResult(false, result.getMessage());
+            return new ActionResult(false, r.getMessage());
         }
     }
 
-    /**
-     * Mini-game overload: same facade, performance-scaled reward.
-     * Thin by design — all math stays in JobController/JobService.
-     */
+    // Do one job with mini-game
     public ActionResult doJob(Job job, MiniGameResult game) {
-        JobResult result = jobController.doJob(job, game);
-        if (result.isSuccess()) {
+        model.JobResult r = jobController.doJob(job, game);
+        if (r.isSuccess()) {
             sessionJobsCompleted++;
-            return new ActionResult(true, result.getMessage());
+            return new ActionResult(true, r.getMessage());
         } else {
-            return new ActionResult(false, result.getMessage());
+            return new ActionResult(false, r.getMessage());
         }
     }
 
+    // Save game
     public ActionResult saveGame() {
-        // save current user game state
-        boolean success = saveController.saveGame(userController.getUser(), sessionStartTime);
-        if (success) {
+        boolean ok = saveController.saveGame(userController.getUser(), sessionStartTime);
+        if (ok) {
             return new ActionResult(true, "Game saved successfully!");
         } else {
-            return new ActionResult(false, "Error: Could not save game data. Check that MySQL is running (run.sh starts it).");
+            return new ActionResult(false, "Error: Could not save game data. Check that MySQL is running.");
         }
     }
 
+    // Learn a skill
     public ActionResult learnSkill(String skillName) {
-        // learn a skill via the skill controller
-        boolean result = skillController.learnSkill(skillName);
-        if (result) {
+        boolean ok = skillController.learnSkill(skillName);
+        if (ok) {
             return new ActionResult(true, "Skill learned successfully.");
         } else {
             return new ActionResult(false, "Failed to learn skill.");
@@ -158,53 +151,41 @@ public class GameController {
     }
 
     public UserController getUserController() {
-        // return the user controller instance
         return userController;
     }
 
     public String getDetailedStats() {
-        // get a detailed stats string for the current user
         return statsController.getDetailedStats(userController.getUser());
     }
 
-    // For brevity, getActiveChallenges, getAchievements, etc. would be delegated to their own controllers/services.
-
-    /**
-     * Thin Facade getters for future dashboards (Step 7).
-     * Abstraction: UI depends on these, not on Singleton services directly.
-     */
-    public java.util.List<Challenge> getActiveChallenges() {
-        return services.ChallengeService.getInstance()
-                .getActiveIncompleteChallenges(userController.getUser());
+    public List<Challenge> getActiveChallenges() {
+        return ChallengeService.getInstance().getActiveIncompleteChallenges(userController.getUser());
     }
 
-    public java.util.List<Challenge> getCompletedChallenges() {
-        return services.ChallengeService.getInstance()
-                .getCompletedChallenges(userController.getUser());
+    public List<Challenge> getCompletedChallenges() {
+        return ChallengeService.getInstance().getCompletedChallenges(userController.getUser());
     }
 
-    public java.util.List<Achievement> getAchievementsWithStatus() {
-        return services.AchievementService.getInstance()
-                .getAchievementsWithStatus(userController.getUser());
+    public List<Achievement> getAchievementsWithStatus() {
+        return AchievementService.getInstance().getAchievementsWithStatus(userController.getUser());
     }
 
     public GameEvent triggerRandomEvent() {
-        // trigger a random game event for the current user
         return eventController.triggerRandomEvent(userController.getUser());
     }
 
+    // Simple session info, no String.format
     public String getSessionStats() {
-        // return a short summary of the current session stats
-        long sessionDuration = System.currentTimeMillis() - sessionStartTime;
-        long minutes = sessionDuration / (1000 * 60);
-        return String.format("Session: %d minutes | Jobs: %d", minutes, sessionJobsCompleted);
+        long now = System.currentTimeMillis();
+        long minutes = (now - sessionStartTime) / (1000 * 60);
+        return "Session: " + minutes + " minutes | Jobs: " + sessionJobsCompleted;
     }
 
+    // Small helper class to return success + message
     public static class ActionResult {
-        public final boolean success;
-        public final String message;
+        public boolean success;
+        public String message;
         public ActionResult(boolean success, String message) {
-            // construct an action result reporting success and a message
             this.success = success;
             this.message = message;
         }

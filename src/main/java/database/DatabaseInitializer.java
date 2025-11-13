@@ -78,35 +78,31 @@ public class DatabaseInitializer {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
-            // Create users table with all required columns
-            // Step 4: progression columns persist level/XP/reputation,
-            // lifetime stats, streaks and unlocks (Repository can round-trip User).
-            String createUsersTable = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(50) NOT NULL UNIQUE,
-                    password VARCHAR(100) NOT NULL,
-                    identity VARCHAR(50) NOT NULL,
-                    balance INT DEFAULT 0,
-                    health INT DEFAULT 100,
-                    energy INT DEFAULT 100000,
-                    blocked_until BIGINT DEFAULT 0,
-                    last_sickness_time BIGINT DEFAULT 0,
-                    inventory TEXT,
-                    skills TEXT,
-                    total_play_time BIGINT DEFAULT 0,
-                    level INT DEFAULT 1,
-                    experience INT DEFAULT 0,
-                    reputation INT DEFAULT 0,
-                    total_money_earned INT DEFAULT 0,
-                    total_jobs_completed INT DEFAULT 0,
-                    current_streak INT DEFAULT 0,
-                    max_streak INT DEFAULT 0,
-                    last_login_date BIGINT DEFAULT 0,
-                    unlocked_achievements TEXT,
-                    active_challenges TEXT
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
-                """;
+            // Create users table, uses simple string (no text block)
+            String createUsersTable = "CREATE TABLE IF NOT EXISTS users ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "username VARCHAR(50) NOT NULL UNIQUE, "
+                    + "password VARCHAR(100) NOT NULL, "
+                    + "identity VARCHAR(50) NOT NULL, "
+                    + "balance INT DEFAULT 0, "
+                    + "health INT DEFAULT 100, "
+                    + "energy INT DEFAULT 100000, "
+                    + "blocked_until BIGINT DEFAULT 0, "
+                    + "last_sickness_time BIGINT DEFAULT 0, "
+                    + "inventory TEXT, "
+                    + "skills TEXT, "
+                    + "total_play_time BIGINT DEFAULT 0, "
+                    + "level INT DEFAULT 1, "
+                    + "experience INT DEFAULT 0, "
+                    + "reputation INT DEFAULT 0, "
+                    + "total_money_earned INT DEFAULT 0, "
+                    + "total_jobs_completed INT DEFAULT 0, "
+                    + "current_streak INT DEFAULT 0, "
+                    + "max_streak INT DEFAULT 0, "
+                    + "last_login_date BIGINT DEFAULT 0, "
+                    + "unlocked_achievements TEXT, "
+                    + "active_challenges TEXT"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
             
             stmt.executeUpdate(createUsersTable);
             System.out.println("✓ Table 'users' is ready.");
@@ -114,16 +110,13 @@ public class DatabaseInitializer {
             // Auto-migrate databases created before Step 4 (idempotent).
             ensureProgressionColumns(conn);
             
-            // Create items table (for future use)
-            String createItemsTable = """
-                CREATE TABLE IF NOT EXISTS items (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(50) NOT NULL,
-                    type VARCHAR(30),
-                    owner_id INT,
-                    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
-                """;
+            // Create items table, uses simple string
+            String createItemsTable = "CREATE TABLE IF NOT EXISTS items ("
+                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                    + "name VARCHAR(50) NOT NULL, "
+                    + "type VARCHAR(30), "
+                    + "owner_id INT"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
             
             stmt.executeUpdate(createItemsTable);
             System.out.println("✓ Table 'items' is ready.");

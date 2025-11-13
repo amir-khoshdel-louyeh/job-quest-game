@@ -1,35 +1,24 @@
 package controller;
 
-/**
- * Controller responsible for computing and exposing user statistics and summaries.
- *
- * Follows Single Responsibility Principle by encapsulating only stats-related logic.
- */
-
 import model.User;
 
+// This class builds text with player stats.
 public class StatsController {
+
+    // Build a simple stats string, uses + concatenation (no String.format).
     public String getDetailedStats(User user) {
-        // build and return a formatted detailed stats string for the user
-        StringBuilder stats = new StringBuilder();
-        stats.append("═══════════════════════════════════\n");
-        stats.append(String.format(" 👤 %s - Level %d\n", user.getUsername(), user.getLevel()));
-        stats.append("═══════════════════════════════════\n");
-        stats.append(String.format("⭐ XP: %d/%d (%d%%)\n", 
-            user.getExperience(), 
-            user.getRequiredExperienceForNextLevel(),
-            user.getExperiencePercentage()));
-        stats.append(String.format("🏆 Reputation: %d/100 (%s)\n", 
-            user.getReputation(), 
-            user.getReputationTitle()));
-        stats.append(String.format("🔥 Streak: %d days (Best: %d)\n", 
-            user.getCurrentStreak(), 
-            user.getMaxStreak()));
-        stats.append(String.format("💰 Total Earned: $%,d\n", user.getTotalMoneyEarned()));
-        stats.append(String.format("📊 Jobs Completed: %,d\n", user.getTotalJobsCompleted()));
-        stats.append(String.format("🎖️ Achievements: %d unlocked\n", 
-            user.getUnlockedAchievements().size()));
-        stats.append("═══════════════════════════════════\n");
-        return stats.toString();
+        String stats = "";
+        stats = stats + "===================================\n";
+        stats = stats + " Player: " + user.getUsername() + " - Level " + user.getLevel() + "\n";
+        stats = stats + "===================================\n";
+        stats = stats + " XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel();
+        stats = stats + " (" + user.getExperiencePercentage() + "%)\n";
+        stats = stats + " Reputation: " + user.getReputation() + "/100 (" + user.getReputationTitle() + ")\n";
+        stats = stats + " Streak: " + user.getCurrentStreak() + " days (Best: " + user.getMaxStreak() + ")\n";
+        stats = stats + " Total Earned: $" + user.getTotalMoneyEarned() + "\n";
+        stats = stats + " Jobs Completed: " + user.getTotalJobsCompleted() + "\n";
+        stats = stats + " Achievements: " + user.getUnlockedAchievements().size() + " unlocked\n";
+        stats = stats + "===================================\n";
+        return stats;
     }
 }
