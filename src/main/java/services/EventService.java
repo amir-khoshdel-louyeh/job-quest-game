@@ -3,9 +3,8 @@ package services;
 import model.GameEvent;
 import model.User;
 import provider.GameEventProvider;
-/**
- * Manages random events and their effects on the player.
- */
+
+// This class gives random events to the player (like finding money).
 public class EventService {
     private static EventService instance;
     private long lastEventTime = 0;
@@ -21,7 +20,9 @@ public class EventService {
         return instance;
     }
     
-    // possibly trigger a random event for a user, respecting cooldown and chance
+    // Check if a random event happens now.
+    // At most one event every 5 minutes, 20% chance each check.
+    // Uses simple if, no stream.
     public GameEvent checkForRandomEvent(User user) {
         long currentTime = System.currentTimeMillis();
         
@@ -34,8 +35,9 @@ public class EventService {
         if (Math.random() > 0.20) {
             return null;
         }
-        
-    GameEvent event = provider.GameEventProvider.getRandomEvent();
+
+        // get random event using simple provider method
+        GameEvent event = GameEventProvider.getRandomEvent();
         if (event != null) {
             applyEventEffects(user, event);
             lastEventTime = currentTime;

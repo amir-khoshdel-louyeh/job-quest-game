@@ -6,56 +6,60 @@ import java.util.ArrayList;
 import java.util.List;
 import provider.AchievementProvider;
 
-/**
- * Manages achievements and checks for unlocking them.
- */
+// This class checks and unlocks achievements for the player.
 public class AchievementService {
+    // only one object (singleton)
     private static AchievementService instance;
-    
-    private AchievementService() {}
-    // private constructor for singleton
-    
+
+    private AchievementService() {
+    }
+
     public static AchievementService getInstance() {
         if (instance == null) {
             instance = new AchievementService();
         }
         return instance;
     }
+
+    // Check all achievements, unlock new ones, give rewards.
+    // Uses simple for loop.
     public List<Achievement> checkAndUnlockAchievements(User user) {
-        List<Achievement> newlyUnlocked = new ArrayList<>();
-        
-    for (Achievement achievement : provider.AchievementProvider.getAllAchievements()) {
-            if (!user.hasAchievement(achievement.getId()) && 
-                checkAchievementRequirement(user, achievement)) {
-                
-                user.unlockAchievement(achievement.getId());
-                achievement.unlock();
-                // Grant reward
-                user.deposit(achievement.getRewardMoney());
-                newlyUnlocked.add(achievement);
+        ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
+        List<Achievement> all = AchievementProvider.getAllAchievements();
+        for (int i = 0; i < all.size(); i++) {
+            Achievement a = all.get(i);
+            if (!user.hasAchievement(a.getId())) {
+                if (a.checkRequirement(user)) {
+                    user.unlockAchievement(a.getId());
+                    a.unlock();
+                    user.deposit(a.getRewardMoney());
+                    newOnes.add(a);
+                }
             }
         }
-        
-        return newlyUnlocked;
+        return newOnes;
     }
-    
-    // evaluate a single achievement's requirement
+
+    // Check one achievement
     private boolean checkAchievementRequirement(User user, Achievement achievement) {
         return achievement.checkRequirement(user);
     }
+
     public int getAchievementProgress(User user, Achievement achievement) {
         return achievement.getProgress(user);
     }
+
+    // Return all achievements with unlocked status updated
     public List<Achievement> getAchievementsWithStatus(User user) {
-        List<Achievement> achievements = new ArrayList<>();
-        
-        for (Achievement achievement : AchievementProvider.getAllAchievements()) {
-            if (user.hasAchievement(achievement.getId())) {
-                achievement.unlock();
+        ArrayList<Achievement> result = new ArrayList<Achievement>();
+        List<Achievement> all = AchievementProvider.getAllAchievements();
+        for (int i = 0; i < all.size(); i++) {
+            Achievement a = all.get(i);
+            if (user.hasAchievement(a.getId())) {
+                a.unlock();
             }
-            achievements.add(achievement);
+            result.add(a);
         }
-        
-        return achievements;
+        return result;
     }
 }

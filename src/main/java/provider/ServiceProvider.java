@@ -1,23 +1,19 @@
 package provider;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import model.Service;
 
-/**
- * Provides a centralized catalog of all available services in the game.
- * This decouples the service data from the controllers and views.
- */
+// This class stores all services (food, hospital) in one place.
 public class ServiceProvider {
 
-    private static final Map<String, Service> SERVICES_BY_NAME = new HashMap<>();
+    // map name -> service, for quick lookup
+    private static HashMap<String, Service> SERVICES_BY_NAME = new HashMap<String, Service>();
 
+    // fill map once
     static {
-        // To add or modify a service, just change it here.
-        // Supermarket / Energy Services
         addService(new Service("Water Bottle", "+500 Energy", 5, 0, 500));
         addService(new Service("Apple", "+800 Energy", 8, 0, 800));
         addService(new Service("Banana", "+1,200 Energy", 10, 0, 1200));
@@ -31,7 +27,6 @@ public class ServiceProvider {
         addService(new Service("Pasta Bowl", "+10,000 Energy", 90, 0, 10000));
         addService(new Service("Full Meal", "+12,000 Energy", 100, 0, 12000));
         addService(new Service("Protein Shake", "+15,000 Energy", 125, 0, 15000));
-        // Hospital / Health Services
         addService(new Service("Basic Check-up", "+5 Health", 50, 5, 0));
         addService(new Service("Stitches", "+10 Health", 80, 10, 0));
         addService(new Service("Antibiotics Course", "+15 Health", 120, 15, 0));
@@ -42,28 +37,44 @@ public class ServiceProvider {
         addService(new Service("Major Surgery", "+65 Health", 2500, 65, 0));
         addService(new Service("Intensive Care", "+80 Health", 5000, 80, 0));
         addService(new Service("Full Recovery Program", "+100 Health", 10000, 100, 0));
-        // Hybrid Service (e.g., for a fancy restaurant, not the hospital)
         addService(new Service("Gourmet Meal", "+25,000 Energy, +5 Health", 200, 5, 25000));
     }
 
+    // Add one service to map
     private static void addService(Service service) {
-        // register a service in the internal map
         SERVICES_BY_NAME.put(service.getName(), service);
     }
 
-    /** Get a service by its name */
-    public static Service getService(String name) { return SERVICES_BY_NAME.get(name); }
-
-    /** Get health-related services */
-    public static List<Service> getHealthServices() {
-        return SERVICES_BY_NAME.values().stream()
-                .filter(s -> s.getHealthEffect() > 0 && s.getEnergyEffect() == 0).collect(Collectors.toList());
+    // Find service by name
+    public static Service getService(String name) {
+        return SERVICES_BY_NAME.get(name);
     }
 
-    /** Get energy-related services */
+    // Return only health services (health > 0, energy == 0)
+    // Uses simple for loop, no stream.
+    public static List<Service> getHealthServices() {
+        ArrayList<Service> result = new ArrayList<Service>();
+        // get all values into a list first
+        ArrayList<Service> all = new ArrayList<Service>(SERVICES_BY_NAME.values());
+        for (int i = 0; i < all.size(); i++) {
+            Service s = all.get(i);
+            if (s.getHealthEffect() > 0 && s.getEnergyEffect() == 0) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
+
+    // Return only energy services (energy > 0, health == 0)
     public static List<Service> getEnergyServices() {
-        return SERVICES_BY_NAME.values().stream()
-                .filter(s -> s.getEnergyEffect() > 0 && s.getHealthEffect() == 0)
-                .collect(Collectors.toList());
+        ArrayList<Service> result = new ArrayList<Service>();
+        ArrayList<Service> all = new ArrayList<Service>(SERVICES_BY_NAME.values());
+        for (int i = 0; i < all.size(); i++) {
+            Service s = all.get(i);
+            if (s.getEnergyEffect() > 0 && s.getHealthEffect() == 0) {
+                result.add(s);
+            }
+        }
+        return result;
     }
 }

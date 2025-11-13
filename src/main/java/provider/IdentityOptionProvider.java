@@ -1,33 +1,28 @@
 package provider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import model.IdentityOption;
 
-/**
- * Provides a centralized, single source of truth for available Identity options in the game.
- * This decouples the UI from the game's data configuration.
- */
+// This class stores the 4 starting professions to choose from.
 public class IdentityOptionProvider {
 
-    private static final List<IdentityOption> OPTIONS = new ArrayList<>();
+    private static ArrayList<IdentityOption> OPTIONS = new ArrayList<IdentityOption>();
 
     static {
-        // To add a new character, just add a new line here.
-        // The registration panel will automatically display it.
-        // Step 4 balance: Doctor 10000 was pay-to-win (instant Full Recovery
-        // + all skills); Typist/Designer 10 could not afford even Basic Food
-        // $50. Normalized so every identity can eat + grind to first skill.
         OPTIONS.add(new IdentityOption("Doctor", "Heal players and earn big money.", 500, "images/doctor.png"));
         OPTIONS.add(new IdentityOption("Programmer", "Write code and solve complex problems.", 300, "images/programmer.png"));
         OPTIONS.add(new IdentityOption("Logo Designer", "Create logos for clients.", 200, "images/logodesigner.png"));
         OPTIONS.add(new IdentityOption("Typist", "Type documents for clients.", 200, "images/typist.png"));
-
     }
 
+    // Return copy with for loop (no unmodifiableList)
     public static List<IdentityOption> getAvailableOptions() {
-        return Collections.unmodifiableList(OPTIONS);
+        ArrayList<IdentityOption> copy = new ArrayList<IdentityOption>();
+        for (int i = 0; i < OPTIONS.size(); i++) {
+            copy.add(OPTIONS.get(i));
+        }
+        return copy;
     }
 }

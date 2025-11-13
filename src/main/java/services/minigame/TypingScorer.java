@@ -6,31 +6,31 @@ import java.util.List;
 import model.minigame.MiniGameResult;
 import model.minigame.TextTask;
 
-/**
- * Pure scoring logic for retype games (Typist prose, Programmer code).
- *
- * <p>Stateless injectable service (SRP, DIP): no UI, no timers — the dialog
- * measures time, this class only grades. Accuracy uses Levenshtein distance
- * over normalized text; speed compares elapsed time against the task par.</p>
- */
+// This class calculates score for typing mini-games.
+// It is a simple helper class with no UI.
 public class TypingScorer {
 
-    /**
-     * Grade one attempt.
-     *
-     * @param gameName shown in the result (e.g. "Typing Sprint")
-     * @param task the picked task
-     * @param typed what the player wrote
-     * @param elapsedSeconds measured by the dialog
-     */
+    // Grade one attempt, uses simple if and for loops.
     public MiniGameResult score(String gameName, TextTask task, String typed, int elapsedSeconds) {
         String expected = normalize(task.getContent());
-        String actual = normalize(typed == null ? "" : typed);
+        String actual = normalize(typed);
         int accuracy = accuracy(expected, actual);
         int wpm = wpm(actual, elapsedSeconds);
 
-        double speedRatio = Math.min(1.5, task.getParSeconds() / (double) Math.max(1, elapsedSeconds));
-        int speedPoints = (int) Math.round(Math.min(100, speedRatio * 100));
+        // speed bonus: faster than par time gives more points
+        // uses simple if instead of nested Math.min
+        int timeForMath = elapsedSeconds;
+        if (timeForMath < 1) {
+            timeForMath = 1;
+        }
+        double speedRatio = task.getParSeconds() / (double) timeForMath;
+        if (speedRatio > 1.5) {
+            speedRatio = 1.5;
+        }
+        int speedPoints = (int) Math.round(speedRatio * 100);
+        if (speedPoints > 100) {
+            speedPoints = 100;
+        }
         int score = (int) Math.round(accuracy * 0.65 + speedPoints * 0.35);
 
         List<String> highlights = new ArrayList<>();
@@ -42,12 +42,25 @@ public class TypingScorer {
         return MiniGameResult.typing(gameName, score, accuracy, wpm, elapsedSeconds, highlights);
     }
 
-    /** Public for tests: 0–100 similarity of two normalized strings. */
+    // Return 0-100 similarity, uses simple if
     public int accuracy(String expected, String actual) {
-        if (expected.isEmpty() && actual.isEmpty()) return 100;
-        if (expected.isEmpty() || actual.isEmpty()) return 0;
+        if (expected == null) {
+            expected = "";
+        }
+        if (actual == null) {
+            actual = "";
+        }
+        if (expected.equals("") && actual.equals("")) {
+            return 100;
+        }
+        if (expected.equals("") || actual.equals("")) {
+            return 0;
+        }
         int dist = levenshtein(expected, actual);
-        int max = Math.max(expected.length(), actual.length());
+        int max = expected.length();
+        if (actual.length() > max) {
+            max = actual.length();
+        }
         return (int) Math.round((1.0 - dist / (double) max) * 100);
     }
 
@@ -58,18 +71,27 @@ public class TypingScorer {
         return (int) Math.round(words / (elapsedSeconds / 60.0));
     }
 
-    /** Trim trailing spaces per line; keep everything else (code matters). */
+    // Remove extra spaces, beginner way with trim (no stripTrailing)
     static String normalize(String s) {
-        String[] lines = s.replace("\t", "    ").split("\n");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lines.length; i++) {
-            sb.append(lines[i].stripTrailing());
-            if (i < lines.length - 1) sb.append('\n');
+        if (s == null) {
+            return "";
         }
-        return sb.toString().strip();
+        // replace tab with spaces
+        s = s.replace("\t", "    ");
+        String[] lines = s.split("\n");
+        String result = "";
+        for (int i = 0; i < lines.length; i++) {
+            // trim end spaces manually with trim
+            String line = lines[i].trim();
+            result = result + line;
+            if (i < lines.length - 1) {
+                result = result + "\n";
+            }
+        }
+        return result.trim();
     }
 
-    /** Classic DP Levenshtein over chars. */
+    // Classic distance between two strings, uses simple for loops
     static int levenshtein(String a, String b) {
         int[] prev = new int[b.length() + 1];
         int[] cur = new int[b.length() + 1];
@@ -77,8 +99,22 @@ public class TypingScorer {
         for (int i = 1; i <= a.length(); i++) {
             cur[0] = i;
             for (int j = 1; j <= b.length(); j++) {
-                int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
-                cur[j] = Math.min(Math.min(cur[j - 1] + 1, prev[j] + 1), prev[j - 1] + cost);
+                int cost = 0;
+                if (a.charAt(i - 1) != b.charAt(j - 1)) {
+                    cost = 1;
+                }
+                int delete = prev[j] + 1;
+                int insert = cur[j - 1] + 1;
+                int replace = prev[j - 1] + cost;
+                // find smallest of three with simple if
+                int best = delete;
+                if (insert < best) {
+                    best = insert;
+                }
+                if (replace < best) {
+                    best = replace;
+                }
+                cur[j] = best;
             }
             int[] tmp = prev; prev = cur; cur = tmp;
         }

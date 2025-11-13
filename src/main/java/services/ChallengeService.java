@@ -6,81 +6,100 @@ import java.util.ArrayList;
 import java.util.List;
 import provider.ChallengeProvider;
 
-/**
- * Manages challenges and tracks player progress.
- */
+// This class manages challenges for the player.
 public class ChallengeService {
+    // only one object of this class (simple singleton)
     private static ChallengeService instance;
-    
-    private ChallengeService() {}
-    // private constructor for singleton
-    
+
+    // private constructor so nobody can create with new
+    private ChallengeService() {
+    }
+
+    // Return the single object, create it if needed
     public static ChallengeService getInstance() {
         if (instance == null) {
             instance = new ChallengeService();
         }
         return instance;
     }
-    
-    // initialize main and daily challenges for a new user
+
+    // Give starting challenges to a new user
     public void initializeChallenges(User user) {
-        // OOP Step 4: no direct getActiveChallenges().addAll — bulk add via owner.
         if (user.getActiveChallenges().isEmpty()) {
-            user.addChallenges(provider.ChallengeProvider.getMainChallenges());
+            user.addChallenges(ChallengeProvider.getMainChallenges());
             refreshDailyChallenges(user);
         }
     }
-    
-    // refresh daily challenges for the user (call daily)
+
+    // Add daily challenges, remove old completed daily ones
     public void refreshDailyChallenges(User user) {
-        // Remove completed daily challenges via owner behavior.
         user.pruneCompletedDailyChallenges();
-            for (Challenge dailyChallenge : ChallengeProvider.getDailyChallenges()) {
-            if (!user.hasChallenge(dailyChallenge.getId())) {
-                user.addChallenge(new Challenge(
-                    dailyChallenge.getId(),
-                    dailyChallenge.getName(),
-                    dailyChallenge.getDescription(),
-                    dailyChallenge.getType(),
-                    dailyChallenge.getTargetValue(),
-                    dailyChallenge.getRewardMoney(),
-                    dailyChallenge.getRewardExperience()
-                ));
+        List<Challenge> daily = ChallengeProvider.getDailyChallenges();
+        for (int i = 0; i < daily.size(); i++) {
+            Challenge template = daily.get(i);
+            if (!user.hasChallenge(template.getId())) {
+                // make a fresh copy so progress is separate
+                Challenge copy = new Challenge(
+                    template.getId(),
+                    template.getName(),
+                    template.getDescription(),
+                    template.getType(),
+                    template.getTargetValue(),
+                    template.getRewardMoney(),
+                    template.getRewardExperience()
+                );
+                user.addChallenge(copy);
             }
         }
     }
-    
-    // update challenge progress by type and amount
+
+    // Add progress to all challenges of this type, uses simple for loop
     public List<Challenge> updateChallengeProgress(User user, Challenge.ChallengeType type, int amount) {
-        List<Challenge> completedChallenges = new ArrayList<>();
-        
-        for (Challenge challenge : user.getActiveChallenges()) {
-            if (challenge.getType() == type && !challenge.isCompleted()) {
-                challenge.addProgress(amount);
-                if (challenge.isCompleted()) {
-                    grantChallengeReward(user, challenge);
-                    completedChallenges.add(challenge);
+        ArrayList<Challenge> finished = new ArrayList<Challenge>();
+        List<Challenge> active = user.getActiveChallenges();
+        for (int i = 0; i < active.size(); i++) {
+            Challenge c = active.get(i);
+            if (c.getType() == type && !c.isCompleted()) {
+                c.addProgress(amount);
+                if (c.isCompleted()) {
+                    giveReward(user, c);
+                    finished.add(c);
                 }
             }
         }
-        
-        return completedChallenges;
+        return finished;
     }
-    
-    // grant money/XP/reputation rewards for a completed challenge
-    private void grantChallengeReward(User user, Challenge challenge) {
-    user.deposit(challenge.getRewardMoney());
+
+    // Give money, XP and reputation for completed challenge
+    private void giveReward(User user, Challenge challenge) {
+        user.deposit(challenge.getRewardMoney());
         user.addExperience(challenge.getRewardExperience());
-        user.addReputation(2); // Challenges give reputation
+        user.addReputation(2);
     }
+
+    // Return challenges that are not finished yet, uses for loop (no stream)
     public List<Challenge> getActiveIncompleteChallenges(User user) {
-        return user.getActiveChallenges().stream()
-            .filter(q -> !q.isCompleted())
-            .toList();
+        ArrayList<Challenge> result = new ArrayList<Challenge>();
+        List<Challenge> active = user.getActiveChallenges();
+        for (int i = 0; i < active.size(); i++) {
+            Challenge c = active.get(i);
+            if (!c.isCompleted()) {
+                result.add(c);
+            }
+        }
+        return result;
     }
+
+    // Return challenges that are finished, uses for loop (no stream)
     public List<Challenge> getCompletedChallenges(User user) {
-        return user.getActiveChallenges().stream()
-            .filter(Challenge::isCompleted)
-            .toList();
+        ArrayList<Challenge> result = new ArrayList<Challenge>();
+        List<Challenge> active = user.getActiveChallenges();
+        for (int i = 0; i < active.size(); i++) {
+            Challenge c = active.get(i);
+            if (c.isCompleted()) {
+                result.add(c);
+            }
+        }
+        return result;
     }
 }

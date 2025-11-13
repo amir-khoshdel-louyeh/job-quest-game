@@ -1,11 +1,9 @@
 package services;
 
 import controller.UserController;
+import utils.RandomUtil;
 
-/**
- * Handles the business logic for periodic game routines like health/energy decay and sickness.
- * This service modifies the user's state but is completely decoupled from the UI.
- */
+// This class handles daily routines: sickness, energy and health decrease.
 public class RoutineService {
     private static RoutineService instance;
 
@@ -24,9 +22,9 @@ public class RoutineService {
         if (now - userController.getUser().getLastSicknessTime() < 24 * 60 * 60 * 1000L) {
             return null;
         }
-        // 10% chance to get sick
-        if (utils.RandomUtil.nextInt(100) < 10) {
-            int healthLoss = 10 + utils.RandomUtil.nextInt(11); // Lose 10-20 health
+        // 10% chance to get sick, uses simple RandomUtil
+        if (RandomUtil.nextInt(100) < 10) {
+            int healthLoss = 10 + RandomUtil.nextInt(11); // Lose 10-20 health
             userController.decreaseHealth(healthLoss);
             userController.getUser().setLastSicknessTime(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";

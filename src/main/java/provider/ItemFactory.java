@@ -4,26 +4,21 @@ import model.Food;
 import model.Item;
 import model.Tool;
 
-/**
- * Factory for shop/inventory {@link Item}s (Factory Method pattern).
- *
- * <p>Centralizes creation so game balance lives in one place and callers
- * depend on the {@link Item} abstraction (Dependency Inversion), never on
- * {@code new Food/...} details scattered across the codebase.</p>
- */
+// This is a simple factory that creates Food and Tool objects.
+// It shows Factory idea: all creation is in one place.
 public final class ItemFactory {
 
+    // private constructor, nobody creates this class
     private ItemFactory() {
-        // static factory only
     }
 
-    /** Create a food item with energy/health effects. */
+    // Create a food item (removed from inventory after use)
     public static Food createFood(String name, String description, int price,
                                   int energyEffect, int healthEffect) {
         return new Food(name, description, price, energyEffect, healthEffect);
     }
 
-    /** Create a tool item with energy/health effects. */
+    // Create a tool item (stays in inventory after use)
     public static Tool createTool(String name, String description, int price,
                                    int energyEffect, int healthEffect) {
         return new Tool(name, description, price, energyEffect, healthEffect);

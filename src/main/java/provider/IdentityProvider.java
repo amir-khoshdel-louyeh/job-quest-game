@@ -6,15 +6,16 @@ import model.identity.LogoDesigner;
 import model.identity.Programmer;
 import model.identity.Typist;
 
-/**
- * Provider/factory class for creating instances of Identity subclasses.
- * This centralizes the creation logic, making it easier to add new identities
- * without modifying the views that use them.
- */
+// This class creates Identity objects from a name.
+// It shows Polymorphism: return type is Identity interface,
+// but we return Doctor, Programmer, etc.
 public class IdentityProvider {
 
-    // create an Identity instance based on its name
+    // Create profession by name, uses simple if-else (beginner style)
     public static Identity createIdentity(String identityName) {
+        if (identityName == null) {
+            throw new IllegalArgumentException("Unknown identity type: null");
+        }
         if (identityName.equals("Doctor")) {
             return new Doctor();
         } else if (identityName.equals("Programmer")) {
@@ -24,7 +25,6 @@ public class IdentityProvider {
         } else if (identityName.equals("Typist")) {
             return new Typist();
         } else {
-            // Or return a default, but throwing an exception is often cleaner.
             throw new IllegalArgumentException("Unknown identity type: " + identityName);
         }
     }

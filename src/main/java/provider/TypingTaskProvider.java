@@ -1,20 +1,14 @@
 package provider;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import model.minigame.TextTask;
 
-/**
- * Prose passages for the Typist mini-game (Factory/Provider pattern).
- *
- * <p>To add a passage, add one line in the static block. Difficulty 1–3
- * drives the badge and the par time for speed points.</p>
- */
+// This class stores typing tasks for Typist mini-game.
 public final class TypingTaskProvider {
 
-    private static final List<TextTask> TASKS = new ArrayList<>();
+    private static ArrayList<TextTask> TASKS = new ArrayList<TextTask>();
 
     static {
         add(new TextTask("note-1", "Office Note",
@@ -34,6 +28,7 @@ public final class TypingTaskProvider {
                 110, 3));
     }
 
+    // private constructor, nobody creates this class
     private TypingTaskProvider() {
     }
 
@@ -41,22 +36,43 @@ public final class TypingTaskProvider {
         TASKS.add(t);
     }
 
+    // Return copy of all tasks, uses for loop
     public static List<TextTask> getAll() {
-        return Collections.unmodifiableList(TASKS);
+        ArrayList<TextTask> copy = new ArrayList<TextTask>();
+        for (int i = 0; i < TASKS.size(); i++) {
+            copy.add(TASKS.get(i));
+        }
+        return copy;
     }
 
+    // Find task by id, uses simple for loop (no stream)
     public static TextTask getById(String id) {
-        return TASKS.stream().filter(t -> t.getId().equals(id)).findFirst().orElse(null);
+        if (id == null) {
+            return null;
+        }
+        for (int i = 0; i < TASKS.size(); i++) {
+            TextTask t = TASKS.get(i);
+            if (t.getId().equals(id)) {
+                return t;
+            }
+        }
+        return null;
     }
 
-    /**
-     * Deterministic job → challenge binding (single-pick flow).
-     * Each job always maps to the same passage so the Workshop's
-     * "Available Jobs" pick never opens an unrelated second picker.
-     */
+    // Pick one task for a job name. Same job always gives same task.
+    // Uses simple % math, no floorMod.
     public static TextTask getTaskForJob(String jobName) {
-        if (TASKS.isEmpty()) throw new IllegalStateException("No typing tasks");
-        if (jobName == null || jobName.isBlank()) return TASKS.get(0);
-        return TASKS.get(Math.floorMod(jobName.hashCode(), TASKS.size()));
+        if (TASKS.isEmpty()) {
+            throw new IllegalStateException("No typing tasks");
+        }
+        if (jobName == null || jobName.trim().equals("")) {
+            return TASKS.get(0);
+        }
+        int hash = jobName.hashCode();
+        if (hash < 0) {
+            hash = -hash;
+        }
+        int index = hash % TASKS.size();
+        return TASKS.get(index);
     }
 }
