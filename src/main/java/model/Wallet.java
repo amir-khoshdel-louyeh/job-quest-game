@@ -1,40 +1,66 @@
 package model;
 
-/**
- * OOP Step 6: money handling extracted from the {@link User} god-object.
- *
- * <p>Single Responsibility: balances and lifetime earnings only. Clamps at
- * zero so callers never deal with negative money. Independently testable
- * without constructing a full User.</p>
- */
+// This class stores money of the player.
+// It shows Encapsulation: balance is private.
 public class Wallet {
+    // current money
     private int balance;
+    // all money earned in life
     private int totalMoneyEarned;
 
+    // Constructor: start with some money
     public Wallet(int startingBalance) {
-        this.balance = Math.max(0, startingBalance);
+        if (startingBalance < 0) {
+            startingBalance = 0;
+        }
+        this.balance = startingBalance;
         this.totalMoneyEarned = 0;
     }
 
-    public int getBalance() { return balance; }
+    // return balance
+    public int getBalance() {
+        return balance;
+    }
 
-    private void setBalance(int balance) { this.balance = Math.max(0, balance); }
+    // set balance, never allow negative
+    private void setBalance(int newBalance) {
+        if (newBalance < 0) {
+            newBalance = 0;
+        }
+        this.balance = newBalance;
+    }
 
+    // add money
     public void deposit(int amount) {
-        if (amount > 0) setBalance(this.balance + amount);
+        if (amount > 0) {
+            setBalance(balance + amount);
+        }
     }
 
+    // take money away
     public void withdraw(int amount) {
-        if (amount > 0) setBalance(this.balance - amount);
+        if (amount > 0) {
+            setBalance(balance - amount);
+        }
     }
 
-    public int getTotalMoneyEarned() { return totalMoneyEarned; }
+    // return total earned
+    public int getTotalMoneyEarned() {
+        return totalMoneyEarned;
+    }
 
+    // set total earned
     public void setTotalMoneyEarned(int total) {
-        this.totalMoneyEarned = Math.max(0, total);
+        if (total < 0) {
+            total = 0;
+        }
+        this.totalMoneyEarned = total;
     }
 
+    // add to total earned
     public void addToTotalMoneyEarned(int amount) {
-        if (amount > 0) this.totalMoneyEarned += amount;
+        if (amount > 0) {
+            totalMoneyEarned = totalMoneyEarned + amount;
+        }
     }
 }

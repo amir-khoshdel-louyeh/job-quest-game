@@ -1,42 +1,50 @@
 package model;
 
-/**
- * Model representing a skill that a user can learn or improve.
- *
- * Follows Single Responsibility Principle by modelling skill properties and simple helpers.
- */
-
+// This class represents a skill that the player can learn.
+// Example: "Java Programming" or "Typing".
+// It shows Encapsulation: the name is private, we use getter to read it.
 public class Skill {
-    private final String name;
+    // name of the skill
+    private String name;
 
+    // Constructor: create a new skill with a name
     public Skill(String name) {
-        // construct a simple skill with a name
-        if (name == null || name.isBlank()) {
+        // simple check: name should not be empty
+        if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Skill name must not be blank");
         }
         this.name = name;
     }
 
+    // Getter: return skill name
     public String getName() {
-        // return skill name
         return name;
     }
 
-    /**
-     * OOP Step 1: value-object equality by name, so
-     * {@code List<Skill>.containsAll(...)} works on objects instead of
-     * mapping everything to {@code List<String>} first.
-     */
+    // This method checks if two skills are equal by name.
+    // This helps us use contains() on ArrayList<Skill>.
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Skill other)) return false;
+        // if same object, return true
+        if (this == o) {
+            return true;
+        }
+        // if o is not a Skill, return false
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        // compare names
+        Skill other = (Skill) o;
         return name.equals(other.name);
     }
 
     @Override
-    public int hashCode() { return name.hashCode(); }
+    public int hashCode() {
+        return name.hashCode();
+    }
 
     @Override
-    public String toString() { return name; }
+    public String toString() {
+        return name;
+    }
 }

@@ -1,35 +1,32 @@
 package model;
 
-/**
- * OOP Step 3: common abstraction for anything buyable with an effect.
- *
- * <p>Previously {@link Item} (storable, goes to inventory) and {@link Service}
- * (instant, applied on purchase) duplicated the same fields
- * ({@code name/description/price/energyEffect/healthEffect}) with no shared
- * type. Controllers and shop UIs therefore needed two parallel code paths.
- * Now both implement this interface, so shop code depends on the abstraction
- * (Dependency Inversion) and effects apply polymorphically via
- * {@link #apply(User)}.</p>
- */
+// This interface represents anything that can be bought in the game.
+// Both Item (stored in inventory) and Service (used instantly) implement it.
+// This shows Interface + Polymorphism: shop can treat them the same way.
 public interface Purchasable {
     String getName();
     String getDescription();
     int getPrice();
+    // Apply effect on player
     void apply(User user);
     String getEffectDescription();
 
-    /**
-     * Shared effect formatting (DRY via interface default method):
-     * both {@link ConsumableItem} and {@link Service} use this.
-     */
+    // Helper method to make effect text like "+100 Energy, +10 Health".
+    // Uses simple if and string concatenation, no advanced formatting.
     default String formatEffect(int energyEffect, int healthEffect) {
-        if (energyEffect == 0 && healthEffect == 0) return "No effect";
-        StringBuilder sb = new StringBuilder();
-        if (energyEffect > 0) sb.append("+").append(String.format("%,d", energyEffect)).append(" Energy");
-        if (healthEffect > 0) {
-            if (sb.length() > 0) sb.append(", ");
-            sb.append("+").append(healthEffect).append(" Health");
+        if (energyEffect == 0 && healthEffect == 0) {
+            return "No effect";
         }
-        return sb.toString();
+        String result = "";
+        if (energyEffect > 0) {
+            result = result + "+" + energyEffect + " Energy";
+        }
+        if (healthEffect > 0) {
+            if (!result.equals("")) {
+                result = result + ", ";
+            }
+            result = result + "+" + healthEffect + " Health";
+        }
+        return result;
     }
 }

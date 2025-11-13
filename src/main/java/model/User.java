@@ -1,289 +1,450 @@
 package model;
 
-/**
- * Domain model representing a player/user — now a composition root (facade).
- *
- * <p>OOP Step 6: money lives in {@link Wallet}, health/energy in
- * {@link Vitals}, level/XP/reputation in {@link CareerProgress}. This class
- * keeps identity, inventory, skills, streaks and social state, delegating
- * stat calls so the public API is unchanged (zero caller breakage).
- * Streaks/statistics are the next split candidates.</p>
- */
-
 import java.util.ArrayList;
 import java.util.List;
 
+// This class represents one player in the game.
+// It shows Encapsulation: all fields are private, we use getters and setters.
+// It also shows Composition: User HAS-A Wallet, Vitals, CareerProgress, Inventory.
 public class User {
+    // basic info
     private String username;
     private String password;
+    // profession of player, example Programmer or Doctor
+    // Identity is an interface, so this shows Polymorphism
     private Identity identity;
-    private final Wallet wallet;
-    private final Vitals vitals = new Vitals();
-    private final CareerProgress progress = new CareerProgress();
-    private Inventory inventory; // Use the Inventory object
-    private List<Skill> skills;
+    // money is stored in Wallet object
+    private Wallet wallet;
+    // health and energy are stored in Vitals object
+    private Vitals vitals;
+    // level and reputation are stored in CareerProgress object
+    private CareerProgress progress;
+    // items of player
+    private Inventory inventory;
+    // skills that player has learned
+    private ArrayList<Skill> skills;
 
-    private long blockedUntil = 0;      // timestamp end of block in milliseconds
-    private long lastSicknessTime = 0;  // timestamp of last sickness
-    private long totalPlayTime = 0;     // Total time played in milliseconds
+    private long blockedUntil = 0; // time until player is blocked
+    private long lastSicknessTime = 0; // time of last sickness
+    private long totalPlayTime = 0; // total time played
 
-    // Career activity (next split candidates — kept here for this step)
-    private int totalJobsCompleted = 0; // Total jobs completed
-    private int currentStreak = 0;      // Current daily login streak
-    private int maxStreak = 0;          // Maximum streak achieved
-    private long lastLoginDate = 0;     // Last login timestamp
-    private List<String> unlockedAchievements = new ArrayList<>();
-    private List<Challenge> activeChallenges = new ArrayList<>();
+    private int totalJobsCompleted = 0; // how many jobs done
+    private int currentStreak = 0; // daily login streak
+    private int maxStreak = 0; // best streak
+    private long lastLoginDate = 0; // last login time
+    private ArrayList<String> unlockedAchievements = new ArrayList<String>();
+    private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
+    // Constructor: create a new user
     public User(String username, String password, Identity identity, int balance) {
-    // construct a new User with identity and starting balance
         this.username = username;
         this.password = password;
         this.identity = identity;
         this.wallet = new Wallet(balance);
-        this.inventory = new Inventory(); // Initialize the Inventory object
-        this.skills = new ArrayList<>();
+        this.vitals = new Vitals();
+        this.progress = new CareerProgress();
+        this.inventory = new Inventory();
+        this.skills = new ArrayList<Skill>();
     }
 
-    // ---------------- Getters & Setters ----------------
     // return username
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsername() {
+        return username;
+    }
+
+    // set username
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     // return password
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    // return identity
-    public Identity getIdentity() { return identity; }
-    public void setIdentity(Identity identity) { this.identity = identity; }
-
-    // return current balance
-    public int getBalance() { return wallet.getBalance(); }
-
-    // add amount to balance
-    public void deposit(int amount) { wallet.deposit(amount); }
-
-    // subtract amount from balance
-    public void withdraw(int amount) { wallet.withdraw(amount); }
-
-    // return current health
-    public int getHealth() { return vitals.getHealth(); }
-
-    // increase health by amount
-    public void gainHealth(int amount) { vitals.gainHealth(amount); }
-
-    // decrease health by amount
-    public void loseHealth(int amount) { vitals.loseHealth(amount); }
-
-    // return current energy
-    public int getEnergy() { return vitals.getEnergy(); }
-
-    // increase energy by amount
-    public void gainEnergy(int amount) { vitals.gainEnergy(amount); }
-
-    // decrease energy by amount
-    public void loseEnergy(int amount) { vitals.loseEnergy(amount); }
-
-    // return the Inventory object
-    public Inventory getInventory() { return inventory; } // Return the Inventory object
-
-    // return list of skills
-    public List<Skill> getSkills() { return java.util.Collections.unmodifiableList(skills); }
-    // replace skills list
-    public void setSkills(List<Skill> skills) {
-        this.skills = new ArrayList<>(skills != null ? skills : List.of());
+    public String getPassword() {
+        return password;
     }
 
-    /**
-     * OOP Step 4: encapsulated mutation — callers add via this method,
-     * never via {@code getSkills().add(...)} (that list is now unmodifiable).
-     * @return true when the skill was newly added
-     */
+    // set password
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    // return identity (profession)
+    public Identity getIdentity() {
+        return identity;
+    }
+
+    // set identity
+    public void setIdentity(Identity identity) {
+        this.identity = identity;
+    }
+
+    // return current money
+    public int getBalance() {
+        return wallet.getBalance();
+    }
+
+    // add money
+    public void deposit(int amount) {
+        wallet.deposit(amount);
+    }
+
+    // take away money
+    public void withdraw(int amount) {
+        wallet.withdraw(amount);
+    }
+
+    // return health
+    public int getHealth() {
+        return vitals.getHealth();
+    }
+
+    // increase health
+    public void gainHealth(int amount) {
+        vitals.gainHealth(amount);
+    }
+
+    // decrease health
+    public void loseHealth(int amount) {
+        vitals.loseHealth(amount);
+    }
+
+    // return energy
+    public int getEnergy() {
+        return vitals.getEnergy();
+    }
+
+    // increase energy
+    public void gainEnergy(int amount) {
+        vitals.gainEnergy(amount);
+    }
+
+    // decrease energy
+    public void loseEnergy(int amount) {
+        vitals.loseEnergy(amount);
+    }
+
+    // return inventory object
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    // return copy of skills list
+    // Uses simple for loop, no stream, no unmodifiableList
+    public List<Skill> getSkills() {
+        ArrayList<Skill> copy = new ArrayList<Skill>();
+        for (int i = 0; i < skills.size(); i++) {
+            copy.add(skills.get(i));
+        }
+        return copy;
+    }
+
+    // replace skills list
+    // Uses simple for loop
+    public void setSkills(List<Skill> newSkills) {
+        skills = new ArrayList<Skill>();
+        if (newSkills != null) {
+            for (int i = 0; i < newSkills.size(); i++) {
+                skills.add(newSkills.get(i));
+            }
+        }
+    }
+
+    // add one skill if not already there
+    // returns true if skill was added
     public boolean addSkill(Skill skill) {
-        if (skill == null || skills.contains(skill)) return false;
+        if (skill == null) {
+            return false;
+        }
+        if (skills.contains(skill)) {
+            return false;
+        }
         skills.add(skill);
         return true;
     }
 
-    /**
-     * OOP Step 1: encapsulated skill check — callers ask the User,
-     * they don't stream/map its internal list to Strings.
-     */
+    // check if player has this skill object
     public boolean hasSkill(Skill skill) {
-        if (skill == null) return false;
+        if (skill == null) {
+            return false;
+        }
         return skills.contains(skill);
     }
 
-    /** String convenience for DB/UI boundaries. */
+    // check if player has skill by name, uses simple for loop
     public boolean hasSkill(String skillName) {
-        if (skillName == null) return false;
-        return skills.contains(new Skill(skillName));
+        if (skillName == null) {
+            return false;
+        }
+        for (int i = 0; i < skills.size(); i++) {
+            Skill s = skills.get(i);
+            if (s.getName().equals(skillName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    // return total play time in ms
-    public long getTotalPlayTime() { return totalPlayTime; }
-    // set total play time in ms
-    public void setTotalPlayTime(long totalPlayTime) { this.totalPlayTime = totalPlayTime; }
+    // return total play time
+    public long getTotalPlayTime() {
+        return totalPlayTime;
+    }
 
-    // ---------------- Block / Unblock ----------------
-    // set block-until timestamp
-    public void setBlockedUntil(long time) { this.blockedUntil = time; }
-    // get block-until timestamp
-    public long getBlockedUntil() { return blockedUntil; }
-    // check if user is currently blocked
-    public boolean isBlocked() { return System.currentTimeMillis() < blockedUntil; }
+    // set total play time
+    public void setTotalPlayTime(long totalPlayTime) {
+        this.totalPlayTime = totalPlayTime;
+    }
 
-    // ---------------- Last Sickness ----------------
-    // set last sickness timestamp
-    public void setLastSicknessTime(long time) { this.lastSicknessTime = time; }
-    // get last sickness timestamp
-    public long getLastSicknessTime() { return lastSicknessTime; }
-    
-    // ---------------- Progression System (delegates to CareerProgress) ----------------
-    // return player level
-    public int getLevel() { return progress.getLevel(); }
-    // set player level
-    public void setLevel(int level) { progress.setLevel(level); }
-    
-    // return current experience
-    public int getExperience() { return progress.getExperience(); }
-    // set experience and check for level up
+    // set blocked time
+    public void setBlockedUntil(long time) {
+        this.blockedUntil = time;
+    }
+
+    // get blocked time
+    public long getBlockedUntil() {
+        return blockedUntil;
+    }
+
+    // check if user is blocked now
+    public boolean isBlocked() {
+        long now = System.currentTimeMillis();
+        if (now < blockedUntil) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // set last sickness time
+    public void setLastSicknessTime(long time) {
+        this.lastSicknessTime = time;
+    }
+
+    // get last sickness time
+    public long getLastSicknessTime() {
+        return lastSicknessTime;
+    }
+
+    // return level
+    public int getLevel() {
+        return progress.getLevel();
+    }
+
+    // set level
+    public void setLevel(int level) {
+        progress.setLevel(level);
+    }
+
+    // return experience
+    public int getExperience() {
+        return progress.getExperience();
+    }
+
+    // set experience, refill health and energy if level up
     public void setExperience(int experience) {
-        if (progress.setExperience(experience)) vitals.restoreFull();
+        boolean levelUp = progress.setExperience(experience);
+        if (levelUp) {
+            vitals.restoreFull();
+        }
     }
-    
-    // add experience and check level up
+
+    // add experience
     public void addExperience(int amount) {
-        if (progress.addExperience(amount)) vitals.restoreFull();
+        boolean levelUp = progress.addExperience(amount);
+        if (levelUp) {
+            vitals.restoreFull();
+        }
     }
-    
-    // compute XP required for next level
+
+    // how much XP needed for next level
     public int getRequiredExperienceForNextLevel() {
         return progress.getRequiredExperienceForNextLevel();
     }
-    
-    // return experience as percentage of next level
+
+    // XP as percent
     public int getExperiencePercentage() {
         return progress.getExperiencePercentage();
     }
-    
-    // ---------------- Reputation ----------------
-    // return reputation (0-100)
-    public int getReputation() { return progress.getReputation(); }
-    // set reputation clamped to 0-100
-    public void setReputation(int reputation) { progress.setReputation(reputation); }
-    // add to reputation
-    public void addReputation(int amount) { progress.addReputation(amount); }
-    
-    // return a title describing reputation level
-    public String getReputationTitle() { return progress.getReputationTitle(); }
-    
-    // ---------------- Statistics ----------------
-    // return total lifetime money earned
-    public int getTotalMoneyEarned() { return wallet.getTotalMoneyEarned(); }
-    // set total lifetime money earned
-    public void setTotalMoneyEarned(int totalMoneyEarned) {
-        wallet.setTotalMoneyEarned(totalMoneyEarned);
+
+    // return reputation 0-100
+    public int getReputation() {
+        return progress.getReputation();
     }
-    // add to lifetime money earned
+
+    // set reputation
+    public void setReputation(int reputation) {
+        progress.setReputation(reputation);
+    }
+
+    // add reputation
+    public void addReputation(int amount) {
+        progress.addReputation(amount);
+    }
+
+    // return title like Beginner, Expert
+    public String getReputationTitle() {
+        return progress.getReputationTitle();
+    }
+
+    // return total money earned in life
+    public int getTotalMoneyEarned() {
+        return wallet.getTotalMoneyEarned();
+    }
+
+    // set total money earned
+    public void setTotalMoneyEarned(int total) {
+        wallet.setTotalMoneyEarned(total);
+    }
+
+    // add to total money earned
     public void addToTotalMoneyEarned(int amount) {
         wallet.addToTotalMoneyEarned(amount);
     }
-    
+
     // return total jobs completed
-    public int getTotalJobsCompleted() { return totalJobsCompleted; }
+    public int getTotalJobsCompleted() {
+        return totalJobsCompleted;
+    }
+
     // set total jobs completed
-    public void setTotalJobsCompleted(int totalJobsCompleted) { 
-        this.totalJobsCompleted = totalJobsCompleted; 
+    public void setTotalJobsCompleted(int total) {
+        this.totalJobsCompleted = total;
     }
-    // increment total jobs completed by one
-    public void incrementJobsCompleted() { 
-        this.totalJobsCompleted++; 
+
+    // add one to jobs completed
+    public void incrementJobsCompleted() {
+        this.totalJobsCompleted++;
     }
-    
-    // ---------------- Streak System ----------------
-    // return current daily streak
-    public int getCurrentStreak() { return currentStreak; }
-    // set current streak and update max if needed
-    public void setCurrentStreak(int currentStreak) { 
-        this.currentStreak = currentStreak;
-        if (currentStreak > maxStreak) {
-            maxStreak = currentStreak;
+
+    // return current streak
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
+
+    // set streak, update max streak too
+    public void setCurrentStreak(int streak) {
+        this.currentStreak = streak;
+        if (streak > maxStreak) {
+            maxStreak = streak;
         }
     }
-    
-    // return max streak achieved
-    public int getMaxStreak() { return maxStreak; }
+
+    // return max streak
+    public int getMaxStreak() {
+        return maxStreak;
+    }
+
     // set max streak
-    public void setMaxStreak(int maxStreak) { this.maxStreak = maxStreak; }
-    
-    // return last login timestamp
-    public long getLastLoginDate() { return lastLoginDate; }
-    // set last login timestamp
-    public void setLastLoginDate(long lastLoginDate) { 
-        this.lastLoginDate = lastLoginDate; 
+    public void setMaxStreak(int maxStreak) {
+        this.maxStreak = maxStreak;
     }
-    
-    // ---------------- Achievements ----------------
-    // return unlocked achievement ids
+
+    // return last login date
+    public long getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    // set last login date
+    public void setLastLoginDate(long date) {
+        this.lastLoginDate = date;
+    }
+
+    // return copy of unlocked achievements
+    // Uses simple for loop
     public List<String> getUnlockedAchievements() {
-        return java.util.Collections.unmodifiableList(unlockedAchievements);
+        ArrayList<String> copy = new ArrayList<String>();
+        for (int i = 0; i < unlockedAchievements.size(); i++) {
+            copy.add(unlockedAchievements.get(i));
+        }
+        return copy;
     }
+
     // replace unlocked achievements
-    public void setUnlockedAchievements(List<String> achievements) {
-        this.unlockedAchievements = new ArrayList<>(achievements != null ? achievements : List.of());
-    }
-    // unlock an achievement by id
-    public void unlockAchievement(String achievementId) {
-        if (!unlockedAchievements.contains(achievementId)) {
-            unlockedAchievements.add(achievementId);
+    public void setUnlockedAchievements(List<String> list) {
+        unlockedAchievements = new ArrayList<String>();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                unlockedAchievements.add(list.get(i));
+            }
         }
     }
+
+    // unlock one achievement
+    public void unlockAchievement(String id) {
+        if (!unlockedAchievements.contains(id)) {
+            unlockedAchievements.add(id);
+        }
+    }
+
     // check if achievement is unlocked
-    public boolean hasAchievement(String achievementId) {
-        return unlockedAchievements.contains(achievementId);
+    public boolean hasAchievement(String id) {
+        return unlockedAchievements.contains(id);
     }
-    
-    // ---------------- Challenges ----------------
-    // return active challenges
+
+    // return copy of active challenges
     public List<Challenge> getActiveChallenges() {
-        return java.util.Collections.unmodifiableList(activeChallenges);
+        ArrayList<Challenge> copy = new ArrayList<Challenge>();
+        for (int i = 0; i < activeChallenges.size(); i++) {
+            copy.add(activeChallenges.get(i));
+        }
+        return copy;
     }
+
     // replace active challenges
-    public void setActiveChallenges(List<Challenge> challenges) {
-        this.activeChallenges = new ArrayList<>(challenges != null ? challenges : List.of());
+    public void setActiveChallenges(List<Challenge> list) {
+        activeChallenges = new ArrayList<Challenge>();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                activeChallenges.add(list.get(i));
+            }
+        }
     }
-    // add a challenge to active list
+
+    // add one challenge if not already there
     public void addChallenge(Challenge challenge) {
-        if (challenge != null && !hasChallenge(challenge.getId())) {
+        if (challenge == null) {
+            return;
+        }
+        if (!hasChallenge(challenge.getId())) {
             activeChallenges.add(challenge);
         }
     }
-    /**
-     * OOP Step 4: bulk add without exposing the live list.
-     * Skips duplicates by id.
-     */
-    public void addChallenges(java.util.Collection<Challenge> challenges) {
-        if (challenges == null) return;
-        for (Challenge c : challenges) addChallenge(c);
+
+    // add many challenges, skip duplicates, uses simple for loop
+    public void addChallenges(List<Challenge> list) {
+        if (list == null) {
+            return;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Challenge c = list.get(i);
+            addChallenge(c);
+        }
     }
-    /** Check by id (encapsulated lookup, no stream in callers). */
+
+    // check if we have challenge with this id, uses for loop (no stream)
     public boolean hasChallenge(String challengeId) {
-        if (challengeId == null) return false;
-        return activeChallenges.stream().anyMatch(c -> challengeId.equals(c.getId()));
+        if (challengeId == null) {
+            return false;
+        }
+        for (int i = 0; i < activeChallenges.size(); i++) {
+            Challenge c = activeChallenges.get(i);
+            if (challengeId.equals(c.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
-    /**
-     * OOP Step 4: behavior lives in the owner — prune completed daily
-     * challenges internally instead of callers calling
-     * {@code getActiveChallenges().removeIf(...)}.
-     */
+
+    // remove completed daily challenges, uses simple loop backwards
     public void pruneCompletedDailyChallenges() {
-        activeChallenges.removeIf(q ->
-            q.getId().startsWith("daily_") && q.isCompleted()
-        );
+        // loop backwards so removing is safe
+        for (int i = activeChallenges.size() - 1; i >= 0; i--) {
+            Challenge c = activeChallenges.get(i);
+            if (c.getId().startsWith("daily_") && c.isCompleted()) {
+                activeChallenges.remove(i);
+            }
+        }
     }
-    // remove a challenge from active list
+
+    // remove one challenge
     public void removeChallenge(Challenge challenge) {
         activeChallenges.remove(challenge);
     }

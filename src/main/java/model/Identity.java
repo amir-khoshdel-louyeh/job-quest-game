@@ -1,15 +1,9 @@
 package model;
 
-/**
- * Marker for a user's professional identity (Typist/Programmer/LogoDesigner/Doctor).
- * Work goes through JobController.doJob (rich JobResult DTO); this type only
- * identifies the profession for job eligibility and mini-game routing.
- *
- * <p>OOP Step 1: gives the abstraction real behavior ({@link #getProfessionName()})
- * instead of being an empty marker, so callers never use
- * {@code getClass().getSimpleName()} for game logic.</p>
- */
+// This interface represents the profession of the player.
+// Example: Programmer, Doctor, Typist, LogoDesigner.
+// It shows Interface + Polymorphism: different professions implement this.
 public interface Identity {
-    /** Stable profession name, e.g. "Programmer". Used for display, DB and matching. */
+    // Return profession name, example "Programmer"
     String getProfessionName();
 }

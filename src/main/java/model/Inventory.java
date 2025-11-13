@@ -7,41 +7,45 @@ package model;
  */
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+// This class stores all items of the player.
+// It shows Encapsulation: items list is private.
 public class Inventory {
-    private final List<Item> items = new ArrayList<>();
+    // list of items in inventory
+    private ArrayList<Item> items = new ArrayList<Item>();
 
+    // Add one item to inventory
     public void addItem(Item item) {
-        // add an item to inventory
-        if (item == null) return;
+        if (item == null) {
+            return;
+        }
         items.add(item);
     }
 
-    /**
-     * Remove one item instance from inventory.
-     * @return true if an item was removed
-     */
+    // Remove one item from inventory.
+    // Returns true if item was removed.
     public boolean removeItem(Item item) {
         return items.remove(item);
     }
 
-    /**
-     * Use one item by name: polymorphic {@link Item#apply(User)} does the
-     * work, no {@code instanceof} needed. Consumables are removed after use.
-     *
-     * @param user owner receiving the effect
-     * @param itemName exact item name
-     * @return effect description, or null when not found
-     */
+    // Use one item by name.
+    // This method shows Polymorphism: item.apply(user) calls
+    // the correct apply method of Food or Tool.
     public String useItem(User user, String itemName) {
-        if (user == null || itemName == null) return null;
-        for (Item item : new java.util.ArrayList<>(items)) {
+        if (user == null || itemName == null) {
+            return null;
+        }
+        // make a copy to avoid problems while removing
+        ArrayList<Item> copy = new ArrayList<Item>(items);
+        for (int i = 0; i < copy.size(); i++) {
+            Item item = copy.get(i);
             if (item.getName().equals(itemName)) {
+                // apply effect of item on user
                 item.apply(user);
                 String effect = item.getEffectDescription();
+                // if item is food (consumable), remove it after use
+                // if it is a tool, keep it
                 if (item.isConsumable()) {
                     items.remove(item);
                 }
@@ -51,28 +55,49 @@ public class Inventory {
         return null;
     }
 
-    /** Count items with the given name. */
+    // Count how many items with this name we have.
+    // Uses simple for loop instead of stream.
     public int countByName(String itemName) {
-        if (itemName == null) return 0;
-        return (int) items.stream().filter(i -> i.getName().equals(itemName)).count();
+        if (itemName == null) {
+            return 0;
+        }
+        int count = 0;
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            if (item.getName().equals(itemName)) {
+                count++;
+            }
+        }
+        return count;
     }
 
-    public void setItems(List<Item> items) {
-        // replace inventory contents
-        this.items.clear();
-        this.items.addAll(items);
+    // Replace all items in inventory
+    // Uses simple for loop, no addAll
+    public void setItems(List<Item> newItems) {
+        items.clear();
+        if (newItems != null) {
+            for (int i = 0; i < newItems.size(); i++) {
+                items.add(newItems.get(i));
+            }
+        }
     }
 
-    /**
-     * Returns an unmodifiable list of items in the inventory.
-     */
+    // Return all items (a copy so outside code cannot break our list)
     public List<Item> getItems() {
-        // return an unmodifiable view of items
-        return Collections.unmodifiableList(items);
+        ArrayList<Item> copy = new ArrayList<Item>();
+        for (int i = 0; i < items.size(); i++) {
+            copy.add(items.get(i));
+        }
+        return copy;
     }
 
-    // return list of item names (CSV helper)
-    public List<String> getItemNames() { // Keep for compatibility if needed, e.g., for DB saving
-        return items.stream().map(Item::getName).collect(Collectors.toList());
+    // Return only names of items. Useful for saving to database.
+    // Uses simple for loop.
+    public List<String> getItemNames() {
+        ArrayList<String> names = new ArrayList<String>();
+        for (int i = 0; i < items.size(); i++) {
+            names.add(items.get(i).getName());
+        }
+        return names;
     }
 }

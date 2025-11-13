@@ -1,37 +1,66 @@
 package model.minigame;
 
-/**
- * A retype task: Typists copy prose, Programmers copy tiny programs.
- *
- * <p>Immutable value object (Encapsulation). {@code parSeconds} is the
- * reference time for full speed points; {@code difficulty} (1–3) only
- * labels the UI badge.</p>
- */
+// One typing task: title + text to copy + time limit.
 public final class TextTask {
-    private final String id;
-    private final String title;
-    private final String content;
-    private final int parSeconds;
-    private final int difficulty;
+    private String id;
+    private String title;
+    private String content;
+    private int parSeconds;
+    private int difficulty;
 
+    // Constructor with simple if checks (no isBlank, no Math).
     public TextTask(String id, String title, String content, int parSeconds, int difficulty) {
-        if (id == null || id.isBlank()) throw new IllegalArgumentException("id required");
-        if (content == null || content.isBlank()) throw new IllegalArgumentException("content required");
+        if (id == null || id.trim().equals("")) {
+            throw new IllegalArgumentException("id required");
+        }
+        if (content == null || content.trim().equals("")) {
+            throw new IllegalArgumentException("content required");
+        }
         this.id = id;
-        this.title = title == null ? id : title;
+        if (title == null) {
+            this.title = id;
+        } else {
+            this.title = title;
+        }
         this.content = content;
-        this.parSeconds = Math.max(10, parSeconds);
-        this.difficulty = Math.max(1, Math.min(3, difficulty));
+        this.parSeconds = parSeconds;
+        if (this.parSeconds < 10) {
+            this.parSeconds = 10;
+        }
+        this.difficulty = difficulty;
+        if (this.difficulty < 1) {
+            this.difficulty = 1;
+        }
+        if (this.difficulty > 3) {
+            this.difficulty = 3;
+        }
     }
 
-    public String getId() { return id; }
-    public String getTitle() { return title; }
-    public String getContent() { return content; }
-    public int getParSeconds() { return parSeconds; }
-    public int getDifficulty() { return difficulty; }
+    public String getId() {
+        return id;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public String getContent() {
+        return content;
+    }
+    public int getParSeconds() {
+        return parSeconds;
+    }
+    public int getDifficulty() {
+        return difficulty;
+    }
 
-    /** Difficulty badge for the picker list. */
+    // Show stars like "**-" for difficulty, uses for loop (no repeat).
     public String difficultyStars() {
-        return "★".repeat(difficulty) + "☆".repeat(3 - difficulty);
+        String result = "";
+        for (int i = 0; i < difficulty; i++) {
+            result = result + "*";
+        }
+        for (int i = difficulty; i < 3; i++) {
+            result = result + "-";
+        }
+        return result;
     }
 }

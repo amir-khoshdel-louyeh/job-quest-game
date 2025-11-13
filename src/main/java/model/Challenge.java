@@ -63,7 +63,7 @@ public class Challenge {
     
     
     public String toString() {
-        return String.format("%s [%d/%d] - Reward: $%d + %d XP",
-            name, currentProgress, targetValue, rewardMoney, rewardExperience);
+        // Simple text with + (no String.format).
+        return name + " [" + currentProgress + "/" + targetValue + "] - Reward: $" + rewardMoney + " + " + rewardExperience + " XP";
     }
 }

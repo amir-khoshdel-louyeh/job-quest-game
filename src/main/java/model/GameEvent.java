@@ -1,24 +1,25 @@
 package model;
 
-/**
- * Represents a random event that can occur during gameplay.
- */
+// This class represents a random event in the game.
+// Example: find money, get sick, etc.
 public class GameEvent {
-    private final String id;
-    private final String title;
-    private final String description;
-    private final EventType type;
-    private final int moneyEffect;
-    private final int healthEffect;
-    private final int energyEffect;
-    private final double probability; // 0.0 to 1.0
-    
+    private String id;
+    private String title;
+    private String description;
+    private EventType type;
+    private int moneyEffect;
+    private int healthEffect;
+    private int energyEffect;
+    private double probability; // 0.0 to 1.0
+
+    // Type of event
     public enum EventType {
-        POSITIVE,   // Good events
-        NEGATIVE,   // Bad events
-        NEUTRAL     // Neutral/informative events
+        POSITIVE,
+        NEGATIVE,
+        NEUTRAL
     }
-    
+
+    // Constructor
     public GameEvent(String id, String title, String description, EventType type,
                     int moneyEffect, int healthEffect, int energyEffect, double probability) {
         this.id = id;
@@ -30,36 +31,68 @@ public class GameEvent {
         this.energyEffect = energyEffect;
         this.probability = probability;
     }
-    
-    // Getters
-    public String getId() { return id; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public EventType getType() { return type; }
-    public int getMoneyEffect() { return moneyEffect; }
-    public int getHealthEffect() { return healthEffect; }
-    public int getEnergyEffect() { return energyEffect; }
-    public double getProbability() { return probability; }
-    
-    public String getIcon() {
-        return switch (type) {
-            case POSITIVE -> "✨";
-            case NEGATIVE -> "⚠️";
-            case NEUTRAL -> "ℹ️";
-        };
+
+    // Getters (Encapsulation)
+    public String getId() {
+        return id;
     }
-    
+    public String getTitle() {
+        return title;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public EventType getType() {
+        return type;
+    }
+    public int getMoneyEffect() {
+        return moneyEffect;
+    }
+    public int getHealthEffect() {
+        return healthEffect;
+    }
+    public int getEnergyEffect() {
+        return energyEffect;
+    }
+    public double getProbability() {
+        return probability;
+    }
+
+    // Return small icon for event, uses simple if-else (no switch expression)
+    public String getIcon() {
+        if (type == EventType.POSITIVE) {
+            return "✨";
+        } else if (type == EventType.NEGATIVE) {
+            return "⚠️";
+        } else {
+            return "ℹ️";
+        }
+    }
+
+    // Return text like "+100$ +10 Health", uses simple string concatenation
     public String getFormattedEffects() {
-        StringBuilder sb = new StringBuilder();
+        String result = "";
         if (moneyEffect != 0) {
-            sb.append(moneyEffect > 0 ? "+" : "").append("$").append(moneyEffect).append(" ");
+            if (moneyEffect > 0) {
+                result = result + "+$" + moneyEffect + " ";
+            } else {
+                result = result + "$" + moneyEffect + " ";
+            }
         }
         if (healthEffect != 0) {
-            sb.append(healthEffect > 0 ? "+" : "").append(healthEffect).append(" Health ");
+            if (healthEffect > 0) {
+                result = result + "+" + healthEffect + " Health ";
+            } else {
+                result = result + healthEffect + " Health ";
+            }
         }
         if (energyEffect != 0) {
-            sb.append(energyEffect > 0 ? "+" : "").append(energyEffect).append(" Energy");
+            if (energyEffect > 0) {
+                result = result + "+" + energyEffect + " Energy";
+            } else {
+                result = result + energyEffect + " Energy";
+            }
         }
-        return sb.toString().trim();
+        return result.trim();
     }
 }

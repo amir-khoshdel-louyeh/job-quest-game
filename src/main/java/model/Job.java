@@ -1,28 +1,41 @@
 package model;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a single job or task a user can perform.
- */
+// This class represents one job that the player can do.
+// Example: "Fix computer" for Programmer.
 public class Job {
-    private final String name;
-    private final String description;
-    private final int payment;
-    private final int energyCost;
-    private final String requiredIdentity; // Simple class name, e.g., "Programmer"
-    private final List<String> requiredSkills; // List of skill names
+    // job name
+    private String name;
+    // job description
+    private String description;
+    // how much money player gets
+    private int payment;
+    // how much energy it costs
+    private int energyCost;
+    // which profession can do this job, example: "Programmer"
+    private String requiredIdentity;
+    // list of skill names needed for this job
+    // We use ArrayList because it is simple for beginners
+    private ArrayList<String> requiredSkills;
 
+    // Constructor: create a new job
     public Job(String name, String description, int payment, int energyCost, String requiredIdentity, List<String> requiredSkills) {
         this.name = name;
         this.description = description;
         this.payment = payment;
         this.energyCost = energyCost;
         this.requiredIdentity = requiredIdentity;
-        this.requiredSkills = requiredSkills != null ? requiredSkills : Collections.emptyList();
+        // if no skills given, use empty list
+        if (requiredSkills == null) {
+            this.requiredSkills = new ArrayList<String>();
+        } else {
+            this.requiredSkills = new ArrayList<String>(requiredSkills);
+        }
     }
 
+    // Getters: simple methods to read private fields (Encapsulation)
     public String getName() {
         return name;
     }
@@ -43,47 +56,80 @@ public class Job {
         return requiredIdentity;
     }
 
+    // Return copy of required skills
+    // Uses simple for loop, no stream
     public List<String> getRequiredSkills() {
-        return Collections.unmodifiableList(requiredSkills);
+        ArrayList<String> copy = new ArrayList<String>();
+        for (int i = 0; i < requiredSkills.size(); i++) {
+            copy.add(requiredSkills.get(i));
+        }
+        return copy;
     }
 
-    /** Required skills as Skill objects (object-based API, no String mapping needed). */
+    // Return required skills as Skill objects.
+    // Uses simple for loop, no stream.
     public List<Skill> getRequiredSkillsAsObjects() {
-        return requiredSkills.stream().map(Skill::new).toList();
+        ArrayList<Skill> result = new ArrayList<Skill>();
+        for (int i = 0; i < requiredSkills.size(); i++) {
+            String skillName = requiredSkills.get(i);
+            result.add(new Skill(skillName));
+        }
+        return result;
     }
 
-    /** Check if this job belongs to the given identity's profession. */
+    // Check if this job is for this profession name
     public boolean isForIdentity(String userIdentity) {
         return requiredIdentity.equals(userIdentity);
     }
 
-    /**
-     * OOP Step 1: object-based overload — callers pass the Identity object,
-     * never {@code getClass().getSimpleName()}. Null-safe.
-     */
+    // Check if this job is for this Identity object.
+    // This shows Polymorphism: we use Identity interface.
     public boolean isForIdentity(Identity identity) {
-        if (identity == null) return false;
+        if (identity == null) {
+            return false;
+        }
         return requiredIdentity.equals(identity.getProfessionName());
     }
 
-    /** Check if the user is eligible to take this job */
+    // Check if player can do this job (by names)
+    // Uses simple for loop, no containsAll
     public boolean isAvailableFor(String userIdentity, List<String> userSkills) {
-        return userIdentity.equals(requiredIdentity) && userSkills.containsAll(requiredSkills);
+        if (!userIdentity.equals(requiredIdentity)) {
+            return false;
+        }
+        // check that user has all required skills
+        for (int i = 0; i < requiredSkills.size(); i++) {
+            String need = requiredSkills.get(i);
+            if (!userSkills.contains(need)) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    /**
-     * OOP Step 1: object-based eligibility. Compares Skill objects via
-     * {@link Skill#equals(Object)} instead of raw Strings.
-     */
+    // Check if player can do this job (by objects)
+    // Uses simple for loop
     public boolean isAvailableFor(Identity identity, List<Skill> userSkills) {
-        if (identity == null || userSkills == null) return false;
-        return requiredIdentity.equals(identity.getProfessionName())
-                && userSkills.containsAll(getRequiredSkillsAsObjects());
+        if (identity == null || userSkills == null) {
+            return false;
+        }
+        if (!requiredIdentity.equals(identity.getProfessionName())) {
+            return false;
+        }
+        List<Skill> needed = getRequiredSkillsAsObjects();
+        for (int i = 0; i < needed.size(); i++) {
+            if (!userSkills.contains(needed.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    /** Convenience: check eligibility directly from a User (Tell, Don't Ask). */
+    // Check if a User object can do this job.
     public boolean isAvailableFor(User user) {
-        if (user == null || user.getIdentity() == null) return false;
+        if (user == null || user.getIdentity() == null) {
+            return false;
+        }
         return isAvailableFor(user.getIdentity(), user.getSkills());
     }
 }

@@ -1,44 +1,74 @@
 package model.minigame;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * One multiple-choice work question (Doctor diagnosis / Designer brief).
- *
- * <p>Immutable; options list is defensively copied. {@code category} selects
- * which provider list the question belongs to.</p>
- */
+// One quiz question with options and correct answer.
 public final class QuizQuestion {
 
     public enum Category { DIAGNOSIS, DESIGN }
 
-    private final String id;
-    private final Category category;
-    private final String prompt;
-    private final List<String> options;
-    private final int correctIndex;
-    private final String explanation;
+    private String id;
+    private Category category;
+    private String prompt;
+    private ArrayList<String> options;
+    private int correctIndex;
+    private String explanation;
 
+    // Constructor with simple checks
     public QuizQuestion(String id, Category category, String prompt,
                         List<String> options, int correctIndex, String explanation) {
-        if (id == null || id.isBlank()) throw new IllegalArgumentException("id required");
-        if (options == null || options.size() < 2) throw new IllegalArgumentException("need 2+ options");
-        if (correctIndex < 0 || correctIndex >= options.size()) throw new IllegalArgumentException("bad correctIndex");
+        if (id == null || id.trim().equals("")) {
+            throw new IllegalArgumentException("id required");
+        }
+        if (options == null || options.size() < 2) {
+            throw new IllegalArgumentException("need 2+ options");
+        }
+        if (correctIndex < 0 || correctIndex >= options.size()) {
+            throw new IllegalArgumentException("bad correctIndex");
+        }
         this.id = id;
         this.category = category;
         this.prompt = prompt;
-        this.options = Collections.unmodifiableList(new java.util.ArrayList<>(options));
+        // copy with for loop (no unmodifiableList)
+        this.options = new ArrayList<String>();
+        for (int i = 0; i < options.size(); i++) {
+            this.options.add(options.get(i));
+        }
         this.correctIndex = correctIndex;
-        this.explanation = explanation == null ? "" : explanation;
+        if (explanation == null) {
+            this.explanation = "";
+        } else {
+            this.explanation = explanation;
+        }
     }
 
-    public String getId() { return id; }
-    public Category getCategory() { return category; }
-    public String getPrompt() { return prompt; }
-    public List<String> getOptions() { return options; }
-    public int getCorrectIndex() { return correctIndex; }
-    public String getExplanation() { return explanation; }
+    public String getId() {
+        return id;
+    }
+    public Category getCategory() {
+        return category;
+    }
+    public String getPrompt() {
+        return prompt;
+    }
+    // Return copy with for loop
+    public List<String> getOptions() {
+        ArrayList<String> copy = new ArrayList<String>();
+        for (int i = 0; i < options.size(); i++) {
+            copy.add(options.get(i));
+        }
+        return copy;
+    }
+    public int getCorrectIndex() {
+        return correctIndex;
+    }
+    public String getExplanation() {
+        return explanation;
+    }
 
-    public boolean isCorrect(int picked) { return picked == correctIndex; }
+    // Check if picked answer is correct
+    public boolean isCorrect(int picked) {
+        return picked == correctIndex;
+    }
 }

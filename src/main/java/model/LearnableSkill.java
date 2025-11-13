@@ -1,30 +1,32 @@
 package model;
 
-/**
- * Represents a skill that can be learned at the school.
- * This is a data object that encapsulates the properties of a learnable skill.
- *
- * Each skill declares which professional identities it belongs to
- * (many-to-many: e.g. "Content Writing" serves Typist and Doctor, while
- * "Advanced SEO" is Programmer-only). The school only offers a character
- * the skills of its own profession, so a Doctor never sees SEO lessons.
- */
-public class LearnableSkill {
-    private final String name;
-    private final String description;
-    private final int cost;
-    private final long requiredPlayTimeMinutes; // The playtime in minutes required to unlock this skill.
-    private final java.util.List<String> identities; // Identity simple names, e.g. "Doctor".
+import java.util.ArrayList;
+import java.util.List;
 
+// This class represents a skill that can be learned at school.
+// Example: "Java" for Programmer.
+public class LearnableSkill {
+    private String name;
+    private String description;
+    private int cost;
+    private long requiredPlayTimeMinutes; // minutes of play needed
+    private ArrayList<String> identities; // which professions can learn it
+
+    // Constructor
+    // Uses simple for loop to copy list, no Collections.unmodifiableList
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
-                          java.util.List<String> identities) {
+                          List<String> identities) {
         this.name = name;
         this.description = description;
         this.cost = cost;
         this.requiredPlayTimeMinutes = requiredPlayTimeMinutes;
-        this.identities = identities != null
-                ? java.util.Collections.unmodifiableList(new java.util.ArrayList<>(identities))
-                : java.util.Collections.emptyList();
+        // copy list to keep Encapsulation
+        this.identities = new ArrayList<String>();
+        if (identities != null) {
+            for (int i = 0; i < identities.size(); i++) {
+                this.identities.add(identities.get(i));
+            }
+        }
     }
 
     public String getName() {
@@ -39,22 +41,30 @@ public class LearnableSkill {
         return cost;
     }
 
-    public long getRequiredPlayTimeMinutes() { return requiredPlayTimeMinutes; }
-
-    /** Identity simple names this skill belongs to (unmodifiable). */
-    public java.util.List<String> getIdentities() { return identities; }
-
-    /** Check if this skill is taught to the given identity. */
-    public boolean isForIdentity(String identitySimpleName) {
-        return identities.contains(identitySimpleName);
+    public long getRequiredPlayTimeMinutes() {
+        return requiredPlayTimeMinutes;
     }
 
-    /**
-     * OOP Step 1: object-based overload — pass the Identity object,
-     * never {@code getClass().getSimpleName()}.
-     */
+    // Return copy of identities
+    // Uses simple for loop
+    public List<String> getIdentities() {
+        ArrayList<String> copy = new ArrayList<String>();
+        for (int i = 0; i < identities.size(); i++) {
+            copy.add(identities.get(i));
+        }
+        return copy;
+    }
+
+    // Check if this skill is for this profession name
+    public boolean isForIdentity(String identityName) {
+        return identities.contains(identityName);
+    }
+
+    // Check if this skill is for this Identity object (Polymorphism)
     public boolean isForIdentity(Identity identity) {
-        if (identity == null) return false;
+        if (identity == null) {
+            return false;
+        }
         return identities.contains(identity.getProfessionName());
     }
 

@@ -1,9 +1,7 @@
 package main;
 
 /**
- * Application entry point. Starts database initialization and the main GUI.
- *
- * Follows Single Responsibility Principle by managing only application startup.
+ * Application entry point.
  */
 
 import javax.swing.SwingUtilities;

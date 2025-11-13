@@ -1,29 +1,23 @@
 package model;
 
-/**
- * Immutable value object describing the outcome of performing a {@link Job}.
- *
- * <p>Demonstrates OOP <b>Encapsulation</b> (all fields final, getters only)
- * and <b>Abstraction</b> (callers depend on this DTO instead of
- * primitive booleans). Created via static factories
- * {@link #success} / {@link #failure} (Factory Method pattern).</p>
- */
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+// Result of doing a job: success or fail + message + rewards.
+// Simple data class, created with success() or failure() methods.
 public final class JobResult {
-    private final boolean success;
-    private final String message;
-    private final Job job;
-    private final int basePayment;
-    private final int bonusAmount;
-    private final int finalPayment;
-    private final int xpGained;
-    private final int reputationGained;
-    private final int levelBefore;
-    private final int levelAfter;
-    private final List<Challenge> completedChallenges;
-    private final List<Achievement> newAchievements;
+    private boolean success;
+    private String message;
+    private Job job;
+    private int basePayment;
+    private int bonusAmount;
+    private int finalPayment;
+    private int xpGained;
+    private int reputationGained;
+    private int levelBefore;
+    private int levelAfter;
+    private ArrayList<Challenge> completedChallenges;
+    private ArrayList<Achievement> newAchievements;
 
     private JobResult(boolean success, String message, Job job,
                       int basePayment, int bonusAmount, int finalPayment,
@@ -41,121 +35,149 @@ public final class JobResult {
         this.reputationGained = reputationGained;
         this.levelBefore = levelBefore;
         this.levelAfter = levelAfter;
-        // Defensive copies keep the DTO immutable (Encapsulation).
-        this.completedChallenges = completedChallenges == null
-                ? Collections.emptyList()
-                : Collections.unmodifiableList(new java.util.ArrayList<>(completedChallenges));
-        this.newAchievements = newAchievements == null
-                ? Collections.emptyList()
-                : Collections.unmodifiableList(new java.util.ArrayList<>(newAchievements));
+        // copy lists with for loop (no unmodifiableList)
+        this.completedChallenges = new ArrayList<Challenge>();
+        if (completedChallenges != null) {
+            for (int i = 0; i < completedChallenges.size(); i++) {
+                this.completedChallenges.add(completedChallenges.get(i));
+            }
+        }
+        this.newAchievements = new ArrayList<Achievement>();
+        if (newAchievements != null) {
+            for (int i = 0; i < newAchievements.size(); i++) {
+                this.newAchievements.add(newAchievements.get(i));
+            }
+        }
     }
 
-    /** Factory for successful job completion (no progression extras). */
+    // Success without extras
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter) {
-        return success(job, basePayment, bonusAmount, finalPayment,
-                xpGained, reputationGained, levelBefore, levelAfter,
-                Collections.emptyList(), Collections.emptyList());
+        ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
+        ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
+        return success(job, basePayment, bonusAmount, finalPayment, xpGained, reputationGained,
+                levelBefore, levelAfter, empty1, empty2);
     }
 
-    /**
-     * Factory for successful job completion with progression extras.
-     * Message construction stays encapsulated here so controllers stay thin.
-     */
+    // Success with challenges + achievements, message built with + (no String.format).
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
                                     List<Challenge> completedChallenges,
                                     List<Achievement> newAchievements) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("✅ %s completed! +$%d (base $%d + bonus $%d) +%d XP +%d rep",
-                job.getName(), finalPayment, basePayment, bonusAmount,
-                xpGained, reputationGained));
+        String msg = job.getName() + " completed! +$" + finalPayment;
+        msg = msg + " (base $" + basePayment + " + bonus $" + bonusAmount + ")";
+        msg = msg + " +" + xpGained + " XP +" + reputationGained + " rep";
         if (levelAfter > levelBefore) {
-            sb.append(String.format(" 🎉 Level up! %d → %d (HP & Energy refilled)", levelBefore, levelAfter));
+            msg = msg + " Level up! " + levelBefore + " -> " + levelAfter + " (HP & Energy refilled)";
         }
         if (completedChallenges != null) {
-            for (Challenge c : completedChallenges) {
-                sb.append(String.format("%n🏆 Challenge complete: %s (+$%d +%d XP)",
-                        c.getName(), c.getRewardMoney(), c.getRewardExperience()));
+            for (int i = 0; i < completedChallenges.size(); i++) {
+                Challenge c = completedChallenges.get(i);
+                msg = msg + "\nChallenge complete: " + c.getName() + " (+$" + c.getRewardMoney() + " +" + c.getRewardExperience() + " XP)";
             }
         }
         if (newAchievements != null) {
-            for (Achievement a : newAchievements) {
-                sb.append(String.format("%n🏅 Achievement unlocked: %s (+$%d)",
-                        a.getName(), a.getRewardMoney()));
+            for (int i = 0; i < newAchievements.size(); i++) {
+                Achievement a = newAchievements.get(i);
+                msg = msg + "\nAchievement unlocked: " + a.getName() + " (+$" + a.getRewardMoney() + ")";
             }
         }
-        return new JobResult(true, sb.toString(), job,
-                basePayment, bonusAmount, finalPayment,
-                xpGained, reputationGained, levelBefore, levelAfter,
-                completedChallenges, newAchievements);
+        return new JobResult(true, msg, job, basePayment, bonusAmount, finalPayment,
+                xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
 
-    /**
-     * Mini-game overload (Open/Closed): same as above plus the game summary
-     * line from {@link model.minigame.MiniGameResult#summaryLine()}.
-     */
+    // Success with mini-game result
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
                                     List<Challenge> completedChallenges,
                                     List<Achievement> newAchievements,
                                     model.minigame.MiniGameResult game) {
-        JobResult base = success(job, basePayment, bonusAmount, finalPayment,
-                xpGained, reputationGained, levelBefore, levelAfter,
-                completedChallenges, newAchievements);
-        if (game == null) return base;
-        String withGame = base.getMessage() + String.format("%n%s", game.summaryLine());
-        return new JobResult(true, withGame, job,
-                basePayment, bonusAmount, finalPayment,
-                xpGained, reputationGained, levelBefore, levelAfter,
-                completedChallenges, newAchievements);
+        JobResult base = success(job, basePayment, bonusAmount, finalPayment, xpGained,
+                reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
+        if (game == null) {
+            return base;
+        }
+        String withGame = base.getMessage() + "\n" + game.summaryLine();
+        return new JobResult(true, withGame, job, basePayment, bonusAmount, finalPayment,
+                xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
 
-    /** Factory for failed job attempts (no state mutated). */
+    // Failure (job not started)
     public static JobResult failure(Job job, String reason) {
-        String jobName = (job == null) ? "Job" : job.getName();
-        return new JobResult(false, "❌ " + jobName + ": " + reason, job,
-                0, 0, 0, 0, 0, 0, 0, Collections.emptyList(), Collections.emptyList());
+        String name = "Job";
+        if (job != null) {
+            name = job.getName();
+        }
+        ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
+        ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
+        return new JobResult(false, name + ": " + reason, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
     }
 
-    /**
-     * Factory for a started-but-failed attempt (Fail state): unlike
-     * {@link #failure}, energy WAS spent doing the work, so this DTO reports
-     * an already-applied penalty. No pay, XP, rep gain or progression.
-     */
+    // Failed attempt (energy lost, no reward)
     public static JobResult failedAttempt(Job job, int score, int energyLost, int repLost,
                                           model.minigame.MiniGameResult game) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("❌ %s failed! Score %d/100 (need 50+). Energy -%d",
-                job.getName(), score, energyLost));
+        String msg = job.getName() + " failed! Score " + score + "/100 (need 50+). Energy -" + energyLost;
         if (repLost > 0) {
-            sb.append(String.format(", Reputation -%d (botched job)", repLost));
+            msg = msg + ", Reputation -" + repLost + " (botched job)";
         }
-        sb.append(". No pay, XP or progress. Rest up and retry — Cancel stays free.");
+        msg = msg + ". No pay, XP or progress. Rest up and retry.";
         if (game != null) {
-            sb.append(String.format("%n%s", game.summaryLine()));
+            msg = msg + "\n" + game.summaryLine();
         }
-        return new JobResult(false, sb.toString(), job,
-                0, 0, 0, 0, 0, 0, 0, Collections.emptyList(), Collections.emptyList());
+        ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
+        ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
+        return new JobResult(false, msg, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
     }
 
-    public boolean isSuccess() { return success; }
-    public String getMessage() { return message; }
-    public Job getJob() { return job; }
-    public int getBasePayment() { return basePayment; }
-    public int getBonusAmount() { return bonusAmount; }
-    public int getFinalPayment() { return finalPayment; }
-    public int getXpGained() { return xpGained; }
-    public int getReputationGained() { return reputationGained; }
-    public int getLevelBefore() { return levelBefore; }
-    public int getLevelAfter() { return levelAfter; }
-    /** True when this job caused a level-up. */
-    public boolean didLevelUp() { return levelAfter > levelBefore; }
-    /** Challenges completed by this job (immutable, never null). */
-    public List<Challenge> getCompletedChallenges() { return completedChallenges; }
-    /** Achievements unlocked by this job (immutable, never null). */
-    public List<Achievement> getNewAchievements() { return newAchievements; }
+    public boolean isSuccess() {
+        return success;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public Job getJob() {
+        return job;
+    }
+    public int getBasePayment() {
+        return basePayment;
+    }
+    public int getBonusAmount() {
+        return bonusAmount;
+    }
+    public int getFinalPayment() {
+        return finalPayment;
+    }
+    public int getXpGained() {
+        return xpGained;
+    }
+    public int getReputationGained() {
+        return reputationGained;
+    }
+    public int getLevelBefore() {
+        return levelBefore;
+    }
+    public int getLevelAfter() {
+        return levelAfter;
+    }
+    // True if level went up
+    public boolean didLevelUp() {
+        return levelAfter > levelBefore;
+    }
+    public List<Challenge> getCompletedChallenges() {
+        ArrayList<Challenge> copy = new ArrayList<Challenge>();
+        for (int i = 0; i < completedChallenges.size(); i++) {
+            copy.add(completedChallenges.get(i));
+        }
+        return copy;
+    }
+    public List<Achievement> getNewAchievements() {
+        ArrayList<Achievement> copy = new ArrayList<Achievement>();
+        for (int i = 0; i < newAchievements.size(); i++) {
+            copy.add(newAchievements.get(i));
+        }
+        return copy;
+    }
 }
