@@ -15,7 +15,6 @@ import model.Job;
 import provider.JobProvider;
 import provider.SkillProvider;
 import provider.ServiceProvider;
-import provider.ShopItemProvider;
 import observer.Observer;
 import view.theme.AppTheme;
 
@@ -224,9 +223,9 @@ public class GamePanel extends JPanel implements Observer {
                 // Step-6: image zones delegate to the same openX() helpers as the
                 // nav bar below (DRY) — blind clicks are now discoverable.
                 animationPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                animationPanel.setToolTipText("Hospital | Workshop | Shop | Market | School — or use the buttons above");
+                animationPanel.setToolTipText("Hospital | Workshop | (closed) | Market | School — or use the buttons above");
                 animationPanel.addMouseListener(new MouseAdapter() {
-                    
+
                     public void mouseClicked(MouseEvent e) {
                         int panelWidth = animationPanel.getWidth();
                         int sectionWidth = panelWidth / 5;
@@ -237,7 +236,7 @@ public class GamePanel extends JPanel implements Observer {
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
                             openWorkshop();
                         } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
-                            openShop();
+                            // Middle zone (old shop) intentionally does nothing.
                         } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
                             openMarket();
                         } else if (x >= sectionWidth * 4 && x < panelWidth) {
@@ -262,7 +261,7 @@ public class GamePanel extends JPanel implements Observer {
             animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
         }
         // Step-6: labeled nav bar with tooltips — the fix for blind image-click.
-        // Same openX() helpers as image zones, plus previously unreachable Shop/Inventory.
+        // Same openX() helpers as image zones.
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         centerPanel.add(buildNavBar(), BorderLayout.NORTH);
@@ -419,7 +418,7 @@ public class GamePanel extends JPanel implements Observer {
         if (!fresh) return;
         addChatMessage("👋 Welcome to Job Quest! Your goal: earn, learn skills, unlock better jobs.");
         addChatMessage("🎯 Next: 1) 🔨 Workshop — do your first job  2) 📊 Progress — track challenges  3) 🎓 School — learn a skill");
-        addChatMessage("💡 Tip: low bars? 🛒 Market restores energy, 🏥 Hospital restores health, 🛍️ Shop stocks 🎒 Inventory. F11 toggles windowed mode.");
+        addChatMessage("💡 Tip: low bars? 🛒 Market restores energy, 🏥 Hospital restores health. F11 toggles windowed mode.");
     }
     
 
@@ -516,14 +515,6 @@ public class GamePanel extends JPanel implements Observer {
         new SkillDialog(parentFrame(), controller, this, mySkills, currentUser).setVisible(true);
     }
 
-    private void openShop() {
-        new ShopDialog(parentFrame(), controller, this, ShopItemProvider.getAvailableItems()).setVisible(true);
-    }
-
-    private void openInventory() {
-        new InventoryDialog(parentFrame(), controller, this).setVisible(true);
-    }
-
     private void openProgress() {
         new ProgressDialog(parentFrame(), controller, this).setVisible(true);
     }
@@ -555,16 +546,6 @@ public class GamePanel extends JPanel implements Observer {
         nav.add(navButton("School", "Learn skills to unlock better jobs", true, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 openSchool();
-            }
-        }));
-        nav.add(navButton("Shop", "Buy storable items, then use from inventory", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openShop();
-            }
-        }));
-        nav.add(navButton("Inventory", "Use owned items (" + controller.getInventoryItems().size() + ")", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openInventory();
             }
         }));
         nav.add(navButton("Progress", "Challenges, achievements and stats", false, new java.awt.event.ActionListener() {

@@ -19,8 +19,7 @@ public class Challenge {
         EARN_MONEY,         // Earn X money
         LEARN_SKILLS,       // Learn X skills
         MAINTAIN_HEALTH,    // Keep health above X for Y days
-        SPEND_ENERGY,       // Spend X energy on work
-        BUY_ITEMS          // Buy X items from shop
+        SPEND_ENERGY       // Spend X energy on work
     }
     
     public Challenge(String id, String name, String description, ChallengeType type,

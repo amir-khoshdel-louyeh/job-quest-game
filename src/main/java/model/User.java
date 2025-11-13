@@ -5,7 +5,7 @@ import java.util.List;
 
 // This class represents one player in the game.
 // It shows Encapsulation: all fields are private, we use getters and setters.
-// It also shows Composition: User HAS-A Wallet, Vitals, CareerProgress, Inventory.
+// It also shows Composition: User HAS-A Wallet, Vitals, CareerProgress.
 public class User {
     // display name (no login - just for showing in UI)
     private String username;
@@ -18,8 +18,6 @@ public class User {
     private Vitals vitals;
     // level and reputation are stored in CareerProgress object
     private CareerProgress progress;
-    // items of player
-    private Inventory inventory;
     // skills that player has learned
     private ArrayList<Skill> skills;
 
@@ -41,7 +39,6 @@ public class User {
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
-        this.inventory = new Inventory();
         this.skills = new ArrayList<Skill>();
     }
 
@@ -108,11 +105,6 @@ public class User {
     // decrease energy
     public void loseEnergy(int amount) {
         vitals.loseEnergy(amount);
-    }
-
-    // return inventory object
-    public Inventory getInventory() {
-        return inventory;
     }
 
     // return copy of skills list

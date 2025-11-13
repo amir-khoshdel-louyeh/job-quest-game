@@ -1,8 +1,8 @@
 package model;
 
 // This class represents a service that player can buy.
-// Example: eat food at restaurant, visit doctor.
-// Difference with Item: Service is used instantly, Item goes to inventory.
+// Example: eat food at market, visit hospital doctor.
+// Service is used instantly (Hospital/Market).
 // Both implement Purchasable interface (Polymorphism).
 public class Service implements Purchasable {
     private String name;

@@ -1,6 +1,5 @@
 package controller;
 
-import model.Item;
 import model.Skill;
 import model.User;
 import observer.Observer;
@@ -119,11 +118,6 @@ public class UserController implements Subject {
     public void unblockUser() {
     // remove any block on the user
         user.setBlockedUntil(0);
-    }
-
-    public void addItemToInventory(Item item) {
-        user.getInventory().addItem(item);
-        // The calling controller is responsible for notifying observers.
     }
 
     // Add a new skill and tell GUI about it.

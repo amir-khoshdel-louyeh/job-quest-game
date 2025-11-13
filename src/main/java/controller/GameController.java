@@ -3,7 +3,6 @@ package controller;
 import model.Achievement;
 import model.Challenge;
 import model.GameEvent;
-import model.Item;
 import model.Job;
 import model.User;
 import model.Service;
@@ -52,43 +51,6 @@ public class GameController {
         } else {
             return new ActionResult(false, "Failed to purchase " + serviceName + ". Not enough balance ($" + userController.getBalance() + ").");
         }
-    }
-
-    // Buy an item (goes to inventory)
-    public ActionResult purchaseItem(Item item) {
-        if (item == null) {
-            return new ActionResult(false, "No item selected.");
-        }
-        boolean ok = economyController.purchaseItem(item);
-        if (ok) {
-            int owned = userController.getUser().getInventory().countByName(item.getName());
-            String life = "single-use";
-            if (!item.isConsumable()) {
-                life = "reusable";
-            }
-            String msg = "Bought " + item.getName() + " (-$" + item.getPrice() + "). Effect: " + item.getEffectDescription();
-            msg = msg + " (" + life + "). Owned: " + owned + ". Open inventory to use it.";
-            return new ActionResult(true, msg);
-        } else {
-            return new ActionResult(false, "Failed to purchase " + item.getName() + " ($" + item.getPrice() + "). Balance ($" + userController.getBalance() + ").");
-        }
-    }
-
-    // Use an item from inventory
-    public ActionResult useItem(String itemName) {
-        if (itemName == null || itemName.trim().equals("")) {
-            return new ActionResult(false, "No item selected.");
-        }
-        String effect = economyController.useItem(itemName);
-        if (effect != null) {
-            return new ActionResult(true, "Used " + itemName + ": " + effect + ".");
-        }
-        return new ActionResult(false, "Item not in inventory: " + itemName);
-    }
-
-    // Return inventory items
-    public List<Item> getInventoryItems() {
-        return userController.getUser().getInventory().getItems();
     }
 
     // Check jobs (workshop always opens dialog if jobs exist)

@@ -61,7 +61,7 @@ public class ServiceDialog extends JDialog {
         JLabel nameLabel = AppTheme.createCardTitle(service.getName());
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // OOP Step 3: same Purchasable contract as shop items — show effect uniformly.
+        // Show effect uniformly via Purchasable contract.
         JLabel descriptionLabel = AppTheme.createCardDescription(
                 service.getDescription() + "<br>Effect: " + service.getEffectDescription());
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
