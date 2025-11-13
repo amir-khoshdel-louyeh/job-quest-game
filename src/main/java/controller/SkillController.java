@@ -8,17 +8,15 @@ import provider.SkillProvider;
 import services.AchievementService;
 import services.ChallengeService;
 
-// This class handles learning new skills.
+// Handles learning new skills for the player's profession.
 public class SkillController {
     private UserController userController;
 
-    // Constructor
     public SkillController(UserController userController) {
         this.userController = userController;
     }
 
-    // Try to learn a skill by name. Returns true if learned.
-    // Uses simple if, no advanced code.
+    // Tries to learn a skill by name. Returns true if learned.
     public boolean learnSkill(String skillName) {
         LearnableSkill toLearn = SkillProvider.getSkill(skillName);
         if (toLearn == null) {

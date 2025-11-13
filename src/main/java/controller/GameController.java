@@ -13,8 +13,7 @@ import services.AchievementService;
 import services.ChallengeService;
 import java.util.List;
 
-// Main controller that connects all small controllers.
-// It shows Composition: GameController HAS-A UserController, JobController, etc.
+// Connects the small controllers and runs high-level actions like jobs and skills.
 public class GameController {
     private UserController userController;
     private EconomyController economyController;
@@ -25,7 +24,6 @@ public class GameController {
     private long sessionStartTime;
     private int sessionJobsCompleted = 0;
 
-    // Constructor: create all sub-controllers
     public GameController(User user, long sessionStartTime) {
         this.sessionStartTime = sessionStartTime;
         this.userController = new UserController(user);
@@ -68,7 +66,6 @@ public class GameController {
         }
     }
 
-    // Do one job
     public ActionResult doJob(Job job) {
         model.JobResult r = jobController.doJob(job);
         if (r.isSuccess()) {
@@ -79,7 +76,6 @@ public class GameController {
         }
     }
 
-    // Do one job with mini-game
     public ActionResult doJob(Job job, MiniGameResult game) {
         model.JobResult r = jobController.doJob(job, game);
         if (r.isSuccess()) {
@@ -99,7 +95,6 @@ public class GameController {
         return new ActionResult(true, "Progress kept for this session (no save file).");
     }
 
-    // Learn a skill
     public ActionResult learnSkill(String skillName) {
         boolean ok = skillController.learnSkill(skillName);
         if (ok) {
@@ -133,7 +128,7 @@ public class GameController {
         return eventController.triggerRandomEvent(userController.getUser());
     }
 
-    // Simple session info, no String.format
+    // Play time in minutes plus jobs done this session.
     public String getSessionStats() {
         long now = System.currentTimeMillis();
         long minutes = (now - sessionStartTime) / (1000 * 60);

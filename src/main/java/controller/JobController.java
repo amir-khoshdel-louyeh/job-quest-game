@@ -12,14 +12,13 @@ import services.JobService;
 import java.util.ArrayList;
 import java.util.List;
 
-// This class handles doing jobs: checks, payments, rewards.
+// Runs one job: checks energy, rolls payment, hands out XP.
 public class JobController {
     private UserController userController;
     private JobService jobService;
     private ChallengeService challengeService;
     private AchievementService achievementService;
 
-    // Simple constructor with default services
     public JobController(UserController userController) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -45,10 +44,9 @@ public class JobController {
         this.achievementService = AchievementService.getInstance();
     }
 
-    // Full constructor
     public JobController(UserController userController, JobService jobService,
-                         ChallengeService challengeService,
-                         AchievementService achievementService) {
+                          ChallengeService challengeService,
+                          AchievementService achievementService) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
         }
@@ -80,7 +78,6 @@ public class JobController {
         return execute(job, game);
     }
 
-    // Main logic, uses simple if and for, no String.format, no nested Math.
     private JobResult execute(Job job, MiniGameResult game) {
         if (job == null) {
             return JobResult.failure(null, "No job selected.");
@@ -142,7 +139,7 @@ public class JobController {
         }
         int levelBefore = user.getLevel();
 
-        // Give rewards through controller (so GUI updates)
+        // Hand out the rewards.
         userController.decreaseEnergy(job.getEnergyCost());
         userController.addBalance(finalPay);
         userController.addExperience(xp);

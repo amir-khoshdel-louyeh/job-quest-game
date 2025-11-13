@@ -6,22 +6,18 @@ import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
 
-// This class controls one user.
-// It sits between User data and the game, so GUI never changes User directly.
-// It shows Observer pattern: when data changes, GUI is notified.
+// Holds one player and handles balance, health, energy, and XP changes.
 public class UserController implements Subject {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
 
     public UserController(User user) {
-    // create user controller wrapping a User model
         if (user == null) {
             throw new IllegalArgumentException("user must not be null");
         }
         this.user = user;
     }
 
-    // ---- Observer methods, just pass to helper object ----
     @Override
     public void addObserver(Observer observer) { subject.addObserver(observer); }
 
@@ -65,11 +61,10 @@ public class UserController implements Subject {
     }
 
     public boolean deductBalance(int amount) {
-    // try to deduct amount from user's balance (no notify)
+        // No screen refresh here; the caller refreshes once the whole action is done.
         if (amount > 0 && user.getBalance() >= amount) {
             user.withdraw(amount);
-            return true; // The calling method is responsible for notifying observers.
-            // Note: Observers are not notified here to allow for transactional operations.
+            return true;
         }
         return false;
     }
@@ -111,17 +106,14 @@ public class UserController implements Subject {
     }
 
     public void blockUser(long durationMillis) {
-    // block the user for the given duration
         user.setBlockedUntil(System.currentTimeMillis() + durationMillis);
     }
 
     public void unblockUser() {
-    // remove any block on the user
         user.setBlockedUntil(0);
     }
 
-    // Add a new skill and tell GUI about it.
-    // Returns true if skill is new.
+    // Adds a new skill. Returns true if the skill is new.
     public boolean addSkill(Skill skill) {
         if (user.addSkill(skill)) {
             notifyObservers("skills");
@@ -130,18 +122,12 @@ public class UserController implements Subject {
         return false;
     }
 
-    // ---------------- Progression (Encapsulation + Observer) ----------------
-    // Delegates keep User fields encapsulated: outside code must go through
-    // here so every mutation notifies observers consistently.
-
     /** Return the wrapped User model (escape hatch for read-only providers). */
-    // Note: prefer the delegates below for mutations.
-
     public int getLevel() {
         return user.getLevel();
     }
 
-    /** Add XP (may trigger level-up inside User) and notify observers. */
+    /** Adds XP (can level the player up). */
     public void addExperience(int amount) {
         if (amount > 0) {
             user.addExperience(amount);
@@ -149,7 +135,7 @@ public class UserController implements Subject {
         }
     }
 
-    /** Add reputation (clamped 0-100 in User) and notify observers. */
+    /** Adds reputation (stays between 0-100). */
     public void addReputation(int amount) {
         if (amount != 0) {
             user.addReputation(amount);
@@ -157,7 +143,7 @@ public class UserController implements Subject {
         }
     }
 
-    // Add one completed job to stats
+    // Adds one completed job to the player's totals.
     public void recordJobCompletion(int moneyEarned) {
         user.incrementJobsCompleted();
         if (moneyEarned > 0) {
@@ -166,7 +152,6 @@ public class UserController implements Subject {
         notifyObservers("jobs");
     }
 
-    // Tell GUI to refresh after services change User directly
     public void refresh() {
         notifyObservers();
     }

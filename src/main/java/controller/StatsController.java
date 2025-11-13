@@ -2,10 +2,9 @@ package controller;
 
 import model.User;
 
-// This class builds text with player stats.
+// Builds the text block shown for player stats.
 public class StatsController {
 
-    // Build a simple stats string, uses + concatenation (no String.format).
     public String getDetailedStats(User user) {
         String stats = "";
         stats = stats + "===================================\n";

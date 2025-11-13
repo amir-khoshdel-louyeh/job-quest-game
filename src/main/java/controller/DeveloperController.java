@@ -2,19 +2,11 @@ package controller;
 
 import model.User;
 
-/**
- * Demo/dev controls for live presentations and manual testing.
- *
- * Follows Single Responsibility Principle by containing only test-drive
- * state tweaks — game rules stay in the domain controllers. Every mutation
- * goes through the public {@link User} API and ends with
- * {@link UserController#refresh()} so Observer HUDs stay in sync.
- */
+// Lets developers set stats by hand for demos and testing.
 public class DeveloperController {
     private final UserController userController;
 
     public DeveloperController(UserController userController) {
-        // construct dev controller wrapping the active user controller
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
         }
