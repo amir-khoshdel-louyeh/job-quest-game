@@ -174,9 +174,9 @@ public class RegisterPanel extends JPanel {
         ));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         
-        // Radio button with name and price
+        // Radio button with name and price, uses + (no String.format)
         JRadioButton radioButton = new JRadioButton(
-            String.format("%s - Starting Balance: $%d", option.getName(), option.getPrice())
+            option.getName() + " - Starting Balance: $" + option.getPrice()
         );
         radioButton.setFont(AppTheme.FONT_SUBHEADING);
         radioButton.setForeground(AppTheme.TEXT_PRIMARY);
@@ -225,12 +225,28 @@ public class RegisterPanel extends JPanel {
         return card;
     }
 
-    // Attach action listeners for registration and navigation
+    // Attach action listeners, beginner style with ActionListener classes.
     private void initActions() {
-        registerButton.addActionListener(e -> performRegistration());
-        demoButton.addActionListener(e -> quickDemoPlay());
-        backButton.addActionListener(e -> navigateToLogin());
-        passwordField.addActionListener(e -> performRegistration());
+        registerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                performRegistration();
+            }
+        });
+        demoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                quickDemoPlay();
+            }
+        });
+        backButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                navigateToLogin();
+            }
+        });
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                performRegistration();
+            }
+        });
     }
 
     // Validate input and perform account registration
@@ -311,9 +327,9 @@ public class RegisterPanel extends JPanel {
         }
     }
 
-    /** Null when valid, otherwise the inline message to show. */
+    /** Return error message or null if ok. Uses simple if. */
     private static String validateInput(String username, String password, IdentityOption option) {
-        if (username.isEmpty() || password.isEmpty()) {
+        if (username.equals("") || password.equals("")) {
             return "Please fill all fields and select a career path.";
         }
         if (username.length() < 3) {
@@ -327,8 +343,11 @@ public class RegisterPanel extends JPanel {
         }
         return null;
     }
+    // Find selected career option, uses simple for loop (no Collections.list).
     private IdentityOption getSelectedOption() {
-        for (AbstractButton button : java.util.Collections.list(identityGroup.getElements())) {
+        java.util.Enumeration<javax.swing.AbstractButton> buttons = identityGroup.getElements();
+        while (buttons.hasMoreElements()) {
+            javax.swing.AbstractButton button = buttons.nextElement();
             if (button.isSelected()) {
                 return (IdentityOption) button.getClientProperty("option");
             }

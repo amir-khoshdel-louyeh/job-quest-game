@@ -73,9 +73,14 @@ public class ShopPanel extends JPanel {
         descriptionArea.setBackground(AppTheme.CARD_BACKGROUND);
         panel.add(descriptionArea, BorderLayout.CENTER);
 
-        // Buy Button (delegates to a helper to keep this method short)
+        // Buy Button. Uses ActionListener (no lambda).
         JButton buyButton = AppTheme.createSuccessButton("Buy ($" + item.getPrice() + ")");
-        buyButton.addActionListener(e -> handleBuy(item));
+        final Item myItem = item;
+        buyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleBuy(myItem);
+            }
+        });
         panel.add(buyButton, BorderLayout.SOUTH);
 
         return panel;

@@ -68,7 +68,9 @@ public class TypingGameDialog extends JDialog {
         super(parent, gameName, true);
         if (jobTask == null) throw new IllegalArgumentException("jobTask required");
         this.gameName = gameName;
-        this.tasks = List.of(jobTask);
+        // Use ArrayList with one task (beginner way, no List.of).
+        this.tasks = new java.util.ArrayList<model.minigame.TextTask>();
+        this.tasks.add(jobTask);
         this.scorer = scorer != null ? scorer : new TypingScorer();
         this.codeMode = codeMode;
         this.lockedToJob = true;
@@ -94,28 +96,37 @@ public class TypingGameDialog extends JDialog {
         // selection. Show the fixed challenge name instead of "Pick a task".
         JPanel pick = new JPanel(new BorderLayout(8, 8));
         pick.setBackground(AppTheme.BACKGROUND_COLOR);
-        startButton = AppTheme.createPrimaryButton("▶ Start");
-        startButton.addActionListener(e -> startRound());
+        startButton = AppTheme.createPrimaryButton("Start");
+        startButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                startRound();
+            }
+        });
         if (lockedToJob) {
             TextTask only = tasks.get(0);
             JLabel fixed = new JLabel(only.getTitle() + "  " + only.difficultyStars());
             fixed.setFont(AppTheme.FONT_BODY);
             pick.add(fixed, BorderLayout.CENTER);
         } else {
-            taskBox = new JComboBox<>(tasks.toArray(new TextTask[0]));
+            taskBox = new JComboBox<TextTask>(tasks.toArray(new TextTask[0]));
             taskBox.setFont(AppTheme.FONT_BODY);
             taskBox.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> l, Object v, int i,
                                                               boolean sel, boolean foc) {
                     super.getListCellRendererComponent(l, v, i, sel, foc);
-                    if (v instanceof TextTask t) {
+                    if (v instanceof TextTask) {
+                        TextTask t = (TextTask) v;
                         setText(t.getTitle() + "  " + t.difficultyStars());
                     }
                     return this;
                 }
             });
-            taskBox.addActionListener(e -> previewSelected());
+            taskBox.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    previewSelected();
+                }
+            });
             pick.add(new JLabel("Pick a challenge:"), BorderLayout.WEST);
             pick.add(taskBox, BorderLayout.CENTER);
         }
@@ -156,9 +167,13 @@ public class TypingGameDialog extends JDialog {
         statusLabel = new JLabel(" ");
         statusLabel.setFont(AppTheme.FONT_SMALL);
         statusLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        submitButton = AppTheme.createSuccessButton(codeMode ? "▶ Run it" : "✔ Submit");
+        submitButton = AppTheme.createSuccessButton("Submit");
         submitButton.setEnabled(false);
-        submitButton.addActionListener(e -> submit());
+        submitButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                submit();
+            }
+        });
         bottom.add(timeBar, BorderLayout.NORTH);
         bottom.add(statusLabel, BorderLayout.CENTER);
         bottom.add(submitButton, BorderLayout.EAST);
@@ -180,33 +195,59 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void previewSelected() {
-        TextTask t = lockedToJob ? tasks.get(0) : (TextTask) taskBox.getSelectedItem();
-        if (t == null) return;
+        TextTask t = null;
+        if (lockedToJob) {
+            t = tasks.get(0);
+        } else {
+            t = (TextTask) taskBox.getSelectedItem();
+        }
+        if (t == null) {
+            return;
+        }
         targetArea.setText(t.getContent());
-        statusLabel.setText(String.format("%s · par %ds — exact copy wins, speed gives bonus",
-                t.difficultyStars(), t.getParSeconds()));
+        statusLabel.setText(t.difficultyStars() + " - par " + t.getParSeconds() + "s — exact copy wins");
     }
 
     private void startRound() {
-        current = lockedToJob ? tasks.get(0) : (TextTask) taskBox.getSelectedItem();
-        if (current == null) return;
+        if (lockedToJob) {
+            current = tasks.get(0);
+        } else {
+            current = (TextTask) taskBox.getSelectedItem();
+        }
+        if (current == null) {
+            return;
+        }
         inputArea.setText("");
         inputArea.setEnabled(true);
         inputArea.requestFocus();
-        if (taskBox != null) taskBox.setEnabled(false);
+        if (taskBox != null) {
+            taskBox.setEnabled(false);
+        }
         startButton.setEnabled(false);
         submitButton.setEnabled(true);
         startMillis = System.currentTimeMillis();
         stopTick();
-        int limit = current.getParSeconds() * 3;
-        tick = new javax.swing.Timer(200, e -> {
-            int elapsed = elapsedSeconds();
-            int left = Math.max(0, limit - elapsed);
-            timeBar.setMaximum(limit);
-            timeBar.setValue(left);
-            timeBar.setString(left + "s left");
-            timeBar.setForeground(left <= 10 ? AppTheme.ERROR_COLOR : AppTheme.PRIMARY_COLOR);
-            if (left <= 0) submit();
+        final int limit = current.getParSeconds() * 3;
+        // Timer tick, uses ActionListener (no lambda), simple if (no Math.max).
+        tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                int elapsed = elapsedSeconds();
+                int left = limit - elapsed;
+                if (left < 0) {
+                    left = 0;
+                }
+                timeBar.setMaximum(limit);
+                timeBar.setValue(left);
+                timeBar.setString(left + "s left");
+                if (left <= 10) {
+                    timeBar.setForeground(AppTheme.ERROR_COLOR);
+                } else {
+                    timeBar.setForeground(AppTheme.PRIMARY_COLOR);
+                }
+                if (left <= 0) {
+                    submit();
+                }
+            }
         });
         tick.start();
     }
@@ -216,9 +257,17 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void submit() {
-        if (current == null || result != null && accepted) return;
+        if (current == null) {
+            return;
+        }
+        if (result != null && accepted) {
+            return;
+        }
         stopTick();
-        int elapsed = Math.max(1, elapsedSeconds());
+        int elapsed = elapsedSeconds();
+        if (elapsed < 1) {
+            elapsed = 1;
+        }
         result = scorer.score(gameName, current, inputArea.getText(), elapsed);
         inputArea.setEnabled(false);
         submitButton.setEnabled(false);
@@ -230,19 +279,23 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void showResult() {
-        // Started work counts: the submitted score is final — no retry, no
-        // cancel-after-seeing-it. The result is shown info-only and auto-accepted.
-        String html = String.format(
-                "<html><center><h2>Score %d/100 %s</h2>"
-                        + "Accuracy %d%% · %s · %ds<br>Job pay ×%.2f<br>%s</center></html>",
-                result.getScore(), result.isPassed() ? "✅" : "❌",
-                result.getAccuracy(),
-                result.getWpm() > 0 ? result.getWpm() + " WPM" : "",
-                result.getElapsedSeconds(),
-                result.rewardMultiplier(),
-                result.summaryLine().replace("🎮 ", ""));
-        JOptionPane.showMessageDialog(this, html, "Result — " + gameName,
-                result.isPassed() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+        // Show score, uses + (no String.format).
+        String pass = "FAIL";
+        if (result.isPassed()) {
+            pass = "PASS";
+        }
+        String wpmText = "";
+        if (result.getWpm() > 0) {
+            wpmText = result.getWpm() + " WPM";
+        }
+        String html = "<html><center><h2>Score " + result.getScore() + "/100 " + pass + "</h2>"
+                + "Accuracy " + result.getAccuracy() + "% - " + wpmText + " - " + result.getElapsedSeconds() + "s"
+                + "<br>" + result.summaryLine() + "</center></html>";
+        int type = JOptionPane.INFORMATION_MESSAGE;
+        if (!result.isPassed()) {
+            type = JOptionPane.WARNING_MESSAGE;
+        }
+        JOptionPane.showMessageDialog(this, html, "Result — " + gameName, type);
         accepted = true;
         dispose();
     }

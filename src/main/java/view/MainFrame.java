@@ -64,13 +64,15 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
     
-    // Show a panel with a smooth transition
+    // Show a panel. Uses simple Runnable inner class (no lambda).
     public void showPanel(JPanel panel) {
-        // Fade out effect (simple version)
-        SwingUtilities.invokeLater(() -> {
-            setContentPane(panel);
-            revalidate();
-            repaint();
+        final JPanel myPanel = panel;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setContentPane(myPanel);
+                revalidate();
+                repaint();
+            }
         });
     }
     

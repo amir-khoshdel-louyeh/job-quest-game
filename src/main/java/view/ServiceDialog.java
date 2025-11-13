@@ -76,14 +76,19 @@ public class ServiceDialog extends JDialog {
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setOpaque(false);
 
-        JLabel costLabel = new JLabel(String.format("$%d", service.getCost()));
+        JLabel costLabel = new JLabel("$" + service.getCost());
         costLabel.setFont(AppTheme.FONT_HEADING);
         costLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         actionPanel.add(costLabel, BorderLayout.WEST);
 
         JButton buyButton = AppTheme.createSuccessButton("Buy");
-        // Delegate purchase handling to a helper method to keep the UI code short and clear
-        buyButton.addActionListener(e -> handleBuyService(service));
+        // Buy when clicked. Uses simple ActionListener (no lambda).
+        final Service myService = service;
+        buyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleBuyService(myService);
+            }
+        });
         actionPanel.add(buyButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);

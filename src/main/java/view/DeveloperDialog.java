@@ -7,18 +7,12 @@ import view.theme.AppTheme;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Developer demo dialog: changeable variables for live presentations and
- * manual testing (balance, health, energy, level, reputation, playtime,
- * streak) plus one-click shortcuts.
- *
- * Pure view (SRP): all mutations go through {@link DeveloperController},
- * which re-syncs observers so the HUD updates live.
- */
+// Developer dialog for demos: change money, health, etc. quickly.
+// Simple view class, all logic is in DeveloperController.
 public class DeveloperDialog extends JDialog {
 
-    private final DeveloperController devController;
-    private final GamePanel gamePanel;
+    private DeveloperController devController;
+    private GamePanel gamePanel;
 
     private JTextField balanceField;
     private JTextField healthField;
@@ -28,17 +22,16 @@ public class DeveloperDialog extends JDialog {
     private JTextField playtimeField;
     private JTextField streakField;
 
-    // Dialog with editable demo variables for the current user
+    // Constructor: build form
     public DeveloperDialog(JFrame parent, DeveloperController devController, GamePanel gamePanel) {
-        super(parent, "🛠 Developer Controls", true);
+        super(parent, "Developer Controls", true);
         this.devController = devController;
         this.gamePanel = gamePanel;
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 420, 560);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        JLabel hint = new JLabel("Demo only — changes apply instantly to this session.",
-                SwingConstants.CENTER);
+        JLabel hint = new JLabel("Demo only — changes apply instantly.", SwingConstants.CENTER);
         hint.setFont(AppTheme.FONT_SMALL);
         hint.setForeground(AppTheme.TEXT_SECONDARY);
         hint.setBorder(BorderFactory.createEmptyBorder(8, 10, 0, 10));
@@ -48,13 +41,13 @@ public class DeveloperDialog extends JDialog {
         form.setBackground(AppTheme.BACKGROUND_COLOR);
         form.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
 
-        balanceField = row(form, "💰 Balance ($):");
-        healthField = row(form, "❤️ Health (0-100):");
-        energyField = row(form, "⚡ Energy (0-100k):");
-        levelField = row(form, "⭐ Level (1-100):");
-        reputationField = row(form, "🏆 Reputation (0-100):");
-        playtimeField = row(form, "⏱ Playtime (min):");
-        streakField = row(form, "🔥 Streak (days):");
+        balanceField = row(form, "Balance ($):");
+        healthField = row(form, "Health (0-100):");
+        energyField = row(form, "Energy (0-100k):");
+        levelField = row(form, "Level (1-100):");
+        reputationField = row(form, "Reputation (0-100):");
+        playtimeField = row(form, "Playtime (min):");
+        streakField = row(form, "Streak (days):");
 
         refreshFields();
         add(form, BorderLayout.CENTER);
@@ -66,24 +59,54 @@ public class DeveloperDialog extends JDialog {
 
         JPanel quickRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         quickRow.setBackground(AppTheme.BACKGROUND_COLOR);
-        quickRow.add(quickButton("❤️ Full HP", () -> devController.setHealth(100)));
-        quickRow.add(quickButton("⚡ Full EN", () -> devController.setEnergy(100_000)));
-        quickRow.add(quickButton("+$5k", () -> devController.setBalance(
-                devController.getUser().getBalance() + 5000)));
-        quickRow.add(quickButton("+60 min", () -> devController.addPlaytimeMinutes(60)));
-        quickRow.add(quickButton("🔓 Unblock", devController::unblock));
+        // Quick buttons use simple ActionListener classes (no lambda, no method reference).
+        quickRow.add(quickButton("Full HP", new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                devController.setHealth(100);
+                afterQuick("Full HP");
+            }
+        }));
+        quickRow.add(quickButton("Full EN", new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                devController.setEnergy(100000);
+                afterQuick("Full EN");
+            }
+        }));
+        quickRow.add(quickButton("+$5k", new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                int now = devController.getUser().getBalance();
+                devController.setBalance(now + 5000);
+                afterQuick("+$5k");
+            }
+        }));
+        quickRow.add(quickButton("+60 min", new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                devController.addPlaytimeMinutes(60);
+                afterQuick("+60 min");
+            }
+        }));
+        quickRow.add(quickButton("Unblock", new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                devController.unblock();
+                afterQuick("Unblock");
+            }
+        }));
         bottom.add(quickRow);
 
-        JButton applyButton = AppTheme.createSuccessButton("✔ Apply Values");
+        JButton applyButton = AppTheme.createSuccessButton("Apply Values");
         applyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        applyButton.addActionListener(e -> applyValues());
+        applyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                applyValues();
+            }
+        });
         bottom.add(Box.createVerticalStrut(6));
         bottom.add(applyButton);
 
         add(bottom, BorderLayout.SOUTH);
     }
 
-    // One label + text field row; returns the field for later read/write.
+    // Make one label + field row
     private JTextField row(JPanel form, String labelText) {
         JLabel label = new JLabel(labelText);
         label.setFont(AppTheme.FONT_BODY);
@@ -94,18 +117,21 @@ public class DeveloperDialog extends JDialog {
         return field;
     }
 
-    private JButton quickButton(String text, Runnable action) {
+    // Make a quick button with given action
+    private JButton quickButton(String text, java.awt.event.ActionListener action) {
         JButton button = AppTheme.createSecondaryButton(text);
-        button.addActionListener(e -> {
-            action.run();
-            refreshFields();
-            gamePanel.addChatMessage("🛠 Dev: " + text + " applied.");
-            gamePanel.updateUserInfo();
-        });
+        button.addActionListener(action);
         return button;
     }
 
-    // Reload fields from the current user state.
+    // Called after quick button: refresh + chat message
+    private void afterQuick(String text) {
+        refreshFields();
+        gamePanel.addChatMessage("Dev: " + text + " applied.");
+        gamePanel.updateUserInfo();
+    }
+
+    // Reload fields from user
     private void refreshFields() {
         User user = devController.getUser();
         balanceField.setText(String.valueOf(user.getBalance()));
@@ -117,7 +143,7 @@ public class DeveloperDialog extends JDialog {
         streakField.setText(String.valueOf(user.getCurrentStreak()));
     }
 
-    // Parse fields (invalid input keeps the current value) and apply.
+    // Read fields and apply, uses simple if (no Math.min).
     private void applyValues() {
         User user = devController.getUser();
         devController.setBalance(parse(balanceField, user.getBalance()));
@@ -126,18 +152,23 @@ public class DeveloperDialog extends JDialog {
         devController.setLevel(parse(levelField, user.getLevel()));
         devController.setReputation(parse(reputationField, user.getReputation()));
         long currentMinutes = user.getTotalPlayTime() / (1000 * 60);
-        long wantedMinutes = parse(playtimeField, (int) Math.min(currentMinutes, Integer.MAX_VALUE));
-        devController.addPlaytimeMinutes(wantedMinutes - currentMinutes);
+        int currentInt = (int) currentMinutes;
+        // keep inside int range with simple if
+        if (currentMinutes > Integer.MAX_VALUE) {
+            currentInt = Integer.MAX_VALUE;
+        }
+        long wanted = parse(playtimeField, currentInt);
+        devController.addPlaytimeMinutes(wanted - currentMinutes);
         devController.setStreak(parse(streakField, user.getCurrentStreak()));
         refreshFields();
-        gamePanel.addChatMessage("🛠 Dev: values applied.");
+        gamePanel.addChatMessage("Dev: values applied.");
         gamePanel.updateUserInfo();
     }
 
     private static int parse(JTextField field, int fallback) {
         try {
             return Integer.parseInt(field.getText().trim());
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             field.setText(String.valueOf(fallback));
             return fallback;
         }

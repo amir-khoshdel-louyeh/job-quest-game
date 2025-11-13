@@ -83,14 +83,18 @@ public class InventoryDialog extends JDialog {
         row.add(info, BorderLayout.CENTER);
 
         JButton use = AppTheme.createPrimaryButton("Use");
-        use.addActionListener(e -> {
-            GameController.ActionResult result = controller.useItem(item.getName());
-            gamePanel.addChatMessage(result.message);
-            gamePanel.updateUserInfo();
-            if (!result.success) {
-                JOptionPane.showMessageDialog(this, result.message, "Cannot Use", JOptionPane.WARNING_MESSAGE);
+        final Item myItem = item;
+        // Use item when clicked. Uses ActionListener (no lambda).
+        use.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                GameController.ActionResult result = controller.useItem(myItem.getName());
+                gamePanel.addChatMessage(result.message);
+                gamePanel.updateUserInfo();
+                if (!result.success) {
+                    JOptionPane.showMessageDialog(InventoryDialog.this, result.message, "Cannot Use", JOptionPane.WARNING_MESSAGE);
+                }
+                refreshList();
             }
-            refreshList();
         });
         row.add(use, BorderLayout.EAST);
         return row;

@@ -38,7 +38,11 @@ public class ProgressDialog extends JDialog {
         add(tabs, BorderLayout.CENTER);
 
         JButton close = AppTheme.createSecondaryButton("Close");
-        close.addActionListener(e -> dispose());
+        close.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                dispose();
+            }
+        });
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         footer.setBackground(AppTheme.BACKGROUND_COLOR);
         footer.add(close);
@@ -90,7 +94,7 @@ public class ProgressDialog extends JDialog {
         top.setOpaque(false);
         JLabel name = AppTheme.createCardTitle((completed ? "✅ " : "🎯 ") + c.getName());
         top.add(name, BorderLayout.WEST);
-        JLabel reward = new JLabel(String.format("+$%d +%d XP", c.getRewardMoney(), c.getRewardExperience()));
+        JLabel reward = new JLabel("+$" + c.getRewardMoney() + " +" + c.getRewardExperience() + " XP");
         reward.setFont(AppTheme.FONT_SMALL);
         reward.setForeground(AppTheme.MONEY_COLOR.darker());
         top.add(reward, BorderLayout.EAST);
@@ -111,10 +115,15 @@ public class ProgressDialog extends JDialog {
         return card;
     }
 
-    // ---------------- Achievements tab ----------------
+    // Build achievements tab. Uses simple for loop (no stream).
     private JComponent buildAchievementsTab() {
         List<Achievement> all = controller.getAchievementsWithStatus();
-        long unlocked = all.stream().filter(Achievement::isUnlocked).count();
+        int unlocked = 0;
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).isUnlocked()) {
+                unlocked = unlocked + 1;
+            }
+        }
 
         JPanel root = new JPanel();
         root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
@@ -150,14 +159,24 @@ public class ProgressDialog extends JDialog {
 
         card.add(AppTheme.createCardDescription(a.getDescription()), BorderLayout.CENTER);
 
-        // Polymorphic progress: each Achievement subclass knows its own metric.
-        int pct;
+        // Get progress with simple if (no Math.max/min nesting).
+        int pct = 0;
         try {
-            pct = Math.max(0, Math.min(100,
-                    AchievementService.getInstance().getAchievementProgress(
-                            controller.getUserController().getUser(), a)));
+            int p = AchievementService.getInstance().getAchievementProgress(
+                    controller.getUserController().getUser(), a);
+            if (p < 0) {
+                p = 0;
+            }
+            if (p > 100) {
+                p = 100;
+            }
+            pct = p;
         } catch (Exception e) {
-            pct = a.isUnlocked() ? 100 : 0;
+            if (a.isUnlocked()) {
+                pct = 100;
+            } else {
+                pct = 0;
+            }
         }
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue(a.isUnlocked() ? 100 : pct);

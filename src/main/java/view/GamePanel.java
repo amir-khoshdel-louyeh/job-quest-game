@@ -282,10 +282,12 @@ public class GamePanel extends JPanel implements Observer {
         southPanel.add(bottomActionsPanel, BorderLayout.SOUTH);
         add(southPanel, BorderLayout.SOUTH);
 
-        // ---------------- Action Listeners ----------------
-        helpButton.addActionListener(e -> {
-            AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
-            aboutDialog.setVisible(true);
+        // Help button, uses simple ActionListener (no lambda).
+        helpButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
+                aboutDialog.setVisible(true);
+            }
         });
         // NOTE: save/exit is handled by the shared saveAndExitAction above —
         // no per-button listener, so both buttons stay in sync (DRY).
@@ -296,14 +298,19 @@ public class GamePanel extends JPanel implements Observer {
     // Step-8: first-run onboarding — tutorial evaporated after login before.
     maybeShowOnboarding();
 
-        // ---------------- Check if blocked ----------------
-        if(userController.isBlocked()) {
+        // Check if blocked
+        if (userController.isBlocked()) {
             JOptionPane.showMessageDialog(this,
                 "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
         }
 
-        // Unblocking user after 48 hours (in milliseconds)
-        Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
+        // Unblock after 48 hours, uses simple Runnable (no lambda).
+        final controller.UserController myUserController1 = userController;
+        utils.Timer.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+            public void run() {
+                myUserController1.unblockUser();
+            }
+        });
     }
 
     
@@ -321,22 +328,42 @@ public class GamePanel extends JPanel implements Observer {
         updateUserInfo();
     }
 
-    // Update UI labels and progress bars with the latest user info
-    // Called directly AND via Observer.update() on every stat mutation.
+    // Update labels with user info. Uses simple if (no Math.min/max, no ternary).
     public void updateUserInfo() {
-        usernameLabel.setText("👤 " + userController.getUsername());
-        balanceLabel.setText("💰 Balance: $" + userController.getBalance());
+        usernameLabel.setText("User: " + userController.getUsername());
+        balanceLabel.setText("Balance: $" + userController.getBalance());
         int hp = userController.getHealth();
-        healthLabel.setText("❤️ Health: " + hp + "/100");
-        healthBar.setValue(Math.max(0, Math.min(100, hp)));
+        healthLabel.setText("Health: " + hp + "/100");
+        int hpValue = hp;
+        if (hpValue < 0) {
+            hpValue = 0;
+        }
+        if (hpValue > 100) {
+            hpValue = 100;
+        }
+        healthBar.setValue(hpValue);
         healthBar.setString(hp + "%");
-        // Low-HP flash: switch to warning color under 30 (simulator readability).
-        healthBar.setForeground(hp < 30 ? AppTheme.WARNING_COLOR : AppTheme.HEALTH_COLOR);
+        if (hp < 30) {
+            healthBar.setForeground(AppTheme.WARNING_COLOR);
+        } else {
+            healthBar.setForeground(AppTheme.HEALTH_COLOR);
+        }
         int en = userController.getEnergy();
-        energyLabel.setText("⚡ Energy: " + en + "/100000");
-        energyBar.setValue(Math.max(0, Math.min(100000, en)));
+        energyLabel.setText("Energy: " + en + "/100000");
+        int enValue = en;
+        if (enValue < 0) {
+            enValue = 0;
+        }
+        if (enValue > 100000) {
+            enValue = 100000;
+        }
+        energyBar.setValue(enValue);
         energyBar.setString((en * 100 / 100000) + "%");
-        energyBar.setForeground(en < 25000 ? AppTheme.WARNING_COLOR : AppTheme.ENERGY_COLOR.darker());
+        if (en < 25000) {
+            energyBar.setForeground(AppTheme.WARNING_COLOR);
+        } else {
+            energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
+        }
         
         // Update progression info
         levelLabel.setText("Level: " + currentUser.getLevel());
@@ -347,20 +374,33 @@ public class GamePanel extends JPanel implements Observer {
         streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
     }
 
-    // Helper to start periodic timers used by the panel. Kept small and readable.
-    // Step-8 tuning: energy ticks were chat-noisy at 5s; RoutineService only
-    // messages on poor-health/low-energy edge cases, so a calmer 30s cadence
-    // preserves survival pressure without log spam. Health/sickness unchanged.
+    // Start timers. Uses simple ActionListener classes (no lambda).
     private void setupTimers() {
-        // Decrease energy every 30 seconds (was 5s — same totals, less noise)
-        Timer.runPeriodic(30_000, e -> routineController.decreaseEnergy());
-        // Decrease health every 1 minute
-        Timer.runPeriodic(60_000, e -> routineController.decreaseHealth());
-        // Sickness check once a day
-        Timer.runPeriodic(24 * 60 * 60 * 1000, e -> routineController.sicknessCheck());
+        final controller.RoutineController myRoutine1 = routineController;
+        Timer.runPeriodic(30000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                myRoutine1.decreaseEnergy();
+            }
+        });
+        final controller.RoutineController myRoutine2 = routineController;
+        Timer.runPeriodic(60000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                myRoutine2.decreaseHealth();
+            }
+        });
+        final controller.RoutineController myRoutine3 = routineController;
+        Timer.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                myRoutine3.sicknessCheck();
+            }
+        });
 
-        // Unblocking user after 48 hours (in milliseconds)
-        Timer.runOnce(48 * 60 * 60 * 1000, () -> userController.unblockUser());
+        final controller.UserController myUser2 = userController;
+        Timer.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+            public void run() {
+                myUser2.unblockUser();
+            }
+        });
     }
 
     /**
@@ -425,7 +465,12 @@ public class GamePanel extends JPanel implements Observer {
         if (toastTimer != null && toastTimer.isRunning()) {
             toastTimer.stop();
         }
-        toastTimer = new javax.swing.Timer(2500, e -> toastDialog.setVisible(false));
+        final javax.swing.JDialog myToast = toastDialog;
+        toastTimer = new javax.swing.Timer(2500, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                myToast.setVisible(false);
+            }
+        });
         toastTimer.setRepeats(false);
         toastTimer.start();
     }
@@ -482,18 +527,50 @@ public class GamePanel extends JPanel implements Observer {
         new DeveloperDialog(parentFrame(), dev, this).setVisible(true);
     }
 
-    /** Labeled nav bar: icon + tooltip per destination, themed buttons. */
+    /** Bottom navigation bar with buttons. Uses ActionListener classes. */
     private JPanel buildNavBar() {
         JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
         nav.setBackground(AppTheme.BACKGROUND_COLOR);
-        nav.add(navButton("🏥 Hospital", "Buy health services (heal)", true, e -> openHospital()));
-        nav.add(navButton("🔨 Workshop", "Do jobs to earn money and XP", true, e -> openWorkshop()));
-        nav.add(navButton("🛒 Market", "Buy energy services (eat)", true, e -> openMarket()));
-        nav.add(navButton("🎓 School", "Learn skills to unlock better jobs", true, e -> openSchool()));
-        nav.add(navButton("🛍️ Shop", "Buy storable items, then use from inventory", false, e -> openShop()));
-        nav.add(navButton("🎒 Inventory", "Use owned items (" + controller.getInventoryItems().size() + ")", false, e -> openInventory()));
-        nav.add(navButton("📊 Progress", "Challenges, achievements and stats", false, e -> openProgress()));
-        nav.add(navButton("🛠 Dev", "Developer demo controls (change variables)", false, e -> openDevControls()));
+        nav.add(navButton("Hospital", "Buy health services (heal)", true, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openHospital();
+            }
+        }));
+        nav.add(navButton("Workshop", "Do jobs to earn money and XP", true, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openWorkshop();
+            }
+        }));
+        nav.add(navButton("Market", "Buy energy services (eat)", true, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openMarket();
+            }
+        }));
+        nav.add(navButton("School", "Learn skills to unlock better jobs", true, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openSchool();
+            }
+        }));
+        nav.add(navButton("Shop", "Buy storable items, then use from inventory", false, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openShop();
+            }
+        }));
+        nav.add(navButton("Inventory", "Use owned items (" + controller.getInventoryItems().size() + ")", false, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openInventory();
+            }
+        }));
+        nav.add(navButton("Progress", "Challenges, achievements and stats", false, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openProgress();
+            }
+        }));
+        nav.add(navButton("Dev", "Developer demo controls (change variables)", false, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                openDevControls();
+            }
+        }));
         return nav;
     }
 

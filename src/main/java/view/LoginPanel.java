@@ -116,15 +116,31 @@ public class LoginPanel extends JPanel {
     }
 
     // Attach action listeners for buttons and fields
+    // Uses simple ActionListener classes (beginner style, no lambda).
     private void initActions() {
-        // When user clicks the login button or presses Enter in password -> try login
-        loginButton.addActionListener(e -> performLogin());
-        registerButton.addActionListener(e -> navigateToRegister());
-
-        // Enter key support: pressing Enter in password field triggers login
-        passwordField.addActionListener(e -> performLogin());
-        // Pressing Enter in username moves focus to password
-        usernameField.addActionListener(e -> passwordField.requestFocus());
+        // When user clicks login -> try login
+        loginButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                performLogin();
+            }
+        });
+        registerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                navigateToRegister();
+            }
+        });
+        // Enter key in password triggers login
+        passwordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                performLogin();
+            }
+        });
+        // Enter in username moves to password
+        usernameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                passwordField.requestFocus();
+            }
+        });
     }
 
     // Perform login asynchronously and handle navigation on success
@@ -143,10 +159,11 @@ public class LoginPanel extends JPanel {
         // Disable button during login
         loginButton.setEnabled(false);
         loginButton.setText("Logging in...");
-        
-        // Simulate async operation
-        SwingWorker<User, Void> worker = new SwingWorker<>() {
-            
+
+        // Do login in background so GUI does not freeze.
+        // Uses SwingWorker with explicit types (beginner clear).
+        SwingWorker<User, Void> worker = new SwingWorker<User, Void>() {
+
             protected User doInBackground() {
                 return loginController.login(username, password);
             }
@@ -190,9 +207,9 @@ public class LoginPanel extends JPanel {
         errorLabel.setText(" ");
     }
 
-    /** Null when valid, otherwise the inline message to show. */
+    /** Return error message or null if ok. Uses simple if. */
     private static String validateInput(String username, String password) {
-        if (username.isEmpty() || password.isEmpty()) {
+        if (username.equals("") || password.equals("")) {
             return "Please enter both username and password.";
         }
         if (username.length() < 3) {

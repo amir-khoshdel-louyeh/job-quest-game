@@ -136,20 +136,26 @@ public class SkillDialog extends JDialog {
         return header;
     }
 
-    /** Human-readable reason a skill is locked (playtime gate + how to open). */
+    // Why locked: show needed playtime. Uses simple if (no Math.max).
     private static String lockReason(LearnableSkill skill, long playMinutes) {
         long need = skill.getRequiredPlayTimeMinutes();
-        long remaining = Math.max(0, need - playMinutes);
-        return "🔒 Requires " + formatPlaytime(need) + " playtime (you have " + formatPlaytime(playMinutes)
+        long remaining = need - playMinutes;
+        if (remaining < 0) {
+            remaining = 0;
+        }
+        return "Requires " + formatPlaytime(need) + " playtime (you have " + formatPlaytime(playMinutes)
                 + ") — play " + formatPlaytime(remaining) + " more to unlock";
     }
 
+    // Format minutes as "2h" or "1h 30m" or "45 min". Uses + (no String.format).
     private static String formatPlaytime(long minutes) {
         if (minutes >= 60 && minutes % 60 == 0) {
             return (minutes / 60) + "h";
         }
         if (minutes >= 60) {
-            return String.format("%dh %dm", minutes / 60, minutes % 60);
+            long h = minutes / 60;
+            long m = minutes % 60;
+            return h + "h " + m + "m";
         }
         return minutes + " min";
     }
@@ -190,29 +196,31 @@ public class SkillDialog extends JDialog {
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setOpaque(false);
 
-        String costText = String.format("Cost: $%d | Needs: %s",
-                skill.getCost(), formatPlaytime(skill.getRequiredPlayTimeMinutes()));
+        String costText = "Cost: $" + skill.getCost() + " | Needs: " + formatPlaytime(skill.getRequiredPlayTimeMinutes());
         JLabel costLabel = new JLabel(costText);
         costLabel.setFont(AppTheme.FONT_BUTTON);
         costLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         actionPanel.add(costLabel, BorderLayout.CENTER);
 
         JButton learnButton;
-        switch (status) {
-            case AVAILABLE -> {
-                learnButton = AppTheme.createSuccessButton(String.format("Learn ($%d)", skill.getCost()));
-                // Delegate the learning action to a small helper to keep this UI method short.
-                learnButton.addActionListener(evt -> handleLearnSkill(skill, learnButton));
-            }
-            case LEARNED -> {
-                learnButton = AppTheme.createSuccessButton("Learned ✓");
-                learnButton.setEnabled(false);
-            }
-            default -> {
-                learnButton = AppTheme.createSuccessButton("Locked 🔒");
-                learnButton.setEnabled(false);
-                learnButton.setToolTipText(statusLine);
-            }
+        // Simple if-else for status (no switch arrow).
+        if (status == SkillStatus.AVAILABLE) {
+            learnButton = AppTheme.createSuccessButton("Learn ($" + skill.getCost() + ")");
+            final LearnableSkill mySkill = skill;
+            final JButton myButton = learnButton;
+            // Learn when clicked. Uses ActionListener (no lambda).
+            learnButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    handleLearnSkill(mySkill, myButton);
+                }
+            });
+        } else if (status == SkillStatus.LEARNED) {
+            learnButton = AppTheme.createSuccessButton("Learned");
+            learnButton.setEnabled(false);
+        } else {
+            learnButton = AppTheme.createSuccessButton("Locked");
+            learnButton.setEnabled(false);
+            learnButton.setToolTipText(statusLine);
         }
         actionPanel.add(learnButton, BorderLayout.EAST);
 

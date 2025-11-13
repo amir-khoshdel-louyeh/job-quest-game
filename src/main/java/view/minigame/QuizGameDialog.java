@@ -11,16 +11,7 @@ import model.minigame.QuizQuestion;
 import services.minigame.QuizScorer;
 import view.theme.AppTheme;
 
-/**
- * Quiz mini-game dialog: Doctors diagnose, Designers answer client briefs.
- *
- * <p>Pure view (SRP): asks 3 random questions one at a time with a round
- * timer, grading lives in {@link QuizScorer}. Modal — call
- * {@link #showAndPlay()} and get a {@link MiniGameResult} or {@code null}
- * when the player cancels before finishing (no penalty then). Once finished,
- * the score is final and auto-accepted: the result screen is info-only, with
- * no retry and no cancel-after-seeing-it.</p>
- */
+// Quiz game dialog: ask 3 questions, simple view class.
 public class QuizGameDialog extends JDialog {
 
     private final String gameName;
@@ -96,11 +87,19 @@ public class QuizGameDialog extends JDialog {
 
         JPanel bottom = new JPanel(new BorderLayout(8, 8));
         bottom.setBackground(AppTheme.BACKGROUND_COLOR);
-        JButton skip = AppTheme.createSecondaryButton("Skip ⏭");
-        skip.addActionListener(e -> answer(-1));
-        nextButton = AppTheme.createPrimaryButton("Next →");
+        JButton skip = AppTheme.createSecondaryButton("Skip");
+        skip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                answer(-1);
+            }
+        });
+        nextButton = AppTheme.createPrimaryButton("Next");
         nextButton.setEnabled(false);
-        nextButton.addActionListener(e -> next());
+        nextButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                next();
+            }
+        });
         bottom.add(skip, BorderLayout.WEST);
         bottom.add(nextButton, BorderLayout.EAST);
         root.add(bottom, BorderLayout.SOUTH);
@@ -109,26 +108,48 @@ public class QuizGameDialog extends JDialog {
     }
 
     private void startRound() {
-        List<QuizQuestion> shuffled = new ArrayList<>(bank);
+        // Pick 3 random questions with simple shuffle.
+        ArrayList<QuizQuestion> shuffled = new ArrayList<QuizQuestion>(bank);
         Collections.shuffle(shuffled);
-        round = shuffled.subList(0, Math.min(3, shuffled.size()));
-        picked = new ArrayList<>(Collections.nCopies(round.size(), -2));
+        int count = 3;
+        if (shuffled.size() < count) {
+            count = shuffled.size();
+        }
+        round = new ArrayList<QuizQuestion>();
+        for (int i = 0; i < count; i++) {
+            round.add(shuffled.get(i));
+        }
+        picked = new ArrayList<Integer>();
+        for (int i = 0; i < round.size(); i++) {
+            picked.add(-2);
+        }
         index = 0;
         startMillis = System.currentTimeMillis();
         stopTick();
-        tick = new javax.swing.Timer(200, e -> {
-            int elapsed = elapsedSeconds();
-            int left = Math.max(0, QuizScorer.ROUND_PAR_SECONDS - elapsed);
-            timeBar.setMaximum(QuizScorer.ROUND_PAR_SECONDS);
-            timeBar.setValue(left);
-            timeBar.setString("⏱ " + left + "s left · Q" + (index + 1) + "/" + round.size());
-            timeBar.setForeground(left <= 15 ? AppTheme.ERROR_COLOR : AppTheme.PRIMARY_COLOR);
-            if (left <= 0) {
-                // timeout: mark remaining as skipped, finish
-                for (int i = 0; i < picked.size(); i++) {
-                    if (picked.get(i) == -2) picked.set(i, -1);
+        // Timer tick with ActionListener (no lambda), simple if (no Math.max).
+        tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                int elapsed = elapsedSeconds();
+                int left = QuizScorer.ROUND_PAR_SECONDS - elapsed;
+                if (left < 0) {
+                    left = 0;
                 }
-                finish();
+                timeBar.setMaximum(QuizScorer.ROUND_PAR_SECONDS);
+                timeBar.setValue(left);
+                timeBar.setString(left + "s left - Q" + (index + 1) + "/" + round.size());
+                if (left <= 15) {
+                    timeBar.setForeground(AppTheme.ERROR_COLOR);
+                } else {
+                    timeBar.setForeground(AppTheme.PRIMARY_COLOR);
+                }
+                if (left <= 0) {
+                    for (int i = 0; i < picked.size(); i++) {
+                        if (picked.get(i) == -2) {
+                            picked.set(i, -1);
+                        }
+                    }
+                    finish();
+                }
             }
         });
         tick.start();
@@ -147,12 +168,13 @@ public class QuizGameDialog extends JDialog {
         for (int i = 0; i < opts.size(); i++) {
             final int choice = i;
             String label = opts.get(i);
-            if (SHOW_CORRECT_MARKER && i == q.getCorrectIndex()) {
-                label += " *";
-            }
             JButton b = AppTheme.createSecondaryButton(label);
             b.setAlignmentX(Component.LEFT_ALIGNMENT);
-            b.addActionListener(e -> answer(choice));
+            b.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    answer(choice);
+                }
+            });
             optionsPanel.add(b);
             optionsPanel.add(Box.createVerticalStrut(8));
         }
@@ -164,21 +186,49 @@ public class QuizGameDialog extends JDialog {
     }
 
     private void answer(int choice) {
-        if (picked.get(index) != -2) return; // already answered
+        if (picked.get(index) != -2) {
+            return;
+        }
         picked.set(index, choice);
         QuizQuestion q = round.get(index);
-        boolean ok = choice >= 0 && q.isCorrect(choice);
-        // lock buttons, highlight correct one
-        for (Component c : optionsPanel.getComponents()) {
-            if (c instanceof JButton b) b.setEnabled(false);
+        boolean ok = false;
+        if (choice >= 0 && q.isCorrect(choice)) {
+            ok = true;
         }
-        feedbackLabel.setText(ok ? "✅ Correct! " + q.getExplanation()
-                : (choice < 0 ? "⏭ Skipped. " : "❌ Not quite. ")
-                        + (q.getExplanation().isEmpty() ? "" : q.getExplanation()
-                        + " (was: " + q.getOptions().get(q.getCorrectIndex()) + ")"));
-        feedbackLabel.setForeground(ok ? AppTheme.SUCCESS_COLOR.darker() : AppTheme.ERROR_COLOR);
+        // Disable buttons with simple for loop (no instanceof pattern).
+        for (int i = 0; i < optionsPanel.getComponents().length; i++) {
+            Component c = optionsPanel.getComponents()[i];
+            if (c instanceof JButton) {
+                JButton b = (JButton) c;
+                b.setEnabled(false);
+            }
+        }
+        String msg = "";
+        if (ok) {
+            msg = "Correct! " + q.getExplanation();
+        } else {
+            if (choice < 0) {
+                msg = "Skipped. ";
+            } else {
+                msg = "Not quite. ";
+            }
+            msg = msg + q.getExplanation();
+            if (q.getExplanation().equals("")) {
+                msg = "Wrong. Answer was: " + q.getOptions().get(q.getCorrectIndex());
+            } else {
+                msg = msg + " (was: " + q.getOptions().get(q.getCorrectIndex()) + ")";
+            }
+        }
+        feedbackLabel.setText(msg);
+        if (ok) {
+            feedbackLabel.setForeground(AppTheme.SUCCESS_COLOR.darker());
+        } else {
+            feedbackLabel.setForeground(AppTheme.ERROR_COLOR);
+        }
         nextButton.setEnabled(true);
-        if (index == round.size() - 1) nextButton.setText("Finish ✔");
+        if (index == round.size() - 1) {
+            nextButton.setText("Finish");
+        }
     }
 
     private void next() {
@@ -192,20 +242,36 @@ public class QuizGameDialog extends JDialog {
 
     private void finish() {
         stopTick();
-        // any unanswered (shouldn't happen) counts as skip
         for (int i = 0; i < picked.size(); i++) {
-            if (picked.get(i) == -2) picked.set(i, -1);
+            if (picked.get(i) == -2) {
+                picked.set(i, -1);
+            }
         }
-        result = scorer.score(gameName, round, picked, Math.max(1, elapsedSeconds()));
-        // Finished work counts: the score is final — no retry, no
-        // cancel-after-seeing-it. The result is shown info-only and auto-accepted.
-        String html = String.format(
-                "<html><center><h2>Score %d/100 %s</h2>%s<br>%ds · Job pay ×%.2f</center></html>",
-                result.getScore(), result.isPassed() ? "✅" : "❌",
-                String.join(" · ", result.getHighlights()), result.getElapsedSeconds(),
-                result.rewardMultiplier());
-        JOptionPane.showMessageDialog(this, html, "Result — " + gameName,
-                result.isPassed() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
+        int elapsed = elapsedSeconds();
+        if (elapsed < 1) {
+            elapsed = 1;
+        }
+        result = scorer.score(gameName, round, picked, elapsed);
+        // Show result with + (no String.format, no String.join).
+        String highlights = "";
+        List<String> hl = result.getHighlights();
+        for (int i = 0; i < hl.size(); i++) {
+            if (i > 0) {
+                highlights = highlights + " - ";
+            }
+            highlights = highlights + hl.get(i);
+        }
+        String pass = "FAIL";
+        if (result.isPassed()) {
+            pass = "PASS";
+        }
+        String html = "<html><center><h2>Score " + result.getScore() + "/100 " + pass + "</h2>"
+                + highlights + "<br>" + result.getElapsedSeconds() + "s</center></html>";
+        int type = JOptionPane.INFORMATION_MESSAGE;
+        if (!result.isPassed()) {
+            type = JOptionPane.WARNING_MESSAGE;
+        }
+        JOptionPane.showMessageDialog(this, html, "Result — " + gameName, type);
         accepted = true;
         dispose();
     }

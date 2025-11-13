@@ -40,8 +40,12 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        List<String> userSkills = user.getSkills().stream()
-                .map(model.Skill::getName).toList();
+        // Get skill names with simple for loop (no stream).
+        List<String> userSkills = new java.util.ArrayList<String>();
+        List<model.Skill> skillObjs = user.getSkills();
+        for (int i = 0; i < skillObjs.size(); i++) {
+            userSkills.add(skillObjs.get(i).getName());
+        }
 
         // Available first, locked after — one pick, no second list.
         // Defensive: drop other professions' jobs if an unfiltered list arrives.
@@ -95,13 +99,27 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    /** Human-readable reason a job is locked (missing profession skills). */
+    // Find missing skills with for loop (no stream).
     private static String lockReason(Job job, List<String> userSkills) {
-        List<String> missing = job.getRequiredSkills().stream()
-                .filter(s -> !userSkills.contains(s)).toList();
-        if (missing.isEmpty()) return "Not available yet";
-        return "🔒 Requires skills: " + String.join(", ", missing)
-                + " — learn at 🎓 School";
+        List<String> missing = new java.util.ArrayList<String>();
+        List<String> need = job.getRequiredSkills();
+        for (int i = 0; i < need.size(); i++) {
+            String s = need.get(i);
+            if (!userSkills.contains(s)) {
+                missing.add(s);
+            }
+        }
+        if (missing.isEmpty()) {
+            return "Not available yet";
+        }
+        String names = "";
+        for (int i = 0; i < missing.size(); i++) {
+            if (i > 0) {
+                names = names + ", ";
+            }
+            names = names + missing.get(i);
+        }
+        return "Requires skills: " + names + " — learn at School";
     }
 
     // Create a single job entry panel with action button
@@ -113,7 +131,11 @@ public class JobDialog extends JDialog {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
 
-        JLabel nameLabel = AppTheme.createCardTitle(available ? job.getName() : job.getName() + " 🔒");
+        String title = job.getName();
+        if (!available) {
+            title = title + " (locked)";
+        }
+        JLabel nameLabel = AppTheme.createCardTitle(title);
         infoPanel.add(nameLabel);
 
         JLabel descriptionLabel = AppTheme.createCardDescription(job.getDescription());
@@ -131,7 +153,7 @@ public class JobDialog extends JDialog {
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setOpaque(false);
 
-        String rewardText = String.format("Pay: $%d | Energy: -%d", job.getPayment(), job.getEnergyCost());
+        String rewardText = "Pay: $" + job.getPayment() + " | Energy: -" + job.getEnergyCost();
         JLabel rewardLabel = new JLabel(rewardText);
         rewardLabel.setFont(AppTheme.FONT_BUTTON);
         rewardLabel.setForeground(AppTheme.MONEY_COLOR.darker());
@@ -142,8 +164,14 @@ public class JobDialog extends JDialog {
         if (!available) {
             doItButton.setToolTipText(lockReason);
         } else {
-            // When clicked, attempt the job via the controller and show the result.
-            doItButton.addActionListener(e -> handleDoJob(job, doItButton));
+            // When clicked, do the job. Uses simple ActionListener (no lambda).
+            final Job myJob = job;
+            final JButton myButton = doItButton;
+            doItButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    handleDoJob(myJob, myButton);
+                }
+            });
         }
         actionPanel.add(doItButton, BorderLayout.EAST);
 
@@ -184,33 +212,32 @@ public class JobDialog extends JDialog {
                 || "Doctor".equals(identity) || "LogoDesigner".equals(identity);
     }
 
-    /**
-     * Strategy pick by identity (Strategy pattern): each profession plays its
-     * own game, the dialog only orchestrates (SRP).
-     * Single-pick: the given job determines the challenge content and the
-     * window title, so "Fix a CSS Bug" opens "Fix a CSS Bug — Write the
-     * Program" locked to that job instead of a generic second task list.
-     *
-     * @return accepted game result, or null when cancelled
-     */
+    // Pick game by identity with simple if-else (no switch expression).
     private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity, Job job) {
-        String jobName = job != null ? job.getName() : "Job";
-        return switch (identity) {
-            case "Typist" -> new view.minigame.TypingGameDialog(
+        String jobName = "Job";
+        if (job != null) {
+            jobName = job.getName();
+        }
+        if (identity.equals("Typist")) {
+            view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Typing Sprint",
-                    provider.TypingTaskProvider.getTaskForJob(jobName), null, false)
-                    .showAndPlay();
-            case "Programmer" -> new view.minigame.TypingGameDialog(
+                    provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
+            return d.showAndPlay();
+        } else if (identity.equals("Programmer")) {
+            view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Write the Program",
-                    provider.CodeTaskProvider.getTaskForJob(jobName), null, true)
-                    .showAndPlay();
-            case "Doctor" -> new view.minigame.QuizGameDialog(
-                    parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null)
-                    .showAndPlay();
-            case "LogoDesigner" -> new view.minigame.QuizGameDialog(
-                    parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null)
-                    .showAndPlay();
-            default -> null;
-        };
+                    provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
+            return d.showAndPlay();
+        } else if (identity.equals("Doctor")) {
+            view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
+                    parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
+            return d.showAndPlay();
+        } else if (identity.equals("LogoDesigner")) {
+            view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
+                    parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
+            return d.showAndPlay();
+        } else {
+            return null;
+        }
     }
 }
