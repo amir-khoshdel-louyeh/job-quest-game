@@ -3,8 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-// Result of doing a job: success or fail + message + rewards.
-// Simple data class, created with success() or failure() methods.
+// Holds the outcome and rewards of doing a job.
 public final class JobResult {
     private boolean success;
     private String message;
@@ -35,7 +34,6 @@ public final class JobResult {
         this.reputationGained = reputationGained;
         this.levelBefore = levelBefore;
         this.levelAfter = levelAfter;
-        // copy lists with for loop (no unmodifiableList)
         this.completedChallenges = new ArrayList<Challenge>();
         if (completedChallenges != null) {
             for (int i = 0; i < completedChallenges.size(); i++) {
@@ -50,7 +48,6 @@ public final class JobResult {
         }
     }
 
-    // Success without extras
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter) {
@@ -60,7 +57,7 @@ public final class JobResult {
                 levelBefore, levelAfter, empty1, empty2);
     }
 
-    // Success with challenges + achievements, message built with + (no String.format).
+    // Builds the success message with pay, XP, level up, challenges, and achievements.
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
@@ -88,7 +85,6 @@ public final class JobResult {
                 xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
 
-    // Success with mini-game result
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
@@ -105,7 +101,6 @@ public final class JobResult {
                 xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
 
-    // Failure (job not started)
     public static JobResult failure(Job job, String reason) {
         String name = "Job";
         if (job != null) {
@@ -116,7 +111,7 @@ public final class JobResult {
         return new JobResult(false, name + ": " + reason, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
     }
 
-    // Failed attempt (energy lost, no reward)
+    // Builds the message for a failed attempt with lost energy and reputation.
     public static JobResult failedAttempt(Job job, int score, int energyLost, int repLost,
                                           model.minigame.MiniGameResult game) {
         String msg = job.getName() + " failed! Score " + score + "/100 (need 50+). Energy -" + energyLost;
@@ -162,7 +157,7 @@ public final class JobResult {
     public int getLevelAfter() {
         return levelAfter;
     }
-    // True if level went up
+    // True when the level after the job is higher than before.
     public boolean didLevelUp() {
         return levelAfter > levelBefore;
     }

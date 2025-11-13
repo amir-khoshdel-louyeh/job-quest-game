@@ -3,24 +3,20 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-// This class represents a skill that can be learned at school.
-// Example: "Java" for Programmer.
+// A skill offered at school with a cost and requirements.
 public class LearnableSkill {
     private String name;
     private String description;
     private int cost;
-    private long requiredPlayTimeMinutes; // minutes of play needed
-    private ArrayList<String> identities; // which professions can learn it
+    private long requiredPlayTimeMinutes;
+    private ArrayList<String> identities;
 
-    // Constructor
-    // Uses simple for loop to copy list, no Collections.unmodifiableList
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
                           List<String> identities) {
         this.name = name;
         this.description = description;
         this.cost = cost;
         this.requiredPlayTimeMinutes = requiredPlayTimeMinutes;
-        // copy list to keep Encapsulation
         this.identities = new ArrayList<String>();
         if (identities != null) {
             for (int i = 0; i < identities.size(); i++) {
@@ -45,8 +41,7 @@ public class LearnableSkill {
         return requiredPlayTimeMinutes;
     }
 
-    // Return copy of identities
-    // Uses simple for loop
+    // Returns a copy so the stored list can't be changed from outside.
     public List<String> getIdentities() {
         ArrayList<String> copy = new ArrayList<String>();
         for (int i = 0; i < identities.size(); i++) {
@@ -55,12 +50,10 @@ public class LearnableSkill {
         return copy;
     }
 
-    // Check if this skill is for this profession name
     public boolean isForIdentity(String identityName) {
         return identities.contains(identityName);
     }
 
-    // Check if this skill is for this Identity object (Polymorphism)
     public boolean isForIdentity(Identity identity) {
         if (identity == null) {
             return false;

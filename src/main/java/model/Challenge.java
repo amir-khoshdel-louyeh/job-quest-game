@@ -1,8 +1,6 @@
 package model;
 
-/**
- * Represents a challenge/mission that players can complete for rewards.
- */
+// A mission the player can finish for extra rewards.
 public class Challenge {
     private final String id;
     private final String name;
@@ -15,11 +13,11 @@ public class Challenge {
     private boolean completed;
     
     public enum ChallengeType {
-        COMPLETE_JOBS,      // Complete X jobs
-        EARN_MONEY,         // Earn X money
-        LEARN_SKILLS,       // Learn X skills
-        MAINTAIN_HEALTH,    // Keep health above X for Y days
-        SPEND_ENERGY       // Spend X energy on work
+        COMPLETE_JOBS,
+        EARN_MONEY,
+        LEARN_SKILLS,
+        MAINTAIN_HEALTH,
+        SPEND_ENERGY
     }
     
     public Challenge(String id, String name, String description, ChallengeType type,
@@ -34,6 +32,7 @@ public class Challenge {
         this.currentProgress = 0;
         this.completed = false;
     }
+    // Adds to progress but never past the target, and marks finished at the target.
     public void addProgress(int amount) {
         if (!completed) {
             currentProgress = Math.min(currentProgress + amount, targetValue);
@@ -42,11 +41,11 @@ public class Challenge {
             }
         }
     }
+    // Progress shown as a number from 0 to 100.
     public int getProgressPercentage() {
         return (int) ((currentProgress / (double) targetValue) * 100);
     }
     
-    // Getters
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -57,12 +56,10 @@ public class Challenge {
     public int getCurrentProgress() { return currentProgress; }
     public boolean isCompleted() { return completed; }
     public void setCurrentProgress(int progress) { this.currentProgress = progress; }
-    // mark challenge completed or not
     public void setCompleted(boolean completed) { this.completed = completed; }
     
     
     public String toString() {
-        // Simple text with + (no String.format).
         return name + " [" + currentProgress + "/" + targetValue + "] - Reward: $" + rewardMoney + " + " + rewardExperience + " XP";
     }
 }

@@ -1,9 +1,6 @@
 package model;
 
-// This class represents a service that player can buy.
-// Example: eat food at market, visit hospital doctor.
-// Service is used instantly (Hospital/Market).
-// Both implement Purchasable interface (Polymorphism).
+// A buyable service that restores health or energy right away.
 public class Service implements Purchasable {
     private String name;
     private String description;
@@ -11,7 +8,6 @@ public class Service implements Purchasable {
     private int healthEffect;
     private int energyEffect;
 
-    // Constructor
     public Service(String name, String description, int cost, int healthEffect, int energyEffect) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Service name must not be blank");
@@ -40,13 +36,11 @@ public class Service implements Purchasable {
         return description;
     }
 
-    // Price of service
     @Override
     public int getPrice() {
         return cost;
     }
 
-    // Same as getPrice, kept for old code
     public int getCost() {
         return cost;
     }
@@ -59,7 +53,7 @@ public class Service implements Purchasable {
         return energyEffect;
     }
 
-    // Apply effect on player (restore health/energy)
+    // Adds the stored health and energy amounts to the player.
     @Override
     public void apply(User user) {
         if (user == null) {

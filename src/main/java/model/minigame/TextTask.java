@@ -1,6 +1,6 @@
 package model.minigame;
 
-// One typing task: title + text to copy + time limit.
+// One typing task with text and a time limit.
 public final class TextTask {
     private String id;
     private String title;
@@ -8,7 +8,6 @@ public final class TextTask {
     private int parSeconds;
     private int difficulty;
 
-    // Constructor with simple if checks (no isBlank, no Math).
     public TextTask(String id, String title, String content, int parSeconds, int difficulty) {
         if (id == null || id.trim().equals("")) {
             throw new IllegalArgumentException("id required");
@@ -52,7 +51,7 @@ public final class TextTask {
         return difficulty;
     }
 
-    // Show stars like "**-" for difficulty, uses for loop (no repeat).
+    // Difficulty as stars like "**-".
     public String difficultyStars() {
         String result = "";
         for (int i = 0; i < difficulty; i++) {

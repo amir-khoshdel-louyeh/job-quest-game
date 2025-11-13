@@ -1,7 +1,6 @@
 package model;
 
-// This class represents a random event in the game.
-// Example: find money, get sick, etc.
+// A random event that changes money, health, or energy.
 public class GameEvent {
     private String id;
     private String title;
@@ -10,16 +9,14 @@ public class GameEvent {
     private int moneyEffect;
     private int healthEffect;
     private int energyEffect;
-    private double probability; // 0.0 to 1.0
+    private double probability;
 
-    // Type of event
     public enum EventType {
         POSITIVE,
         NEGATIVE,
         NEUTRAL
     }
 
-    // Constructor
     public GameEvent(String id, String title, String description, EventType type,
                     int moneyEffect, int healthEffect, int energyEffect, double probability) {
         this.id = id;
@@ -32,7 +29,6 @@ public class GameEvent {
         this.probability = probability;
     }
 
-    // Getters (Encapsulation)
     public String getId() {
         return id;
     }
@@ -58,7 +54,7 @@ public class GameEvent {
         return probability;
     }
 
-    // Return small icon for event, uses simple if-else (no switch expression)
+    // Picks a small icon based on whether the event is good, bad, or neutral.
     public String getIcon() {
         if (type == EventType.POSITIVE) {
             return "✨";
@@ -69,7 +65,7 @@ public class GameEvent {
         }
     }
 
-    // Return text like "+100$ +10 Health", uses simple string concatenation
+    // Builds text like "+$100 +10 Health" from the stored effects.
     public String getFormattedEffects() {
         String result = "";
         if (moneyEffect != 0) {

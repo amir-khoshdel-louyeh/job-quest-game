@@ -1,20 +1,18 @@
 package model;
 
-// This class stores level, experience and reputation.
-// It is used by User class (Composition).
+// Tracks level, experience, and reputation.
 public class CareerProgress {
     public static final int MAX_LEVEL = 100;
 
     private int level = 1;
     private int experience = 0;
-    private int reputation = 0; // 0 to 100
+    private int reputation = 0;
 
-    // return level
     public int getLevel() {
         return level;
     }
 
-    // set level between 1 and 100
+    // Keeps the level between 1 and the max.
     public void setLevel(int newLevel) {
         if (newLevel < 1) {
             newLevel = 1;
@@ -25,13 +23,11 @@ public class CareerProgress {
         this.level = newLevel;
     }
 
-    // return experience
     public int getExperience() {
         return experience;
     }
 
-    // set experience, check for level up
-    // returns true if level increased
+    // Returns true when there is enough XP to move up one level.
     public boolean setExperience(int newExp) {
         if (newExp < 0) {
             newExp = 0;
@@ -40,7 +36,7 @@ public class CareerProgress {
         return checkLevelUp();
     }
 
-    // add experience, check for level up
+    // Returns true when there is enough XP to move up one level.
     public boolean addExperience(int amount) {
         if (amount <= 0) {
             return false;
@@ -49,7 +45,7 @@ public class CareerProgress {
         return checkLevelUp();
     }
 
-    // private helper: if enough XP, go to next level
+    // Moves up one level when the XP reaches what the next level needs.
     private boolean checkLevelUp() {
         int need = getRequiredExperienceForNextLevel();
         if (experience >= need && level < MAX_LEVEL) {
@@ -60,24 +56,22 @@ public class CareerProgress {
         return false;
     }
 
-    // how much XP needed for next level
     public int getRequiredExperienceForNextLevel() {
         return level * 1000;
     }
 
-    // XP as percent 0-100
+    // XP shown as a number from 0 to 100.
     public int getExperiencePercentage() {
         int need = getRequiredExperienceForNextLevel();
         double percent = (experience / (double) need) * 100;
         return (int) percent;
     }
 
-    // return reputation
     public int getReputation() {
         return reputation;
     }
 
-    // set reputation 0-100
+    // Keeps reputation between 0 and 100.
     public void setReputation(int newRep) {
         if (newRep < 0) {
             newRep = 0;
@@ -88,12 +82,11 @@ public class CareerProgress {
         this.reputation = newRep;
     }
 
-    // add reputation
     public void addReputation(int amount) {
         setReputation(reputation + amount);
     }
 
-    // return title based on reputation, uses simple if-else
+    // Picks a title based on the reputation score.
     public String getReputationTitle() {
         if (reputation >= 90) {
             return "Legendary";

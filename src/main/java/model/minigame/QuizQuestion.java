@@ -3,7 +3,7 @@ package model.minigame;
 import java.util.ArrayList;
 import java.util.List;
 
-// One quiz question with options and correct answer.
+// One quiz question with answer options.
 public final class QuizQuestion {
 
     public enum Category { DIAGNOSIS, DESIGN }
@@ -15,7 +15,6 @@ public final class QuizQuestion {
     private int correctIndex;
     private String explanation;
 
-    // Constructor with simple checks
     public QuizQuestion(String id, Category category, String prompt,
                         List<String> options, int correctIndex, String explanation) {
         if (id == null || id.trim().equals("")) {
@@ -30,7 +29,6 @@ public final class QuizQuestion {
         this.id = id;
         this.category = category;
         this.prompt = prompt;
-        // copy with for loop (no unmodifiableList)
         this.options = new ArrayList<String>();
         for (int i = 0; i < options.size(); i++) {
             this.options.add(options.get(i));
@@ -52,7 +50,7 @@ public final class QuizQuestion {
     public String getPrompt() {
         return prompt;
     }
-    // Return copy with for loop
+    // Returns a copy so the stored list can't be changed from outside.
     public List<String> getOptions() {
         ArrayList<String> copy = new ArrayList<String>();
         for (int i = 0; i < options.size(); i++) {
@@ -67,7 +65,6 @@ public final class QuizQuestion {
         return explanation;
     }
 
-    // Check if picked answer is correct
     public boolean isCorrect(int picked) {
         return picked == correctIndex;
     }

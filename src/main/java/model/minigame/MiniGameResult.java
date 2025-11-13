@@ -3,8 +3,7 @@ package model.minigame;
 import java.util.ArrayList;
 import java.util.List;
 
-// Result of mini-game: score, accuracy, etc.
-// Simple data class with getters (Encapsulation).
+// Holds the score and summary of a mini-game.
 public final class MiniGameResult {
     private String gameName;
     private int score;
@@ -36,7 +35,7 @@ public final class MiniGameResult {
         }
     }
 
-    // Make typing result
+    // A score of 50 or more counts as a pass.
     public static MiniGameResult typing(String gameName, int score, int accuracy,
                                         int wpm, int elapsedSeconds, List<String> highlights) {
         boolean pass = false;
@@ -46,7 +45,7 @@ public final class MiniGameResult {
         return new MiniGameResult(gameName, score, accuracy, wpm, elapsedSeconds, pass, highlights);
     }
 
-    // Make quiz result
+    // A score of 50 or more counts as a pass.
     public static MiniGameResult quiz(String gameName, int score, int accuracy,
                                       int elapsedSeconds, List<String> highlights) {
         boolean pass = false;
@@ -56,7 +55,7 @@ public final class MiniGameResult {
         return new MiniGameResult(gameName, score, accuracy, 0, elapsedSeconds, pass, highlights);
     }
 
-    // Keep value 0-100 with simple if (no Math).
+    // Keeps the value between 0 and 100.
     private static int makeSafe(int v) {
         if (v < 0) {
             return 0;
@@ -93,12 +92,12 @@ public final class MiniGameResult {
         return copy;
     }
 
-    // Reward: 0.5x to 1.5x based on score
+    // Higher scores give a bigger reward, from 0.5x to 1.5x.
     public double rewardMultiplier() {
         return 0.5 + score / 100.0;
     }
 
-    // One line summary, uses + (no String.format, no String.join).
+    // Builds one line with score, accuracy, speed, and highlights.
     public String summaryLine() {
         String base = "";
         if (wpm > 0) {
