@@ -35,8 +35,8 @@ public class SkillController {
         if (userController.deductBalance(toLearn.getCost())) {
             userController.addSkill(new Skill(toLearn.getName()));
             // update challenges + achievements
-            ChallengeService.getInstance().updateChallengeProgress(user, Challenge.ChallengeType.LEARN_SKILLS, 1);
-            AchievementService.getInstance().checkAndUnlockAchievements(user);
+            ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.LEARN_SKILLS, 1);
+            AchievementService.checkAndUnlockAchievements(user);
             userController.refresh();
             userController.notifyObservers();
             return true;

@@ -8,20 +8,11 @@ import provider.ChallengeProvider;
 
 // Hands out challenges and tracks their progress and rewards.
 public class ChallengeService {
-    private static ChallengeService instance;
-
     private ChallengeService() {
     }
 
-    public static ChallengeService getInstance() {
-        if (instance == null) {
-            instance = new ChallengeService();
-        }
-        return instance;
-    }
-
     // Give starting challenges to a new user
-    public void initializeChallenges(User user) {
+    public static void initializeChallenges(User user) {
         if (user.getActiveChallenges().isEmpty()) {
             user.addChallenges(ChallengeProvider.getMainChallenges());
             refreshDailyChallenges(user);
@@ -29,7 +20,7 @@ public class ChallengeService {
     }
 
     // Add daily challenges, remove old completed daily ones
-    public void refreshDailyChallenges(User user) {
+    public static void refreshDailyChallenges(User user) {
         user.pruneCompletedDailyChallenges();
         List<Challenge> daily = ChallengeProvider.getDailyChallenges();
         for (int i = 0; i < daily.size(); i++) {
@@ -51,7 +42,7 @@ public class ChallengeService {
     }
 
     // Adds progress to every challenge of this type.
-    public List<Challenge> updateChallengeProgress(User user, Challenge.ChallengeType type, int amount) {
+    public static List<Challenge> updateChallengeProgress(User user, Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();
         for (int i = 0; i < active.size(); i++) {
@@ -68,14 +59,14 @@ public class ChallengeService {
     }
 
     // Give money, XP and reputation for completed challenge
-    private void giveReward(User user, Challenge challenge) {
+    private static void giveReward(User user, Challenge challenge) {
         user.deposit(challenge.getRewardMoney());
         user.addExperience(challenge.getRewardExperience());
         user.addReputation(2);
     }
 
     // Returns challenges that are not finished yet.
-    public List<Challenge> getActiveIncompleteChallenges(User user) {
+    public static List<Challenge> getActiveIncompleteChallenges(User user) {
         ArrayList<Challenge> result = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();
         for (int i = 0; i < active.size(); i++) {
@@ -88,7 +79,7 @@ public class ChallengeService {
     }
 
     // Returns challenges that are finished.
-    public List<Challenge> getCompletedChallenges(User user) {
+    public static List<Challenge> getCompletedChallenges(User user) {
         ArrayList<Challenge> result = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();
         for (int i = 0; i < active.size(); i++) {

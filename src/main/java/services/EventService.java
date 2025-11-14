@@ -6,21 +6,13 @@ import provider.GameEventProvider;
 
 // Hands out surprise events like finding money or losing health.
 public class EventService {
-    private static EventService instance;
-    private long lastEventTime = 0;
+    private static long lastEventTime = 0;
     private static final long EVENT_COOLDOWN = 5 * 60 * 1000; // 5 minutes between events
     
     private EventService() {}
     
-    public static EventService getInstance() {
-        if (instance == null) {
-            instance = new EventService();
-        }
-        return instance;
-    }
-    
     // Checks for a random event. At most one every 5 minutes, 20% chance each check.
-    public GameEvent checkForRandomEvent(User user) {
+    public static GameEvent checkForRandomEvent(User user) {
         long currentTime = System.currentTimeMillis();
         
         // Don't trigger events too frequently
@@ -44,7 +36,7 @@ public class EventService {
     }
     
     // Applies the event's money, health, and energy effects to the player.
-    private void applyEventEffects(User user, GameEvent event) {
+    private static void applyEventEffects(User user, GameEvent event) {
         // Apply money effect
         if (event.getMoneyEffect() > 0) {
             user.deposit(event.getMoneyEffect());

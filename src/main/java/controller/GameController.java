@@ -33,7 +33,7 @@ public class GameController {
         this.statsController = new StatsController();
         this.eventController = new EventController();
         // make sure new users have challenges
-        ChallengeService.getInstance().initializeChallenges(user);
+        ChallengeService.initializeChallenges(user);
     }
 
     // Buy a service (instant effect)
@@ -113,15 +113,15 @@ public class GameController {
     }
 
     public List<Challenge> getActiveChallenges() {
-        return ChallengeService.getInstance().getActiveIncompleteChallenges(userController.getUser());
+        return ChallengeService.getActiveIncompleteChallenges(userController.getUser());
     }
 
     public List<Challenge> getCompletedChallenges() {
-        return ChallengeService.getInstance().getCompletedChallenges(userController.getUser());
+        return ChallengeService.getCompletedChallenges(userController.getUser());
     }
 
     public List<Achievement> getAchievementsWithStatus() {
-        return AchievementService.getInstance().getAchievementsWithStatus(userController.getUser());
+        return AchievementService.getAchievementsWithStatus(userController.getUser());
     }
 
     public GameEvent triggerRandomEvent() {

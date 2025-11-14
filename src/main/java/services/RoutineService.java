@@ -5,17 +5,9 @@ import utils.RandomUtil;
 
 // Handles daily sickness, energy, and health drops.
 public class RoutineService {
-    private static RoutineService instance;
-
     private RoutineService() {}
 
-    public static RoutineService getInstance() {
-        if (instance == null) {
-            instance = new RoutineService();
-        }
-        return instance;
-    }
-    public String processSicknessCheck(UserController userController) {
+    public static String processSicknessCheck(UserController userController) {
         long now = System.currentTimeMillis();
         // Only allow sickness once per 24 hours
         if (now - userController.getUser().getLastSicknessTime() < 24 * 60 * 60 * 1000L) {
@@ -32,7 +24,7 @@ public class RoutineService {
         userController.getUser().setLastSicknessTime(now); // Mark checked for today
         return null;
     }
-    public String processEnergyDecrease(UserController userController) {
+    public static String processEnergyDecrease(UserController userController) {
         if (userController.getEnergy() <= 0) return null;
 
         int energyLoss = 1; // Base energy loss
@@ -50,7 +42,7 @@ public class RoutineService {
         }
         return message;
     }
-    public String processHealthDecrease(UserController userController) {
+    public static String processHealthDecrease(UserController userController) {
         int healthLoss = 1;
         String message = null;
 
@@ -69,7 +61,7 @@ public class RoutineService {
 
     
     // Blocks the player for 48 hours with a money penalty.
-    private void blockUser(UserController userController, String reason) {
+    private static void blockUser(UserController userController, String reason) {
         int penalty = 2000;
         userController.deductBalance(penalty);
         userController.blockUser(48 * 60 * 60 * 1000L);

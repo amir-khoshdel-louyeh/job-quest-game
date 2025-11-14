@@ -152,7 +152,7 @@ public class ProgressDialog extends JDialog {
         // Get progress, clamped to 0-100.
         int pct = 0;
         try {
-            int p = AchievementService.getInstance().getAchievementProgress(
+            int p = AchievementService.getAchievementProgress(
                     controller.getUserController().getUser(), a);
             if (p < 0) {
                 p = 0;

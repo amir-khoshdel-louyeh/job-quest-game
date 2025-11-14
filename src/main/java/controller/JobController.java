@@ -16,8 +16,6 @@ import java.util.List;
 public class JobController {
     private UserController userController;
     private JobService jobService;
-    private ChallengeService challengeService;
-    private AchievementService achievementService;
 
     public JobController(UserController userController) {
         if (userController == null) {
@@ -25,8 +23,6 @@ public class JobController {
         }
         this.userController = userController;
         this.jobService = new JobService();
-        this.challengeService = ChallengeService.getInstance();
-        this.achievementService = AchievementService.getInstance();
     }
 
     // Constructor for tests (can pass own JobService)
@@ -39,32 +35,6 @@ public class JobController {
             this.jobService = jobService;
         } else {
             this.jobService = new JobService();
-        }
-        this.challengeService = ChallengeService.getInstance();
-        this.achievementService = AchievementService.getInstance();
-    }
-
-    public JobController(UserController userController, JobService jobService,
-                          ChallengeService challengeService,
-                          AchievementService achievementService) {
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
-        }
-        this.userController = userController;
-        if (jobService != null) {
-            this.jobService = jobService;
-        } else {
-            this.jobService = new JobService();
-        }
-        if (challengeService != null) {
-            this.challengeService = challengeService;
-        } else {
-            this.challengeService = ChallengeService.getInstance();
-        }
-        if (achievementService != null) {
-            this.achievementService = achievementService;
-        } else {
-            this.achievementService = AchievementService.getInstance();
         }
     }
 
@@ -150,23 +120,23 @@ public class JobController {
 
         // Update challenges
         if (user.getActiveChallenges().isEmpty()) {
-            challengeService.initializeChallenges(user);
+            ChallengeService.initializeChallenges(user);
         }
         ArrayList<Challenge> completed = new ArrayList<Challenge>();
-        List<Challenge> c1 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1);
+        List<Challenge> c1 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1);
         for (int i = 0; i < c1.size(); i++) {
             completed.add(c1.get(i));
         }
-        List<Challenge> c2 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay);
+        List<Challenge> c2 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay);
         for (int i = 0; i < c2.size(); i++) {
             completed.add(c2.get(i));
         }
-        List<Challenge> c3 = challengeService.updateChallengeProgress(user, Challenge.ChallengeType.SPEND_ENERGY, job.getEnergyCost());
+        List<Challenge> c3 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.SPEND_ENERGY, job.getEnergyCost());
         for (int i = 0; i < c3.size(); i++) {
             completed.add(c3.get(i));
         }
 
-        List<Achievement> unlocked = achievementService.checkAndUnlockAchievements(user);
+        List<Achievement> unlocked = AchievementService.checkAndUnlockAchievements(user);
 
         userController.refresh();
 
