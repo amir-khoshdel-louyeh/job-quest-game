@@ -6,16 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import provider.ChallengeProvider;
 
-// This class manages challenges for the player.
+// Hands out challenges and tracks their progress and rewards.
 public class ChallengeService {
-    // only one object of this class (simple singleton)
     private static ChallengeService instance;
 
-    // private constructor so nobody can create with new
     private ChallengeService() {
     }
 
-    // Return the single object, create it if needed
     public static ChallengeService getInstance() {
         if (instance == null) {
             instance = new ChallengeService();
@@ -53,7 +50,7 @@ public class ChallengeService {
         }
     }
 
-    // Add progress to all challenges of this type, uses simple for loop
+    // Adds progress to every challenge of this type.
     public List<Challenge> updateChallengeProgress(User user, Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();
@@ -77,7 +74,7 @@ public class ChallengeService {
         user.addReputation(2);
     }
 
-    // Return challenges that are not finished yet, uses for loop (no stream)
+    // Returns challenges that are not finished yet.
     public List<Challenge> getActiveIncompleteChallenges(User user) {
         ArrayList<Challenge> result = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();
@@ -90,7 +87,7 @@ public class ChallengeService {
         return result;
     }
 
-    // Return challenges that are finished, uses for loop (no stream)
+    // Returns challenges that are finished.
     public List<Challenge> getCompletedChallenges(User user) {
         ArrayList<Challenge> result = new ArrayList<Challenge>();
         List<Challenge> active = user.getActiveChallenges();

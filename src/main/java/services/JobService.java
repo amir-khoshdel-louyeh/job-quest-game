@@ -3,8 +3,8 @@ package services;
 import model.Job;
 import model.User;
 
-// This class calculates payment and rewards for jobs.
-// Formula: Final = Base * (1 + levelBonus + repBonus + streakBonus)
+// Figures out job pay, XP, and reputation rewards.
+// Final pay = base * (1 + level bonus + reputation bonus + streak bonus).
 public class JobService {
 
     // max bonuses
@@ -12,7 +12,6 @@ public class JobService {
     public static final double MAX_STREAK_BONUS = 0.30;
 
     // Level bonus: +5% for each level above 1, max +500%.
-    // Uses simple if instead of nested Math.min/max.
     public double levelBonus(User user) {
         if (user == null) {
             return 0.0;
@@ -65,7 +64,7 @@ public class JobService {
         return total;
     }
 
-    // Final payment after bonuses, uses simple if and Math.round
+    // Final payment after bonuses.
     public int calculateFinalPayment(Job job, User user) {
         if (job == null || user == null) {
             return 0;

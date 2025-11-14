@@ -6,14 +6,13 @@ import java.util.List;
 import model.minigame.MiniGameResult;
 import model.minigame.QuizQuestion;
 
-// This class calculates score for quiz mini-games.
-// Simple helper with no UI.
+// Scores quiz rounds from correct answers and speed.
 public class QuizScorer {
 
-    // Par time for round
+    // Par time for a round.
     public static final int ROUND_PAR_SECONDS = 90;
 
-    // Grade one round, uses simple for loop and if.
+    // Grades one quiz round.
     public MiniGameResult score(String gameName, List<QuizQuestion> questions,
                                 List<Integer> picked, int elapsedSeconds) {
         int n = questions.size();

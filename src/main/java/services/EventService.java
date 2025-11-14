@@ -4,14 +4,13 @@ import model.GameEvent;
 import model.User;
 import provider.GameEventProvider;
 
-// This class gives random events to the player (like finding money).
+// Hands out surprise events like finding money or losing health.
 public class EventService {
     private static EventService instance;
     private long lastEventTime = 0;
     private static final long EVENT_COOLDOWN = 5 * 60 * 1000; // 5 minutes between events
     
     private EventService() {}
-    // private constructor for singleton
     
     public static EventService getInstance() {
         if (instance == null) {
@@ -20,9 +19,7 @@ public class EventService {
         return instance;
     }
     
-    // Check if a random event happens now.
-    // At most one event every 5 minutes, 20% chance each check.
-    // Uses simple if, no stream.
+    // Checks for a random event. At most one every 5 minutes, 20% chance each check.
     public GameEvent checkForRandomEvent(User user) {
         long currentTime = System.currentTimeMillis();
         
@@ -36,7 +33,7 @@ public class EventService {
             return null;
         }
 
-        // get random event using simple provider method
+        // Picks a random event.
         GameEvent event = GameEventProvider.getRandomEvent();
         if (event != null) {
             applyEventEffects(user, event);
@@ -46,7 +43,7 @@ public class EventService {
         return event;
     }
     
-    // apply event numeric effects (money/health/energy) to the user
+    // Applies the event's money, health, and energy effects to the player.
     private void applyEventEffects(User user, GameEvent event) {
         // Apply money effect
         if (event.getMoneyEffect() > 0) {

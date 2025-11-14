@@ -3,12 +3,11 @@ package services;
 import controller.UserController;
 import utils.RandomUtil;
 
-// This class handles daily routines: sickness, energy and health decrease.
+// Handles daily sickness, energy, and health drops.
 public class RoutineService {
     private static RoutineService instance;
 
     private RoutineService() {}
-    // private constructor for singleton
 
     public static RoutineService getInstance() {
         if (instance == null) {
@@ -22,7 +21,7 @@ public class RoutineService {
         if (now - userController.getUser().getLastSicknessTime() < 24 * 60 * 60 * 1000L) {
             return null;
         }
-        // 10% chance to get sick, uses simple RandomUtil
+        // 10% chance to get sick.
         if (RandomUtil.nextInt(100) < 10) {
             int healthLoss = 10 + RandomUtil.nextInt(11); // Lose 10-20 health
             userController.decreaseHealth(healthLoss);
@@ -69,7 +68,7 @@ public class RoutineService {
     }
 
     
-    // apply block penalty and set blocked-until on the user
+    // Blocks the player for 48 hours with a money penalty.
     private void blockUser(UserController userController, String reason) {
         int penalty = 2000;
         userController.deductBalance(penalty);

@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import provider.AchievementProvider;
 
-// This class checks and unlocks achievements for the player.
+// Checks player stats and unlocks earned achievements with rewards.
 public class AchievementService {
-    // only one object (singleton)
     private static AchievementService instance;
 
     private AchievementService() {
@@ -21,8 +20,7 @@ public class AchievementService {
         return instance;
     }
 
-    // Check all achievements, unlock new ones, give rewards.
-    // Uses simple for loop.
+    // Checks every achievement, unlocks new ones, and hands out rewards.
     public List<Achievement> checkAndUnlockAchievements(User user) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
         List<Achievement> all = AchievementProvider.getAllAchievements();
@@ -40,7 +38,6 @@ public class AchievementService {
         return newOnes;
     }
 
-    // Check one achievement
     private boolean checkAchievementRequirement(User user, Achievement achievement) {
         return achievement.checkRequirement(user);
     }

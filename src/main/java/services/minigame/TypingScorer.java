@@ -6,19 +6,17 @@ import java.util.List;
 import model.minigame.MiniGameResult;
 import model.minigame.TextTask;
 
-// This class calculates score for typing mini-games.
-// It is a simple helper class with no UI.
+// Scores typing games from accuracy and speed.
 public class TypingScorer {
 
-    // Grade one attempt, uses simple if and for loops.
+    // Grades one typed attempt.
     public MiniGameResult score(String gameName, TextTask task, String typed, int elapsedSeconds) {
         String expected = normalize(task.getContent());
         String actual = normalize(typed);
         int accuracy = accuracy(expected, actual);
         int wpm = wpm(actual, elapsedSeconds);
 
-        // speed bonus: faster than par time gives more points
-        // uses simple if instead of nested Math.min
+        // Speed bonus: typing faster than the par time scores more.
         int timeForMath = elapsedSeconds;
         if (timeForMath < 1) {
             timeForMath = 1;
@@ -42,7 +40,7 @@ public class TypingScorer {
         return MiniGameResult.typing(gameName, score, accuracy, wpm, elapsedSeconds, highlights);
     }
 
-    // Return 0-100 similarity, uses simple if
+    // Returns 0-100 text similarity.
     public int accuracy(String expected, String actual) {
         if (expected == null) {
             expected = "";
@@ -71,7 +69,7 @@ public class TypingScorer {
         return (int) Math.round(words / (elapsedSeconds / 60.0));
     }
 
-    // Remove extra spaces, beginner way with trim (no stripTrailing)
+    // Trims extra spaces and blank lines.
     static String normalize(String s) {
         if (s == null) {
             return "";
@@ -91,7 +89,7 @@ public class TypingScorer {
         return result.trim();
     }
 
-    // Classic distance between two strings, uses simple for loops
+    // Counts the edits needed to turn one text into the other.
     static int levenshtein(String a, String b) {
         int[] prev = new int[b.length() + 1];
         int[] cur = new int[b.length() + 1];
@@ -106,7 +104,6 @@ public class TypingScorer {
                 int delete = prev[j] + 1;
                 int insert = cur[j - 1] + 1;
                 int replace = prev[j - 1] + cost;
-                // find smallest of three with simple if
                 int best = delete;
                 if (insert < best) {
                     best = insert;
