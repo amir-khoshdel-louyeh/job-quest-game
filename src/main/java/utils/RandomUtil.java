@@ -1,13 +1,8 @@
 package utils;
 
-/**
- * Utility methods for randomization used by providers, events and gameplay logic.
- *
- * Follows Single Responsibility Principle by grouping random helper functions only.
- */
-
 import java.util.Random;
 
+// Picks random numbers for the game.
 public class RandomUtil {
     private static Random random = new Random();
 
