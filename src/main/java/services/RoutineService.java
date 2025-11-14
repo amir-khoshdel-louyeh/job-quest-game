@@ -22,8 +22,8 @@ public class RoutineService {
             return null;
         }
         // 10% chance to get sick.
-        if (RandomUtil.nextInt(100) < 10) {
-            int healthLoss = 10 + RandomUtil.nextInt(11); // Lose 10-20 health
+        if (RandomUtil.getRandomInt(100) < 10) {
+            int healthLoss = 10 + RandomUtil.getRandomInt(11); // Lose 10-20 health
             userController.decreaseHealth(healthLoss);
             userController.getUser().setLastSicknessTime(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
