@@ -6,12 +6,9 @@ import model.identity.LogoDesigner;
 import model.identity.Programmer;
 import model.identity.Typist;
 
-// This class creates Identity objects from a name.
-// It shows Polymorphism: return type is Identity interface,
-// but we return Doctor, Programmer, etc.
+// Builds the starting profession the player picks.
 public class IdentityProvider {
 
-    // Create profession by name, uses simple if-else (beginner style)
     public static Identity createIdentity(String identityName) {
         if (identityName == null) {
             throw new IllegalArgumentException("Unknown identity type: null");

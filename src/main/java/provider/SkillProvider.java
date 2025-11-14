@@ -6,13 +6,11 @@ import java.util.List;
 import model.LearnableSkill;
 import model.User;
 
-// This class gives us all skills that can be learned at school.
+// Holds all skills the player can learn at school.
 public class SkillProvider {
 
-    // list of all skills
     private static ArrayList<LearnableSkill> ALL_SKILLS = new ArrayList<LearnableSkill>();
 
-    // fill the list once when class loads
     static {
         ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 500, 0, makeList2("Typist", "Doctor")));
         ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 1500, 30, makeList1("LogoDesigner")));
@@ -22,14 +20,12 @@ public class SkillProvider {
         ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 25000, 480, makeList2("Programmer", "Doctor")));
     }
 
-    // Helper to make list with one name (beginner way, no List.of)
     private static ArrayList<String> makeList1(String s1) {
         ArrayList<String> list = new ArrayList<String>();
         list.add(s1);
         return list;
     }
 
-    // Helper to make list with two names
     private static ArrayList<String> makeList2(String s1, String s2) {
         ArrayList<String> list = new ArrayList<String>();
         list.add(s1);
@@ -37,7 +33,6 @@ public class SkillProvider {
         return list;
     }
 
-    // Find skill by name, uses simple for loop
     public static LearnableSkill getSkill(String name) {
         for (int i = 0; i < ALL_SKILLS.size(); i++) {
             LearnableSkill skill = ALL_SKILLS.get(i);
@@ -48,7 +43,6 @@ public class SkillProvider {
         return null;
     }
 
-    // Return all skills (copy)
     public static List<LearnableSkill> getAllSkills() {
         ArrayList<LearnableSkill> copy = new ArrayList<LearnableSkill>();
         for (int i = 0; i < ALL_SKILLS.size(); i++) {
@@ -57,7 +51,6 @@ public class SkillProvider {
         return copy;
     }
 
-    // Return skills for one profession name, uses for loop
     public static List<LearnableSkill> getSkillsForIdentity(String identityName) {
         ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
         for (int i = 0; i < ALL_SKILLS.size(); i++) {
@@ -69,7 +62,6 @@ public class SkillProvider {
         return result;
     }
 
-    // Return skills for one Identity object
     public static List<LearnableSkill> getSkillsForIdentity(model.Identity identity) {
         ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
         if (identity == null) {

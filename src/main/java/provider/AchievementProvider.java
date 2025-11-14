@@ -14,7 +14,7 @@ import model.achievement.WorkaholicAchievement;
 import model.achievement.HealthMaintainedAchievement;
 import model.achievement.DaysPlayedAchievement;
 
-// This class stores all achievements in one place.
+// Holds all achievements the player can earn.
 public class AchievementProvider {
 
     private static ArrayList<Achievement> ALL_ACHIEVEMENTS = new ArrayList<Achievement>();
@@ -38,7 +38,6 @@ public class AchievementProvider {
         ALL_ACHIEVEMENTS.add(new DaysPlayedAchievement("dedicated", "Dedicated Player", "Play for 30 days", 3000, 30));
     }
 
-    // Return copy with for loop (no unmodifiableList)
     public static List<Achievement> getAllAchievements() {
         ArrayList<Achievement> copy = new ArrayList<Achievement>();
         for (int i = 0; i < ALL_ACHIEVEMENTS.size(); i++) {

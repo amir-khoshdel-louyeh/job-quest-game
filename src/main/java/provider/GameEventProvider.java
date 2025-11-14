@@ -5,9 +5,7 @@ import java.util.List;
 
 import model.GameEvent;
 
-/**
- * Provides all random events that can occur in the game.
- */
+// Holds all random events that can pop up while playing.
 public class GameEventProvider {
     
     private static final List<GameEvent> ALL_EVENTS = new ArrayList<>();

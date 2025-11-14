@@ -5,9 +5,7 @@ import java.util.List;
 
 import model.Challenge;
 
-/**
- * Provides available challenges for the game.
- */
+// Holds the daily, weekly, and story challenges the player can try.
 public class ChallengeProvider {
     
     private static final List<Challenge> DAILY_CHALLENGES = new ArrayList<>();

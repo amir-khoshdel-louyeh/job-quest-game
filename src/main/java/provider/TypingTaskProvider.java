@@ -5,7 +5,7 @@ import java.util.List;
 
 import model.minigame.TextTask;
 
-// This class stores typing tasks for Typist mini-game.
+// Holds the typing tasks for the Typist mini-game.
 public final class TypingTaskProvider {
 
     private static ArrayList<TextTask> TASKS = new ArrayList<TextTask>();
@@ -28,7 +28,6 @@ public final class TypingTaskProvider {
                 110, 3));
     }
 
-    // private constructor, nobody creates this class
     private TypingTaskProvider() {
     }
 
@@ -36,7 +35,6 @@ public final class TypingTaskProvider {
         TASKS.add(t);
     }
 
-    // Return copy of all tasks, uses for loop
     public static List<TextTask> getAll() {
         ArrayList<TextTask> copy = new ArrayList<TextTask>();
         for (int i = 0; i < TASKS.size(); i++) {
@@ -45,7 +43,6 @@ public final class TypingTaskProvider {
         return copy;
     }
 
-    // Find task by id, uses simple for loop (no stream)
     public static TextTask getById(String id) {
         if (id == null) {
             return null;
@@ -60,7 +57,6 @@ public final class TypingTaskProvider {
     }
 
     // Pick one task for a job name. Same job always gives same task.
-    // Uses simple % math, no floorMod.
     public static TextTask getTaskForJob(String jobName) {
         if (TASKS.isEmpty()) {
             throw new IllegalStateException("No typing tasks");

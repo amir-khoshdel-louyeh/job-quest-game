@@ -5,7 +5,7 @@ import java.util.List;
 
 import model.IdentityOption;
 
-// This class stores the 4 starting professions to choose from.
+// Holds the 4 starting professions the player can choose from.
 public class IdentityOptionProvider {
 
     private static ArrayList<IdentityOption> OPTIONS = new ArrayList<IdentityOption>();
@@ -17,7 +17,6 @@ public class IdentityOptionProvider {
         OPTIONS.add(new IdentityOption("Typist", "Type documents for clients.", 200, "images/typist.png"));
     }
 
-    // Return copy with for loop (no unmodifiableList)
     public static List<IdentityOption> getAvailableOptions() {
         ArrayList<IdentityOption> copy = new ArrayList<IdentityOption>();
         for (int i = 0; i < OPTIONS.size(); i++) {

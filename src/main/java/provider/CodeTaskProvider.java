@@ -5,7 +5,7 @@ import java.util.List;
 
 import model.minigame.TextTask;
 
-// This class stores code tasks for Programmer mini-game.
+// Holds the code tasks for the Programmer mini-game.
 public final class CodeTaskProvider {
 
     private static ArrayList<TextTask> TASKS = new ArrayList<TextTask>();
@@ -35,7 +35,6 @@ public final class CodeTaskProvider {
         TASKS.add(t);
     }
 
-    // Return copy, uses for loop
     public static List<TextTask> getAll() {
         ArrayList<TextTask> copy = new ArrayList<TextTask>();
         for (int i = 0; i < TASKS.size(); i++) {
@@ -44,7 +43,6 @@ public final class CodeTaskProvider {
         return copy;
     }
 
-    // Find by id with for loop (no stream)
     public static TextTask getById(String id) {
         if (id == null) {
             return null;

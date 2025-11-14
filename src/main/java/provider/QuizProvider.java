@@ -5,7 +5,7 @@ import java.util.List;
 
 import model.minigame.QuizQuestion;
 
-// This class stores quiz questions for Doctor and Designer mini-games.
+// Holds the quiz questions for the Doctor and Designer mini-games.
 public final class QuizProvider {
 
     private static ArrayList<QuizQuestion> DIAGNOSIS = new ArrayList<QuizQuestion>();
@@ -60,7 +60,6 @@ public final class QuizProvider {
     private QuizProvider() {
     }
 
-    // Helper to make list of 3 choices (beginner way, no List.of)
     private static ArrayList<String> makeList3(String a, String b, String c) {
         ArrayList<String> list = new ArrayList<String>();
         list.add(a);
@@ -69,7 +68,6 @@ public final class QuizProvider {
         return list;
     }
 
-    // Return copy with for loop (no unmodifiableList)
     public static List<QuizQuestion> getDiagnosisQuestions() {
         ArrayList<QuizQuestion> copy = new ArrayList<QuizQuestion>();
         for (int i = 0; i < DIAGNOSIS.size(); i++) {

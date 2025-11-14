@@ -6,14 +6,11 @@ import java.util.List;
 import model.Job;
 import model.User;
 
-// This class gives us all jobs in the game.
-// It is like a catalog: all jobs are stored here in one place.
+// Builds the list of jobs the player can pick from.
 public class JobProvider {
 
-    // list of all jobs
     private static ArrayList<Job> ALL_JOBS = new ArrayList<Job>();
 
-    // static block runs once when class is loaded, fills the list
     static {
         // --- Typist Jobs ---
         ALL_JOBS.add(new Job("Transcribe Audio Clip", "Transcribe a short audio file.", 15, 1000, "Typist", makeEmptyList()));
@@ -40,19 +37,16 @@ public class JobProvider {
         ALL_JOBS.add(new Job("Manage a Health Seminar", "Organize and lead an online health seminar.", 10000, 25000, "Doctor", makeList2("Project Management", "Content Writing")));
     }
 
-    // Helper: make empty skill list, beginner way (no Collections.emptyList)
     private static ArrayList<String> makeEmptyList() {
         return new ArrayList<String>();
     }
 
-    // Helper: make list with one skill
     private static ArrayList<String> makeList1(String s1) {
         ArrayList<String> list = new ArrayList<String>();
         list.add(s1);
         return list;
     }
 
-    // Helper: make list with two skills
     private static ArrayList<String> makeList2(String s1, String s2) {
         ArrayList<String> list = new ArrayList<String>();
         list.add(s1);
@@ -60,7 +54,7 @@ public class JobProvider {
         return list;
     }
 
-    // Return all jobs (a copy so nobody can break original list)
+    // Return a copy so callers can't change the original list.
     public static List<Job> getAllJobs() {
         ArrayList<Job> copy = new ArrayList<Job>();
         for (int i = 0; i < ALL_JOBS.size(); i++) {
@@ -70,7 +64,6 @@ public class JobProvider {
     }
 
     // Return jobs for one profession name, example "Doctor".
-    // Uses simple for loop, no stream.
     public static List<Job> getJobsForIdentity(String identityName) {
         ArrayList<Job> result = new ArrayList<Job>();
         for (int i = 0; i < ALL_JOBS.size(); i++) {
@@ -82,8 +75,7 @@ public class JobProvider {
         return result;
     }
 
-    // Return jobs for one Identity object (Polymorphism).
-    // Uses simple for loop.
+    // Return jobs for one profession.
     public static List<Job> getJobsForIdentity(model.Identity identity) {
         ArrayList<Job> result = new ArrayList<Job>();
         if (identity == null) {
@@ -99,7 +91,6 @@ public class JobProvider {
     }
 
     // Return jobs that this user can do now.
-    // Uses simple for loop.
     public static List<Job> getAvailableJobsForUser(User user) {
         ArrayList<Job> result = new ArrayList<Job>();
         if (user == null || user.getIdentity() == null) {

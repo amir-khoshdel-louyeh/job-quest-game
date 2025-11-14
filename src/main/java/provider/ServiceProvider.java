@@ -6,13 +6,12 @@ import java.util.List;
 
 import model.Service;
 
-// This class stores all services (food, hospital) in one place.
+// Holds all food and hospital services the player can buy.
 public class ServiceProvider {
 
     // map name -> service, for quick lookup
     private static HashMap<String, Service> SERVICES_BY_NAME = new HashMap<String, Service>();
 
-    // fill map once
     static {
         addService(new Service("Water Bottle", "+500 Energy", 5, 0, 500));
         addService(new Service("Apple", "+800 Energy", 8, 0, 800));
@@ -40,21 +39,17 @@ public class ServiceProvider {
         addService(new Service("Gourmet Meal", "+25,000 Energy, +5 Health", 200, 5, 25000));
     }
 
-    // Add one service to map
     private static void addService(Service service) {
         SERVICES_BY_NAME.put(service.getName(), service);
     }
 
-    // Find service by name
     public static Service getService(String name) {
         return SERVICES_BY_NAME.get(name);
     }
 
-    // Return only health services (health > 0, energy == 0)
-    // Uses simple for loop, no stream.
+    // Return only health services (health > 0, energy == 0).
     public static List<Service> getHealthServices() {
         ArrayList<Service> result = new ArrayList<Service>();
-        // get all values into a list first
         ArrayList<Service> all = new ArrayList<Service>(SERVICES_BY_NAME.values());
         for (int i = 0; i < all.size(); i++) {
             Service s = all.get(i);
@@ -65,7 +60,7 @@ public class ServiceProvider {
         return result;
     }
 
-    // Return only energy services (energy > 0, health == 0)
+    // Return only energy services (energy > 0, health == 0).
     public static List<Service> getEnergyServices() {
         ArrayList<Service> result = new ArrayList<Service>();
         ArrayList<Service> all = new ArrayList<Service>(SERVICES_BY_NAME.values());
