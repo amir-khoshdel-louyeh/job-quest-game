@@ -17,7 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import utils.Timer;
+import utils.TimerUtil;
 
 public class GamePanel extends JPanel implements Observer {
     private User currentUser;
@@ -279,7 +279,7 @@ public class GamePanel extends JPanel implements Observer {
 
         // Unblock after 48 hours.
         final controller.UserController myUserController1 = userController;
-        utils.Timer.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+        utils.TimerUtil.runOnce(48 * 60 * 60 * 1000, new Runnable() {
             public void run() {
                 myUserController1.unblockUser();
             }
@@ -344,26 +344,26 @@ public class GamePanel extends JPanel implements Observer {
 
     private void setupTimers() {
         final controller.RoutineController myRoutine1 = routineController;
-        Timer.runPeriodic(30000, new java.awt.event.ActionListener() {
+        TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 myRoutine1.decreaseEnergy();
             }
         });
         final controller.RoutineController myRoutine2 = routineController;
-        Timer.runPeriodic(60000, new java.awt.event.ActionListener() {
+        TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 myRoutine2.decreaseHealth();
             }
         });
         final controller.RoutineController myRoutine3 = routineController;
-        Timer.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
+        TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 myRoutine3.sicknessCheck();
             }
         });
 
         final controller.UserController myUser2 = userController;
-        Timer.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+        TimerUtil.runOnce(48 * 60 * 60 * 1000, new Runnable() {
             public void run() {
                 myUser2.unblockUser();
             }

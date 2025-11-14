@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 // Runs game tasks after a wait or on repeat.
-public class Timer {
+public class TimerUtil {
 
     public static javax.swing.Timer runPeriodic(int delayMillis, ActionListener task) {
         javax.swing.Timer timer = new javax.swing.Timer(delayMillis, task);
