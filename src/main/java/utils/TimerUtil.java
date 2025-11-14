@@ -1,23 +1,19 @@
 package utils;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Timer;
 
 // Runs game tasks after a wait or on repeat.
 public class TimerUtil {
 
-    public static javax.swing.Timer runPeriodic(int delayMillis, ActionListener task) {
-        javax.swing.Timer timer = new javax.swing.Timer(delayMillis, task);
+    public static Timer runPeriodic(int delayMillis, ActionListener task) {
+        Timer timer = new Timer(delayMillis, task);
         timer.start();
         return timer;
     }
 
-    public static void runOnce(int delayMillis, final Runnable task) {
-        javax.swing.Timer timer = new javax.swing.Timer(delayMillis, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                task.run();
-            }
-        });
+    public static void runOnce(int delayMillis, Runnable task) {
+        Timer timer = new Timer(delayMillis, actionEvent -> task.run());
         timer.setRepeats(false);
         timer.start();
     }
