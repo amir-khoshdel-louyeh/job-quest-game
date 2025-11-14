@@ -7,8 +7,7 @@ import view.theme.AppTheme;
 import javax.swing.*;
 import java.awt.*;
 
-// Developer dialog for demos: change money, health, etc. quickly.
-// Simple view class, all logic is in DeveloperController.
+// The developer screen: change money, health, and other stats quickly for demos.
 public class DeveloperDialog extends JDialog {
 
     private DeveloperController devController;
@@ -22,7 +21,6 @@ public class DeveloperDialog extends JDialog {
     private JTextField playtimeField;
     private JTextField streakField;
 
-    // Constructor: build form
     public DeveloperDialog(JFrame parent, DeveloperController devController, GamePanel gamePanel) {
         super(parent, "Developer Controls", true);
         this.devController = devController;
@@ -59,7 +57,6 @@ public class DeveloperDialog extends JDialog {
 
         JPanel quickRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         quickRow.setBackground(AppTheme.BACKGROUND_COLOR);
-        // Quick buttons use simple ActionListener classes (no lambda, no method reference).
         quickRow.add(quickButton("Full HP", new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 devController.setHealth(100);
@@ -106,7 +103,6 @@ public class DeveloperDialog extends JDialog {
         add(bottom, BorderLayout.SOUTH);
     }
 
-    // Make one label + field row
     private JTextField row(JPanel form, String labelText) {
         JLabel label = new JLabel(labelText);
         label.setFont(AppTheme.FONT_BODY);
@@ -117,21 +113,18 @@ public class DeveloperDialog extends JDialog {
         return field;
     }
 
-    // Make a quick button with given action
     private JButton quickButton(String text, java.awt.event.ActionListener action) {
         JButton button = AppTheme.createSecondaryButton(text);
         button.addActionListener(action);
         return button;
     }
 
-    // Called after quick button: refresh + chat message
     private void afterQuick(String text) {
         refreshFields();
         gamePanel.addChatMessage("Dev: " + text + " applied.");
         gamePanel.updateUserInfo();
     }
 
-    // Reload fields from user
     private void refreshFields() {
         User user = devController.getUser();
         balanceField.setText(String.valueOf(user.getBalance()));
@@ -143,7 +136,6 @@ public class DeveloperDialog extends JDialog {
         streakField.setText(String.valueOf(user.getCurrentStreak()));
     }
 
-    // Read fields and apply, uses simple if (no Math.min).
     private void applyValues() {
         User user = devController.getUser();
         devController.setBalance(parse(balanceField, user.getBalance()));
@@ -153,7 +145,7 @@ public class DeveloperDialog extends JDialog {
         devController.setReputation(parse(reputationField, user.getReputation()));
         long currentMinutes = user.getTotalPlayTime() / (1000 * 60);
         int currentInt = (int) currentMinutes;
-        // keep inside int range with simple if
+        // Keep inside int range.
         if (currentMinutes > Integer.MAX_VALUE) {
             currentInt = Integer.MAX_VALUE;
         }

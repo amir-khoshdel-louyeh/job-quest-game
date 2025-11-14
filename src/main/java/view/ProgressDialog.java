@@ -10,15 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-/**
- * Step-7: progress dashboard — surfaces previously invisible systems.
- *
- * <p>Pure view (SRP): three tabs (Challenges / Achievements / Stats) fed only
- * through the {@link GameController} Facade added in Step 2
- * (Abstraction — no Singleton calls except achievement progress lookup).
- * Challenge rows show live % bars via {@link Challenge#getProgressPercentage()};
- * achievements render polymorphically via {@link Achievement#getProgress}.</p>
- */
+// The progress screen: challenges, achievements, and stats in tabs.
 public class ProgressDialog extends JDialog {
 
     private final GameController controller;
@@ -49,7 +41,6 @@ public class ProgressDialog extends JDialog {
         add(footer, BorderLayout.SOUTH);
     }
 
-    // ---------------- Challenges tab ----------------
     private JComponent buildChallengesTab() {
         List<Challenge> active = controller.getActiveChallenges();
         List<Challenge> done = controller.getCompletedChallenges();
@@ -115,7 +106,6 @@ public class ProgressDialog extends JDialog {
         return card;
     }
 
-    // Build achievements tab. Uses simple for loop (no stream).
     private JComponent buildAchievementsTab() {
         List<Achievement> all = controller.getAchievementsWithStatus();
         int unlocked = 0;
@@ -159,7 +149,7 @@ public class ProgressDialog extends JDialog {
 
         card.add(AppTheme.createCardDescription(a.getDescription()), BorderLayout.CENTER);
 
-        // Get progress with simple if (no Math.max/min nesting).
+        // Get progress, clamped to 0-100.
         int pct = 0;
         try {
             int p = AchievementService.getInstance().getAchievementProgress(
@@ -189,7 +179,6 @@ public class ProgressDialog extends JDialog {
         return card;
     }
 
-    // ---------------- Stats tab ----------------
     private JComponent buildStatsTab() {
         JPanel root = new JPanel(new BorderLayout(8, 8));
         root.setBackground(AppTheme.BACKGROUND_COLOR);
@@ -213,7 +202,6 @@ public class ProgressDialog extends JDialog {
         return root;
     }
 
-    // ---------------- helpers ----------------
     private static JScrollPane scroll(JPanel content) {
         JScrollPane sp = new JScrollPane(content);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);

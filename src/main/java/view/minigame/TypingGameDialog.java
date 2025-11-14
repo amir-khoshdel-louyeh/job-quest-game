@@ -9,16 +9,7 @@ import model.minigame.TextTask;
 import services.minigame.TypingScorer;
 import view.theme.AppTheme;
 
-/**
- * Retype mini-game dialog: Typists copy prose, Programmers copy tiny programs.
- *
- * <p>Pure view (SRP): measures time and collects input, grading lives in
- * {@link TypingScorer} (DIP, injectable for tests). Modal — call
- * {@link #showAndPlay()} and get a {@link MiniGameResult} or {@code null}
- * when the player cancels before submitting (no penalty then). Once
- * submitted, the score is final and auto-accepted: the result screen is
- * info-only, with no retry and no cancel-after-seeing-it.</p>
- */
+// The typing game: retype the text as fast and accurately as you can.
 public class TypingGameDialog extends JDialog {
 
     private final String gameName;
@@ -68,7 +59,6 @@ public class TypingGameDialog extends JDialog {
         super(parent, gameName, true);
         if (jobTask == null) throw new IllegalArgumentException("jobTask required");
         this.gameName = gameName;
-        // Use ArrayList with one task (beginner way, no List.of).
         this.tasks = new java.util.ArrayList<model.minigame.TextTask>();
         this.tasks.add(jobTask);
         this.scorer = scorer != null ? scorer : new TypingScorer();
@@ -91,7 +81,6 @@ public class TypingGameDialog extends JDialog {
         root.setBackground(AppTheme.BACKGROUND_COLOR);
         root.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        // ---- picker row ----
         // Job-locked mode: no second dropdown — the Workshop's job pick IS the
         // selection. Show the fixed challenge name instead of "Pick a task".
         JPanel pick = new JPanel(new BorderLayout(8, 8));
@@ -133,7 +122,6 @@ public class TypingGameDialog extends JDialog {
         pick.add(startButton, BorderLayout.EAST);
         root.add(pick, BorderLayout.NORTH);
 
-        // ---- center: target + input ----
         JPanel center = new JPanel(new GridLayout(2, 1, 8, 8));
         center.setBackground(AppTheme.BACKGROUND_COLOR);
         targetArea = new JTextArea();
@@ -156,7 +144,6 @@ public class TypingGameDialog extends JDialog {
         center.add(labeled(codeMode ? "⌨️ Write the program here:" : "⌨️ Type it here:", new JScrollPane(inputArea)));
         root.add(center, BorderLayout.CENTER);
 
-        // ---- bottom: timer + status + submit ----
         JPanel bottom = new JPanel(new BorderLayout(8, 8));
         bottom.setBackground(AppTheme.BACKGROUND_COLOR);
         timeBar = new JProgressBar(0, 100);
@@ -228,7 +215,6 @@ public class TypingGameDialog extends JDialog {
         startMillis = System.currentTimeMillis();
         stopTick();
         final int limit = current.getParSeconds() * 3;
-        // Timer tick, uses ActionListener (no lambda), simple if (no Math.max).
         tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 int elapsed = elapsedSeconds();
@@ -279,7 +265,6 @@ public class TypingGameDialog extends JDialog {
     }
 
     private void showResult() {
-        // Show score, uses + (no String.format).
         String pass = "FAIL";
         if (result.isPassed()) {
             pass = "PASS";

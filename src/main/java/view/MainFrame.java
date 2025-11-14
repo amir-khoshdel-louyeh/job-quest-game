@@ -5,16 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-/**
- * Main application frame with professional styling and fullscreen support.
- */
+// The app window: starts fullscreen, F11 toggles windowed, ESC asks to exit.
 public class MainFrame extends JFrame {
-    // Graphics device used for fullscreen operations
     private GraphicsDevice device;
     
-    // Main application frame constructor and initialization
     public MainFrame() {
-        // Initialize theme before creating UI
         AppTheme.initialize();
         
         setTitle("Job Quest - Professional Career Simulation");
@@ -27,15 +22,12 @@ public class MainFrame extends JFrame {
         if (device.isFullScreenSupported()) {
             device.setFullScreenWindow(this);
         } else {
-            // Fallback to maximized if fullscreen not supported
             setExtendedState(JFrame.MAXIMIZED_BOTH);
             setSize(Toolkit.getDefaultToolkit().getScreenSize());
         }
 
 
         // Escape to exit, F11 to toggle fullscreen
-        // Step-8: undecorated fullscreen trapped users (ESC-exit only).
-        // F11 now toggles a decorated windowed mode for multitasking.
         addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -46,7 +38,6 @@ public class MainFrame extends JFrame {
             }
         });
         
-        // Make sure frame can receive key events
         setFocusable(true);
         requestFocusInWindow();
         try {
@@ -54,7 +45,6 @@ public class MainFrame extends JFrame {
                 getClass().getResource("/images/icon.png")
             ));
         } catch (Exception e) {
-            // Icon not found, continue without it
         }
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         
@@ -64,7 +54,6 @@ public class MainFrame extends JFrame {
         setVisible(true);
     }
     
-    // Show a panel. Uses simple Runnable inner class (no lambda).
     public void showPanel(JPanel panel) {
         final JPanel myPanel = panel;
         SwingUtilities.invokeLater(new Runnable() {
@@ -76,7 +65,6 @@ public class MainFrame extends JFrame {
         });
     }
     
-    // Handle user request to exit the game via Escape key
     private void handleExitRequest() {
         int confirm = JOptionPane.showConfirmDialog(
             this,
@@ -89,11 +77,7 @@ public class MainFrame extends JFrame {
         }
     }
 
-    /**
-     * Step-8: toggle between fullscreen and decorated windowed mode.
-     * Changing undecorated requires dispose/recreate — encapsulated here
-     * so callers just call toggleFullscreen() (SRP, Encapsulation).
-     */
+    // Toggle fullscreen; switching window style needs dispose and show again.
     private void toggleFullscreen() {
         boolean isFullscreen = (device != null && device.getFullScreenWindow() == this);
         dispose();
@@ -115,7 +99,6 @@ public class MainFrame extends JFrame {
         requestFocusInWindow();
     }
     
-    // A helper method to exit fullscreen and then shut down the application
     private void exitFullscreenAndShutdown() {
         if (device != null && device.getFullScreenWindow() == this) {
             device.setFullScreenWindow(null);

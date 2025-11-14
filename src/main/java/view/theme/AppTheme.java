@@ -1,18 +1,11 @@
 package view.theme;
 
-/**
- * Centralized application theme and look-and-feel options used by the UI.
- *
- * Follows Single Responsibility Principle by holding theme configuration only.
- */
-
+// Shared colors, fonts, and button styles used by every screen.
 import javax.swing.*;
 import java.awt.*;
 
-// Professional theme configuration and helpers for UI styling
 public class AppTheme {
     
-    // Color Palette - Modern Professional Colors
     public static final Color PRIMARY_COLOR = new Color(63, 81, 181);        // Indigo
     public static final Color PRIMARY_DARK = new Color(48, 63, 159);         // Dark Indigo
     public static final Color PRIMARY_LIGHT = new Color(92, 107, 192);       // Light Indigo
@@ -34,12 +27,10 @@ public class AppTheme {
     public static final Color BORDER_COLOR = new Color(224, 224, 224);
     public static final Color DIVIDER_COLOR = new Color(238, 238, 238);
     
-    // Health and Energy Colors
     public static final Color HEALTH_COLOR = new Color(244, 67, 54);         // Red
     public static final Color ENERGY_COLOR = new Color(255, 193, 7);         // Amber
     public static final Color MONEY_COLOR = new Color(76, 175, 80);          // Green
     
-    // Fonts
     public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 28);
     public static final Font FONT_HEADING = new Font("Segoe UI", Font.BOLD, 20);
     public static final Font FONT_SUBHEADING = new Font("Segoe UI", Font.BOLD, 16);
@@ -47,7 +38,6 @@ public class AppTheme {
     public static final Font FONT_SMALL = new Font("Segoe UI", Font.PLAIN, 12);
     public static final Font FONT_BUTTON = new Font("Segoe UI", Font.BOLD, 14);
     
-    // Dimensions
     public static final int BORDER_RADIUS = 8;
     public static final int PADDING_SMALL = 8;
     public static final int PADDING_MEDIUM = 16;
@@ -55,13 +45,9 @@ public class AppTheme {
     public static final int BUTTON_HEIGHT = 40;
     public static final int INPUT_HEIGHT = 36;
     
-    // Initialize the application theme (call before creating UI)
     public static void initialize() {
         try {
-            // Set system look and feel as fallback
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
-            // Customize UIManager defaults
             customizeDefaults();
             
         } catch (Exception e) {
@@ -69,35 +55,28 @@ public class AppTheme {
         }
     }
     
-    // Apply UIManager default customizations for consistent styling
     private static void customizeDefaults() {
-        // Button styling
         UIManager.put("Button.font", FONT_BUTTON);
         UIManager.put("Button.background", PRIMARY_COLOR);
         UIManager.put("Button.foreground", Color.WHITE);
         UIManager.put("Button.select", PRIMARY_DARK);
         UIManager.put("Button.arc", BORDER_RADIUS);
         
-        // Text field styling
         UIManager.put("TextField.font", FONT_BODY);
         UIManager.put("TextField.border", BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BORDER_COLOR, 1),
             BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
         
-        // Label styling
         UIManager.put("Label.font", FONT_BODY);
         UIManager.put("Label.foreground", TEXT_PRIMARY);
         
-        // Panel styling
         UIManager.put("Panel.background", BACKGROUND_COLOR);
         
-        // OptionPane styling
         UIManager.put("OptionPane.messageFont", FONT_BODY);
         UIManager.put("OptionPane.buttonFont", FONT_BUTTON);
     }
     
-    // Create a styled primary button
     public static JButton createPrimaryButton(String text) {
         JButton button = new JButton(text);
         button.setFont(FONT_BUTTON);
@@ -108,14 +87,11 @@ public class AppTheme {
         button.setOpaque(true);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(button.getPreferredSize().width, BUTTON_HEIGHT));
-        
-        // Hover effect (kept in a helper to avoid repeating the same listener everywhere)
         addHoverEffect(button, PRIMARY_COLOR, PRIMARY_DARK);
         
         return button;
     }
     
-    // Create a styled secondary button
     public static JButton createSecondaryButton(String text) {
         JButton button = new JButton(text);
         button.setFont(FONT_BUTTON);
@@ -128,14 +104,11 @@ public class AppTheme {
         ));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setPreferredSize(new Dimension(button.getPreferredSize().width, BUTTON_HEIGHT));
-        
-        // Hover effect
         addHoverEffect(button, SURFACE_COLOR, PRIMARY_LIGHT, Color.WHITE, PRIMARY_COLOR);
         
         return button;
     }
     
-    // Create a styled success button (green)
     public static JButton createSuccessButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(SUCCESS_COLOR);
@@ -144,7 +117,6 @@ public class AppTheme {
         return button;
     }
     
-    // Create a styled danger button (red)
     public static JButton createDangerButton(String text) {
         JButton button = createPrimaryButton(text);
         button.setBackground(ERROR_COLOR);
@@ -153,7 +125,6 @@ public class AppTheme {
         return button;
     }
     
-    // Create a styled text field with padding
     public static JTextField createTextField(int columns) {
         JTextField field = new JTextField(columns);
         field.setFont(FONT_BODY);
@@ -165,7 +136,6 @@ public class AppTheme {
         return field;
     }
     
-    // Create a styled password field with padding
     public static JPasswordField createPasswordField(int columns) {
         JPasswordField field = new JPasswordField(columns);
         field.setFont(FONT_BODY);
@@ -177,7 +147,6 @@ public class AppTheme {
         return field;
     }
 
-    // Helper to add a simple hover effect that only changes background color
     private static void addHoverEffect(JButton button, Color base, Color hover) {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -192,7 +161,6 @@ public class AppTheme {
         });
     }
 
-    // Helper to add a hover effect that also updates the foreground color
     private static void addHoverEffect(JButton button, Color base, Color hover, Color hoverForeground, Color baseForeground) {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -209,7 +177,6 @@ public class AppTheme {
         });
     }
     
-    // Create a styled card panel
     public static JPanel createCard() {
         JPanel panel = new JPanel();
         panel.setBackground(CARD_BACKGROUND);
@@ -220,11 +187,6 @@ public class AppTheme {
         return panel;
     }
 
-    /**
-     * Step-5: themed section panel with a title border.
-     * Encapsulates TitledBorder styling so GamePanel/dialogs share one look
-     * (previously Arial + hardcoded grays scattered across views).
-     */
     public static JPanel createSectionPanel(String title) {
         JPanel panel = new JPanel();
         panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
@@ -238,20 +200,12 @@ public class AppTheme {
         return panel;
     }
 
-    /**
-     * Step-5: apply shared dialog defaults (background, size, location).
-     * Keeps every game dialog on the same design system.
-     */
     public static void styleDialog(JDialog dialog, int width, int height) {
         dialog.getContentPane().setBackground(BACKGROUND_COLOR);
         dialog.setSize(width, height);
         dialog.setLocationRelativeTo(dialog.getParent());
     }
 
-    /**
-     * Step-5: themed item card used by job/skill/service/shop lists.
-     * Single factory replaces duplicated CompoundBorder + Arial code.
-     */
     public static JPanel createItemCard() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBackground(CARD_BACKGROUND);
@@ -262,7 +216,6 @@ public class AppTheme {
         return panel;
     }
 
-    /** Step-5: title label for dialog headers. */
     public static JLabel createCardTitle(String text) {
         JLabel label = new JLabel(text);
         label.setFont(FONT_SUBHEADING);
@@ -270,7 +223,6 @@ public class AppTheme {
         return label;
     }
 
-    /** Step-5: secondary/description label for cards. */
     public static JLabel createCardDescription(String htmlText) {
         JLabel label = new JLabel("<html>" + htmlText + "</html>");
         label.setFont(FONT_SMALL);

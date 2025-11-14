@@ -10,10 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-/**
- * Start screen: pick a career and jump straight into the game.
- * No login, no signup, no database - everything is in memory.
- */
+// The start screen: pick a career, enter a nickname, and start playing.
 public class StartPanel extends JPanel {
     private MainFrame mainFrame;
     private JTextField nameField;

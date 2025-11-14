@@ -4,12 +4,9 @@ import view.theme.AppTheme;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * About and Help dialog with game instructions and information.
- */
+// The help screen: how to play, game rules, tips, and about info in tabs.
 public class AboutDialog extends JDialog {
-    
-    // Dialog constructor
+
     public AboutDialog(JFrame parent) {
         super(parent, "📖 About Job Quest Game", true);
         setSize(900, 700);
@@ -19,12 +16,10 @@ public class AboutDialog extends JDialog {
         initComponents();
     }
     
-    // Initialize dialog components and layout
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         
-        // Header
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(AppTheme.PRIMARY_COLOR);
         JLabel titleLabel = new JLabel("🎮 Job Quest - Career Simulation Game");
@@ -34,28 +29,21 @@ public class AboutDialog extends JDialog {
         headerPanel.add(titleLabel);
         add(headerPanel, BorderLayout.NORTH);
         
-        // Tabbed content
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
-        // Tab 1: How to Play
         tabbedPane.addTab("🎯 How to Play", createHowToPlayPanel());
         
-        // Tab 2: Game Mechanics
         tabbedPane.addTab("⚙️ Game Mechanics", createMechanicsPanel());
         
-        // Tab 3: Progression
         tabbedPane.addTab("📈 Progression", createProgressionPanel());
         
-        // Tab 4: Tips & Tricks
         tabbedPane.addTab("💡 Tips & Tricks", createTipsPanel());
         
-        // Tab 5: About
         tabbedPane.addTab("ℹ️ About", createAboutPanel());
         
         add(tabbedPane, BorderLayout.CENTER);
         
-        // Close button at the bottom. Kept simple for beginners: click to close.
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         JButton closeButton = AppTheme.createPrimaryButton("Close");
@@ -68,7 +56,6 @@ public class AboutDialog extends JDialog {
         add(buttonPanel, BorderLayout.SOUTH);
     }
     
-    // Create "How to Play" tab panel
     private JPanel createHowToPlayPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -124,12 +111,10 @@ public class AboutDialog extends JDialog {
             </html>
             """;
         
-        // Use an editor pane to render simple HTML content and make it scrollable.
         panel.add(createHtmlScroll(content), BorderLayout.CENTER);
         return panel;
     }
     
-    // Create "Game Mechanics" tab panel
     private JPanel createMechanicsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -212,7 +197,6 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
-    // Create "Progression" tab panel
     private JPanel createProgressionPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -347,7 +331,6 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
-    // Create "Tips & Tricks" tab panel
     private JPanel createTipsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -450,7 +433,6 @@ public class AboutDialog extends JDialog {
         return panel;
     }
     
-    // Create "About" tab panel
     private JPanel createAboutPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -500,17 +482,15 @@ public class AboutDialog extends JDialog {
             <h3>🛠️ Technologies</h3>
             <ul>
                 <li>☕ <b>Java 17+</b> - Modern Java features</li>
-                <li>🖼️ <b>Java Swing</b> - Professional GUI</li>
-                <li>🗄️ <b>MySQL 8.0</b> - Database backend</li>
+                <li>🖼️ <b>Java Swing</b> - Game interface</li>
                 <li>📦 <b>Maven</b> - Build automation</li>
             </ul>
             
-            <h3>🏗️ Architecture</h3>
+            <h3>🏗️ How the game is organized</h3>
             <ul>
-                <li>✅ <b>SOLID Principles</b> - All five principles implemented</li>
-                <li>✅ <b>Design Patterns</b> - Singleton, Repository, Factory, Strategy, Observer</li>
-                <li>✅ <b>Layered Architecture</b> - Presentation, Controller, Service, Repository</li>
-                <li>✅ <b>Clean Code</b> - Professional practices throughout</li>
+                <li>✅ <b>Simple layers</b> - Screen, game logic, player data</li>
+                <li>✅ <b>In-memory play</b> - No account, no database, just pick a career and play</li>
+                <li>✅ <b>Clean Code</b> - Small classes with one job each</li>
             </ul>
             
             <h3>👨‍💻 Developer</h3>
@@ -557,7 +537,6 @@ public class AboutDialog extends JDialog {
         return panel;
     }
 
-    // Small helper that creates a scrollable HTML view from a string.
     private JScrollPane createHtmlScroll(String html) {
         JEditorPane editorPane = new JEditorPane("text/html", html);
         editorPane.setEditable(false);

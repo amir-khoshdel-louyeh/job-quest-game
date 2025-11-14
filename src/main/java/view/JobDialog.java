@@ -8,18 +8,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-/**
- * A dialog window that displays ONE profession's jobs: available ones can be
- * started, locked ones are visible but disabled with the missing skills shown.
- * The list is pre-filtered by identity (GamePanel passes only my jobs), so a
- * Doctor never sees Typist work — locking here is skills-only.
- */
+// The workshop screen: do your career's jobs, locked ones show missing skills.
 public class JobDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
 
-    // Dialog that lists the user's own profession job catalog
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
                      List<Job> allJobs, model.User user) {
         super(parent, "Jobs", true);
@@ -28,7 +22,6 @@ public class JobDialog extends JDialog {
         String userIdentity = user.getIdentity().getProfessionName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
-        // Step-5: shared dialog look + themed empty state
         AppTheme.styleDialog(this, 500, 600);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -40,16 +33,14 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        // Get skill names with simple for loop (no stream).
         List<String> userSkills = new java.util.ArrayList<String>();
         List<model.Skill> skillObjs = user.getSkills();
         for (int i = 0; i < skillObjs.size(); i++) {
             userSkills.add(skillObjs.get(i).getName());
         }
 
-        // Available first, locked after — one pick, no second list.
-        // Defensive: drop other professions' jobs if an unfiltered list arrives.
-        // OOP Step 1: object-based eligibility, no String identity/skills.
+        // Available first, locked after.
+        // Drop other careers' jobs if an unfiltered list arrives.
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
@@ -99,7 +90,6 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    // Find missing skills with for loop (no stream).
     private static String lockReason(Job job, List<String> userSkills) {
         List<String> missing = new java.util.ArrayList<String>();
         List<String> need = job.getRequiredSkills();
@@ -122,9 +112,7 @@ public class JobDialog extends JDialog {
         return "Requires skills: " + names + " — learn at School";
     }
 
-    // Create a single job entry panel with action button
     private JPanel createJobPanel(Job job, boolean available, String lockReason) {
-        // Step-5: one card factory — no more duplicated CompoundBorder + Arial
         JPanel panel = AppTheme.createItemCard();
 
         JPanel infoPanel = new JPanel();
@@ -164,7 +152,6 @@ public class JobDialog extends JDialog {
         if (!available) {
             doItButton.setToolTipText(lockReason);
         } else {
-            // When clicked, do the job. Uses simple ActionListener (no lambda).
             final Job myJob = job;
             final JButton myButton = doItButton;
             doItButton.addActionListener(new java.awt.event.ActionListener() {
@@ -179,12 +166,7 @@ public class JobDialog extends JDialog {
         return panel;
     }
 
-    // Small helper that executes the job and shows messages in a consistent way.
-    // Step-9 UX: every job first plays the identity's work mini-game
-    // (Typist retypes · Programmer writes a tiny program · Doctor diagnoses ·
-    // Designer answers the brief). The submitted score is final and resolves
-    // the job immediately via GameController.doJob(job, game) (score scales
-    // pay/XP). Cancel before submitting = no job, no penalty.
+    // Every job first plays a short work game; the submitted score sets pay and XP. Cancel before submitting = no job, no penalty.
     private void handleDoJob(Job job, JButton source) {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
         String identity = gamePanel.getUserIdentity();
@@ -212,7 +194,6 @@ public class JobDialog extends JDialog {
                 || "Doctor".equals(identity) || "LogoDesigner".equals(identity);
     }
 
-    // Pick game by identity with simple if-else (no switch expression).
     private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity, Job job) {
         String jobName = "Job";
         if (job != null) {

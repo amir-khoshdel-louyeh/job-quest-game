@@ -11,7 +11,7 @@ import model.minigame.QuizQuestion;
 import services.minigame.QuizScorer;
 import view.theme.AppTheme;
 
-// Quiz game dialog: ask 3 questions, simple view class.
+// The quiz game: answer 3 questions before time runs out.
 public class QuizGameDialog extends JDialog {
 
     private final String gameName;
@@ -108,7 +108,6 @@ public class QuizGameDialog extends JDialog {
     }
 
     private void startRound() {
-        // Pick 3 random questions with simple shuffle.
         ArrayList<QuizQuestion> shuffled = new ArrayList<QuizQuestion>(bank);
         Collections.shuffle(shuffled);
         int count = 3;
@@ -126,7 +125,6 @@ public class QuizGameDialog extends JDialog {
         index = 0;
         startMillis = System.currentTimeMillis();
         stopTick();
-        // Timer tick with ActionListener (no lambda), simple if (no Math.max).
         tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 int elapsed = elapsedSeconds();
@@ -195,7 +193,6 @@ public class QuizGameDialog extends JDialog {
         if (choice >= 0 && q.isCorrect(choice)) {
             ok = true;
         }
-        // Disable buttons with simple for loop (no instanceof pattern).
         for (int i = 0; i < optionsPanel.getComponents().length; i++) {
             Component c = optionsPanel.getComponents()[i];
             if (c instanceof JButton) {
@@ -252,7 +249,6 @@ public class QuizGameDialog extends JDialog {
             elapsed = 1;
         }
         result = scorer.score(gameName, round, picked, elapsed);
-        // Show result with + (no String.format, no String.join).
         String highlights = "";
         List<String> hl = result.getHighlights();
         for (int i = 0; i < hl.size(); i++) {

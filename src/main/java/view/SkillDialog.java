@@ -9,13 +9,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A dialog window that displays ONE profession's school lessons: available
- * ones can be learned, locked ones are visible but disabled with the unlock
- * requirement shown. Mirrors the workshop {@link JobDialog} pattern
- * (available first, then locked). The list is pre-filtered by identity, so a
- * Doctor never sees Programmer lessons.
- */
+// The school screen: learn your career's lessons, locked ones show playtime needed.
 public class SkillDialog extends JDialog {
 
     private final GameController controller;
@@ -24,7 +18,6 @@ public class SkillDialog extends JDialog {
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
-    // Dialog that lists the user's own profession school lessons
     public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel,
                        List<LearnableSkill> allSkills, model.User user) {
         super(parent, "School of Skills", true);
@@ -35,9 +28,7 @@ public class SkillDialog extends JDialog {
         String userIdentity = user.getIdentity().getProfessionName();
         setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
-        // Same shared dialog look as the workshop jobs dialog
         AppTheme.styleDialog(this, 500, 600);
-        // Close this dialog when the user closes the window
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         if (this.allSkills.isEmpty()) {
@@ -71,18 +62,16 @@ public class SkillDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    // Split catalog into available / locked / learned and render sections.
-    // Available first, locked after, learned last — one pass, no second list.
+    // Available first, locked after, learned last.
     private void populateSkills() {
         skillsContainer.removeAll();
 
         long playMinutes = user.getTotalPlayTime() / (1000 * 60);
-        // OOP Step 1: object-based checks — no getClass().getSimpleName(), no learnedNames list.
         List<LearnableSkill> available = new ArrayList<>();
         List<LearnableSkill> locked = new ArrayList<>();
         List<LearnableSkill> learned = new ArrayList<>();
         for (LearnableSkill skill : allSkills) {
-            // Defensive: drop other professions' lessons if an unfiltered list arrives.
+            // Drop other careers' lessons if an unfiltered list arrives.
             if (!skill.isForIdentity(user.getIdentity())) {
                 continue;
             }
@@ -136,7 +125,7 @@ public class SkillDialog extends JDialog {
         return header;
     }
 
-    // Why locked: show needed playtime. Uses simple if (no Math.max).
+    // Why locked: show needed playtime.
     private static String lockReason(LearnableSkill skill, long playMinutes) {
         long need = skill.getRequiredPlayTimeMinutes();
         long remaining = need - playMinutes;
@@ -147,7 +136,7 @@ public class SkillDialog extends JDialog {
                 + ") — play " + formatPlaytime(remaining) + " more to unlock";
     }
 
-    // Format minutes as "2h" or "1h 30m" or "45 min". Uses + (no String.format).
+    // Format minutes as "2h" or "1h 30m" or "45 min".
     private static String formatPlaytime(long minutes) {
         if (minutes >= 60 && minutes % 60 == 0) {
             return (minutes / 60) + "h";
@@ -162,9 +151,7 @@ public class SkillDialog extends JDialog {
 
     private enum SkillStatus { AVAILABLE, LOCKED, LEARNED }
 
-    // Create a single skill entry panel with action button
     private JPanel createSkillPanel(LearnableSkill skill, SkillStatus status, String statusLine) {
-        // One card factory — same as the workshop jobs dialog
         JPanel panel = AppTheme.createItemCard();
 
         JPanel infoPanel = new JPanel();
@@ -203,12 +190,10 @@ public class SkillDialog extends JDialog {
         actionPanel.add(costLabel, BorderLayout.CENTER);
 
         JButton learnButton;
-        // Simple if-else for status (no switch arrow).
         if (status == SkillStatus.AVAILABLE) {
             learnButton = AppTheme.createSuccessButton("Learn ($" + skill.getCost() + ")");
             final LearnableSkill mySkill = skill;
             final JButton myButton = learnButton;
-            // Learn when clicked. Uses ActionListener (no lambda).
             learnButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     handleLearnSkill(mySkill, myButton);
@@ -228,9 +213,7 @@ public class SkillDialog extends JDialog {
         return panel;
     }
 
-    // Helper method to perform learning via controller and show results simply.
-    // Stays open after success (like the workshop dialog); the learned skill
-    // moves to the "Learned" section via populateSkills() refresh.
+    // Stays open after success; learned skills move to the Learned section.
     private void handleLearnSkill(LearnableSkill skill, JButton source) {
         GameController.ActionResult result = controller.learnSkill(skill.getName());
         gamePanel.addChatMessage(result.message);

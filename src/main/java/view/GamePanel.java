@@ -1,11 +1,6 @@
 package view;
 
-/**
- * Main game UI panel that renders the core game interface and user interactions.
- *
- * Follows Single Responsibility Principle by containing only UI-related code for the game panel.
- */
-
+// The main game screen: stats on the side, world in the middle, chat at the bottom.
 import controller.GameController;
 import controller.RoutineController;
 import controller.UserController;
@@ -35,41 +30,35 @@ public class GamePanel extends JPanel implements Observer {
     private JTextArea chatArea;
     private JPanel animationPanel;
     private JPanel rightPanel;
-    // These buttons are being moved to the world view, so they are removed from here.
     private JButton exitButton, helpButton, bottomExitButton, newGameButton;
     private javax.swing.Action exitAction;
     private final long sessionStartTime;
-    // Step-6: single non-blocking toast reused for success feedback.
+    // Reused toast popup for success messages.
     private JDialog toastDialog;
     private JLabel toastLabel;
     private javax.swing.Timer toastTimer;
 
-    // Construct the main game panel for the given user
     public GamePanel(User user) {
         this.currentUser = user;
         this.sessionStartTime = System.currentTimeMillis();
         this.controller = new GameController(user, sessionStartTime);
         this.userController = controller.getUserController();
-        this.userController.addObserver(this); // Register the panel as an observer
+        this.userController.addObserver(this); // Get stat updates.
         this.routineController = new RoutineController(userController, this);
         setLayout(new BorderLayout(10,10));
-        // Step-5: one design system — same background as start screen.
         setBackground(AppTheme.BACKGROUND_COLOR);
 
-        // ---------------- Title ----------------
         JLabel titleLabel = new JLabel("Job-Quest-Game", SwingConstants.CENTER);
         titleLabel.setFont(AppTheme.FONT_TITLE);
         titleLabel.setForeground(AppTheme.PRIMARY_COLOR);
         add(titleLabel, BorderLayout.NORTH);
 
-        // ---------------- Right Side Bar ----------------
         rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setPreferredSize(new Dimension(240, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        // Profile Panel (themed section — same card system as dialogs)
         JPanel profilePanel = AppTheme.createSectionPanel("Your Profile");
         usernameLabel = new JLabel("👤 " + userController.getUsername());
         usernameLabel.setFont(AppTheme.FONT_BODY);
@@ -79,7 +68,6 @@ public class GamePanel extends JPanel implements Observer {
         healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
         healthLabel.setFont(AppTheme.FONT_BODY);
         healthLabel.setForeground(AppTheme.HEALTH_COLOR);
-        // Step-6: live HUD bar — Observer.update() refreshes it, no polling.
         healthBar = new JProgressBar(0, 100);
         healthBar.setValue(userController.getHealth());
         healthBar.setStringPainted(true);
@@ -92,7 +80,6 @@ public class GamePanel extends JPanel implements Observer {
         profilePanel.add(healthLabel);
         profilePanel.add(healthBar);
 
-        // Progression Panel
         JPanel progressPanel = AppTheme.createSectionPanel("⭐ Progression");
         
         levelLabel = new JLabel("Level: " + currentUser.getLevel());
@@ -121,14 +108,12 @@ public class GamePanel extends JPanel implements Observer {
         progressPanel.add(reputationLabel);
         progressPanel.add(streakLabel);
 
-        // Identity Panel
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
         JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getProfessionName());
         identityName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         energyLabel.setFont(AppTheme.FONT_BODY);
         energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        // Step-6: live HUD bar for the 0–100k energy pool.
         energyBar = new JProgressBar(0, 100000);
         energyBar.setValue(userController.getEnergy());
         energyBar.setStringPainted(true);
@@ -140,7 +125,6 @@ public class GamePanel extends JPanel implements Observer {
         identityPanel.add(energyLabel);
         identityPanel.add(energyBar);
 
-        // Buttons Panel
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -187,7 +171,6 @@ public class GamePanel extends JPanel implements Observer {
         rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(buttonsPanel);
 
-        // Wrap the right panel in a scroll pane to handle overflow
         JScrollPane rightScrollPane = new JScrollPane(rightPanel);
         rightScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         rightScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -198,19 +181,14 @@ public class GamePanel extends JPanel implements Observer {
         bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         bottomActionsPanel.add(bottomExitButton);
 
-        // ---------------- Center Animation / World View ----------------
-        // Load and display the world view image
         try {
             java.net.URL imageUrl = getClass().getResource("/images/WorldView.png");
             if (imageUrl != null) {
-                // Use a custom panel that scales the background image
-                animationPanel = new JPanel() { // No layout needed as we use a MouseListener
+                animationPanel = new JPanel() {
                     private final Image bgImage = new ImageIcon(imageUrl).getImage();
 
-                    
                     protected void paintComponent(Graphics g) {
                         super.paintComponent(g);
-                        // Draw the image scaled to fit the panel's current size
                         g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
                     }
                 };
@@ -219,9 +197,7 @@ public class GamePanel extends JPanel implements Observer {
                     javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
                     AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
 
-                // Add a mouse listener to handle clicks on different regions of the image
-                // Step-6: image zones delegate to the same openX() helpers as the
-                // nav bar below (DRY) — blind clicks are now discoverable.
+                // Click zones from left to right: Hospital, Workshop, empty middle, Market, School.
                 animationPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 animationPanel.setToolTipText("Hospital | Workshop | (closed) | Market | School — or use the buttons above");
                 animationPanel.addMouseListener(new MouseAdapter() {
@@ -236,7 +212,7 @@ public class GamePanel extends JPanel implements Observer {
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
                             openWorkshop();
                         } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
-                            // Middle zone (old shop) intentionally does nothing.
+                            // Middle zone intentionally does nothing.
                         } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
                             openMarket();
                         } else if (x >= sectionWidth * 4 && x < panelWidth) {
@@ -246,29 +222,24 @@ public class GamePanel extends JPanel implements Observer {
                 });
 
             } else {
-                // Fallback if image is not found
                 animationPanel = new JPanel(new GridBagLayout());
                 animationPanel.setBorder(BorderFactory.createTitledBorder(
                     BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
                     javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
                     AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
                 animationPanel.setBackground(Color.BLACK);
-                // Fallback if image is not found
                 animationPanel.add(new JLabel("World view image not found."));
             }
         } catch (Exception e) {
             e.printStackTrace();
             animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
         }
-        // Step-6: labeled nav bar with tooltips — the fix for blind image-click.
-        // Same openX() helpers as image zones.
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         centerPanel.add(buildNavBar(), BorderLayout.NORTH);
         centerPanel.add(animationPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        // ---------------- Chat ----------------
         chatArea = new JTextArea(5,50);
         chatArea.setEditable(false);
         chatArea.setFont(AppTheme.FONT_BODY);
@@ -288,7 +259,6 @@ public class GamePanel extends JPanel implements Observer {
         southPanel.add(bottomActionsPanel, BorderLayout.SOUTH);
         add(southPanel, BorderLayout.SOUTH);
 
-        // Help button, uses simple ActionListener (no lambda).
         helpButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
@@ -297,19 +267,17 @@ public class GamePanel extends JPanel implements Observer {
         });
         // NOTE: exit is handled by the shared exitAction above.
 
-    // Start periodic background tasks (timers). We keep them in a small helper
-    // method to make the constructor easier to read for beginners.
+    // Start periodic background tasks.
     setupTimers();
-    // Step-8: first-run onboarding — tutorial evaporated after login before.
+    // Show onboarding hints for fresh accounts.
     maybeShowOnboarding();
 
-        // Check if blocked
         if (userController.isBlocked()) {
             JOptionPane.showMessageDialog(this,
                 "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
         }
 
-        // Unblock after 48 hours, uses simple Runnable (no lambda).
+        // Unblock after 48 hours.
         final controller.UserController myUserController1 = userController;
         utils.Timer.runOnce(48 * 60 * 60 * 1000, new Runnable() {
             public void run() {
@@ -319,21 +287,17 @@ public class GamePanel extends JPanel implements Observer {
     }
 
     
-    // Observer callback: refresh panel when observed state changes
+    // Refresh panel when stats change.
     public void update() {
         updateUserInfo();
     }
 
-    /**
-     * OOP Step 5: push variant — receives what changed ("balance", "health"...).
-     * Full refresh for now (selective label updates are a future optimization).
-     */
+    // Full refresh when anything changes.
     @Override
     public void update(String whatChanged) {
         updateUserInfo();
     }
 
-    // Update labels with user info. Uses simple if (no Math.min/max, no ternary).
     public void updateUserInfo() {
         usernameLabel.setText("User: " + userController.getUsername());
         balanceLabel.setText("Balance: $" + userController.getBalance());
@@ -370,7 +334,6 @@ public class GamePanel extends JPanel implements Observer {
             energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
         }
         
-        // Update progression info
         levelLabel.setText("Level: " + currentUser.getLevel());
         xpLabel.setText("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
         xpProgressBar.setValue(currentUser.getExperiencePercentage());
@@ -379,7 +342,6 @@ public class GamePanel extends JPanel implements Observer {
         streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
     }
 
-    // Start timers. Uses simple ActionListener classes (no lambda).
     private void setupTimers() {
         final controller.RoutineController myRoutine1 = routineController;
         Timer.runPeriodic(30000, new java.awt.event.ActionListener() {
@@ -408,10 +370,6 @@ public class GamePanel extends JPanel implements Observer {
         });
     }
 
-    /**
-     * Step-8: onboarding checklist for fresh accounts (SRP: view-only hints,
-     * game state untouched). Veterans (jobs/skills done) see nothing.
-     */
     private void maybeShowOnboarding() {
         boolean fresh = currentUser.getTotalJobsCompleted() == 0
                 && currentUser.getSkills().isEmpty();
@@ -422,9 +380,7 @@ public class GamePanel extends JPanel implements Observer {
     }
     
 
-    // Append a message to the chat / notifications area
-    // Step-6: auto-scroll + non-blocking toast for success lines so rewards
-    // are noticed without modal spam (dialogs already stopped popping).
+    // Auto-scrolls; success lines also show a toast so rewards are noticed.
     public void addChatMessage(String msg) {
         chatArea.append(msg + "\n");
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
@@ -485,9 +441,6 @@ public class GamePanel extends JPanel implements Observer {
         return currentUser.getIdentity().getProfessionName();
     }
 
-    // ---------------- Step-6: navigation + affordance ----------------
-    // One helper per destination (SRP, DRY): nav buttons and image zones share them.
-
     private JFrame parentFrame() {
         return (JFrame) SwingUtilities.getWindowAncestor(this);
     }
@@ -524,7 +477,6 @@ public class GamePanel extends JPanel implements Observer {
         new DeveloperDialog(parentFrame(), dev, this).setVisible(true);
     }
 
-    /** Bottom navigation bar with buttons. Uses ActionListener classes. */
     private JPanel buildNavBar() {
         JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
         nav.setBackground(AppTheme.BACKGROUND_COLOR);
