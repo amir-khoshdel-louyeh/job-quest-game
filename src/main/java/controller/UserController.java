@@ -2,6 +2,7 @@ package controller;
 
 import model.Skill;
 import model.User;
+import observer.ChangeType;
 import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
@@ -28,10 +29,7 @@ public class UserController implements Subject {
     public void notifyObservers() { subject.notifyObservers(); }
 
     @Override
-    public void notifyObservers(String whatChanged) { subject.notifyObservers(whatChanged); }
-
-    @Override
-    public int observerCount() { return subject.observerCount(); }
+    public void notifyObservers(ChangeType whatChanged) { subject.notifyObservers(whatChanged); }
 
     public User getUser() {
         return user;
@@ -56,7 +54,7 @@ public class UserController implements Subject {
     public void addBalance(int amount) {
         if (amount > 0) {
             user.deposit(amount);
-            notifyObservers("balance");
+            notifyObservers(ChangeType.BALANCE);
         }
     }
 
@@ -72,28 +70,28 @@ public class UserController implements Subject {
     public void increaseHealth(int amount) {
         if (amount > 0) {
             user.gainHealth(amount);
-            notifyObservers("health");
+            notifyObservers(ChangeType.HEALTH);
         }
     }
 
     public void decreaseHealth(int amount) {
         if (amount > 0) {
             user.loseHealth(amount);
-            notifyObservers("health");
+            notifyObservers(ChangeType.HEALTH);
         }
     }
 
     public void increaseEnergy(int amount) {
         if (amount > 0) {
             user.gainEnergy(amount);
-            notifyObservers("energy");
+            notifyObservers(ChangeType.ENERGY);
         }
     }
 
     public void decreaseEnergy(int amount) {
         if (amount > 0) {
             user.loseEnergy(amount);
-            notifyObservers("energy");
+            notifyObservers(ChangeType.ENERGY);
         }
     }
 
@@ -116,7 +114,7 @@ public class UserController implements Subject {
     // Adds a new skill. Returns true if the skill is new.
     public boolean addSkill(Skill skill) {
         if (user.addSkill(skill)) {
-            notifyObservers("skills");
+            notifyObservers(ChangeType.SKILLS);
             return true;
         }
         return false;
@@ -131,7 +129,7 @@ public class UserController implements Subject {
     public void addExperience(int amount) {
         if (amount > 0) {
             user.addExperience(amount);
-            notifyObservers("xp");
+            notifyObservers(ChangeType.XP);
         }
     }
 
@@ -139,7 +137,7 @@ public class UserController implements Subject {
     public void addReputation(int amount) {
         if (amount != 0) {
             user.addReputation(amount);
-            notifyObservers("reputation");
+            notifyObservers(ChangeType.REPUTATION);
         }
     }
 
@@ -158,7 +156,7 @@ public class UserController implements Subject {
             }
             user.setCurrentStreak(next);
         }
-        notifyObservers("jobs");
+        notifyObservers(ChangeType.JOBS);
     }
 
     public void refresh() {

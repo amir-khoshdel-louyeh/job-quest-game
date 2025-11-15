@@ -9,9 +9,5 @@ public interface Subject {
     void notifyObservers();
 
     // Tell watchers what changed, like balance or health.
-    default void notifyObservers(String whatChanged) {
-        notifyObservers();
-    }
-
-    int observerCount();
+    void notifyObservers(ChangeType whatChanged);
 }

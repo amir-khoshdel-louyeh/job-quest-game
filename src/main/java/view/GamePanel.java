@@ -10,6 +10,7 @@ import model.Job;
 import provider.JobProvider;
 import provider.SkillProvider;
 import provider.ServiceProvider;
+import observer.ChangeType;
 import observer.Observer;
 import view.theme.AppTheme;
 
@@ -294,7 +295,7 @@ public class GamePanel extends JPanel implements Observer {
 
     // Full refresh when anything changes.
     @Override
-    public void update(String whatChanged) {
+    public void update(ChangeType whatChanged) {
         updateUserInfo();
     }
 

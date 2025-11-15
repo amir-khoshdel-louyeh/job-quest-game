@@ -5,7 +5,12 @@ import java.util.List;
 
 // Holds a list of watchers and tells them when something changes.
 public class SimpleSubject implements Subject {
-    private ArrayList<Observer> observers = new ArrayList<Observer>();
+    private final List<Observer> observers = new ArrayList<Observer>();
+
+    // One shared copy method so both notify methods do the same thing.
+    private List<Observer> snapshot() {
+        return new ArrayList<Observer>(observers);
+    }
 
     @Override
     public void addObserver(Observer observer) {
@@ -28,37 +33,26 @@ public class SimpleSubject implements Subject {
     @Override
     public void notifyObservers() {
         // Copy first so removing during notify is safe.
-        ArrayList<Observer> copy = new ArrayList<Observer>();
-        for (int i = 0; i < observers.size(); i++) {
-            copy.add(observers.get(i));
-        }
-        for (int i = 0; i < copy.size(); i++) {
+        List<Observer> copy = snapshot();
+        for (Observer o : copy) {
             try {
-                copy.get(i).update();
+                o.update();
             } catch (Exception e) {
-                System.out.println("Observer error: " + e.getMessage());
+                System.err.println("Observer error: " + e.getMessage());
             }
         }
     }
 
     @Override
-    public void notifyObservers(String whatChanged) {
+    public void notifyObservers(ChangeType whatChanged) {
         // Copy first so removing during notify is safe.
-        ArrayList<Observer> copy = new ArrayList<Observer>();
-        for (int i = 0; i < observers.size(); i++) {
-            copy.add(observers.get(i));
-        }
-        for (int i = 0; i < copy.size(); i++) {
+        List<Observer> copy = snapshot();
+        for (Observer o : copy) {
             try {
-                copy.get(i).update(whatChanged);
+                o.update(whatChanged);
             } catch (Exception e) {
-                System.out.println("Observer error: " + e.getMessage());
+                System.err.println("Observer error: " + e.getMessage());
             }
         }
-    }
-
-    @Override
-    public int observerCount() {
-        return observers.size();
     }
 }

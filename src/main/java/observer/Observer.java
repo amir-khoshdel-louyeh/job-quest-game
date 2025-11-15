@@ -4,7 +4,5 @@ package observer;
 public interface Observer {
     void update();
 
-    default void update(String whatChanged) {
-        update();
-    }
+    void update(ChangeType whatChanged);
 }
