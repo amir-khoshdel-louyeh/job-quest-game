@@ -35,15 +35,20 @@ public class Challenge {
     // Adds to progress but never past the target, and marks finished at the target.
     public void addProgress(int amount) {
         if (!completed) {
-            currentProgress = Math.min(currentProgress + amount, targetValue);
+            currentProgress = currentProgress + amount;
+            
             if (currentProgress >= targetValue) {
+                currentProgress = targetValue;
                 completed = true;
             }
         }
     }
     // Progress shown as a number from 0 to 100.
     public int getProgressPercentage() {
-        return (int) ((currentProgress / (double) targetValue) * 100);
+        double currentAsDouble = (double) currentProgress;
+        double ratio = currentAsDouble / targetValue; 
+        double percentage = ratio * 100;
+        return (int) percentage;
     }
     
     public String getId() { return id; }
@@ -54,11 +59,12 @@ public class Challenge {
     public int getRewardMoney() { return rewardMoney; }
     public int getRewardExperience() { return rewardExperience; }
     public int getCurrentProgress() { return currentProgress; }
+    
     public boolean isCompleted() { return completed; }
     public void setCurrentProgress(int progress) { this.currentProgress = progress; }
     public void setCompleted(boolean completed) { this.completed = completed; }
     
-    
+    @Override
     public String toString() {
         return name + " [" + currentProgress + "/" + targetValue + "] - Reward: $" + rewardMoney + " + " + rewardExperience + " XP";
     }
