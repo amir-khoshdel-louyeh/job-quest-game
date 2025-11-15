@@ -14,12 +14,8 @@ public class CareerProgress {
 
     // Keeps the level between 1 and the max.
     public void setLevel(int newLevel) {
-        if (newLevel < 1) {
-            newLevel = 1;
-        }
-        if (newLevel > MAX_LEVEL) {
-            newLevel = MAX_LEVEL;
-        }
+        if (newLevel < 1) { newLevel = 1;}
+        if (newLevel > MAX_LEVEL) { newLevel = MAX_LEVEL;}
         this.level = newLevel;
     }
 
