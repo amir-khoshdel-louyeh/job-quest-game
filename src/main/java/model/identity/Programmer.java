@@ -19,7 +19,7 @@ public class Programmer extends BaseIdentity {
     public int getStartingBalance() { return 300; }
 
     @Override
-    public String getImagePath() { return "images/programmer.png"; }
+    public String getImagePath() { return "/images/programmer.png"; }
 
     @Override
     public String getWorkGameKind() { return GAME_KIND; }

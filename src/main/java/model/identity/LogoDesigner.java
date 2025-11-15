@@ -19,7 +19,7 @@ public class LogoDesigner extends BaseIdentity {
     public int getStartingBalance() { return 200; }
 
     @Override
-    public String getImagePath() { return "images/logodesigner.png"; }
+    public String getImagePath() { return "/images/logodesigner.png"; }
 
     @Override
     public String getWorkGameKind() { return GAME_KIND; }

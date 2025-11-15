@@ -55,12 +55,11 @@ public class StartPanel extends JPanel {
         List<IdentityOption> options = IdentityOptionProvider.getAvailableOptions();
         JPanel optionsPanel = new JPanel();
         optionsPanel.setOpaque(false);
-        optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+        optionsPanel.setLayout(new GridLayout(2, 2, 12, 12));
         identityGroup = new ButtonGroup();
 
         for (IdentityOption option : options) {
             optionsPanel.add(createIdentityCard(option));
-            optionsPanel.add(Box.createVerticalStrut(12));
         }
 
         JScrollPane scrollPane = new JScrollPane(optionsPanel);
@@ -121,8 +120,9 @@ public class StartPanel extends JPanel {
             BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1),
             BorderFactory.createEmptyBorder(16, 16, 16, 16)
         ));
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
 
+        // Header row: picture and name side by side on one line.
         JRadioButton radioButton = new JRadioButton(
             option.getName() + " - Starting Balance: $" + option.getPrice()
         );
@@ -133,6 +133,18 @@ public class StartPanel extends JPanel {
         identityGroup.add(radioButton);
         radioButton.putClientProperty("option", option);
 
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        headerPanel.setOpaque(false);
+        // Skipped silently if the picture file is not there yet.
+        java.net.URL imageUrl = getClass().getResource(option.getImagePath());
+        if (imageUrl != null) {
+            ImageIcon icon = new ImageIcon(imageUrl);
+            java.awt.Image scaled = icon.getImage().getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
+            headerPanel.add(new JLabel(new ImageIcon(scaled)));
+        }
+        headerPanel.add(radioButton);
+        card.add(headerPanel, BorderLayout.NORTH);
+
         JTextArea desc = new JTextArea(option.getDescription());
         desc.setWrapStyleWord(true);
         desc.setLineWrap(true);
@@ -140,7 +152,8 @@ public class StartPanel extends JPanel {
         desc.setOpaque(false);
         desc.setFont(AppTheme.FONT_BODY);
         desc.setForeground(AppTheme.TEXT_SECONDARY);
-        desc.setBorder(BorderFactory.createEmptyBorder(8, 24, 0, 0));
+        desc.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+        card.add(desc, BorderLayout.CENTER);
 
         card.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -149,8 +162,6 @@ public class StartPanel extends JPanel {
             }
         });
 
-        card.add(radioButton, BorderLayout.NORTH);
-        card.add(desc, BorderLayout.CENTER);
         return card;
     }
 

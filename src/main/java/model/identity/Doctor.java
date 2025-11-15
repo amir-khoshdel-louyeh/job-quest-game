@@ -19,7 +19,7 @@ public class Doctor extends BaseIdentity {
     public int getStartingBalance() { return 500; }
 
     @Override
-    public String getImagePath() { return "images/doctor.png"; }
+    public String getImagePath() { return "/images/doctor.png"; }
 
     @Override
     public String getWorkGameKind() { return GAME_KIND; }

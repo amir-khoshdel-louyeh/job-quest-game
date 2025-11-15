@@ -19,7 +19,7 @@ public class Typist extends BaseIdentity {
     public int getStartingBalance() { return 200; }
 
     @Override
-    public String getImagePath() { return "images/typist.png"; }
+    public String getImagePath() { return "/images/typist.png"; }
 
     @Override
     public String getWorkGameKind() { return GAME_KIND; }
