@@ -9,13 +9,8 @@ public class SkillsLearnedAchievement extends Achievement {
         super(id, name, description, rewardMoney, AchievementType.SKILLS_LEARNED, requiredValue);
     }
 
-    public boolean checkRequirement(User user) {
-        return user.getSkills().size() >= getRequiredValue();
-    }
-
-    // Progress shown as a number from 0 to 100.
-    public int getProgress(User user) {
-        int current = user.getSkills().size();
-        return Math.min(100, (current * 100) / getRequiredValue());
+    @Override
+    protected int getCurrentValue(User user) {
+        return user.getSkills().size();
     }
 }

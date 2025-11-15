@@ -8,21 +8,15 @@ public abstract class Achievement {
     private final int rewardMoney;
     private final AchievementType type;
     private final int requiredValue;
-    private boolean unlocked;
 
     public enum AchievementType {
         MONEY_EARNED,
         JOBS_COMPLETED,
         SKILLS_LEARNED,
-        DAYS_PLAYED,
-        HEALTH_MAINTAINED,
-        ENERGY_EFFICIENT,
-        RICH_PLAYER,
-        SKILL_MASTER,
-        WORKAHOLIC
+        RICH_PLAYER
     }
 
-    public Achievement(String id, String name, String description, int rewardMoney, 
+    public Achievement(String id, String name, String description, int rewardMoney,
                       AchievementType type, int requiredValue) {
         this.id = id;
         this.name = name;
@@ -30,7 +24,6 @@ public abstract class Achievement {
         this.rewardMoney = rewardMoney;
         this.type = type;
         this.requiredValue = requiredValue;
-        this.unlocked = false;
     }
 
     public String getId() { return id; }
@@ -39,13 +32,33 @@ public abstract class Achievement {
     public int getRewardMoney() { return rewardMoney; }
     public AchievementType getType() { return type; }
     public int getRequiredValue() { return requiredValue; }
-    public boolean isUnlocked() { return unlocked; }
 
-    public void unlock() { this.unlocked = true; }
-    public abstract boolean checkRequirement(model.User user);
-    public abstract int getProgress(model.User user);
+    public boolean isUnlocked(User user) {
+        if (user == null) {
+            return false;
+        }
+        return user.hasAchievement(id);
+    }
+
+    protected abstract int getCurrentValue(User user);
+
+    public boolean checkRequirement(User user) {
+        return getCurrentValue(user) >= getRequiredValue();
+    }
+
+    public int getProgress(User user) {
+        if (getRequiredValue() <= 0) {
+            return 100;
+        }
+        long current = getCurrentValue(user);
+        return (int) Math.min(100, (current * 100) / getRequiredValue());
+    }
 
     public String toString() {
-        return (unlocked ? "✅ " : "🔒 ") + name + " - " + description;
+        return name + " - " + description;
+    }
+
+    public String toString(User user) {
+        return (isUnlocked(user) ? "✅ " : "🔒 ") + name + " - " + description;
     }
 }

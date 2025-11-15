@@ -108,9 +108,10 @@ public class ProgressDialog extends JDialog {
 
     private JComponent buildAchievementsTab() {
         List<Achievement> all = controller.getAchievementsWithStatus();
+        model.User user = controller.getUserController().getUser();
         int unlocked = 0;
         for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).isUnlocked()) {
+            if (all.get(i).isUnlocked(user)) {
                 unlocked = unlocked + 1;
             }
         }
@@ -132,12 +133,14 @@ public class ProgressDialog extends JDialog {
     }
 
     private JPanel achievementRow(Achievement a) {
+        model.User user = controller.getUserController().getUser();
+        boolean unlocked = a.isUnlocked(user);
         JPanel card = AppTheme.createItemCard();
         card.setLayout(new BorderLayout(8, 8));
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
-        JLabel name = AppTheme.createCardTitle((a.isUnlocked() ? "✅ " : "🔒 ") + a.getName());
-        if (!a.isUnlocked()) {
+        JLabel name = AppTheme.createCardTitle((unlocked ? "✅ " : "🔒 ") + a.getName());
+        if (!unlocked) {
             name.setForeground(AppTheme.TEXT_SECONDARY);
         }
         top.add(name, BorderLayout.WEST);
@@ -162,17 +165,17 @@ public class ProgressDialog extends JDialog {
             }
             pct = p;
         } catch (Exception e) {
-            if (a.isUnlocked()) {
+            if (unlocked) {
                 pct = 100;
             } else {
                 pct = 0;
             }
         }
         JProgressBar bar = new JProgressBar(0, 100);
-        bar.setValue(a.isUnlocked() ? 100 : pct);
+        bar.setValue(unlocked ? 100 : pct);
         bar.setStringPainted(true);
-        bar.setString(a.isUnlocked() ? "Unlocked" : pct + "%");
-        bar.setForeground(a.isUnlocked() ? AppTheme.SUCCESS_COLOR : AppTheme.INFO_COLOR);
+        bar.setString(unlocked ? "Unlocked" : pct + "%");
+        bar.setForeground(unlocked ? AppTheme.SUCCESS_COLOR : AppTheme.INFO_COLOR);
         bar.setBackground(AppTheme.DIVIDER_COLOR);
         bar.setFont(AppTheme.FONT_SMALL);
         card.add(bar, BorderLayout.SOUTH);
