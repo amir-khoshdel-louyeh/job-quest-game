@@ -30,13 +30,14 @@ public class ChallengeProvider {
             1000, 300, 50
         ));
         
-        // Weekly Challenges
+        // Weekly Challenges (10-hour run tuning: 20 -> 12 jobs so a weekly
+        // fits in one long session; rewards unchanged)
         WEEKLY_CHALLENGES.add(new Challenge(
             "weekly_jobs_20",
             "Weekly Grind",
-            "Complete 20 jobs this week",
+            "Complete 12 jobs this week",
             Challenge.ChallengeType.COMPLETE_JOBS,
-            20, 3000, 500
+            12, 3000, 500
         ));
         
         WEEKLY_CHALLENGES.add(new Challenge(
@@ -91,9 +92,9 @@ public class ChallengeProvider {
         MAIN_CHALLENGES.add(new Challenge(
             "main_professional",
             "Professional",
-            "Complete 50 jobs",
+            "Complete 40 jobs",
             Challenge.ChallengeType.COMPLETE_JOBS,
-            50, 5000, 1000
+            40, 5000, 1000
         ));
     }
     

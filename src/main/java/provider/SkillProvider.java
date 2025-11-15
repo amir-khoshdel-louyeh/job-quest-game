@@ -12,12 +12,15 @@ public class SkillProvider {
     private static ArrayList<LearnableSkill> ALL_SKILLS = new ArrayList<LearnableSkill>();
 
     static {
-        ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 500, 0, makeList2("Typist", "Doctor")));
-        ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 1500, 30, makeList1("LogoDesigner")));
-        ALL_SKILLS.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 2000, 60, makeList2("Typist", "Doctor")));
-        ALL_SKILLS.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 5000, 120, makeList2("Programmer", "LogoDesigner")));
-        ALL_SKILLS.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 10000, 240, makeList1("Programmer")));
-        ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 25000, 480, makeList2("Programmer", "Doctor")));
+        // 10-hour run tuning: time gates cut from max 480min (80% of budget)
+        // to max 110min, costs cut ~3x so a full profession path (~5-8k total)
+        // is affordable in the first 2-3 hours.
+        ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2("Typist", "Doctor")));
+        ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1("LogoDesigner")));
+        ALL_SKILLS.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2("Typist", "Doctor")));
+        ALL_SKILLS.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2("Programmer", "LogoDesigner")));
+        ALL_SKILLS.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1("Programmer")));
+        ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2("Programmer", "Doctor")));
     }
 
     private static ArrayList<String> makeList1(String s1) {

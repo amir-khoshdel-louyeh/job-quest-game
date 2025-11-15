@@ -277,9 +277,9 @@ public class GamePanel extends JPanel implements Observer {
                 "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
         }
 
-        // Unblock after 48 hours.
+        // Unblock after 5 minutes (10h-run tuning, was 48 hours).
         final controller.UserController myUserController1 = userController;
-        utils.TimerUtil.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+        utils.TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
             public void run() {
                 myUserController1.unblockUser();
             }
@@ -363,7 +363,7 @@ public class GamePanel extends JPanel implements Observer {
         });
 
         final controller.UserController myUser2 = userController;
-        TimerUtil.runOnce(48 * 60 * 60 * 1000, new Runnable() {
+        TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
             public void run() {
                 myUser2.unblockUser();
             }

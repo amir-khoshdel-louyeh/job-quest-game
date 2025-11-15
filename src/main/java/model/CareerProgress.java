@@ -52,8 +52,9 @@ public class CareerProgress {
         return false;
     }
 
+    // 10-hour run tuning: 200 XP per level keeps L15 within ~200 jobs.
     public int getRequiredExperienceForNextLevel() {
-        return level * 1000;
+        return level * 200;
     }
 
     // XP shown as a number from 0 to 100.

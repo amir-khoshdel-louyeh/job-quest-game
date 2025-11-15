@@ -42,7 +42,9 @@ public class JobService {
         return rep * 0.005;
     }
 
-    // Streak bonus: +1% per day, max +30%.
+    // Streak bonus: +2% per streak point, max +30% (15 points).
+    // Streak now also grows every 10 jobs (see UserController.recordJobCompletion),
+    // so a single ~10h run can reach the cap without 30 daily logins.
     public double streakBonus(User user) {
         if (user == null) {
             return 0.0;
@@ -51,7 +53,7 @@ public class JobService {
         if (streak < 0) {
             streak = 0;
         }
-        double bonus = streak * 0.01;
+        double bonus = streak * 0.02;
         if (bonus > MAX_STREAK_BONUS) {
             bonus = MAX_STREAK_BONUS;
         }
@@ -78,12 +80,14 @@ public class JobService {
         return result;
     }
 
-    // XP reward: bigger jobs give more XP, minimum 10.
+    // XP reward tuned for a ~10h run: flat 25 + payment/8.
+    // Starter (~150$) gives ~43 XP, mid (~1000$) ~150 XP, end (~3500$) ~460 XP.
+    // Reaching L12-15 needs ~13k-21k XP total, i.e. roughly 150-200 jobs.
     public int calculateXpReward(Job job) {
         if (job == null) {
             return 0;
         }
-        int xp = job.getPayment() / 10 + job.getEnergyCost() / 2000;
+        int xp = 25 + job.getPayment() / 8;
         if (xp < 10) {
             xp = 10;
         }

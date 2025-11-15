@@ -145,11 +145,11 @@ public class AboutDialog extends JDialog {
             </table>
             <p><b>How to Gain:</b> Complete jobs (30% chance), learn skills (+2), complete challenges (+2)</p>
             
-            <h3>🔥 Daily Streak System</h3>
+            <h3>🔥 Streak System (10h-run tuning)</h3>
             <ul>
-                <li><b>Login Daily:</b> Increases your streak counter</li>
-                <li><b>Miss a Day:</b> Streak resets after 48 hours</li>
-                <li><b>Bonus:</b> +1% payment per day (max +30% at 30-day streak!)</li>
+                <li><b>Login:</b> Start with streak 1</li>
+                <li><b>Every 10 jobs:</b> +1 streak (max 15)</li>
+                <li><b>Bonus:</b> +2% payment per streak point (max +30%!)</li>
                 <li><b>Track:</b> Current streak and personal best displayed</li>
             </ul>
             
@@ -157,12 +157,12 @@ public class AboutDialog extends JDialog {
             <p style='background: #f0f0f0; padding: 10px; border-left: 4px solid #3f51b5;'>
                 <b>Final Payment = Base Payment × (1 + Level% + Reputation% + Streak%)</b>
             </p>
-            <p><b>Example:</b> $1,000 base job at Level 10, Reputation 80, 15-day streak:</p>
+            <p><b>Example:</b> $1,000 base job at Level 10, Reputation 80, Streak 10:</p>
             <ul>
                 <li>Level 10: +45% ($450)</li>
                 <li>Reputation 80: +40% ($400)</li>
-                <li>Streak 15: +15% ($150)</li>
-                <li><b>Total: $2,000!</b> (100% bonus!)</li>
+                <li>Streak 10: +20% ($200)</li>
+                <li><b>Total: $2,050!</b> (105% bonus!)</li>
             </ul>
             
             <h3>🎖️ Achievements (12 Total)</h3>
@@ -177,7 +177,7 @@ public class AboutDialog extends JDialog {
             <h3>📜 Challenge System</h3>
             <ul>
                 <li><b>Daily Challenges:</b> Reset every 24 hours (Complete 3 jobs, Earn $1,000)</li>
-                <li><b>Weekly Challenges:</b> Reset every 7 days (Complete 20 jobs, Learn skills)</li>
+                <li><b>Weekly Challenges:</b> Reset every 7 days (Complete 12 jobs, Learn skills)</li>
                 <li><b>Main Story:</b> One-time progressive challenges</li>
                 <li><b>Total Value:</b> $56,200 + 10,950 XP</li>
             </ul>

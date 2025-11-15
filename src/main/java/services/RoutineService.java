@@ -9,13 +9,14 @@ public class RoutineService {
 
     public static String processSicknessCheck(UserController userController) {
         long now = System.currentTimeMillis();
-        // Only allow sickness once per 24 hours
-        if (now - userController.getUser().getLastSicknessTime() < 24 * 60 * 60 * 1000L) {
+        // 10-hour run tuning: allow sickness once per hour (was 24h),
+        // lighter damage so one event can't ruin a run.
+        if (now - userController.getUser().getLastSicknessTime() < 60 * 60 * 1000L) {
             return null;
         }
         // 10% chance to get sick.
         if (RandomUtil.getRandomInt(100) < 10) {
-            int healthLoss = 10 + RandomUtil.getRandomInt(11); // Lose 10-20 health
+            int healthLoss = 5 + RandomUtil.getRandomInt(6); // Lose 5-10 health
             userController.decreaseHealth(healthLoss);
             userController.getUser().setLastSicknessTime(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
@@ -60,11 +61,13 @@ public class RoutineService {
     }
 
     
-    // Blocks the player for 48 hours with a money penalty.
+    // Blocks the player briefly with a small money penalty.
+    // 10-hour run tuning: 5 minutes (was 48 hours), penalty 200 (was 2000),
+    // so hitting 0 energy/health is a setback, not a run-ender.
     private static void blockUser(UserController userController, String reason) {
-        int penalty = 2000;
+        int penalty = 200;
         userController.deductBalance(penalty);
-        userController.blockUser(48 * 60 * 60 * 1000L);
+        userController.blockUser(5 * 60 * 1000L);
         // The service does not show dialogs. It just changes the state.
     }
 }
