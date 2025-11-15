@@ -3,26 +3,36 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+import provider.IdentityProvider;
+
 // One piece of work the player can do for pay.
 public class Job {
     private String name;
     private String description;
     private int payment;
     private int energyCost;
-    private String requiredIdentity;
+    private Identity requiredIdentity;
     private ArrayList<String> requiredSkills;
 
-    public Job(String name, String description, int payment, int energyCost, String requiredIdentity, List<String> requiredSkills) {
+    public Job(String name, String description, int payment, int energyCost, Identity requiredIdentity, List<String> requiredSkills) {
         this.name = name;
         this.description = description;
         this.payment = payment;
         this.energyCost = energyCost;
+        if (requiredIdentity == null) {
+            throw new IllegalArgumentException("requiredIdentity is null");
+        }
         this.requiredIdentity = requiredIdentity;
         if (requiredSkills == null) {
             this.requiredSkills = new ArrayList<String>();
         } else {
             this.requiredSkills = new ArrayList<String>(requiredSkills);
         }
+    }
+
+    // Old constructor kept so old code still compiles.
+    public Job(String name, String description, int payment, int energyCost, String requiredIdentity, List<String> requiredSkills) {
+        this(name, description, payment, energyCost, IdentityProvider.createIdentity(requiredIdentity), requiredSkills);
     }
 
     public String getName() {
@@ -41,7 +51,7 @@ public class Job {
         return energyCost;
     }
 
-    public String getRequiredIdentity() {
+    public Identity getRequiredIdentity() {
         return requiredIdentity;
     }
 
@@ -64,29 +74,11 @@ public class Job {
         return result;
     }
 
-    public boolean isForIdentity(String userIdentity) {
-        return requiredIdentity.equals(userIdentity);
-    }
-
     public boolean isForIdentity(Identity identity) {
         if (identity == null) {
             return false;
         }
-        return requiredIdentity.equals(identity.getProfessionName());
-    }
-
-    // True when the profession matches and the player has every needed skill.
-    public boolean isAvailableFor(String userIdentity, List<String> userSkills) {
-        if (!userIdentity.equals(requiredIdentity)) {
-            return false;
-        }
-        for (int i = 0; i < requiredSkills.size(); i++) {
-            String need = requiredSkills.get(i);
-            if (!userSkills.contains(need)) {
-                return false;
-            }
-        }
-        return true;
+        return requiredIdentity.isSameProfession(identity);
     }
 
     // True when the profession matches and the player has every needed skill.
@@ -94,7 +86,7 @@ public class Job {
         if (identity == null || userSkills == null) {
             return false;
         }
-        if (!requiredIdentity.equals(identity.getProfessionName())) {
+        if (!requiredIdentity.isSameProfession(identity)) {
             return false;
         }
         List<Skill> needed = getRequiredSkillsAsObjects();

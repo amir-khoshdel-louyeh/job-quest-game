@@ -9,15 +9,15 @@ public class LearnableSkill {
     private String description;
     private int cost;
     private long requiredPlayTimeMinutes;
-    private ArrayList<String> identities;
+    private ArrayList<Identity> identities;
 
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
-                          List<String> identities) {
+                          List<Identity> identities) {
         this.name = name;
         this.description = description;
         this.cost = cost;
         this.requiredPlayTimeMinutes = requiredPlayTimeMinutes;
-        this.identities = new ArrayList<String>();
+        this.identities = new ArrayList<Identity>();
         if (identities != null) {
             for (int i = 0; i < identities.size(); i++) {
                 this.identities.add(identities.get(i));
@@ -42,23 +42,24 @@ public class LearnableSkill {
     }
 
     // Returns a copy so the stored list can't be changed from outside.
-    public List<String> getIdentities() {
-        ArrayList<String> copy = new ArrayList<String>();
+    public List<Identity> getIdentities() {
+        ArrayList<Identity> copy = new ArrayList<Identity>();
         for (int i = 0; i < identities.size(); i++) {
             copy.add(identities.get(i));
         }
         return copy;
     }
 
-    public boolean isForIdentity(String identityName) {
-        return identities.contains(identityName);
-    }
-
     public boolean isForIdentity(Identity identity) {
         if (identity == null) {
             return false;
         }
-        return identities.contains(identity.getProfessionName());
+        for (int i = 0; i < identities.size(); i++) {
+            if (identities.get(i).isSameProfession(identity)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -13,13 +13,16 @@ public class IdentityProvider {
         if (identityName == null) {
             throw new IllegalArgumentException("Unknown identity type: null");
         }
-        if (identityName.equals("Doctor")) {
+        String cleaned = identityName.trim();
+        if (cleaned.equals(Doctor.PROFESSION_NAME)) {
             return new Doctor();
-        } else if (identityName.equals("Programmer")) {
+        } else if (cleaned.equals(Programmer.PROFESSION_NAME)) {
             return new Programmer();
-        } else if (identityName.equals("LogoDesigner") || identityName.equals("Logo Designer")) {
+        } else if (cleaned.equals(LogoDesigner.PROFESSION_NAME)
+                || cleaned.equals(LogoDesigner.DISPLAY_NAME)) {
+            // DISPLAY_NAME accepted only for old save compatibility.
             return new LogoDesigner();
-        } else if (identityName.equals("Typist")) {
+        } else if (cleaned.equals(Typist.PROFESSION_NAME)) {
             return new Typist();
         } else {
             throw new IllegalArgumentException("Unknown identity type: " + identityName);

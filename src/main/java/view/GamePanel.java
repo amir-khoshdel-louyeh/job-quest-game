@@ -109,7 +109,7 @@ public class GamePanel extends JPanel implements Observer {
         progressPanel.add(streakLabel);
 
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
-        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getProfessionName());
+        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getDisplayName());
         identityName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         energyLabel.setFont(AppTheme.FONT_BODY);
@@ -436,9 +436,9 @@ public class GamePanel extends JPanel implements Observer {
         toastTimer.start();
     }
 
-    /** Identity simple name (Typist/Programmer/LogoDesigner/Doctor) for game routing. */
-    public String getUserIdentity() {
-        return currentUser.getIdentity().getProfessionName();
+    /** Returns the player's profession object for game routing. */
+    public model.Identity getUserIdentity() {
+        return currentUser.getIdentity();
     }
 
     private JFrame parentFrame() {

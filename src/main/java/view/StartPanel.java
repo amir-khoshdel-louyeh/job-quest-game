@@ -3,7 +3,6 @@ package view;
 import model.IdentityOption;
 import model.User;
 import provider.IdentityOptionProvider;
-import provider.IdentityProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -181,7 +180,7 @@ public class StartPanel extends JPanel {
         try {
             User user = new User(
                 name,
-                IdentityProvider.createIdentity(selected.getName()),
+                selected.createIdentity(),
                 selected.getPrice());
             user.setCurrentStreak(1);
             user.setLastLoginDate(System.currentTimeMillis());

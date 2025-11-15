@@ -1,7 +1,12 @@
 package view;
 
 import controller.GameController;
+import model.Identity;
 import model.Job;
+import model.identity.Doctor;
+import model.identity.LogoDesigner;
+import model.identity.Programmer;
+import model.identity.Typist;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -19,7 +24,7 @@ public class JobDialog extends JDialog {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        String userIdentity = user.getIdentity().getProfessionName();
+        String userIdentity = user.getIdentity().getDisplayName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);
@@ -169,14 +174,17 @@ public class JobDialog extends JDialog {
     // Every job first plays a short work game; the submitted score sets pay and XP. Cancel before submitting = no job, no penalty.
     private void handleDoJob(Job job, JButton source) {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        String identity = gamePanel.getUserIdentity();
+        Identity identity = gamePanel.getUserIdentity();
         GameController.ActionResult result;
-        if (isGameIdentity(identity)) {
+        if (identity != null) {
             // Single-pick flow: the job chosen above IS the work —
             // the mini-game opens locked to that job, no second picker.
+            // Which game to open is asked from the profession itself,
+            // so adding a new profession needs no change here
+            // as long as it reuses an existing game kind.
             model.minigame.MiniGameResult game = playWorkGame(parent, identity, job);
             if (game == null) {
-                return; // cancelled — nothing happens, dialog stays open
+                return; // cancelled or unknown game kind — nothing happens, dialog stays open
             }
             result = controller.doJob(job, game);
         } else {
@@ -189,31 +197,27 @@ public class JobDialog extends JDialog {
         }
     }
 
-    private static boolean isGameIdentity(String identity) {
-        return "Typist".equals(identity) || "Programmer".equals(identity)
-                || "Doctor".equals(identity) || "LogoDesigner".equals(identity);
-    }
-
-    private model.minigame.MiniGameResult playWorkGame(JFrame parent, String identity, Job job) {
+    private model.minigame.MiniGameResult playWorkGame(JFrame parent, Identity identity, Job job) {
         String jobName = "Job";
         if (job != null) {
             jobName = job.getName();
         }
-        if (identity.equals("Typist")) {
+        String gameKind = identity.getWorkGameKind();
+        if (Typist.GAME_KIND.equals(gameKind)) {
             view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Typing Sprint",
                     provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
             return d.showAndPlay();
-        } else if (identity.equals("Programmer")) {
+        } else if (Programmer.GAME_KIND.equals(gameKind)) {
             view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Write the Program",
                     provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
             return d.showAndPlay();
-        } else if (identity.equals("Doctor")) {
+        } else if (Doctor.GAME_KIND.equals(gameKind)) {
             view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
                     parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
             return d.showAndPlay();
-        } else if (identity.equals("LogoDesigner")) {
+        } else if (LogoDesigner.GAME_KIND.equals(gameKind)) {
             view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
                     parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
             return d.showAndPlay();

@@ -25,7 +25,7 @@ public class SkillDialog extends JDialog {
         this.gamePanel = gamePanel;
         this.allSkills = allSkills != null ? new ArrayList<>(allSkills) : new ArrayList<>();
         this.user = user;
-        String userIdentity = user.getIdentity().getProfessionName();
+        String userIdentity = user.getIdentity().getDisplayName();
         setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);

@@ -3,8 +3,13 @@ package provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Identity;
 import model.LearnableSkill;
 import model.User;
+import model.identity.Doctor;
+import model.identity.LogoDesigner;
+import model.identity.Programmer;
+import model.identity.Typist;
 
 // Holds all skills the player can learn at school.
 public class SkillProvider {
@@ -15,24 +20,24 @@ public class SkillProvider {
         // 10-hour run tuning: time gates cut from max 480min (80% of budget)
         // to max 110min, costs cut ~3x so a full profession path (~5-8k total)
         // is affordable in the first 2-3 hours.
-        ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2("Typist", "Doctor")));
-        ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1("LogoDesigner")));
-        ALL_SKILLS.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2("Typist", "Doctor")));
-        ALL_SKILLS.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2("Programmer", "LogoDesigner")));
-        ALL_SKILLS.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1("Programmer")));
-        ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2("Programmer", "Doctor")));
+        ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(new Typist(), new Doctor())));
+        ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(new LogoDesigner())));
+        ALL_SKILLS.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(new Typist(), new Doctor())));
+        ALL_SKILLS.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(new Programmer(), new LogoDesigner())));
+        ALL_SKILLS.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(new Programmer())));
+        ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(new Programmer(), new Doctor())));
     }
 
-    private static ArrayList<String> makeList1(String s1) {
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(s1);
+    private static ArrayList<Identity> makeList1(Identity i1) {
+        ArrayList<Identity> list = new ArrayList<Identity>();
+        list.add(i1);
         return list;
     }
 
-    private static ArrayList<String> makeList2(String s1, String s2) {
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(s1);
-        list.add(s2);
+    private static ArrayList<Identity> makeList2(Identity i1, Identity i2) {
+        ArrayList<Identity> list = new ArrayList<Identity>();
+        list.add(i1);
+        list.add(i2);
         return list;
     }
 
@@ -54,18 +59,7 @@ public class SkillProvider {
         return copy;
     }
 
-    public static List<LearnableSkill> getSkillsForIdentity(String identityName) {
-        ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
-        for (int i = 0; i < ALL_SKILLS.size(); i++) {
-            LearnableSkill skill = ALL_SKILLS.get(i);
-            if (skill.isForIdentity(identityName)) {
-                result.add(skill);
-            }
-        }
-        return result;
-    }
-
-    public static List<LearnableSkill> getSkillsForIdentity(model.Identity identity) {
+    public static List<LearnableSkill> getSkillsForIdentity(Identity identity) {
         ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
         if (identity == null) {
             return result;
