@@ -4,12 +4,12 @@ import model.Job;
 import model.User;
 
 // Figures out job pay, XP, and reputation rewards.
-// Final pay = base * (1 + level bonus + reputation bonus + streak bonus).
+// Final pay = base * (1 + level bonus + reputation bonus + job bonus).
 public class JobService {
 
     // max bonuses
     public static final double MAX_LEVEL_BONUS = 5.0;
-    public static final double MAX_STREAK_BONUS = 0.30;
+    public static final double MAX_JOB_BONUS = 0.30;
 
     // Level bonus: +5% for each level above 1, max +500%.
     public double levelBonus(User user) {
@@ -42,27 +42,27 @@ public class JobService {
         return rep * 0.005;
     }
 
-    // Streak bonus: +2% per streak point, max +30% (15 points).
-    // Streak now also grows every 10 jobs (see UserController.recordJobCompletion),
-    // so a single ~10h run can reach the cap without 30 daily logins.
-    public double streakBonus(User user) {
+    // Job bonus: +2% per jobBonus point, max +30% (15 points).
+    // JobBonus grows every 10 jobs (see UserController.recordJobCompletion),
+    // so a single ~10h run can reach the cap.
+    public double jobBonus(User user) {
         if (user == null) {
             return 0.0;
         }
-        int streak = user.getCurrentStreak();
-        if (streak < 0) {
-            streak = 0;
+        int bonusLevel = user.getJobBonus();
+        if (bonusLevel < 0) {
+            bonusLevel = 0;
         }
-        double bonus = streak * 0.02;
-        if (bonus > MAX_STREAK_BONUS) {
-            bonus = MAX_STREAK_BONUS;
+        double bonus = bonusLevel * 0.02;
+        if (bonus > MAX_JOB_BONUS) {
+            bonus = MAX_JOB_BONUS;
         }
         return bonus;
     }
 
     // Add all bonuses together
     public double totalBonusRate(User user) {
-        double total = levelBonus(user) + reputationBonus(user) + streakBonus(user);
+        double total = levelBonus(user) + reputationBonus(user) + jobBonus(user);
         return total;
     }
 

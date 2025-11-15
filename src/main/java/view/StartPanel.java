@@ -193,8 +193,7 @@ public class StartPanel extends JPanel {
                 name,
                 selected.createIdentity(),
                 selected.getPrice());
-            user.setCurrentStreak(1);
-            user.setLastLoginDate(System.currentTimeMillis());
+            user.setJobBonus(1);
             mainFrame.showPanel(new GamePanel(user));
         } catch (IllegalArgumentException ex) {
             errorLabel.setText("Error: " + ex.getMessage());

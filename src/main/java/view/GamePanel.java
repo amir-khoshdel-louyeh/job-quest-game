@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements Observer {
     private RoutineController routineController;
     private UserController userController;
     private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
-    private JLabel levelLabel, xpLabel, reputationLabel, streakLabel;
+    private JLabel levelLabel, xpLabel, reputationLabel, jobBonusLabel;
     private JProgressBar xpProgressBar, healthBar, energyBar;
     private JTextArea chatArea;
     private JPanel animationPanel;
@@ -98,16 +98,16 @@ public class GamePanel extends JPanel implements Observer {
         
         reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
         reputationLabel.setFont(AppTheme.FONT_BODY);
-        streakLabel = new JLabel("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
-        streakLabel.setFont(AppTheme.FONT_BODY);
-        streakLabel.setForeground(AppTheme.WARNING_COLOR.darker());
+        jobBonusLabel = new JLabel("💰 Job Bonus: " + currentUser.getJobBonus());
+        jobBonusLabel.setFont(AppTheme.FONT_BODY);
+        jobBonusLabel.setForeground(AppTheme.WARNING_COLOR.darker());
         
         progressPanel.add(levelLabel);
         progressPanel.add(xpLabel);
         progressPanel.add(xpProgressBar);
         progressPanel.add(Box.createVerticalStrut(5));
         progressPanel.add(reputationLabel);
-        progressPanel.add(streakLabel);
+        progressPanel.add(jobBonusLabel);
 
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
         JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getDisplayName());
@@ -340,7 +340,7 @@ public class GamePanel extends JPanel implements Observer {
         xpProgressBar.setValue(currentUser.getExperiencePercentage());
         xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
         reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
-        streakLabel.setText("🔥 Streak: " + currentUser.getCurrentStreak() + " days");
+        jobBonusLabel.setText("💰 Job Bonus: " + currentUser.getJobBonus());
     }
 
     private void setupTimers() {

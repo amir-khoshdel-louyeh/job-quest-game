@@ -19,7 +19,7 @@ public class DeveloperDialog extends JDialog {
     private JTextField levelField;
     private JTextField reputationField;
     private JTextField playtimeField;
-    private JTextField streakField;
+    private JTextField jobBonusField;
 
     public DeveloperDialog(JFrame parent, DeveloperController devController, GamePanel gamePanel) {
         super(parent, "Developer Controls", true);
@@ -45,7 +45,7 @@ public class DeveloperDialog extends JDialog {
         levelField = row(form, "Level (1-100):");
         reputationField = row(form, "Reputation (0-100):");
         playtimeField = row(form, "Playtime (min):");
-        streakField = row(form, "Streak (days):");
+        jobBonusField = row(form, "Job Bonus:");
 
         refreshFields();
         add(form, BorderLayout.CENTER);
@@ -133,7 +133,7 @@ public class DeveloperDialog extends JDialog {
         levelField.setText(String.valueOf(user.getLevel()));
         reputationField.setText(String.valueOf(user.getReputation()));
         playtimeField.setText(String.valueOf(user.getTotalPlayTime() / (1000 * 60)));
-        streakField.setText(String.valueOf(user.getCurrentStreak()));
+        jobBonusField.setText(String.valueOf(user.getJobBonus()));
     }
 
     private void applyValues() {
@@ -151,7 +151,7 @@ public class DeveloperDialog extends JDialog {
         }
         long wanted = parse(playtimeField, currentInt);
         devController.addPlaytimeMinutes(wanted - currentMinutes);
-        devController.setStreak(parse(streakField, user.getCurrentStreak()));
+        devController.setJobBonus(parse(jobBonusField, user.getJobBonus()));
         refreshFields();
         gamePanel.addChatMessage("Dev: values applied.");
         gamePanel.updateUserInfo();

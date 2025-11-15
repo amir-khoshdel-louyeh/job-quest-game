@@ -17,9 +17,7 @@ public class User {
     private long totalPlayTime = 0;
 
     private int totalJobsCompleted = 0;
-    private int currentStreak = 0;
-    private int maxStreak = 0;
-    private long lastLoginDate = 0;
+    private int jobBonus = 0;
     private ArrayList<String> unlockedAchievements = new ArrayList<String>();
     private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
@@ -244,32 +242,12 @@ public class User {
         this.totalJobsCompleted++;
     }
 
-    public int getCurrentStreak() {
-        return currentStreak;
+    public int getJobBonus() {
+        return jobBonus;
     }
 
-    // Also raises the best streak when beaten.
-    public void setCurrentStreak(int streak) {
-        this.currentStreak = streak;
-        if (streak > maxStreak) {
-            maxStreak = streak;
-        }
-    }
-
-    public int getMaxStreak() {
-        return maxStreak;
-    }
-
-    public void setMaxStreak(int maxStreak) {
-        this.maxStreak = maxStreak;
-    }
-
-    public long getLastLoginDate() {
-        return lastLoginDate;
-    }
-
-    public void setLastLoginDate(long date) {
-        this.lastLoginDate = date;
+    public void setJobBonus(int jobBonus) {
+        this.jobBonus = jobBonus;
     }
 
     // Returns a copy so the stored list can't be changed from outside.

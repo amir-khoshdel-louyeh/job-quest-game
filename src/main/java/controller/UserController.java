@@ -142,19 +142,19 @@ public class UserController implements Subject {
     }
 
     // Adds one completed job to the player's totals.
-    // 10-hour run tuning: +1 streak every 10 jobs (capped at 15 for +30%),
-    // so the streak bonus is reachable in a single run, not just via daily logins.
+    // 10-hour run tuning: +1 jobBonus every 10 jobs (capped at 15 for +30%),
+    // so the job bonus is reachable in a single run.
     public void recordJobCompletion(int moneyEarned) {
         user.incrementJobsCompleted();
         if (moneyEarned > 0) {
             user.addToTotalMoneyEarned(moneyEarned);
         }
         if (user.getTotalJobsCompleted() % 10 == 0) {
-            int next = user.getCurrentStreak() + 1;
+            int next = user.getJobBonus() + 1;
             if (next > 15) {
                 next = 15;
             }
-            user.setCurrentStreak(next);
+            user.setJobBonus(next);
         }
         notifyObservers(ChangeType.JOBS);
     }

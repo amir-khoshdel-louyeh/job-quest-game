@@ -73,9 +73,9 @@ public class DeveloperController {
         userController.refresh();
     }
 
-    /** Set daily login streak directly (clamped >= 0). */
-    public void setStreak(int days) {
-        userController.getUser().setCurrentStreak(Math.max(0, days));
+    /** Set job bonus level directly (clamped >= 0). */
+    public void setJobBonus(int level) {
+        userController.getUser().setJobBonus(Math.max(0, level));
         userController.refresh();
     }
 
