@@ -20,23 +20,15 @@ public class ChallengeService {
     }
 
     // Add daily challenges, remove old completed daily ones
+    // Uses polymorphic copy(): no "new Challenge" switch here.
     public static void refreshDailyChallenges(User user) {
         user.pruneCompletedDailyChallenges();
         List<Challenge> daily = ChallengeProvider.getDailyChallenges();
         for (int i = 0; i < daily.size(); i++) {
             Challenge template = daily.get(i);
             if (!user.hasChallenge(template.getId())) {
-                // make a fresh copy so progress is separate
-                Challenge copy = new Challenge(
-                    template.getId(),
-                    template.getName(),
-                    template.getDescription(),
-                    template.getType(),
-                    template.getTargetValue(),
-                    template.getRewardMoney(),
-                    template.getRewardExperience()
-                );
-                user.addChallenge(copy);
+                // fresh copy so progress is separate, same runtime type
+                user.addChallenge(template.copy());
             }
         }
     }
