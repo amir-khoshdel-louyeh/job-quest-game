@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Identity;
-import model.player.User;
 
 // One piece of work the player can do for pay.
+// Depends only on Identity + skill names, never on User:
+// keeps model.career free of model.player (no package cycle).
 public class Job {
     private String name;
     private String description;
@@ -80,12 +81,5 @@ public class Job {
             }
         }
         return true;
-    }
-
-    public boolean isAvailableFor(User user) {
-        if (user == null || user.getIdentity() == null) {
-            return false;
-        }
-        return isAvailableFor(user.getIdentity(), user.getSkills());
     }
 }

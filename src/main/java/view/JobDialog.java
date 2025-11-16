@@ -45,7 +45,7 @@ public class JobDialog extends JDialog {
             if (!job.isForIdentity(user.getIdentity())) {
                 continue;
             }
-            if (job.isAvailableFor(user)) {
+            if (job.isAvailableFor(user.getIdentity(), userSkills)) {
                 available.add(job);
             } else {
                 locked.add(job);

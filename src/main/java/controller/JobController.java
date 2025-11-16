@@ -55,8 +55,9 @@ public class JobController {
         if (userController.isBlocked()) {
             return JobResult.failure(job, "You are blocked. Rest and try later.");
         }
-        // Check identity + skills
-        if (!job.isAvailableFor(userController.getUser())) {
+        // Check identity + skills (Job knows only Identity + skill names, not User)
+        User userEarly = userController.getUser();
+        if (!job.isAvailableFor(userEarly.getIdentity(), userEarly.getSkills())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
         // Check energy

@@ -83,6 +83,7 @@ public class JobProvider {
     }
 
     // Return jobs that this user can do now.
+    // Provider may know User; model.career.Job itself does not.
     public static List<Job> getAvailableJobsForUser(User user) {
         ArrayList<Job> result = new ArrayList<Job>();
         if (user == null || user.getIdentity() == null) {
@@ -90,7 +91,7 @@ public class JobProvider {
         }
         for (int i = 0; i < ALL_JOBS.size(); i++) {
             Job job = ALL_JOBS.get(i);
-            if (job.isAvailableFor(user)) {
+            if (job.isAvailableFor(user.getIdentity(), user.getSkills())) {
                 result.add(job);
             }
         }
