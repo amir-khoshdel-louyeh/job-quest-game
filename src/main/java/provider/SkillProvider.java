@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Identity;
-import model.LearnableSkill;
-import model.User;
+import model.career.LearnableSkill;
+import model.player.User;
 
 // Holds all skills the player can learn at school.
 public class SkillProvider {

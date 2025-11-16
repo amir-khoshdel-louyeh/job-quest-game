@@ -1,6 +1,6 @@
 package controller;
 
-import model.User;
+import model.player.User;
 
 // Builds the text block shown for player stats.
 public class StatsController {

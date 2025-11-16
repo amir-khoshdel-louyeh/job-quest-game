@@ -1,11 +1,11 @@
 package controller;
 
-import model.Achievement;
-import model.Challenge;
-import model.Job;
-import model.JobResult;
-import model.User;
+import model.career.Job;
 import model.minigame.MiniGameResult;
+import model.player.User;
+import model.goals.Achievement;
+import model.goals.Challenge;
+import model.store.JobResult;
 import services.AchievementService;
 import services.ChallengeService;
 import services.JobService;

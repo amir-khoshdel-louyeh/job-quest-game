@@ -1,7 +1,7 @@
 package services;
 
-import model.Job;
-import model.User;
+import model.career.Job;
+import model.player.User;
 
 // Figures out job pay, XP, and reputation rewards.
 // Final pay = base * (1 + level bonus + reputation bonus + job bonus).

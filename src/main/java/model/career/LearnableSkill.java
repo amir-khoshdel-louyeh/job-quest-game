@@ -1,7 +1,9 @@
-package model;
+package model.career;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Identity;
 
 // A skill offered at school with a cost and requirements.
 public class LearnableSkill {

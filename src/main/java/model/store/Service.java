@@ -1,4 +1,6 @@
-package model;
+package model.store;
+
+import model.player.User;
 
 // A buyable service that restores health or energy right away.
 public class Service implements Purchasable {

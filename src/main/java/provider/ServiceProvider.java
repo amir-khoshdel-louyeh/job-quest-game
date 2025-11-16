@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import model.Service;
+import model.store.Service;
 
 // Holds all food and hospital services the player can buy.
 public class ServiceProvider {

@@ -1,7 +1,6 @@
-package model.achievement;
+package model.goals;
 
-import model.Achievement;
-import model.User;
+import model.player.User;
 
 // Rewards learning a target number of skills.
 public class SkillsLearnedAchievement extends Achievement {

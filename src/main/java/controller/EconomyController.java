@@ -1,6 +1,6 @@
 package controller;
 
-import model.Service;
+import model.store.Service;
 import provider.ServiceProvider;
 
 // Handles money: buying services like food or hospital visits.

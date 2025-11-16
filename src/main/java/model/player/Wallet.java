@@ -1,4 +1,4 @@
-package model;
+package model.player;
 
 // Holds the player's money and guards against negative balance.
 public class Wallet {

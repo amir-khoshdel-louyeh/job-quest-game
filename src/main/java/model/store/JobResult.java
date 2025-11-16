@@ -1,7 +1,11 @@
-package model;
+package model.store;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.career.Job;
+import model.goals.Achievement;
+import model.goals.Challenge;
 
 // Holds the outcome and rewards of doing a job.
 public final class JobResult {

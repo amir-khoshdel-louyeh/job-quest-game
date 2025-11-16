@@ -1,7 +1,7 @@
 package services;
 
-import model.GameEvent;
-import model.User;
+import model.player.User;
+import model.store.GameEvent;
 import provider.GameEventProvider;
 
 // Hands out surprise events like finding money or losing health.

@@ -1,8 +1,8 @@
 package controller;
 
-import model.Challenge;
-import model.LearnableSkill;
-import model.User;
+import model.career.LearnableSkill;
+import model.player.User;
+import model.goals.Challenge;
 import provider.SkillProvider;
 import services.AchievementService;
 import services.ChallengeService;

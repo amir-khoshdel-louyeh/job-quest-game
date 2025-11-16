@@ -1,6 +1,6 @@
 package model;
 
-// The identity of a player contract.
+// Shared kernel: kept in root, used by player/career/providers.
 public interface Identity {
     
     String getProfessionName();

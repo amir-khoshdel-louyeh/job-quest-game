@@ -1,7 +1,7 @@
 package view;
 
 import controller.GameController;
-import model.Service;
+import model.store.Service;
 import view.theme.AppTheme;
 
 import javax.swing.*;

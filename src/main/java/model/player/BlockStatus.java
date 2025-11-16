@@ -1,4 +1,4 @@
-package model;
+package model.player;
 
 // Owns wall-clock blocking state. Extracted from User for SRP.
 // Time is passed in so the rule is testable without System clock.

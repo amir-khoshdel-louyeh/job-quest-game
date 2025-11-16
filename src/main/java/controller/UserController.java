@@ -1,6 +1,6 @@
 package controller;
 
-import model.User;
+import model.player.User;
 import observer.ChangeType;
 import observer.Observer;
 import observer.SimpleSubject;

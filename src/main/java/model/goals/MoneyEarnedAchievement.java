@@ -1,7 +1,6 @@
-package model.achievement;
+package model.goals;
 
-import model.Achievement;
-import model.User;
+import model.player.User;
 
 // Rewards earning a target amount of money overall.
 public class MoneyEarnedAchievement extends Achievement {

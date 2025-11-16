@@ -1,7 +1,6 @@
-package model.achievement;
+package model.goals;
 
-import model.Achievement;
-import model.User;
+import model.player.User;
 
 // Rewards holding a lot of money at once.
 public class RichPlayerAchievement extends Achievement {

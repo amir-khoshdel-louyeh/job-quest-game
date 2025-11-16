@@ -2,7 +2,8 @@ package view;
 
 import controller.GameController;
 import model.Identity;
-import model.Job;
+import model.career.Job;
+import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class JobDialog extends JDialog {
     private final GamePanel gamePanel;
 
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                     List<Job> allJobs, model.User user) {
+                     List<Job> allJobs, User user) {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;

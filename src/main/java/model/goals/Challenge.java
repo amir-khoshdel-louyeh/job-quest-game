@@ -1,4 +1,4 @@
-package model;
+package model.goals;
 
 // A mission the player can finish for extra rewards.
 public class Challenge {

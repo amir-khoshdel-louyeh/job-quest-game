@@ -3,7 +3,7 @@ package provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Challenge;
+import model.goals.Challenge;
 
 // Holds the daily, weekly, and story challenges the player can try.
 public class ChallengeProvider {

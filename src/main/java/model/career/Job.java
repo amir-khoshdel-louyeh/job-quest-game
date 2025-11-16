@@ -1,7 +1,10 @@
-package model;
+package model.career;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Identity;
+import model.player.User;
 
 // One piece of work the player can do for pay.
 public class Job {

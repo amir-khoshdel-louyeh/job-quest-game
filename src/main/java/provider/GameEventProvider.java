@@ -3,7 +3,7 @@ package provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.GameEvent;
+import model.store.GameEvent;
 
 // Holds all random events that can pop up while playing.
 public class GameEventProvider {

@@ -1,4 +1,4 @@
-package model.identity;
+package model.career;
 
 import model.Identity;
 

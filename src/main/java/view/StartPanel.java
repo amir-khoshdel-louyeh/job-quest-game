@@ -1,7 +1,7 @@
 package view;
 
 import model.Identity;
-import model.User;
+import model.player.User;
 import provider.IdentityOptionProvider;
 import provider.IdentityProvider;
 import view.theme.AppTheme;

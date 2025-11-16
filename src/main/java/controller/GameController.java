@@ -1,12 +1,13 @@
 package controller;
 
-import model.Achievement;
-import model.Challenge;
-import model.GameEvent;
-import model.Job;
-import model.User;
-import model.Service;
+import model.career.Job;
 import model.minigame.MiniGameResult;
+import model.player.User;
+import model.goals.Achievement;
+import model.goals.Challenge;
+import model.store.GameEvent;
+import model.store.JobResult;
+import model.store.Service;
 import provider.JobProvider;
 import provider.ServiceProvider;
 import services.AchievementService;
@@ -67,7 +68,7 @@ public class GameController {
     }
 
     public ActionResult doJob(Job job) {
-        model.JobResult r = jobController.doJob(job);
+        JobResult r = jobController.doJob(job);
         if (r.isSuccess()) {
             sessionJobsCompleted++;
             return new ActionResult(true, r.getMessage());
@@ -77,7 +78,7 @@ public class GameController {
     }
 
     public ActionResult doJob(Job job, MiniGameResult game) {
-        model.JobResult r = jobController.doJob(job, game);
+        JobResult r = jobController.doJob(job, game);
         if (r.isSuccess()) {
             sessionJobsCompleted++;
             return new ActionResult(true, r.getMessage());

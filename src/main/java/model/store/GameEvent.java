@@ -1,4 +1,4 @@
-package model;
+package model.store;
 
 // A random event that changes money, health, or energy.
 public class GameEvent {

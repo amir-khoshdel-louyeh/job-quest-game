@@ -1,7 +1,7 @@
 package provider;
 
 import model.Identity;
-import model.identity.Profession;
+import model.career.Profession;
 
 // Builds the starting profession the player picks.
 // Data lives in one table here, not in subclasses.

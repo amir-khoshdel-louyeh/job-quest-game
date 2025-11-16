@@ -1,7 +1,7 @@
 package services;
 
-import model.Challenge;
-import model.User;
+import model.player.User;
+import model.goals.Challenge;
 import java.util.ArrayList;
 import java.util.List;
 import provider.ChallengeProvider;

@@ -1,7 +1,6 @@
-package model.achievement;
+package model.goals;
 
-import model.Achievement;
-import model.User;
+import model.player.User;
 
 // Rewards finishing a target number of jobs.
 public class JobsCompletedAchievement extends Achievement {

@@ -1,7 +1,7 @@
 package controller;
 
-import model.GameEvent;
-import model.User;
+import model.store.GameEvent;
+import model.player.User;
 import services.EventService;
 
 // Triggers random events and applies their effects.

@@ -1,4 +1,4 @@
-package model;
+package model.player;
 
 // Tracks level, experience, and reputation.
 public class CareerProgress {

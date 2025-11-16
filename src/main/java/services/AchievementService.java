@@ -1,7 +1,7 @@
 package services;
 
-import model.Achievement;
-import model.User;
+import model.player.User;
+import model.goals.Achievement;
 import java.util.ArrayList;
 import java.util.List;
 import provider.AchievementProvider;

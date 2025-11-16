@@ -1,4 +1,4 @@
-package model;
+package model.player;
 
 // Tracks health and energy and keeps them within limits.
 public class Vitals {

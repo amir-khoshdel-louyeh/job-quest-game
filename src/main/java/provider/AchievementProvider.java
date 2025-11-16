@@ -4,11 +4,11 @@ package provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Achievement;
-import model.achievement.MoneyEarnedAchievement;
-import model.achievement.JobsCompletedAchievement;
-import model.achievement.SkillsLearnedAchievement;
-import model.achievement.RichPlayerAchievement;
+import model.goals.Achievement;
+import model.goals.JobsCompletedAchievement;
+import model.goals.MoneyEarnedAchievement;
+import model.goals.RichPlayerAchievement;
+import model.goals.SkillsLearnedAchievement;
 
 // Holds all achievements the player can earn.
 public class AchievementProvider {

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.Identity;
-import model.Job;
-import model.User;
+import model.career.Job;
+import model.player.User;
 
 // Builds the list of jobs the player can pick from.
 public class JobProvider {

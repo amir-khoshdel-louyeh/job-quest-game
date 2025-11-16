@@ -1,6 +1,6 @@
 package controller;
 
-import model.User;
+import model.player.User;
 
 // Lets developers set stats by hand for demos and testing.
 public class DeveloperController {

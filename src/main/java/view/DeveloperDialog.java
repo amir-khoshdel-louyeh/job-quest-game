@@ -1,7 +1,7 @@
 package view;
 
 import controller.DeveloperController;
-import model.User;
+import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;

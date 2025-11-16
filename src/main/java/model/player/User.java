@@ -1,6 +1,11 @@
-package model;
+package model.player;
 
 import java.util.List;
+
+import model.Identity;
+import model.goals.AchievementBook;
+import model.goals.Challenge;
+import model.goals.ChallengeBook;
 
 // Represents one player. Thin aggregate root: owns Wallet/Vitals/Progress
 // plus small book objects (skills, blocking, achievements, challenges).

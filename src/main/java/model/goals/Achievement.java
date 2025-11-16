@@ -1,4 +1,6 @@
-package model;
+package model.goals;
+
+import model.player.User;
 
 // An unlockable goal with a reward.
 public abstract class Achievement {
