@@ -8,22 +8,33 @@ import model.Identity;
 // One piece of work the player can do for pay.
 // Depends only on Identity + skill names, never on User:
 // keeps model.career free of model.player (no package cycle).
-public class Job {
-    private String name;
-    private String description;
-    private int payment;
-    private int energyCost;
-    private Identity requiredIdentity;
-    private ArrayList<String> requiredSkills;
+// Immutable value object: all fields final, validated in constructor.
+public final class Job {
+    private final String name;
+    private final String description;
+    private final int payment;
+    private final int energyCost;
+    private final Identity requiredIdentity;
+    private final ArrayList<String> requiredSkills;
 
     public Job(String name, String description, int payment, int energyCost, Identity requiredIdentity, List<String> requiredSkills) {
-        this.name = name;
-        this.description = description;
-        this.payment = payment;
-        this.energyCost = energyCost;
+        if (name == null || name.trim().equals("")) {
+            throw new IllegalArgumentException("name required");
+        }
+        if (payment < 0 || energyCost < 0) {
+            throw new IllegalArgumentException("payment/energyCost must be >= 0");
+        }
         if (requiredIdentity == null) {
             throw new IllegalArgumentException("requiredIdentity is null");
         }
+        this.name = name;
+        if (description == null) {
+            this.description = "";
+        } else {
+            this.description = description;
+        }
+        this.payment = payment;
+        this.energyCost = energyCost;
         this.requiredIdentity = requiredIdentity;
         if (requiredSkills == null) {
             this.requiredSkills = new ArrayList<String>();

@@ -6,17 +6,28 @@ import java.util.List;
 import model.Identity;
 
 // A skill offered at school with a cost and requirements.
-public class LearnableSkill {
-    private String name;
-    private String description;
-    private int cost;
-    private long requiredPlayTimeMinutes;
-    private ArrayList<Identity> identities;
+// Immutable value object: all fields final, validated in constructor.
+public final class LearnableSkill {
+    private final String name;
+    private final String description;
+    private final int cost;
+    private final long requiredPlayTimeMinutes;
+    private final ArrayList<Identity> identities;
 
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
                           List<Identity> identities) {
+        if (name == null || name.trim().equals("")) {
+            throw new IllegalArgumentException("name required");
+        }
+        if (cost < 0 || requiredPlayTimeMinutes < 0) {
+            throw new IllegalArgumentException("cost/playTime must be >= 0");
+        }
         this.name = name;
-        this.description = description;
+        if (description == null) {
+            this.description = "";
+        } else {
+            this.description = description;
+        }
         this.cost = cost;
         this.requiredPlayTimeMinutes = requiredPlayTimeMinutes;
         this.identities = new ArrayList<Identity>();

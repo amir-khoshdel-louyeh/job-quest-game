@@ -2,12 +2,13 @@ package model.store;
 
 // A buyable service that restores health or energy right away.
 // Applies to ServiceTarget, not to User directly (DIP).
-public class Service implements Purchasable {
-    private String name;
-    private String description;
-    private int cost;
-    private int healthEffect;
-    private int energyEffect;
+// Immutable value object: all fields final.
+public final class Service implements Purchasable {
+    private final String name;
+    private final String description;
+    private final int cost;
+    private final int healthEffect;
+    private final int energyEffect;
 
     public Service(String name, String description, int cost, int healthEffect, int energyEffect) {
         if (name == null || name.trim().equals("")) {
