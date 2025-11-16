@@ -93,7 +93,7 @@ public class TypingGameDialog extends JDialog {
         });
         if (lockedToJob) {
             TextTask only = tasks.get(0);
-            JLabel fixed = new JLabel(only.getTitle() + "  " + only.difficultyStars());
+            JLabel fixed = new JLabel(only.getTitle() + "  " + utils.DifficultyText.stars(only.getDifficulty()));
             fixed.setFont(AppTheme.FONT_BODY);
             pick.add(fixed, BorderLayout.CENTER);
         } else {
@@ -106,7 +106,7 @@ public class TypingGameDialog extends JDialog {
                     super.getListCellRendererComponent(l, v, i, sel, foc);
                     if (v instanceof TextTask) {
                         TextTask t = (TextTask) v;
-                        setText(t.getTitle() + "  " + t.difficultyStars());
+                        setText(t.getTitle() + "  " + utils.DifficultyText.stars(t.getDifficulty()));
                     }
                     return this;
                 }
@@ -192,7 +192,7 @@ public class TypingGameDialog extends JDialog {
             return;
         }
         targetArea.setText(t.getContent());
-        statusLabel.setText(t.difficultyStars() + " - par " + t.getParSeconds() + "s — exact copy wins");
+        statusLabel.setText(utils.DifficultyText.stars(t.getDifficulty()) + " - par " + t.getParSeconds() + "s — exact copy wins");
     }
 
     private void startRound() {
@@ -275,7 +275,7 @@ public class TypingGameDialog extends JDialog {
         }
         String html = "<html><center><h2>Score " + result.getScore() + "/100 " + pass + "</h2>"
                 + "Accuracy " + result.getAccuracy() + "% - " + wpmText + " - " + result.getElapsedSeconds() + "s"
-                + "<br>" + result.summaryLine() + "</center></html>";
+                + "<br>" + utils.GameSummaryText.summaryLine(result.getGameName(), result.getScore(), result.getAccuracy(), result.getWpm(), result.getElapsedSeconds(), result.getHighlights()) + "</center></html>";
         int type = JOptionPane.INFORMATION_MESSAGE;
         if (!result.isPassed()) {
             type = JOptionPane.WARNING_MESSAGE;

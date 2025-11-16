@@ -63,9 +63,4 @@ public class Service implements Purchasable {
             target.gainHealth(healthEffect);
         }
     }
-
-    @Override
-    public String getEffectDescription() {
-        return utils.EffectText.formatServiceEffect(energyEffect, healthEffect);
-    }
 }

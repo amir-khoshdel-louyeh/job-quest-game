@@ -190,10 +190,6 @@ public class User implements AchievementStats, ServiceTarget {
         progress.addReputation(amount);
     }
 
-    public String getReputationTitle() {
-        return progress.getReputationTitle();
-    }
-
     public int getTotalMoneyEarned() {
         return wallet.getTotalMoneyEarned();
     }

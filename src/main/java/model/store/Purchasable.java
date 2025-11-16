@@ -9,5 +9,4 @@ public interface Purchasable {
     String getDescription();
     int getPrice();
     void apply(ServiceTarget target);
-    String getEffectDescription();
 }

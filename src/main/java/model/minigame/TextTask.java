@@ -50,9 +50,4 @@ public final class TextTask {
     public int getDifficulty() {
         return difficulty;
     }
-
-    // Difficulty as stars like "**-".
-    public String difficultyStars() {
-        return utils.DifficultyText.stars(difficulty);
-    }
 }

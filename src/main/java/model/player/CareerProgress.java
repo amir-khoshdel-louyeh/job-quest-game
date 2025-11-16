@@ -80,9 +80,4 @@ public class CareerProgress {
     public void addReputation(int amount) {
         setReputation(reputation + amount);
     }
-
-    // Picks a title based on the reputation score.
-    public String getReputationTitle() {
-        return utils.ReputationText.titleFor(reputation);
-    }
 }

@@ -96,9 +96,4 @@ public final class MiniGameResult {
     public double rewardMultiplier() {
         return 0.5 + score / 100.0;
     }
-
-    // Builds one line with score, accuracy, speed, and highlights.
-    public String summaryLine() {
-        return utils.GameSummaryText.summaryLine(gameName, score, accuracy, wpm, elapsedSeconds, highlights);
-    }
 }

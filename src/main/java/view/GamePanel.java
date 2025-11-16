@@ -96,7 +96,7 @@ public class GamePanel extends JPanel implements Observer {
         xpProgressBar.setBackground(AppTheme.DIVIDER_COLOR);
         xpProgressBar.setFont(AppTheme.FONT_SMALL);
         
-        reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
+        reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + utils.ReputationText.titleFor(currentUser.getReputation()) + ")");
         reputationLabel.setFont(AppTheme.FONT_BODY);
         jobBonusLabel = new JLabel("💰 Job Bonus: " + currentUser.getJobBonus());
         jobBonusLabel.setFont(AppTheme.FONT_BODY);
@@ -339,7 +339,7 @@ public class GamePanel extends JPanel implements Observer {
         xpLabel.setText("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
         xpProgressBar.setValue(currentUser.getExperiencePercentage());
         xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
-        reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + currentUser.getReputationTitle() + ")");
+        reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + utils.ReputationText.titleFor(currentUser.getReputation()) + ")");
         jobBonusLabel.setText("💰 Job Bonus: " + currentUser.getJobBonus());
     }
 

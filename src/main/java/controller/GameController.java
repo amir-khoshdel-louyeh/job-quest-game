@@ -43,7 +43,7 @@ public class GameController {
         Service service = ServiceProvider.getService(serviceName);
         String effect = "";
         if (service != null) {
-            effect = service.getEffectDescription();
+            effect = utils.EffectText.formatServiceEffect(service.getEnergyEffect(), service.getHealthEffect());
         }
         if (ok) {
             return new ActionResult(true, "Service " + serviceName + " purchased. Effect: " + effect + ".");

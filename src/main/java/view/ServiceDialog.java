@@ -51,7 +51,7 @@ public class ServiceDialog extends JDialog {
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel descriptionLabel = AppTheme.createCardDescription(
-                service.getDescription() + "<br>Effect: " + service.getEffectDescription());
+                service.getDescription() + "<br>Effect: " + utils.EffectText.formatServiceEffect(service.getEnergyEffect(), service.getHealthEffect()));
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         infoPanel.add(nameLabel);

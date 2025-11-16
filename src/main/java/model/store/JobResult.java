@@ -91,7 +91,9 @@ public final class JobResult {
         if (game == null) {
             return base;
         }
-        String withGame = base.getMessage() + "\n" + game.summaryLine();
+        String gameLine = utils.GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
+                game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
+        String withGame = base.getMessage() + "\n" + gameLine;
         return new JobResult(true, withGame, job, basePayment, bonusAmount, finalPayment,
                 xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
@@ -115,7 +117,8 @@ public final class JobResult {
         }
         msg = msg + ". No pay, XP or progress. Rest up and retry.";
         if (game != null) {
-            msg = msg + "\n" + game.summaryLine();
+            msg = msg + "\n" + utils.GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
+                    game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
         }
         ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
         ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
