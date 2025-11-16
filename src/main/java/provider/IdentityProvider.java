@@ -1,12 +1,10 @@
 package provider;
 
 import model.Identity;
-import model.identity.Doctor;
-import model.identity.LogoDesigner;
-import model.identity.Programmer;
-import model.identity.Typist;
+import model.identity.Profession;
 
 // Builds the starting profession the player picks.
+// Data lives in one table here, not in subclasses.
 public class IdentityProvider {
 
     public static Identity createIdentity(String identityName) {
@@ -14,16 +12,19 @@ public class IdentityProvider {
             throw new IllegalArgumentException("Unknown identity type: null");
         }
         String cleaned = identityName.trim();
-        if (cleaned.equals(Doctor.PROFESSION_NAME)) {
-            return new Doctor();
-        } else if (cleaned.equals(Programmer.PROFESSION_NAME)) {
-            return new Programmer();
-        } else if (cleaned.equals(LogoDesigner.PROFESSION_NAME)
-                || cleaned.equals(LogoDesigner.DISPLAY_NAME)) {
+        if (cleaned.equals("Doctor")) {
+            return new Profession("Doctor", "Doctor", "Heal players and earn big money.",
+                    500, "/images/doctor.png", "DIAGNOSIS");
+        } else if (cleaned.equals("Programmer")) {
+            return new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
+                    300, "/images/programmer.png", "CODE");
+        } else if (cleaned.equals("LogoDesigner") || cleaned.equals("Logo Designer")) {
             // DISPLAY_NAME accepted only for old save compatibility.
-            return new LogoDesigner();
-        } else if (cleaned.equals(Typist.PROFESSION_NAME)) {
-            return new Typist();
+            return new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
+                    200, "/images/logodesigner.png", "DESIGN");
+        } else if (cleaned.equals("Typist")) {
+            return new Profession("Typist", "Typist", "Type documents for clients.",
+                    200, "/images/typist.png", "TYPING");
         } else {
             throw new IllegalArgumentException("Unknown identity type: " + identityName);
         }

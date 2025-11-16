@@ -1,0 +1,78 @@
+package model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+// Owns active challenges. Extracted from User for SRP:
+// the "daily_" pruning rule lives next to Challenge, not in User.
+public class ChallengeBook {
+    private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
+
+    public List<Challenge> getActiveChallenges() {
+        ArrayList<Challenge> copy = new ArrayList<Challenge>();
+        for (int i = 0; i < activeChallenges.size(); i++) {
+            copy.add(activeChallenges.get(i));
+        }
+        return copy;
+    }
+
+    public void setActiveChallenges(List<Challenge> list) {
+        activeChallenges = new ArrayList<Challenge>();
+        if (list != null) {
+            for (int i = 0; i < list.size(); i++) {
+                activeChallenges.add(list.get(i));
+            }
+        }
+    }
+
+    public void addChallenge(Challenge challenge) {
+        if (challenge == null) {
+            return;
+        }
+        if (!hasChallenge(challenge.getId())) {
+            activeChallenges.add(challenge);
+        }
+    }
+
+    public void addChallenges(List<Challenge> list) {
+        if (list == null) {
+            return;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            addChallenge(list.get(i));
+        }
+    }
+
+    public boolean hasChallenge(String challengeId) {
+        if (challengeId == null) {
+            return false;
+        }
+        for (int i = 0; i < activeChallenges.size(); i++) {
+            Challenge c = activeChallenges.get(i);
+            if (challengeId.equals(c.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void pruneCompletedDailyChallenges() {
+        for (int i = activeChallenges.size() - 1; i >= 0; i--) {
+            Challenge c = activeChallenges.get(i);
+            if (c.getId().startsWith("daily_") && c.isCompleted()) {
+                activeChallenges.remove(i);
+            }
+        }
+    }
+
+    public void removeChallengeById(String challengeId) {
+        if (challengeId == null) {
+            return;
+        }
+        for (int i = activeChallenges.size() - 1; i >= 0; i--) {
+            if (challengeId.equals(activeChallenges.get(i).getId())) {
+                activeChallenges.remove(i);
+            }
+        }
+    }
+}

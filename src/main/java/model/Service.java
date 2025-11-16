@@ -41,10 +41,6 @@ public class Service implements Purchasable {
         return cost;
     }
 
-    public int getCost() {
-        return cost;
-    }
-
     public int getHealthEffect() {
         return healthEffect;
     }
@@ -69,6 +65,6 @@ public class Service implements Purchasable {
 
     @Override
     public String getEffectDescription() {
-        return formatEffect(energyEffect, healthEffect);
+        return utils.EffectText.formatServiceEffect(energyEffect, healthEffect);
     }
 }

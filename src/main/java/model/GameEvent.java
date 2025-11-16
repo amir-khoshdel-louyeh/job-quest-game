@@ -53,42 +53,4 @@ public class GameEvent {
     public double getProbability() {
         return probability;
     }
-
-    // Picks a small icon based on whether the event is good, bad, or neutral.
-    public String getIcon() {
-        if (type == EventType.POSITIVE) {
-            return "✨";
-        } else if (type == EventType.NEGATIVE) {
-            return "⚠️";
-        } else {
-            return "ℹ️";
-        }
-    }
-
-    // Builds text like "+$100 +10 Health" from the stored effects.
-    public String getFormattedEffects() {
-        String result = "";
-        if (moneyEffect != 0) {
-            if (moneyEffect > 0) {
-                result = result + "+$" + moneyEffect + " ";
-            } else {
-                result = result + "$" + moneyEffect + " ";
-            }
-        }
-        if (healthEffect != 0) {
-            if (healthEffect > 0) {
-                result = result + "+" + healthEffect + " Health ";
-            } else {
-                result = result + healthEffect + " Health ";
-            }
-        }
-        if (energyEffect != 0) {
-            if (energyEffect > 0) {
-                result = result + "+" + energyEffect + " Energy";
-            } else {
-                result = result + energyEffect + " Energy";
-            }
-        }
-        return result.trim();
-    }
 }

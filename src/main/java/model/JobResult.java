@@ -48,15 +48,6 @@ public final class JobResult {
         }
     }
 
-    public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
-                                    int xpGained, int reputationGained,
-                                    int levelBefore, int levelAfter) {
-        ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
-        ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
-        return success(job, basePayment, bonusAmount, finalPayment, xpGained, reputationGained,
-                levelBefore, levelAfter, empty1, empty2);
-    }
-
     // Builds the success message with pay, XP, level up, challenges, and achievements.
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,

@@ -45,10 +45,7 @@ public class Challenge {
     }
     // Progress shown as a number from 0 to 100.
     public int getProgressPercentage() {
-        double currentAsDouble = (double) currentProgress;
-        double ratio = currentAsDouble / targetValue; 
-        double percentage = ratio * 100;
-        return (int) percentage;
+        return utils.ProgressUtil.percent(currentProgress, targetValue);
     }
     
     public String getId() { return id; }
@@ -61,8 +58,6 @@ public class Challenge {
     public int getCurrentProgress() { return currentProgress; }
     
     public boolean isCompleted() { return completed; }
-    public void setCurrentProgress(int progress) { this.currentProgress = progress; }
-    public void setCompleted(boolean completed) { this.completed = completed; }
     
     @Override
     public String toString() {

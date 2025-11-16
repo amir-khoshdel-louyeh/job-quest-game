@@ -61,7 +61,10 @@ public class ChallengeService {
     // Give money, XP and reputation for completed challenge
     private static void giveReward(User user, Challenge challenge) {
         user.deposit(challenge.getRewardMoney());
-        user.addExperience(challenge.getRewardExperience());
+        boolean levelUp = user.addExperience(challenge.getRewardExperience());
+        if (levelUp) {
+            user.restoreFull();
+        }
         user.addReputation(2);
     }
 

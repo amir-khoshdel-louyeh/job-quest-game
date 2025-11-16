@@ -99,22 +99,6 @@ public final class MiniGameResult {
 
     // Builds one line with score, accuracy, speed, and highlights.
     public String summaryLine() {
-        String base = "";
-        if (wpm > 0) {
-            base = gameName + ": score " + score + "/100, accuracy " + accuracy + "%, " + wpm + " WPM in " + elapsedSeconds + "s";
-        } else {
-            base = gameName + ": score " + score + "/100, accuracy " + accuracy + "% in " + elapsedSeconds + "s";
-        }
-        if (!highlights.isEmpty()) {
-            String h = "";
-            for (int i = 0; i < highlights.size(); i++) {
-                if (i > 0) {
-                    h = h + "; ";
-                }
-                h = h + highlights.get(i);
-            }
-            base = base + " — " + h;
-        }
-        return base;
+        return utils.GameSummaryText.summaryLine(gameName, score, accuracy, wpm, elapsedSeconds, highlights);
     }
 }

@@ -3,10 +3,6 @@ package view;
 import controller.GameController;
 import model.Identity;
 import model.Job;
-import model.identity.Doctor;
-import model.identity.LogoDesigner;
-import model.identity.Programmer;
-import model.identity.Typist;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -38,11 +34,7 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        List<String> userSkills = new java.util.ArrayList<String>();
-        List<model.Skill> skillObjs = user.getSkills();
-        for (int i = 0; i < skillObjs.size(); i++) {
-            userSkills.add(skillObjs.get(i).getName());
-        }
+        List<String> userSkills = user.getSkills();
 
         // Available first, locked after.
         // Drop other careers' jobs if an unfiltered list arrives.
@@ -203,21 +195,21 @@ public class JobDialog extends JDialog {
             jobName = job.getName();
         }
         String gameKind = identity.getWorkGameKind();
-        if (Typist.GAME_KIND.equals(gameKind)) {
+        if ("TYPING".equals(gameKind)) {
             view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Typing Sprint",
                     provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
             return d.showAndPlay();
-        } else if (Programmer.GAME_KIND.equals(gameKind)) {
+        } else if ("CODE".equals(gameKind)) {
             view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                     parent, jobName + " — Write the Program",
                     provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
             return d.showAndPlay();
-        } else if (Doctor.GAME_KIND.equals(gameKind)) {
+        } else if ("DIAGNOSIS".equals(gameKind)) {
             view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
                     parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
             return d.showAndPlay();
-        } else if (LogoDesigner.GAME_KIND.equals(gameKind)) {
+        } else if ("DESIGN".equals(gameKind)) {
             view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
                     parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
             return d.showAndPlay();

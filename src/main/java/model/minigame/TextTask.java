@@ -53,13 +53,6 @@ public final class TextTask {
 
     // Difficulty as stars like "**-".
     public String difficultyStars() {
-        String result = "";
-        for (int i = 0; i < difficulty; i++) {
-            result = result + "*";
-        }
-        for (int i = difficulty; i < 3; i++) {
-            result = result + "-";
-        }
-        return result;
+        return utils.DifficultyText.stars(difficulty);
     }
 }

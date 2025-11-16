@@ -1,6 +1,5 @@
 package controller;
 
-import model.Skill;
 import model.User;
 import observer.ChangeType;
 import observer.Observer;
@@ -112,8 +111,8 @@ public class UserController implements Subject {
     }
 
     // Adds a new skill. Returns true if the skill is new.
-    public boolean addSkill(Skill skill) {
-        if (user.addSkill(skill)) {
+    public boolean addSkill(String skillName) {
+        if (user.addSkill(skillName)) {
             notifyObservers(ChangeType.SKILLS);
             return true;
         }
@@ -125,10 +124,13 @@ public class UserController implements Subject {
         return user.getLevel();
     }
 
-    /** Adds XP (can level the player up). */
+    /** Adds XP. Refills health and energy on level up. */
     public void addExperience(int amount) {
         if (amount > 0) {
-            user.addExperience(amount);
+            boolean levelUp = user.addExperience(amount);
+            if (levelUp) {
+                user.restoreFull();
+            }
             notifyObservers(ChangeType.XP);
         }
     }

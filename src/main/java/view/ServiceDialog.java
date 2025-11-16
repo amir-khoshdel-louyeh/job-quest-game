@@ -63,7 +63,7 @@ public class ServiceDialog extends JDialog {
         JPanel actionPanel = new JPanel(new BorderLayout());
         actionPanel.setOpaque(false);
 
-        JLabel costLabel = new JLabel("$" + service.getCost());
+        JLabel costLabel = new JLabel("$" + service.getPrice());
         costLabel.setFont(AppTheme.FONT_HEADING);
         costLabel.setForeground(AppTheme.MONEY_COLOR.darker());
         actionPanel.add(costLabel, BorderLayout.WEST);

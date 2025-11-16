@@ -59,9 +59,7 @@ public class CareerProgress {
 
     // XP shown as a number from 0 to 100.
     public int getExperiencePercentage() {
-        int need = getRequiredExperienceForNextLevel();
-        double percent = (experience / (double) need) * 100;
-        return (int) percent;
+        return utils.ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
     }
 
     public int getReputation() {
@@ -85,21 +83,6 @@ public class CareerProgress {
 
     // Picks a title based on the reputation score.
     public String getReputationTitle() {
-        if (reputation >= 90) {
-            return "Legendary";
-        }
-        if (reputation >= 75) {
-            return "Expert";
-        }
-        if (reputation >= 60) {
-            return "Professional";
-        }
-        if (reputation >= 40) {
-            return "Skilled";
-        }
-        if (reputation >= 20) {
-            return "Beginner";
-        }
-        return "Newbie";
+        return utils.ReputationText.titleFor(reputation);
     }
 }

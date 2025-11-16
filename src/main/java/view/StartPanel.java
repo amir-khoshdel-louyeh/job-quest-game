@@ -1,8 +1,9 @@
 package view;
 
-import model.IdentityOption;
+import model.Identity;
 import model.User;
 import provider.IdentityOptionProvider;
+import provider.IdentityProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -52,13 +53,13 @@ public class StartPanel extends JPanel {
         headerPanel.add(Box.createVerticalStrut(20));
         add(headerPanel, BorderLayout.NORTH);
 
-        List<IdentityOption> options = IdentityOptionProvider.getAvailableOptions();
+        List<Identity> options = IdentityOptionProvider.getAvailableOptions();
         JPanel optionsPanel = new JPanel();
         optionsPanel.setOpaque(false);
         optionsPanel.setLayout(new GridLayout(2, 2, 12, 12));
         identityGroup = new ButtonGroup();
 
-        for (IdentityOption option : options) {
+        for (Identity option : options) {
             optionsPanel.add(createIdentityCard(option));
         }
 
@@ -113,7 +114,7 @@ public class StartPanel extends JPanel {
         add(bottomWrapper, BorderLayout.SOUTH);
     }
 
-    private JPanel createIdentityCard(IdentityOption option) {
+    private JPanel createIdentityCard(Identity option) {
         JPanel card = new JPanel(new BorderLayout(12, 12));
         card.setBackground(AppTheme.CARD_BACKGROUND);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -124,7 +125,7 @@ public class StartPanel extends JPanel {
 
         // Header row: picture and name side by side on one line.
         JRadioButton radioButton = new JRadioButton(
-            option.getName() + " - Starting Balance: $" + option.getPrice()
+            option.getDisplayName() + " - Starting Balance: $" + option.getStartingBalance()
         );
         radioButton.setFont(AppTheme.FONT_SUBHEADING);
         radioButton.setForeground(AppTheme.TEXT_PRIMARY);
@@ -179,7 +180,7 @@ public class StartPanel extends JPanel {
     }
 
     private void startGame() {
-        IdentityOption selected = getSelectedOption();
+        Identity selected = getSelectedOption();
         if (selected == null) {
             errorLabel.setText("Please select a career path above.");
             return;
@@ -191,8 +192,8 @@ public class StartPanel extends JPanel {
         try {
             User user = new User(
                 name,
-                selected.createIdentity(),
-                selected.getPrice());
+                IdentityProvider.createIdentity(selected.getProfessionName()),
+                selected.getStartingBalance());
             user.setJobBonus(1);
             mainFrame.showPanel(new GamePanel(user));
         } catch (IllegalArgumentException ex) {
@@ -200,12 +201,12 @@ public class StartPanel extends JPanel {
         }
     }
 
-    private IdentityOption getSelectedOption() {
+    private Identity getSelectedOption() {
         java.util.Enumeration<javax.swing.AbstractButton> buttons = identityGroup.getElements();
         while (buttons.hasMoreElements()) {
             javax.swing.AbstractButton button = buttons.nextElement();
             if (button.isSelected()) {
-                return (IdentityOption) button.getClientProperty("option");
+                return (Identity) button.getClientProperty("option");
             }
         }
         return null;

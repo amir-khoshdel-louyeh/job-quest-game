@@ -2,7 +2,6 @@ package controller;
 
 import model.Challenge;
 import model.LearnableSkill;
-import model.Skill;
 import model.User;
 import provider.SkillProvider;
 import services.AchievementService;
@@ -33,7 +32,7 @@ public class SkillController {
         }
         // try to pay
         if (userController.deductBalance(toLearn.getCost())) {
-            userController.addSkill(new Skill(toLearn.getName()));
+            userController.addSkill(toLearn.getName());
             // update challenges + achievements
             ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.LEARN_SKILLS, 1);
             AchievementService.checkAndUnlockAchievements(user);
