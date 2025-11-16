@@ -1,7 +1,5 @@
 package model.goals;
 
-import model.player.User;
-
 // Rewards holding a lot of money at once.
 public class RichPlayerAchievement extends Achievement {
     public RichPlayerAchievement(String id, String name, String description, int rewardMoney, int requiredValue) {
@@ -9,7 +7,7 @@ public class RichPlayerAchievement extends Achievement {
     }
 
     @Override
-    protected int getCurrentValue(User user) {
-        return user.getBalance();
+    protected int getCurrentValue(AchievementStats stats) {
+        return stats.getBalance();
     }
 }

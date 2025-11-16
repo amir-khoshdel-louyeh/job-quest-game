@@ -1,7 +1,5 @@
 package model.goals;
 
-import model.player.User;
-
 // Rewards learning a target number of skills.
 public class SkillsLearnedAchievement extends Achievement {
     public SkillsLearnedAchievement(String id, String name, String description, int rewardMoney, int requiredValue) {
@@ -9,7 +7,7 @@ public class SkillsLearnedAchievement extends Achievement {
     }
 
     @Override
-    protected int getCurrentValue(User user) {
-        return user.getSkills().size();
+    protected int getCurrentValue(AchievementStats stats) {
+        return stats.getSkillCount();
     }
 }

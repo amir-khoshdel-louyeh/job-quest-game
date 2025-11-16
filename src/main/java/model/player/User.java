@@ -4,13 +4,17 @@ import java.util.List;
 
 import model.Identity;
 import model.goals.AchievementBook;
+import model.goals.AchievementStats;
 import model.goals.Challenge;
 import model.goals.ChallengeBook;
+import model.store.ServiceTarget;
 
 // Represents one player. Thin aggregate root: owns Wallet/Vitals/Progress
 // plus small book objects (skills, blocking, achievements, challenges).
 // Cross-aggregate rules (e.g. level-up refill) live in controllers/services.
-public class User {
+// Implements AchievementStats + ServiceTarget so goals/store depend on
+// small interfaces (DIP), not on this concrete class.
+public class User implements AchievementStats, ServiceTarget {
     private String username;
     private Identity identity;
     private Wallet wallet;
@@ -66,6 +70,7 @@ public class User {
         return vitals.getHealth();
     }
 
+    @Override
     public void gainHealth(int amount) {
         vitals.gainHealth(amount);
     }
@@ -78,6 +83,7 @@ public class User {
         return vitals.getEnergy();
     }
 
+    @Override
     public void gainEnergy(int amount) {
         vitals.gainEnergy(amount);
     }
@@ -98,6 +104,11 @@ public class User {
     // Adds the skill unless it is missing or already learned.
     public boolean addSkill(String skillName) {
         return skillBook.addSkill(skillName);
+    }
+
+    @Override
+    public int getSkillCount() {
+        return skillBook.getSkills().size();
     }
 
     public boolean hasSkill(String skillName) {
@@ -197,9 +208,7 @@ public class User {
 
     public int getTotalJobsCompleted() {
         return totalJobsCompleted;
-    }
-
-    public void setTotalJobsCompleted(int total) {
+    }    public void setTotalJobsCompleted(int total) {
         this.totalJobsCompleted = total;
     }
 

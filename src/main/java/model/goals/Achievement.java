@@ -1,8 +1,8 @@
 package model.goals;
 
-import model.player.User;
-
 // An unlockable goal with a reward.
+// Depends only on AchievementStats (DIP), never on player.User:
+// no goals -> player package cycle.
 public abstract class Achievement {
     private final String id;
     private final String name;
@@ -25,21 +25,27 @@ public abstract class Achievement {
     public int getRewardMoney() { return rewardMoney; }
     public int getRequiredValue() { return requiredValue; }
 
-    public boolean isUnlocked(User user) {
-        if (user == null) {
+    public boolean isUnlocked(AchievementStats stats) {
+        if (stats == null) {
             return false;
         }
-        return user.hasAchievement(id);
+        return stats.hasAchievement(id);
     }
 
-    protected abstract int getCurrentValue(User user);
+    protected abstract int getCurrentValue(AchievementStats stats);
 
-    public boolean checkRequirement(User user) {
-        return getCurrentValue(user) >= getRequiredValue();
+    public boolean checkRequirement(AchievementStats stats) {
+        if (stats == null) {
+            return false;
+        }
+        return getCurrentValue(stats) >= getRequiredValue();
     }
 
-    public int getProgress(User user) {
-        return utils.ProgressUtil.percent(getCurrentValue(user), getRequiredValue());
+    public int getProgress(AchievementStats stats) {
+        if (stats == null) {
+            return 0;
+        }
+        return utils.ProgressUtil.percent(getCurrentValue(stats), getRequiredValue());
     }
 
     public String toString() {

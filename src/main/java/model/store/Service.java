@@ -1,8 +1,7 @@
 package model.store;
 
-import model.player.User;
-
 // A buyable service that restores health or energy right away.
+// Applies to ServiceTarget, not to User directly (DIP).
 public class Service implements Purchasable {
     private String name;
     private String description;
@@ -53,15 +52,15 @@ public class Service implements Purchasable {
 
     // Adds the stored health and energy amounts to the player.
     @Override
-    public void apply(User user) {
-        if (user == null) {
+    public void apply(ServiceTarget target) {
+        if (target == null) {
             return;
         }
         if (energyEffect > 0) {
-            user.gainEnergy(energyEffect);
+            target.gainEnergy(energyEffect);
         }
         if (healthEffect > 0) {
-            user.gainHealth(healthEffect);
+            target.gainHealth(healthEffect);
         }
     }
 

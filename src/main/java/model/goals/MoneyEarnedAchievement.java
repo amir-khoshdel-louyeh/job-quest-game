@@ -1,7 +1,5 @@
 package model.goals;
 
-import model.player.User;
-
 // Rewards earning a target amount of money overall.
 public class MoneyEarnedAchievement extends Achievement {
     public MoneyEarnedAchievement(String id, String name, String description, int rewardMoney, int requiredValue) {
@@ -9,7 +7,7 @@ public class MoneyEarnedAchievement extends Achievement {
     }
 
     @Override
-    protected int getCurrentValue(User user) {
-        return user.getTotalMoneyEarned();
+    protected int getCurrentValue(AchievementStats stats) {
+        return stats.getTotalMoneyEarned();
     }
 }
