@@ -452,11 +452,11 @@ public class GamePanel extends JPanel implements Observer {
 
     private void openWorkshop() {
         GameController.ActionResult result = controller.doWork();
-        if ("JOB_DIALOG_REQUIRED".equals(result.message)) {
+        if (result.isSuccess() && result.getNextAction() == GameController.NextAction.OPEN_JOB_DIALOG) {
             java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(currentUser.getIdentity());
             new JobDialog(parentFrame(), controller, this, myJobs, currentUser).setVisible(true);
         } else {
-            addChatMessage(result.message);
+            addChatMessage(result.getMessage());
         }
     }
 

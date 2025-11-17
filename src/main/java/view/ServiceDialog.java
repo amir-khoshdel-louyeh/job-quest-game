@@ -85,10 +85,10 @@ public class ServiceDialog extends JDialog {
     // Stays open for repeat buys; success goes to chat, only failures pop up.
     private void handleBuyService(Service service) {
         GameController.ActionResult result = controller.purchaseService(service.getName());
-        gamePanel.addChatMessage(result.message);
+        gamePanel.addChatMessage(result.getMessage());
         gamePanel.updateUserInfo();
-        if (!result.success) {
-            JOptionPane.showMessageDialog(this, result.message, "Cannot Purchase", JOptionPane.WARNING_MESSAGE);
+        if (!result.isSuccess()) {
+            JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Purchase", JOptionPane.WARNING_MESSAGE);
         }
     }
 }

@@ -9,6 +9,6 @@ public interface Identity {
     String getDescription();
     int getStartingBalance();
     String getImagePath();
-    String getWorkGameKind();
+    WorkGameKind getWorkGameKind();
     boolean isSameProfession(Identity other);
 }

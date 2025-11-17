@@ -183,10 +183,10 @@ public class JobDialog extends JDialog {
         } else {
             result = controller.doJob(job); // unknown identity → legacy path
         }
-        gamePanel.addChatMessage(result.message);
+        gamePanel.addChatMessage(result.getMessage());
         gamePanel.updateUserInfo();
-        if (!result.success) {
-            JOptionPane.showMessageDialog(this, result.message, "Cannot Work", JOptionPane.WARNING_MESSAGE);
+        if (!result.isSuccess()) {
+            JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Work", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -195,27 +195,38 @@ public class JobDialog extends JDialog {
         if (job != null) {
             jobName = job.getName();
         }
-        String gameKind = identity.getWorkGameKind();
-        if ("TYPING".equals(gameKind)) {
-            view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
-                    parent, jobName + " — Typing Sprint",
-                    provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
-            return d.showAndPlay();
-        } else if ("CODE".equals(gameKind)) {
-            view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
-                    parent, jobName + " — Write the Program",
-                    provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
-            return d.showAndPlay();
-        } else if ("DIAGNOSIS".equals(gameKind)) {
-            view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
-                    parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
-            return d.showAndPlay();
-        } else if ("DESIGN".equals(gameKind)) {
-            view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
-                    parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
-            return d.showAndPlay();
-        } else {
+        // Exhaustive switch on the enum: adding a WorkGameKind forces a case
+        // here at compile time (no silent String fall-through anymore).
+        model.WorkGameKind gameKind = identity.getWorkGameKind();
+        if (gameKind == null) {
             return null;
+        }
+        switch (gameKind) {
+            case TYPING: {
+                view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
+                        parent, jobName + " — Typing Sprint",
+                        provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
+                return d.showAndPlay();
+            }
+            case CODE: {
+                view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
+                        parent, jobName + " — Write the Program",
+                        provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
+                return d.showAndPlay();
+            }
+            case DIAGNOSIS: {
+                view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
+                        parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
+                return d.showAndPlay();
+            }
+            case DESIGN: {
+                view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
+                        parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
+                return d.showAndPlay();
+            }
+            default: {
+                return null;
+            }
         }
     }
 }

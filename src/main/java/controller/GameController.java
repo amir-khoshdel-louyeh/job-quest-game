@@ -57,7 +57,7 @@ public class GameController {
         try {
             List<Job> allJobs = JobProvider.getAllJobs();
             if (allJobs != null && !allJobs.isEmpty()) {
-                return new ActionResult(true, "JOB_DIALOG_REQUIRED");
+                return new ActionResult(true, "", NextAction.OPEN_JOB_DIALOG);
             } else {
                 return new ActionResult(false, "No jobs are available for your current identity/skills.");
             }
@@ -137,13 +137,38 @@ public class GameController {
         return "Session: " + minutes + " minutes | Jobs: " + sessionJobsCompleted;
     }
 
-    // Small helper class to return success + message
+    // What the view should do next. Replaces the old "JOB_DIALOG_REQUIRED"
+    // magic message: control flow is typed, display text stays in message.
+    public enum NextAction {
+        NONE,
+        OPEN_JOB_DIALOG
+    }
+
+    // Small immutable helper class to return success + message + next action.
     public static class ActionResult {
-        public boolean success;
-        public String message;
+        private final boolean success;
+        private final String message;
+        private final NextAction nextAction;
         public ActionResult(boolean success, String message) {
+            this(success, message, NextAction.NONE);
+        }
+        public ActionResult(boolean success, String message, NextAction nextAction) {
             this.success = success;
             this.message = message;
+            if (nextAction == null) {
+                this.nextAction = NextAction.NONE;
+            } else {
+                this.nextAction = nextAction;
+            }
+        }
+        public boolean isSuccess() {
+            return success;
+        }
+        public String getMessage() {
+            return message;
+        }
+        public NextAction getNextAction() {
+            return nextAction;
         }
     }
 }
