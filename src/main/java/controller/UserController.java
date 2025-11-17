@@ -124,13 +124,10 @@ public class UserController implements Subject {
         return user.getLevel();
     }
 
-    /** Adds XP. Refills health and energy on level up. */
+    /** Adds XP (level-up refill happens inside User). */
     public void addExperience(int amount) {
         if (amount > 0) {
-            boolean levelUp = user.addExperience(amount);
-            if (levelUp) {
-                user.restoreFull();
-            }
+            user.addExperience(amount);
             notifyObservers(ChangeType.XP);
         }
     }

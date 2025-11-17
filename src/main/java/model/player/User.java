@@ -11,7 +11,8 @@ import model.store.ServiceTarget;
 
 // Represents one player. Thin aggregate root: owns Wallet/Vitals/Progress
 // plus small book objects (skills, blocking, achievements, challenges).
-// Cross-aggregate rules (e.g. level-up refill) live in controllers/services.
+// Owns its aggregate invariant: level-up always refills health/energy here,
+// so callers never need a separate restoreFull() call.
 // Implements AchievementStats + ServiceTarget so goals/store depend on
 // small interfaces (DIP), not on this concrete class.
 public class User implements AchievementStats, ServiceTarget {
@@ -156,14 +157,22 @@ public class User implements AchievementStats, ServiceTarget {
         return progress.getExperience();
     }
 
-    // Returns true on level up. Refill is done by the caller (see UserController).
+    // Returns true on level up. Refills health/energy on level up (aggregate invariant).
     public boolean setExperience(int experience) {
-        return progress.setExperience(experience);
+        boolean leveledUp = progress.setExperience(experience);
+        if (leveledUp) {
+            vitals.restoreFull();
+        }
+        return leveledUp;
     }
 
-    // Returns true on level up. Refill is done by the caller (see UserController).
+    // Returns true on level up. Refills health/energy on level up (aggregate invariant).
     public boolean addExperience(int amount) {
-        return progress.addExperience(amount);
+        boolean leveledUp = progress.addExperience(amount);
+        if (leveledUp) {
+            vitals.restoreFull();
+        }
+        return leveledUp;
     }
 
     public void restoreFull() {
