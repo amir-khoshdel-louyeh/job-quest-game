@@ -18,9 +18,7 @@ public class Challenge {
     public enum ChallengeType {
         COMPLETE_JOBS,
         EARN_MONEY,
-        LEARN_SKILLS,
-        MAINTAIN_HEALTH,
-        SPEND_ENERGY
+        LEARN_SKILLS
     }
     
     public Challenge(String id, String name, String description, ChallengeType type,

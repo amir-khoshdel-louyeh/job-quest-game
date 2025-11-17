@@ -7,15 +7,15 @@ import model.goals.Challenge;
 import model.goals.CompleteJobsChallenge;
 import model.goals.EarnMoneyChallenge;
 import model.goals.LearnSkillsChallenge;
-import model.goals.MaintainHealthChallenge;
 
-// Holds the daily, weekly, and story challenges the player can try.
+// Holds the daily and story challenges the player can try.
 // Uses Challenge subclasses (not raw "new Challenge"): new kinds
 // extend the hierarchy instead of editing switches (OCP).
+// Note: every ChallengeType has both a producer (an entry below) and a
+// consumer (an updateChallengeProgress call) — no dead types.
 public class ChallengeProvider {
 
     private static final List<Challenge> DAILY_CHALLENGES = new ArrayList<>();
-    private static final List<Challenge> WEEKLY_CHALLENGES = new ArrayList<>();
     private static final List<Challenge> MAIN_CHALLENGES = new ArrayList<>();
 
     static {
@@ -32,29 +32,6 @@ public class ChallengeProvider {
             "Daily Earnings",
             "Earn $1,000 today",
             1000, 300, 50
-        ));
-
-        // Weekly Challenges (10-hour run tuning: 20 -> 12 jobs so a weekly
-        // fits in one long session; rewards unchanged)
-        WEEKLY_CHALLENGES.add(new CompleteJobsChallenge(
-            "weekly_jobs_20",
-            "Weekly Grind",
-            "Complete 12 jobs this week",
-            12, 3000, 500
-        ));
-
-        WEEKLY_CHALLENGES.add(new LearnSkillsChallenge(
-            "weekly_skill",
-            "Skill Development",
-            "Learn 2 new skills this week",
-            2, 2000, 400
-        ));
-
-        WEEKLY_CHALLENGES.add(new MaintainHealthChallenge(
-            "weekly_health",
-            "Stay Healthy",
-            "Maintain health above 80 for 5 days",
-            5, 1500, 300
         ));
 
         // Main Story Challenges
@@ -96,10 +73,6 @@ public class ChallengeProvider {
 
     public static List<Challenge> getDailyChallenges() {
         return new ArrayList<>(DAILY_CHALLENGES);
-    }
-
-    public static List<Challenge> getWeeklyChallenges() {
-        return new ArrayList<>(WEEKLY_CHALLENGES);
     }
 
     public static List<Challenge> getMainChallenges() {

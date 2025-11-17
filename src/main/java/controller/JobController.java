@@ -132,10 +132,6 @@ public class JobController {
         for (int i = 0; i < c2.size(); i++) {
             completed.add(c2.get(i));
         }
-        List<Challenge> c3 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.SPEND_ENERGY, job.getEnergyCost());
-        for (int i = 0; i < c3.size(); i++) {
-            completed.add(c3.get(i));
-        }
 
         List<Achievement> unlocked = AchievementService.checkAndUnlockAchievements(user);
 
