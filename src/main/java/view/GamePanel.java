@@ -110,7 +110,7 @@ public class GamePanel extends JPanel implements Observer {
         progressPanel.add(jobBonusLabel);
 
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
-        JLabel identityName = new JLabel("💼 " + userController.getUser().getIdentity().getDisplayName());
+        JLabel identityName = new JLabel("💼 " + userController.getIdentityName());
         identityName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
         energyLabel.setFont(AppTheme.FONT_BODY);

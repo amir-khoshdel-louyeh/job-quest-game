@@ -55,9 +55,9 @@ public class JobController {
         if (userController.isBlocked()) {
             return JobResult.failure(job, "You are blocked. Rest and try later.");
         }
-        // Check identity + skills (Job knows only Identity + skill names, not User)
-        User userEarly = userController.getUser();
-        if (!job.isAvailableFor(userEarly.getIdentity(), userEarly.getSkills())) {
+        // Check identity + skills via controller delegates (Law of Demeter:
+        // no getUser().getIdentity()/getSkills() train-wreck here).
+        if (!job.isAvailableFor(userController.getIdentity(), userController.getSkills())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
         // Check energy

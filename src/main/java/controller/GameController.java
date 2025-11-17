@@ -92,7 +92,7 @@ public class GameController {
     // no wholesale setTotalPlayTime that could rewind the clock).
     public ActionResult saveGame() {
         long sessionDuration = System.currentTimeMillis() - sessionStartTime;
-        userController.getUser().addPlayTime(sessionDuration);
+        userController.addPlayTime(sessionDuration);
         sessionStartTime = System.currentTimeMillis();
         return new ActionResult(true, "Progress kept for this session (no save file).");
     }

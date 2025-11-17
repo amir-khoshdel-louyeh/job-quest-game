@@ -71,7 +71,7 @@ public class DeveloperDialog extends JDialog {
         }));
         quickRow.add(quickButton("+$5k", new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                int now = devController.getUser().getBalance();
+                int now = devController.getBalance();
                 devController.setBalance(now + 5000);
                 afterQuick("+$5k");
             }

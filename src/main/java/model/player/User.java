@@ -51,6 +51,15 @@ public class User implements AchievementStats, ServiceTarget {
         return identity;
     }
 
+    // Convenience for views: keeps the getIdentity().getDisplayName()
+    // chain inside the aggregate so callers obey the Law of Demeter.
+    public String getIdentityName() {
+        if (identity == null) {
+            return "?";
+        }
+        return identity.getDisplayName();
+    }
+
     public void setIdentity(Identity identity) {
         this.identity = identity;
     }

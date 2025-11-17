@@ -17,6 +17,10 @@ public class DeveloperController {
         return userController.getUser();
     }
 
+    public int getBalance() {
+        return userController.getBalance();
+    }
+
     /** Set balance to an exact value (clamped >= 0 inside Wallet). */
     public void setBalance(int amount) {
         userController.getUser().setBalance(amount);

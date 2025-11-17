@@ -1,5 +1,8 @@
 package controller;
 
+import java.util.List;
+
+import model.Identity;
 import model.player.User;
 import observer.ChangeType;
 import observer.Observer;
@@ -36,6 +39,36 @@ public class UserController implements Subject {
 
     public String getUsername() {
         return user.getUsername();
+    }
+
+    // Law-of-Demeter delegates: callers ask the controller instead of
+    // digging via getUser().getIdentity()/getSkills()/getLastSicknessTime().
+    public String getIdentityName() {
+        return user.getIdentityName();
+    }
+
+    public Identity getIdentity() {
+        return user.getIdentity();
+    }
+
+    public List<String> getSkills() {
+        return user.getSkills();
+    }
+
+    public boolean hasSkill(String skillName) {
+        return user.hasSkill(skillName);
+    }
+
+    public long getLastSicknessTime() {
+        return user.getLastSicknessTime();
+    }
+
+    public void markSicknessChecked(long now) {
+        user.setLastSicknessTime(now);
+    }
+
+    public void addPlayTime(long deltaMillis) {
+        user.addPlayTime(deltaMillis);
     }
 
     public int getBalance() {

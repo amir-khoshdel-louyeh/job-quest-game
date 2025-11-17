@@ -11,18 +11,18 @@ public class RoutineService {
         long now = System.currentTimeMillis();
         // 10-hour run tuning: allow sickness once per hour (was 24h),
         // lighter damage so one event can't ruin a run.
-        if (now - userController.getUser().getLastSicknessTime() < 60 * 60 * 1000L) {
+        if (now - userController.getLastSicknessTime() < 60 * 60 * 1000L) {
             return null;
         }
         // 10% chance to get sick.
         if (RandomUtil.getRandomInt(100) < 10) {
             int healthLoss = 5 + RandomUtil.getRandomInt(6); // Lose 5-10 health
             userController.decreaseHealth(healthLoss);
-            userController.getUser().setLastSicknessTime(now);
+            userController.markSicknessChecked(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
         }
         // No sickness occurred
-        userController.getUser().setLastSicknessTime(now); // Mark checked for today
+        userController.markSicknessChecked(now); // Mark checked for today
         return null;
     }
     public static String processEnergyDecrease(UserController userController) {
