@@ -8,12 +8,34 @@ import java.util.List;
 public class ChallengeBook {
     private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
+    // Deep copy: each Challenge is snapshotted so callers cannot mutate
+    // the stored progress via the returned list (Challenge is mutable).
+    // Mutation goes through updateProgress() inside this aggregate.
     public List<Challenge> getActiveChallenges() {
         ArrayList<Challenge> copy = new ArrayList<Challenge>();
         for (int i = 0; i < activeChallenges.size(); i++) {
-            copy.add(activeChallenges.get(i));
+            copy.add(activeChallenges.get(i).copySnapshot());
         }
         return copy;
+    }
+
+    // Rich behavior: adds progress to stored challenges of this type.
+    // Returns snapshots of the newly completed ones (for rewards/display).
+    public List<Challenge> updateProgress(Challenge.ChallengeType type, int amount) {
+        ArrayList<Challenge> finished = new ArrayList<Challenge>();
+        if (type == null || amount <= 0) {
+            return finished;
+        }
+        for (int i = 0; i < activeChallenges.size(); i++) {
+            Challenge c = activeChallenges.get(i);
+            if (c.getType() == type && !c.isCompleted()) {
+                c.addProgress(amount);
+                if (c.isCompleted()) {
+                    finished.add(c.copySnapshot());
+                }
+            }
+        }
+        return finished;
     }
 
     public void addChallenge(Challenge challenge) {

@@ -34,18 +34,16 @@ public class ChallengeService {
     }
 
     // Adds progress to every challenge of this type.
+    // Mutation lives inside User/ChallengeBook; the service only hands out
+    // rewards for the newly completed ones (no direct addProgress here,
+    // so callers cannot forge progress via a leaked list reference).
     public static List<Challenge> updateChallengeProgress(User user, Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
-        List<Challenge> active = user.getActiveChallenges();
-        for (int i = 0; i < active.size(); i++) {
-            Challenge c = active.get(i);
-            if (c.getType() == type && !c.isCompleted()) {
-                c.addProgress(amount);
-                if (c.isCompleted()) {
-                    giveReward(user, c);
-                    finished.add(c);
-                }
-            }
+        List<Challenge> newlyCompleted = user.updateChallengeProgress(type, amount);
+        for (int i = 0; i < newlyCompleted.size(); i++) {
+            Challenge c = newlyCompleted.get(i);
+            giveReward(user, c);
+            finished.add(c);
         }
         return finished;
     }

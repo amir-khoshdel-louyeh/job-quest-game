@@ -269,9 +269,15 @@ public class User implements AchievementStats, ServiceTarget {
         return achievementBook.hasAchievement(id);
     }
 
-    // Returns a copy so the stored list can't be changed from outside.
+    // Returns deep copies so the stored progress can't be changed from outside.
     public List<Challenge> getActiveChallenges() {
         return challengeBook.getActiveChallenges();
+    }
+
+    // Rich behavior: progress mutation lives inside the aggregate.
+    // Returns snapshots of newly completed challenges (for rewards/display).
+    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
+        return challengeBook.updateProgress(type, amount);
     }
 
     public void addChallenge(Challenge challenge) {

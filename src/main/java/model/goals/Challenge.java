@@ -61,6 +61,15 @@ public class Challenge {
         Challenge c = new Challenge(id, name, description, type, targetValue, rewardMoney, rewardExperience);
         return c;
     }
+
+    // Snapshot clone preserving progress: copy() is polymorphic so the
+    // runtime type is kept, then progress is replayed via addProgress
+    // (which re-applies the target cap + completed flag identically).
+    public Challenge copySnapshot() {
+        Challenge c = copy();
+        c.addProgress(this.currentProgress);
+        return c;
+    }
     // Adds to progress but never past the target, and marks finished at the target.
     public void addProgress(int amount) {
         if (!completed) {
