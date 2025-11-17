@@ -1,6 +1,7 @@
 package model;
 
-// Shared kernel: kept in root, used by player/career/providers.
+// Shared kernel: kept in model root because player (User),
+// career (Job, LearnableSkill) and providers all depend on it.
 public interface Identity {
     
     String getProfessionName();
