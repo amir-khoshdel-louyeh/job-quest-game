@@ -67,8 +67,19 @@ public class User implements AchievementStats, ServiceTarget {
         wallet.withdraw(amount);
     }
 
+    // Exact setter. Clamping (>= 0) lives inside Wallet,
+    // so callers just say "set to X" (Tell-Don't-Ask).
+    public void setBalance(int amount) {
+        wallet.setBalance(amount);
+    }
+
     public int getHealth() {
         return vitals.getHealth();
+    }
+
+    // Exact setter. Clamping (0..MAX_HEALTH) lives inside Vitals.
+    public void setHealth(int hp) {
+        vitals.setHealth(hp);
     }
 
     @Override
@@ -82,6 +93,11 @@ public class User implements AchievementStats, ServiceTarget {
 
     public int getEnergy() {
         return vitals.getEnergy();
+    }
+
+    // Exact setter. Clamping (0..MAX_ENERGY) lives inside Vitals.
+    public void setEnergy(int energy) {
+        vitals.setEnergy(energy);
     }
 
     @Override

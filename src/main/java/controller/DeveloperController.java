@@ -17,39 +17,21 @@ public class DeveloperController {
         return userController.getUser();
     }
 
-    /** Set balance to an exact value (clamped >= 0). */
+    /** Set balance to an exact value (clamped >= 0 inside Wallet). */
     public void setBalance(int amount) {
-        User user = userController.getUser();
-        int diff = Math.max(0, amount) - user.getBalance();
-        if (diff > 0) {
-            user.deposit(diff);
-        } else if (diff < 0) {
-            user.withdraw(-diff);
-        }
+        userController.getUser().setBalance(amount);
         userController.refresh();
     }
 
-    /** Set health to an exact value (clamped 0-100). */
+    /** Set health to an exact value (clamped 0..MAX_HEALTH inside Vitals). */
     public void setHealth(int hp) {
-        User user = userController.getUser();
-        int diff = Math.max(0, Math.min(100, hp)) - user.getHealth();
-        if (diff > 0) {
-            user.gainHealth(diff);
-        } else if (diff < 0) {
-            user.loseHealth(-diff);
-        }
+        userController.getUser().setHealth(hp);
         userController.refresh();
     }
 
-    /** Set energy to an exact value (clamped 0-100000). */
+    /** Set energy to an exact value (clamped 0..MAX_ENERGY inside Vitals). */
     public void setEnergy(int energy) {
-        User user = userController.getUser();
-        int diff = Math.max(0, Math.min(100_000, energy)) - user.getEnergy();
-        if (diff > 0) {
-            user.gainEnergy(diff);
-        } else if (diff < 0) {
-            user.loseEnergy(-diff);
-        }
+        userController.getUser().setEnergy(energy);
         userController.refresh();
     }
 
@@ -65,9 +47,9 @@ public class DeveloperController {
         userController.refresh();
     }
 
-    /** Set level directly (clamped 1-100). */
+    /** Set level directly (clamped 1..MAX_LEVEL inside CareerProgress). */
     public void setLevel(int level) {
-        userController.getUser().setLevel(Math.max(1, Math.min(100, level)));
+        userController.getUser().setLevel(level);
         userController.refresh();
     }
 

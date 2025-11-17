@@ -17,8 +17,9 @@ public class Wallet {
         return balance;
     }
 
-    // Values below zero become zero.
-    private void setBalance(int newBalance) {
+    // Exact setter. Values below zero become zero.
+    // Lets callers say "set to X" and trust the domain to clamp (Tell-Don't-Ask).
+    public void setBalance(int newBalance) {
         if (newBalance < 0) {
             newBalance = 0;
         }
