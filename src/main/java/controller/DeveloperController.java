@@ -57,7 +57,11 @@ public class DeveloperController {
     public void addPlaytimeMinutes(long minutes) {
         if (minutes == 0) return;
         User user = userController.getUser();
-        user.setTotalPlayTime(Math.max(0, user.getTotalPlayTime() + minutes * 60 * 1000));
+        if (minutes > 0) {
+            user.addPlayTime(minutes * 60 * 1000);
+        }
+        // Negative minutes intentionally ignored: play time never rewinds
+        // (encapsulation — use a dedicated reset if rewinding is ever needed).
         userController.refresh();
     }
 
@@ -73,9 +77,9 @@ public class DeveloperController {
         userController.refresh();
     }
 
-    /** Set job bonus level directly (clamped >= 0). */
+    /** Set job bonus level directly (clamped 0..15 inside User). */
     public void setJobBonus(int level) {
-        userController.getUser().setJobBonus(Math.max(0, level));
+        userController.getUser().setJobBonus(level);
         userController.refresh();
     }
 

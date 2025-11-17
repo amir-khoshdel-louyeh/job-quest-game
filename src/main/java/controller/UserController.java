@@ -149,10 +149,8 @@ public class UserController implements Subject {
             user.addToTotalMoneyEarned(moneyEarned);
         }
         if (user.getTotalJobsCompleted() % 10 == 0) {
+            // Cap lives inside User.setJobBonus (0..15); controller just asks.
             int next = user.getJobBonus() + 1;
-            if (next > 15) {
-                next = 15;
-            }
             user.setJobBonus(next);
         }
         notifyObservers(ChangeType.JOBS);

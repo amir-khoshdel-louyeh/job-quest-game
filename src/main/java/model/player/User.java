@@ -98,10 +98,6 @@ public class User implements AchievementStats, ServiceTarget {
         return skillBook.getSkills();
     }
 
-    public void setSkills(List<String> newSkills) {
-        skillBook.setSkills(newSkills);
-    }
-
     // Adds the skill unless it is missing or already learned.
     public boolean addSkill(String skillName) {
         return skillBook.addSkill(skillName);
@@ -120,8 +116,12 @@ public class User implements AchievementStats, ServiceTarget {
         return totalPlayTime;
     }
 
-    public void setTotalPlayTime(long totalPlayTime) {
-        this.totalPlayTime = totalPlayTime;
+    // Rich behavior: play time only moves forward. Negative deltas are ignored,
+    // so callers cannot rewind or forge the clock with a wholesale setter.
+    public void addPlayTime(long deltaMillis) {
+        if (deltaMillis > 0) {
+            this.totalPlayTime += deltaMillis;
+        }
     }
 
     public void setBlockedUntil(long time) {
@@ -203,18 +203,12 @@ public class User implements AchievementStats, ServiceTarget {
         return wallet.getTotalMoneyEarned();
     }
 
-    public void setTotalMoneyEarned(int total) {
-        wallet.setTotalMoneyEarned(total);
-    }
-
     public void addToTotalMoneyEarned(int amount) {
         wallet.addToTotalMoneyEarned(amount);
     }
 
     public int getTotalJobsCompleted() {
         return totalJobsCompleted;
-    }    public void setTotalJobsCompleted(int total) {
-        this.totalJobsCompleted = total;
     }
 
     public void incrementJobsCompleted() {
@@ -225,17 +219,21 @@ public class User implements AchievementStats, ServiceTarget {
         return jobBonus;
     }
 
+    // Job bonus is guarded inside the domain (0..15) so callers
+    // cannot forge it with a raw setter. +1 per 10 jobs, max +30%.
     public void setJobBonus(int jobBonus) {
+        if (jobBonus < 0) {
+            jobBonus = 0;
+        }
+        if (jobBonus > 15) {
+            jobBonus = 15;
+        }
         this.jobBonus = jobBonus;
     }
 
     // Returns a copy so the stored list can't be changed from outside.
     public List<String> getUnlockedAchievements() {
         return achievementBook.getUnlockedAchievements();
-    }
-
-    public void setUnlockedAchievements(List<String> list) {
-        achievementBook.setUnlockedAchievements(list);
     }
 
     public void unlockAchievement(String id) {
@@ -249,10 +247,6 @@ public class User implements AchievementStats, ServiceTarget {
     // Returns a copy so the stored list can't be changed from outside.
     public List<Challenge> getActiveChallenges() {
         return challengeBook.getActiveChallenges();
-    }
-
-    public void setActiveChallenges(List<Challenge> list) {
-        challengeBook.setActiveChallenges(list);
     }
 
     public void addChallenge(Challenge challenge) {

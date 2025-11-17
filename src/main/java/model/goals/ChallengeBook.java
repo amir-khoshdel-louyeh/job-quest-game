@@ -16,15 +16,6 @@ public class ChallengeBook {
         return copy;
     }
 
-    public void setActiveChallenges(List<Challenge> list) {
-        activeChallenges = new ArrayList<Challenge>();
-        if (list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                activeChallenges.add(list.get(i));
-            }
-        }
-    }
-
     public void addChallenge(Challenge challenge) {
         if (challenge == null) {
             return;

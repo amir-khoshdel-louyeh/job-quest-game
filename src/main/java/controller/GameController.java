@@ -88,10 +88,11 @@ public class GameController {
     }
 
     // No persistence - game runs in memory only. Just track play time.
+    // Play time only moves forward via User.addPlayTime (encapsulation:
+    // no wholesale setTotalPlayTime that could rewind the clock).
     public ActionResult saveGame() {
         long sessionDuration = System.currentTimeMillis() - sessionStartTime;
-        userController.getUser().setTotalPlayTime(
-            userController.getUser().getTotalPlayTime() + sessionDuration);
+        userController.getUser().addPlayTime(sessionDuration);
         sessionStartTime = System.currentTimeMillis();
         return new ActionResult(true, "Progress kept for this session (no save file).");
     }

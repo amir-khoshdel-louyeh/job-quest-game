@@ -16,15 +16,6 @@ public class SkillBook {
         return copy;
     }
 
-    public void setSkills(List<String> newSkills) {
-        skills = new ArrayList<String>();
-        if (newSkills != null) {
-            for (int i = 0; i < newSkills.size(); i++) {
-                skills.add(newSkills.get(i));
-            }
-        }
-    }
-
     public boolean addSkill(String skillName) {
         if (skillName == null || skillName.trim().equals("")) {
             return false;

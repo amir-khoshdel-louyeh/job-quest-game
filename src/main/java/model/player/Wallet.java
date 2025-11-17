@@ -41,13 +41,6 @@ public class Wallet {
         return totalMoneyEarned;
     }
 
-    public void setTotalMoneyEarned(int total) {
-        if (total < 0) {
-            total = 0;
-        }
-        this.totalMoneyEarned = total;
-    }
-
     public void addToTotalMoneyEarned(int amount) {
         if (amount > 0) {
             totalMoneyEarned = totalMoneyEarned + amount;
