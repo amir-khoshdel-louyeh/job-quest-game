@@ -135,9 +135,10 @@ public class GameEventProvider {
         ));
     }
     
-    public static GameEvent getRandomEvent() {
+    // Pure pick: the caller supplies the random draw, so this stays
+    // deterministic and testable (no hidden Math.random inside).
+    public static GameEvent getRandomEvent(double rand) {
         // pick a random event based on defined probabilities
-        double rand = Math.random();
         double cumulative = 0.0;
         
         for (GameEvent event : ALL_EVENTS) {
