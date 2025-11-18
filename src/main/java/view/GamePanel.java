@@ -26,9 +26,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private GameController controller;
     private RoutineController routineController;
     private UserController userController;
-    private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
-    private JLabel levelLabel, xpLabel, reputationLabel, jobBonusLabel;
-    private JProgressBar xpProgressBar, healthBar, energyBar;
+    private UserStatsPanel statsPanel;
     private ChatPanel chatPanel;
     private JPanel animationPanel;
     private JPanel rightPanel;
@@ -57,71 +55,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        JPanel profilePanel = AppTheme.createSectionPanel("Your Profile");
-        usernameLabel = new JLabel("👤 " + userController.getUsername());
-        usernameLabel.setFont(AppTheme.FONT_BODY);
-        balanceLabel = new JLabel("💰 Balance: $" + userController.getBalance());
-        balanceLabel.setFont(AppTheme.FONT_BODY);
-        balanceLabel.setForeground(AppTheme.MONEY_COLOR.darker());
-        healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
-        healthLabel.setFont(AppTheme.FONT_BODY);
-        healthLabel.setForeground(AppTheme.HEALTH_COLOR);
-        healthBar = new JProgressBar(0, 100);
-        healthBar.setValue(userController.getHealth());
-        healthBar.setStringPainted(true);
-        healthBar.setString(userController.getHealth() + "%");
-        healthBar.setForeground(AppTheme.HEALTH_COLOR);
-        healthBar.setBackground(AppTheme.DIVIDER_COLOR);
-        healthBar.setFont(AppTheme.FONT_SMALL);
-        profilePanel.add(usernameLabel);
-        profilePanel.add(balanceLabel);
-        profilePanel.add(healthLabel);
-        profilePanel.add(healthBar);
-
-        JPanel progressPanel = AppTheme.createSectionPanel("⭐ Progression");
-        
-        levelLabel = new JLabel("Level: " + currentUser.getLevel());
-        levelLabel.setFont(AppTheme.FONT_BODY);
-        xpLabel = new JLabel("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
-        xpLabel.setFont(AppTheme.FONT_SMALL);
-        xpLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        xpProgressBar = new JProgressBar(0, 100);
-        xpProgressBar.setValue(currentUser.getExperiencePercentage());
-        xpProgressBar.setStringPainted(true);
-        xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
-        xpProgressBar.setForeground(AppTheme.PRIMARY_COLOR);
-        xpProgressBar.setBackground(AppTheme.DIVIDER_COLOR);
-        xpProgressBar.setFont(AppTheme.FONT_SMALL);
-        
-        reputationLabel = new JLabel("🏆 Rep: " + currentUser.getReputation() + " (" + utils.ReputationText.titleFor(currentUser.getReputation()) + ")");
-        reputationLabel.setFont(AppTheme.FONT_BODY);
-        jobBonusLabel = new JLabel("💰 Job Bonus: " + currentUser.getJobBonus());
-        jobBonusLabel.setFont(AppTheme.FONT_BODY);
-        jobBonusLabel.setForeground(AppTheme.WARNING_COLOR.darker());
-        
-        progressPanel.add(levelLabel);
-        progressPanel.add(xpLabel);
-        progressPanel.add(xpProgressBar);
-        progressPanel.add(Box.createVerticalStrut(5));
-        progressPanel.add(reputationLabel);
-        progressPanel.add(jobBonusLabel);
-
-        JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
-        JLabel identityName = new JLabel("💼 " + userController.getIdentityName());
-        identityName.setFont(AppTheme.FONT_BODY);
-        energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
-        energyLabel.setFont(AppTheme.FONT_BODY);
-        energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        energyBar = new JProgressBar(0, 100000);
-        energyBar.setValue(userController.getEnergy());
-        energyBar.setStringPainted(true);
-        energyBar.setString((userController.getEnergy() * 100 / 100000) + "%");
-        energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
-        energyBar.setBackground(AppTheme.DIVIDER_COLOR);
-        energyBar.setFont(AppTheme.FONT_SMALL);
-        identityPanel.add(identityName);
-        identityPanel.add(energyLabel);
-        identityPanel.add(energyBar);
+        statsPanel = new UserStatsPanel(userController, currentUser);
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
@@ -161,11 +95,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         buttonsPanel.add(Box.createVerticalStrut(5));
         buttonsPanel.add(exitButton);
 
-        rightPanel.add(profilePanel);
-        rightPanel.add(Box.createVerticalStrut(10));
-        rightPanel.add(progressPanel);
-        rightPanel.add(Box.createVerticalStrut(10));
-        rightPanel.add(identityPanel);
+        rightPanel.add(statsPanel);
         rightPanel.add(Box.createVerticalStrut(10));
         rightPanel.add(buttonsPanel);
 
@@ -285,47 +215,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     }
 
     public void updateUserInfo() {
-        usernameLabel.setText("User: " + userController.getUsername());
-        balanceLabel.setText("Balance: $" + userController.getBalance());
-        int hp = userController.getHealth();
-        healthLabel.setText("Health: " + hp + "/100");
-        int hpValue = hp;
-        if (hpValue < 0) {
-            hpValue = 0;
-        }
-        if (hpValue > 100) {
-            hpValue = 100;
-        }
-        healthBar.setValue(hpValue);
-        healthBar.setString(hp + "%");
-        if (hp < 30) {
-            healthBar.setForeground(AppTheme.WARNING_COLOR);
-        } else {
-            healthBar.setForeground(AppTheme.HEALTH_COLOR);
-        }
-        int en = userController.getEnergy();
-        energyLabel.setText("Energy: " + en + "/100000");
-        int enValue = en;
-        if (enValue < 0) {
-            enValue = 0;
-        }
-        if (enValue > 100000) {
-            enValue = 100000;
-        }
-        energyBar.setValue(enValue);
-        energyBar.setString((en * 100 / 100000) + "%");
-        if (en < 25000) {
-            energyBar.setForeground(AppTheme.WARNING_COLOR);
-        } else {
-            energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
-        }
-        
-        levelLabel.setText("Level: " + currentUser.getLevel());
-        xpLabel.setText("XP: " + currentUser.getExperience() + "/" + currentUser.getRequiredExperienceForNextLevel());
-        xpProgressBar.setValue(currentUser.getExperiencePercentage());
-        xpProgressBar.setString(currentUser.getExperiencePercentage() + "%");
-        reputationLabel.setText("🏆 Rep: " + currentUser.getReputation() + " (" + utils.ReputationText.titleFor(currentUser.getReputation()) + ")");
-        jobBonusLabel.setText("💰 Job Bonus: " + currentUser.getJobBonus());
+        statsPanel.refresh();
     }
 
     private void setupTimers() {
