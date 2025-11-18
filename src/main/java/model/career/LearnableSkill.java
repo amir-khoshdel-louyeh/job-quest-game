@@ -2,6 +2,7 @@ package model.career;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import model.Identity;
 
@@ -73,6 +74,32 @@ public final class LearnableSkill {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        LearnableSkill other = (LearnableSkill) obj;
+        return cost == other.cost
+                && requiredPlayTimeMinutes == other.requiredPlayTimeMinutes
+                && Objects.equals(name, other.name)
+                && Objects.equals(description, other.description)
+                && Objects.equals(identities, other.identities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, cost, requiredPlayTimeMinutes, identities);
+    }
+
+    @Override
+    public String toString() {
+        return name + " [cost $" + cost + "]";
     }
 
 }

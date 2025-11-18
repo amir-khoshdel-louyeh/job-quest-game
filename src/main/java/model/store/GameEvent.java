@@ -1,5 +1,7 @@
 package model.store;
 
+import java.util.Objects;
+
 // A random event that changes money, health, or energy.
 // Immutable value object: all fields final, validated in constructor.
 public final class GameEvent {
@@ -70,5 +72,34 @@ public final class GameEvent {
     }
     public double getProbability() {
         return probability;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        GameEvent other = (GameEvent) obj;
+        return moneyEffect == other.moneyEffect
+                && healthEffect == other.healthEffect
+                && energyEffect == other.energyEffect
+                && Double.compare(probability, other.probability) == 0
+                && Objects.equals(id, other.id)
+                && Objects.equals(title, other.title)
+                && Objects.equals(description, other.description)
+                && type == other.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, type, moneyEffect, healthEffect, energyEffect, probability);
+    }
+
+    @Override
+    public String toString() {
+        return title + " [" + id + ", " + type + "]";
     }
 }

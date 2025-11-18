@@ -2,6 +2,7 @@ package model.minigame;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // One quiz question with answer options.
 public final class QuizQuestion {
@@ -67,5 +68,32 @@ public final class QuizQuestion {
 
     public boolean isCorrect(int picked) {
         return picked == correctIndex;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        QuizQuestion other = (QuizQuestion) obj;
+        return correctIndex == other.correctIndex
+                && Objects.equals(id, other.id)
+                && category == other.category
+                && Objects.equals(prompt, other.prompt)
+                && Objects.equals(options, other.options)
+                && Objects.equals(explanation, other.explanation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, category, prompt, options, correctIndex, explanation);
+    }
+
+    @Override
+    public String toString() {
+        return prompt + " [" + id + ", " + category + "]";
     }
 }

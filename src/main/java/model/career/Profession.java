@@ -1,5 +1,7 @@
 package model.career;
 
+import java.util.Objects;
+
 import model.Identity;
 import model.WorkGameKind;
 
@@ -52,6 +54,30 @@ public final class Profession implements Identity {
         if (other == null) {
             return false;
         }
-        return professionName.equals(other.getProfessionName());
+        // Single name rule lives in equals: a profession IS its name.
+        return equals(other);
+    }
+
+    // Value equality by profession name (the profession's identity).
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Profession other = (Profession) obj;
+        return Objects.equals(professionName, other.professionName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(professionName);
+    }
+
+    @Override
+    public String toString() {
+        return displayName + " [" + professionName + "]";
     }
 }

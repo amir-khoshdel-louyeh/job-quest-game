@@ -2,6 +2,7 @@ package model.career;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import model.Identity;
 
@@ -92,5 +93,32 @@ public final class Job {
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Job other = (Job) obj;
+        return payment == other.payment
+                && energyCost == other.energyCost
+                && Objects.equals(name, other.name)
+                && Objects.equals(description, other.description)
+                && Objects.equals(requiredIdentity, other.requiredIdentity)
+                && Objects.equals(requiredSkills, other.requiredSkills);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, payment, energyCost, requiredIdentity, requiredSkills);
+    }
+
+    @Override
+    public String toString() {
+        return name + " [pay $" + payment + ", energy -" + energyCost + "]";
     }
 }

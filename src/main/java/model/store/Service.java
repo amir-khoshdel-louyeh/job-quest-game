@@ -1,5 +1,7 @@
 package model.store;
 
+import java.util.Objects;
+
 // A buyable service that restores health or energy right away.
 // Applies to ServiceTarget, not to User directly (DIP).
 // Immutable value object: all fields final.
@@ -63,5 +65,31 @@ public final class Service implements Purchasable {
         if (healthEffect > 0) {
             target.gainHealth(healthEffect);
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Service other = (Service) obj;
+        return cost == other.cost
+                && healthEffect == other.healthEffect
+                && energyEffect == other.energyEffect
+                && Objects.equals(name, other.name)
+                && Objects.equals(description, other.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, cost, healthEffect, energyEffect);
+    }
+
+    @Override
+    public String toString() {
+        return name + " [price $" + cost + "]";
     }
 }

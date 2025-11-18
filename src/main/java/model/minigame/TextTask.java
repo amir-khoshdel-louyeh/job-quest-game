@@ -1,5 +1,7 @@
 package model.minigame;
 
+import java.util.Objects;
+
 // One typing task with text and a time limit.
 public final class TextTask {
     private String id;
@@ -49,5 +51,31 @@ public final class TextTask {
     }
     public int getDifficulty() {
         return difficulty;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        TextTask other = (TextTask) obj;
+        return parSeconds == other.parSeconds
+                && difficulty == other.difficulty
+                && Objects.equals(id, other.id)
+                && Objects.equals(title, other.title)
+                && Objects.equals(content, other.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, content, parSeconds, difficulty);
+    }
+
+    @Override
+    public String toString() {
+        return title + " [" + id + "]";
     }
 }
