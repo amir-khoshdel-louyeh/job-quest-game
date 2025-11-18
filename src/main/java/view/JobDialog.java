@@ -205,13 +205,13 @@ public class JobDialog extends JDialog {
             case TYPING: {
                 view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                         parent, jobName + " — Typing Sprint",
-                        provider.TypingTaskProvider.getTaskForJob(jobName), null, false);
+                        provider.TypingTaskProvider.get().getTaskForJob(jobName), null, false);
                 return d.showAndPlay();
             }
             case CODE: {
                 view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
                         parent, jobName + " — Write the Program",
-                        provider.CodeTaskProvider.getTaskForJob(jobName), null, true);
+                        provider.CodeTaskProvider.get().getTaskForJob(jobName), null, true);
                 return d.showAndPlay();
             }
             case DIAGNOSIS: {
