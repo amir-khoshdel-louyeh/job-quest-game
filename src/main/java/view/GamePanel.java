@@ -6,11 +6,6 @@ import controller.MessageSink;
 import controller.RoutineController;
 import controller.UserController;
 import model.player.User;
-import model.career.LearnableSkill;
-import model.career.Job;
-import provider.JobProvider;
-import provider.SkillProvider;
-import provider.ServiceProvider;
 import observer.ChangeType;
 import observer.Observer;
 import view.theme.AppTheme;
@@ -28,6 +23,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private UserController userController;
     private UserStatsPanel statsPanel;
     private ChatPanel chatPanel;
+    private NavBar navBar;
     private JPanel animationPanel;
     private JPanel rightPanel;
     private JButton exitButton, helpButton, bottomExitButton, newGameButton;
@@ -136,15 +132,15 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
                         int x = e.getX();
 
                         if (x >= 0 && x < sectionWidth) {
-                            openHospital();
+                            navBar.openHospital();
                         } else if (x >= sectionWidth && x < sectionWidth * 2) {
-                            openWorkshop();
+                            navBar.openWorkshop();
                         } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
                             // Middle zone intentionally does nothing.
                         } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
-                            openMarket();
+                            navBar.openMarket();
                         } else if (x >= sectionWidth * 4 && x < panelWidth) {
-                            openSchool();
+                            navBar.openSchool();
                         }
                     }
                 });
@@ -164,7 +160,8 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         }
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
-        centerPanel.add(buildNavBar(), BorderLayout.NORTH);
+        navBar = new NavBar(controller, currentUser, userController, this);
+        centerPanel.add(navBar, BorderLayout.NORTH);
         centerPanel.add(animationPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
@@ -266,85 +263,5 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     /** Returns the player's profession object for game routing. */
     public model.Identity getUserIdentity() {
         return currentUser.getIdentity();
-    }
-
-    private JFrame parentFrame() {
-        return (JFrame) SwingUtilities.getWindowAncestor(this);
-    }
-
-    private void openHospital() {
-        new ServiceDialog(parentFrame(), controller, this, ServiceProvider.getHealthServices()).setVisible(true);
-    }
-
-    private void openWorkshop() {
-        GameController.ActionResult result = controller.doWork();
-        if (result.isSuccess() && result.getNextAction() == GameController.NextAction.OPEN_JOB_DIALOG) {
-            java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(currentUser.getIdentity());
-            new JobDialog(parentFrame(), controller, this, myJobs, currentUser).setVisible(true);
-        } else {
-            addChatMessage(result.getMessage());
-        }
-    }
-
-    private void openMarket() {
-        new ServiceDialog(parentFrame(), controller, this, ServiceProvider.getEnergyServices()).setVisible(true);
-    }
-
-    private void openSchool() {
-        java.util.List<LearnableSkill> mySkills = SkillProvider.getSkillsForIdentity(currentUser.getIdentity());
-        new SkillDialog(parentFrame(), controller, this, mySkills, currentUser).setVisible(true);
-    }
-
-    private void openProgress() {
-        new ProgressDialog(parentFrame(), controller, this).setVisible(true);
-    }
-
-    private void openDevControls() {
-        controller.DeveloperController dev = new controller.DeveloperController(userController);
-        new DeveloperDialog(parentFrame(), dev, this).setVisible(true);
-    }
-
-    private JPanel buildNavBar() {
-        JPanel nav = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
-        nav.setBackground(AppTheme.BACKGROUND_COLOR);
-        nav.add(navButton("Hospital", "Buy health services (heal)", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openHospital();
-            }
-        }));
-        nav.add(navButton("Workshop", "Do jobs to earn money and XP", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openWorkshop();
-            }
-        }));
-        nav.add(navButton("Market", "Buy energy services (eat)", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openMarket();
-            }
-        }));
-        nav.add(navButton("School", "Learn skills to unlock better jobs", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openSchool();
-            }
-        }));
-        nav.add(navButton("Progress", "Challenges, achievements and stats", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openProgress();
-            }
-        }));
-        nav.add(navButton("Dev", "Developer demo controls (change variables)", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openDevControls();
-            }
-        }));
-        return nav;
-    }
-
-    private JButton navButton(String text, String tooltip, boolean primary,
-                              java.awt.event.ActionListener action) {
-        JButton b = primary ? AppTheme.createPrimaryButton(text) : AppTheme.createSecondaryButton(text);
-        b.setToolTipText(tooltip);
-        b.addActionListener(action);
-        return b;
     }
 }
