@@ -52,30 +52,14 @@ public final class JobResult {
         }
     }
 
-    // Builds the success message with pay, XP, level up, challenges, and achievements.
+    // Success data; the message wording lives in utils.JobResultText (SRP).
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
                                     List<Challenge> completedChallenges,
                                     List<Achievement> newAchievements) {
-        String msg = job.getName() + " completed! +$" + finalPayment;
-        msg = msg + " (base $" + basePayment + " + bonus $" + bonusAmount + ")";
-        msg = msg + " +" + xpGained + " XP +" + reputationGained + " rep";
-        if (levelAfter > levelBefore) {
-            msg = msg + " Level up! " + levelBefore + " -> " + levelAfter + " (HP & Energy refilled)";
-        }
-        if (completedChallenges != null) {
-            for (int i = 0; i < completedChallenges.size(); i++) {
-                Challenge c = completedChallenges.get(i);
-                msg = msg + "\nChallenge complete: " + c.getName() + " (+$" + c.getRewardMoney() + " +" + c.getRewardExperience() + " XP)";
-            }
-        }
-        if (newAchievements != null) {
-            for (int i = 0; i < newAchievements.size(); i++) {
-                Achievement a = newAchievements.get(i);
-                msg = msg + "\nAchievement unlocked: " + a.getName() + " (+$" + a.getRewardMoney() + ")";
-            }
-        }
+        String msg = utils.JobResultText.successLine(job, basePayment, bonusAmount, finalPayment,
+                xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
         return new JobResult(true, msg, job, basePayment, bonusAmount, finalPayment,
                 xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
@@ -91,35 +75,22 @@ public final class JobResult {
         if (game == null) {
             return base;
         }
-        String gameLine = utils.GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
-        String withGame = base.getMessage() + "\n" + gameLine;
+        String withGame = utils.JobResultText.successWithGameLine(base.getMessage(), game);
         return new JobResult(true, withGame, job, basePayment, bonusAmount, finalPayment,
                 xpGained, reputationGained, levelBefore, levelAfter, completedChallenges, newAchievements);
     }
 
     public static JobResult failure(Job job, String reason) {
-        String name = "Job";
-        if (job != null) {
-            name = job.getName();
-        }
+        String msg = utils.JobResultText.failureLine(job, reason);
         ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
         ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
-        return new JobResult(false, name + ": " + reason, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
+        return new JobResult(false, msg, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
     }
 
-    // Builds the message for a failed attempt with lost energy and reputation.
+    // Failed-attempt data; the message wording lives in utils.JobResultText (SRP).
     public static JobResult failedAttempt(Job job, int score, int energyLost, int repLost,
                                           model.minigame.MiniGameResult game) {
-        String msg = job.getName() + " failed! Score " + score + "/100 (need 50+). Energy -" + energyLost;
-        if (repLost > 0) {
-            msg = msg + ", Reputation -" + repLost + " (botched job)";
-        }
-        msg = msg + ". No pay, XP or progress. Rest up and retry.";
-        if (game != null) {
-            msg = msg + "\n" + utils.GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                    game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
-        }
+        String msg = utils.JobResultText.failedAttemptLine(job, score, energyLost, repLost, game);
         ArrayList<Challenge> empty1 = new ArrayList<Challenge>();
         ArrayList<Achievement> empty2 = new ArrayList<Achievement>();
         return new JobResult(false, msg, job, 0, 0, 0, 0, 0, 0, 0, empty1, empty2);
