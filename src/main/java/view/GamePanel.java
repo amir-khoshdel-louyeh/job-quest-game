@@ -2,6 +2,7 @@ package view;
 
 // The main game screen: stats on the side, world in the middle, chat at the bottom.
 import controller.GameController;
+import controller.MessageSink;
 import controller.RoutineController;
 import controller.UserController;
 import model.player.User;
@@ -20,7 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import utils.TimerUtil;
 
-public class GamePanel extends JPanel implements Observer {
+public class GamePanel extends JPanel implements Observer, MessageSink {
     private User currentUser;
     private GameController controller;
     private RoutineController routineController;
@@ -382,6 +383,7 @@ public class GamePanel extends JPanel implements Observer {
     
 
     // Auto-scrolls; success lines also show a toast so rewards are noticed.
+    @Override
     public void addChatMessage(String msg) {
         chatArea.append(msg + "\n");
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
