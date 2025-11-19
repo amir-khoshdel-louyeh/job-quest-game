@@ -77,37 +77,15 @@ public class JobController {
             return JobResult.failedAttempt(job, game.getScore(), job.getEnergyCost(), repLoss, game);
         }
 
-        // Calculate rewards
+        // Calculate rewards (arithmetic lives in JobService; this only orchestrates).
         User user = userController.getUser();
         int base = job.getPayment();
-        int scaledBase = base;
-        int xp = jobService.calculateXpReward(job);
-        int rep = jobService.calculateReputationGain(job);
-        if (game != null) {
-            scaledBase = (int) Math.round(base * game.rewardMultiplier());
-            if (scaledBase < 1) {
-                scaledBase = 1;
-            }
-            xp = (int) Math.round(xp * game.rewardMultiplier());
-            if (xp < 1) {
-                xp = 1;
-            }
-            if (game.getScore() >= 80) {
-                rep = rep + 1;
-            }
-        }
-        int finalPay = jobService.calculateFinalPayment(job, user);
-        if (game != null && base > 0) {
-            double ratio = scaledBase / (double) base;
-            finalPay = (int) Math.round(finalPay * ratio);
-            if (finalPay < 1) {
-                finalPay = 1;
-            }
-        }
-        int bonus = finalPay - base;
-        if (bonus < 0) {
-            bonus = 0;
-        }
+        int scaledBase = jobService.scalePayment(base, game);
+        int xp = jobService.scaleXp(jobService.calculateXpReward(job), game);
+        int rep = jobService.calculateReputationGain(job) + jobService.extraReputation(game);
+        int finalPay = jobService.applyGameRatio(
+                jobService.calculateFinalPayment(job, user), scaledBase, base, game);
+        int bonus = jobService.bonusAmount(finalPay, base);
         int levelBefore = user.getLevel();
 
         // Hand out the rewards.
@@ -120,18 +98,14 @@ public class JobController {
         int levelAfter = userController.getLevel();
 
         // Update challenges
-        if (user.getActiveChallenges().isEmpty()) {
+        if (userController.getActiveChallenges().isEmpty()) {
             ChallengeService.initializeChallenges(user);
         }
         ArrayList<Challenge> completed = new ArrayList<Challenge>();
-        List<Challenge> c1 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1);
-        for (int i = 0; i < c1.size(); i++) {
-            completed.add(c1.get(i));
-        }
-        List<Challenge> c2 = ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay);
-        for (int i = 0; i < c2.size(); i++) {
-            completed.add(c2.get(i));
-        }
+        collectCompleted(completed,
+                ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1));
+        collectCompleted(completed,
+                ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay));
 
         List<Achievement> unlocked = AchievementService.checkAndUnlockAchievements(user);
 
@@ -141,5 +115,11 @@ public class JobController {
             return JobResult.success(job, base, bonus, finalPay, xp, rep, levelBefore, levelAfter, completed, unlocked, game);
         }
         return JobResult.success(job, base, bonus, finalPay, xp, rep, levelBefore, levelAfter, completed, unlocked);
+    }
+
+    private static void collectCompleted(ArrayList<Challenge> into, List<Challenge> part) {
+        for (int i = 0; i < part.size(); i++) {
+            into.add(part.get(i));
+        }
     }
 }

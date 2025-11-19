@@ -3,6 +3,7 @@ package controller;
 import java.util.List;
 
 import model.Identity;
+import model.goals.Challenge;
 import model.player.User;
 import observer.ChangeType;
 import observer.Observer;
@@ -57,6 +58,10 @@ public class UserController implements Subject {
 
     public boolean hasSkill(String skillName) {
         return user.hasSkill(skillName);
+    }
+
+    public List<Challenge> getActiveChallenges() {
+        return user.getActiveChallenges();
     }
 
     public long getLastSicknessTime() {

@@ -1,6 +1,7 @@
 package services;
 
 import model.career.Job;
+import model.minigame.MiniGameResult;
 import model.player.User;
 
 // Figures out job pay, XP, and reputation rewards.
@@ -107,5 +108,68 @@ public class JobService {
             gain = gain + 1;
         }
         return gain;
+    }
+
+    // Mini-game scaling (moved out of JobController.execute so the
+    // controller orchestrates but never does arithmetic).
+
+    // Score earning +1 reputation.
+    public static final int SCORE_FOR_EXTRA_REPUTATION = 80;
+    // Floor for scaled rewards: a played game always pays at least 1.
+    private static final int MIN_SCALED_REWARD = 1;
+
+    // Base payment scaled by the game multiplier (unchanged without a game).
+    public int scalePayment(int base, MiniGameResult game) {
+        if (game == null) {
+            return base;
+        }
+        int scaled = (int) Math.round(base * game.rewardMultiplier());
+        if (scaled < MIN_SCALED_REWARD) {
+            scaled = MIN_SCALED_REWARD;
+        }
+        return scaled;
+    }
+
+    // XP scaled by the game multiplier (unchanged without a game).
+    public int scaleXp(int xp, MiniGameResult game) {
+        if (game == null) {
+            return xp;
+        }
+        int scaled = (int) Math.round(xp * game.rewardMultiplier());
+        if (scaled < MIN_SCALED_REWARD) {
+            scaled = MIN_SCALED_REWARD;
+        }
+        return scaled;
+    }
+
+    // Great games earn +1 reputation (0 without a game or below the bar).
+    public int extraReputation(MiniGameResult game) {
+        if (game != null && game.getScore() >= SCORE_FOR_EXTRA_REPUTATION) {
+            return 1;
+        }
+        return 0;
+    }
+
+    // Re-weights the bonus-adjusted pay by the game ratio (no-op without
+    // a game or with a zero base).
+    public int applyGameRatio(int finalPay, int scaledBase, int base, MiniGameResult game) {
+        if (game == null || base <= 0) {
+            return finalPay;
+        }
+        double ratio = scaledBase / (double) base;
+        int adjusted = (int) Math.round(finalPay * ratio);
+        if (adjusted < MIN_SCALED_REWARD) {
+            adjusted = MIN_SCALED_REWARD;
+        }
+        return adjusted;
+    }
+
+    // Bonus over base, never negative.
+    public int bonusAmount(int finalPay, int base) {
+        int bonus = finalPay - base;
+        if (bonus < 0) {
+            bonus = 0;
+        }
+        return bonus;
     }
 }
