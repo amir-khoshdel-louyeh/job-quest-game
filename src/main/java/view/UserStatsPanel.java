@@ -1,6 +1,8 @@
 package view;
 
 import controller.UserController;
+import model.player.Vitals;
+import utils.GameBalance;
 import model.player.User;
 import view.theme.AppTheme;
 
@@ -37,10 +39,10 @@ public class UserStatsPanel extends JPanel {
         balanceLabel = new JLabel("💰 Balance: $" + userController.getBalance());
         balanceLabel.setFont(AppTheme.FONT_BODY);
         balanceLabel.setForeground(AppTheme.MONEY_COLOR.darker());
-        healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/100");
+        healthLabel = new JLabel("❤️ Health: " + userController.getHealth() + "/" + Vitals.MAX_HEALTH);
         healthLabel.setFont(AppTheme.FONT_BODY);
         healthLabel.setForeground(AppTheme.HEALTH_COLOR);
-        healthBar = new JProgressBar(0, 100);
+        healthBar = new JProgressBar(0, Vitals.MAX_HEALTH);
         healthBar.setValue(userController.getHealth());
         healthBar.setStringPainted(true);
         healthBar.setString(userController.getHealth() + "%");
@@ -59,7 +61,7 @@ public class UserStatsPanel extends JPanel {
         xpLabel = new JLabel("XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel());
         xpLabel.setFont(AppTheme.FONT_SMALL);
         xpLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        xpProgressBar = new JProgressBar(0, 100);
+        xpProgressBar = new JProgressBar(0, 100); // percent scale
         xpProgressBar.setValue(user.getExperiencePercentage());
         xpProgressBar.setStringPainted(true);
         xpProgressBar.setString(user.getExperiencePercentage() + "%");
@@ -83,13 +85,13 @@ public class UserStatsPanel extends JPanel {
         JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
         JLabel identityName = new JLabel("💼 " + userController.getIdentityName());
         identityName.setFont(AppTheme.FONT_BODY);
-        energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/100000");
+        energyLabel = new JLabel("⚡ Energy: " + userController.getEnergy() + "/" + Vitals.MAX_ENERGY);
         energyLabel.setFont(AppTheme.FONT_BODY);
         energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        energyBar = new JProgressBar(0, 100000);
+        energyBar = new JProgressBar(0, Vitals.MAX_ENERGY);
         energyBar.setValue(userController.getEnergy());
         energyBar.setStringPainted(true);
-        energyBar.setString((userController.getEnergy() * 100 / 100000) + "%");
+        energyBar.setString((userController.getEnergy() * 100 / Vitals.MAX_ENERGY) + "%");
         energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
         energyBar.setBackground(AppTheme.DIVIDER_COLOR);
         energyBar.setFont(AppTheme.FONT_SMALL);
@@ -118,17 +120,17 @@ public class UserStatsPanel extends JPanel {
 
     public void refreshHealth() {
         int hp = userController.getHealth();
-        healthLabel.setText("Health: " + hp + "/100");
+        healthLabel.setText("Health: " + hp + "/" + Vitals.MAX_HEALTH);
         int hpValue = hp;
         if (hpValue < 0) {
             hpValue = 0;
         }
-        if (hpValue > 100) {
-            hpValue = 100;
+        if (hpValue > Vitals.MAX_HEALTH) {
+            hpValue = Vitals.MAX_HEALTH;
         }
         healthBar.setValue(hpValue);
         healthBar.setString(hp + "%");
-        if (hp < 30) {
+        if (hp < GameBalance.LOW_HEALTH_THRESHOLD) {
             healthBar.setForeground(AppTheme.WARNING_COLOR);
         } else {
             healthBar.setForeground(AppTheme.HEALTH_COLOR);
@@ -137,17 +139,17 @@ public class UserStatsPanel extends JPanel {
 
     public void refreshEnergy() {
         int en = userController.getEnergy();
-        energyLabel.setText("Energy: " + en + "/100000");
+        energyLabel.setText("Energy: " + en + "/" + Vitals.MAX_ENERGY);
         int enValue = en;
         if (enValue < 0) {
             enValue = 0;
         }
-        if (enValue > 100000) {
-            enValue = 100000;
+        if (enValue > Vitals.MAX_ENERGY) {
+            enValue = Vitals.MAX_ENERGY;
         }
         energyBar.setValue(enValue);
-        energyBar.setString((en * 100 / 100000) + "%");
-        if (en < 25000) {
+        energyBar.setString((en * 100 / Vitals.MAX_ENERGY) + "%");
+        if (en < GameBalance.LOW_ENERGY_THRESHOLD) {
             energyBar.setForeground(AppTheme.WARNING_COLOR);
         } else {
             energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());

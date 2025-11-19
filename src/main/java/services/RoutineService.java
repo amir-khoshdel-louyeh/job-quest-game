@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import controller.UserController;
+import utils.GameBalance;
 
 // Handles daily sickness, energy, and health drops.
 // Instance (not static): the clock/random come from outside, so sickness
@@ -33,12 +34,13 @@ public class RoutineService {
         long now = clock.get();
         // 10-hour run tuning: allow sickness once per hour (was 24h),
         // lighter damage so one event can't ruin a run.
-        if (now - userController.getLastSicknessTime() < 60 * 60 * 1000L) {
+        if (now - userController.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
             return null;
         }
         // 10% chance to get sick.
-        if (random.nextInt(100) < 10) {
-            int healthLoss = 5 + random.nextInt(6); // Lose 5-10 health
+        if (random.nextInt(GameBalance.SICKNESS_ROLL_BOUND) < GameBalance.SICKNESS_ROLL_HIT_BELOW) {
+            int healthLoss = GameBalance.SICKNESS_MIN_HEALTH_LOSS
+                    + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE); // Lose 5-10 health
             userController.decreaseHealth(healthLoss);
             userController.markSicknessChecked(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
@@ -50,11 +52,11 @@ public class RoutineService {
     public String processEnergyDecrease(UserController userController) {
         if (userController.getEnergy() <= 0) return null;
 
-        int energyLoss = 1; // Base energy loss
+        int energyLoss = GameBalance.BASE_ENERGY_LOSS;
         String message = null;
 
-        if (userController.getHealth() < 30) {
-            energyLoss = 2;
+        if (userController.getHealth() < GameBalance.LOW_HEALTH_THRESHOLD) {
+            energyLoss = GameBalance.SICKLY_ENERGY_LOSS;
             message = "⚡ Energy decreased by " + energyLoss + " due to poor health.";
         }
 
@@ -66,11 +68,11 @@ public class RoutineService {
         return message;
     }
     public String processHealthDecrease(UserController userController) {
-        int healthLoss = 1;
+        int healthLoss = GameBalance.BASE_HEALTH_LOSS;
         String message = null;
 
-        if (userController.getEnergy() < 25_000) {
-            healthLoss = 3;
+        if (userController.getEnergy() < GameBalance.LOW_ENERGY_THRESHOLD) {
+            healthLoss = GameBalance.EXHAUSTED_HEALTH_LOSS;
             message = "❤️‍🩹 Health decreased by " + healthLoss + " due to extreme fatigue!";
         }
 
@@ -87,9 +89,9 @@ public class RoutineService {
     // 10-hour run tuning: 5 minutes (was 48 hours), penalty 200 (was 2000),
     // so hitting 0 energy/health is a setback, not a run-ender.
     private void blockUser(UserController userController, String reason) {
-        int penalty = 200;
+        int penalty = GameBalance.KNOCKOUT_MONEY_PENALTY;
         userController.deductBalance(penalty);
-        userController.blockUser(5 * 60 * 1000L);
+        userController.blockUser(GameBalance.KNOCKOUT_BLOCK_MILLIS);
         // The service does not show dialogs. It just changes the state.
     }
 }

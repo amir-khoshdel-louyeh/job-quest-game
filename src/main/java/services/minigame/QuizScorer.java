@@ -12,6 +12,10 @@ public class QuizScorer {
     // Par time for a round.
     public static final int ROUND_PAR_SECONDS = 90;
 
+    private static final double ACCURACY_WEIGHT = 0.8;
+    private static final double SPEED_WEIGHT = 0.2;
+    private static final double MAX_SPEED_RATIO = 1.0;
+
     // Grades one quiz round.
     public MiniGameResult score(String gameName, List<QuizQuestion> questions,
                                 List<Integer> picked, int elapsedSeconds) {
@@ -37,12 +41,12 @@ public class QuizScorer {
             timeForMath = 1;
         }
         double speedRatio = ROUND_PAR_SECONDS / (double) timeForMath;
-        if (speedRatio > 1.0) {
-            speedRatio = 1.0;
+        if (speedRatio > MAX_SPEED_RATIO) {
+            speedRatio = MAX_SPEED_RATIO;
         }
         int score = 0;
         if (n > 0) {
-            score = (int) Math.round(accuracy * 0.8 + speedRatio * 100 * 0.2);
+            score = (int) Math.round(accuracy * ACCURACY_WEIGHT + speedRatio * 100 * SPEED_WEIGHT);
         }
 
         List<String> highlights = new ArrayList<>();

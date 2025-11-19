@@ -9,6 +9,12 @@ import model.minigame.TextTask;
 // Scores typing games from accuracy and speed.
 public class TypingScorer {
 
+    private static final double ACCURACY_WEIGHT = 0.65;
+    private static final double SPEED_WEIGHT = 0.35;
+    private static final double MAX_SPEED_RATIO = 1.5;
+    private static final int CLEAN_COPY_AT = 85;
+    private static final int TYPO_MESS_BELOW = 50;
+
     // Grades one typed attempt.
     public MiniGameResult score(String gameName, TextTask task, String typed, int elapsedSeconds) {
         String expected = normalize(task.getContent());
@@ -22,19 +28,19 @@ public class TypingScorer {
             timeForMath = 1;
         }
         double speedRatio = task.getParSeconds() / (double) timeForMath;
-        if (speedRatio > 1.5) {
-            speedRatio = 1.5;
+        if (speedRatio > MAX_SPEED_RATIO) {
+            speedRatio = MAX_SPEED_RATIO;
         }
         int speedPoints = (int) Math.round(speedRatio * 100);
         if (speedPoints > 100) {
             speedPoints = 100;
         }
-        int score = (int) Math.round(accuracy * 0.65 + speedPoints * 0.35);
+        int score = (int) Math.round(accuracy * ACCURACY_WEIGHT + speedPoints * SPEED_WEIGHT);
 
         List<String> highlights = new ArrayList<>();
         if (accuracy == 100) highlights.add("flawless ⌨️");
-        else if (accuracy >= 85) highlights.add("clean copy");
-        else if (accuracy < 50) highlights.add("lots of typos");
+        else if (accuracy >= CLEAN_COPY_AT) highlights.add("clean copy");
+        else if (accuracy < TYPO_MESS_BELOW) highlights.add("lots of typos");
         if (elapsedSeconds <= task.getParSeconds()) highlights.add("faster than par ⚡");
 
         return MiniGameResult.typing(gameName, score, accuracy, wpm, elapsedSeconds, highlights);
