@@ -26,15 +26,55 @@ public class GameController {
     private int sessionJobsCompleted = 0;
 
     public GameController(User user, long sessionStartTime) {
+        this(new UserController(user), sessionStartTime);
+    }
+
+    // Convenience: builds the default sub-controllers around one UserController.
+    public GameController(UserController userController, long sessionStartTime) {
+        this(userController,
+                new EconomyController(userController),
+                new JobController(userController),
+                new SkillController(userController),
+                new StatsController(),
+                new EventController(),
+                sessionStartTime);
+    }
+
+    // Injection seam: collaborators come from outside (testable, swappable).
+    public GameController(UserController userController,
+                          EconomyController economyController,
+                          JobController jobController,
+                          SkillController skillController,
+                          StatsController statsController,
+                          EventController eventController,
+                          long sessionStartTime) {
+        if (userController == null) {
+            throw new IllegalArgumentException("userController must not be null");
+        }
+        if (economyController == null) {
+            throw new IllegalArgumentException("economyController must not be null");
+        }
+        if (jobController == null) {
+            throw new IllegalArgumentException("jobController must not be null");
+        }
+        if (skillController == null) {
+            throw new IllegalArgumentException("skillController must not be null");
+        }
+        if (statsController == null) {
+            throw new IllegalArgumentException("statsController must not be null");
+        }
+        if (eventController == null) {
+            throw new IllegalArgumentException("eventController must not be null");
+        }
         this.sessionStartTime = sessionStartTime;
-        this.userController = new UserController(user);
-        this.economyController = new EconomyController(userController);
-        this.jobController = new JobController(userController);
-        this.skillController = new SkillController(userController);
-        this.statsController = new StatsController();
-        this.eventController = new EventController();
+        this.userController = userController;
+        this.economyController = economyController;
+        this.jobController = jobController;
+        this.skillController = skillController;
+        this.statsController = statsController;
+        this.eventController = eventController;
         // make sure new users have challenges
-        ChallengeService.initializeChallenges(user);
+        ChallengeService.initializeChallenges(userController.getUser());
     }
 
     // Buy a service (instant effect)
