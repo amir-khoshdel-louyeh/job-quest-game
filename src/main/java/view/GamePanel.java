@@ -171,7 +171,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
                 animationPanel.add(new JLabel("World view image not found."));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            utils.GameLog.error("loading world view", e);
             animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
         }
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));

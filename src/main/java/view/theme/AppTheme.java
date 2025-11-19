@@ -51,7 +51,7 @@ public class AppTheme {
             customizeDefaults();
             
         } catch (Exception e) {
-            e.printStackTrace();
+            utils.GameLog.error("setting look and feel", e);
         }
     }
     

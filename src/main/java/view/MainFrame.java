@@ -45,6 +45,8 @@ public class MainFrame extends JFrame {
                 getClass().getResource("/images/icon.png")
             ));
         } catch (Exception e) {
+            // Icon is cosmetic: keep going, but stay visible in the log.
+            utils.GameLog.error("setting window icon", e);
         }
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         

@@ -38,7 +38,7 @@ public class SimpleSubject implements Subject {
             try {
                 o.update();
             } catch (Exception e) {
-                System.err.println("Observer error: " + e.getMessage());
+                utils.GameLog.error("notifying observer", e);
             }
         }
     }
@@ -51,7 +51,7 @@ public class SimpleSubject implements Subject {
             try {
                 o.update(whatChanged);
             } catch (Exception e) {
-                System.err.println("Observer error: " + e.getMessage());
+                utils.GameLog.error("notifying observer", e);
             }
         }
     }

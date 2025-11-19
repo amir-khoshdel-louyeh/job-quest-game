@@ -102,7 +102,7 @@ public class GameController {
                 return new ActionResult(false, "No jobs are available for your current identity/skills.");
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            utils.GameLog.error("checking available jobs", ex);
             return new ActionResult(false, "Error checking available jobs.");
         }
     }
