@@ -105,8 +105,18 @@ public class UserStatsPanel extends JPanel {
     }
 
     public void refresh() {
+        refreshBalance();
+        refreshHealth();
+        refreshEnergy();
+        refreshProgress();
+    }
+
+    public void refreshBalance() {
         usernameLabel.setText("User: " + userController.getUsername());
         balanceLabel.setText("Balance: $" + userController.getBalance());
+    }
+
+    public void refreshHealth() {
         int hp = userController.getHealth();
         healthLabel.setText("Health: " + hp + "/100");
         int hpValue = hp;
@@ -123,6 +133,9 @@ public class UserStatsPanel extends JPanel {
         } else {
             healthBar.setForeground(AppTheme.HEALTH_COLOR);
         }
+    }
+
+    public void refreshEnergy() {
         int en = userController.getEnergy();
         energyLabel.setText("Energy: " + en + "/100000");
         int enValue = en;
@@ -139,7 +152,9 @@ public class UserStatsPanel extends JPanel {
         } else {
             energyBar.setForeground(AppTheme.ENERGY_COLOR.darker());
         }
+    }
 
+    public void refreshProgress() {
         levelLabel.setText("Level: " + user.getLevel());
         xpLabel.setText("XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel());
         xpProgressBar.setValue(user.getExperiencePercentage());

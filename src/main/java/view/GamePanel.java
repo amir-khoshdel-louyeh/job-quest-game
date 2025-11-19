@@ -14,6 +14,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
 import utils.TimerUtil;
 
 public class GamePanel extends JPanel implements Observer, MessageSink {
@@ -24,6 +27,19 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private UserStatsPanel statsPanel;
     private ChatPanel chatPanel;
     private NavBar navBar;
+    // Dispatch table instead of a switch: each change type knows which
+    // section to repaint. SKILLS maps to a no-op (nothing skill-related
+    // shows in this panel).
+    private final Map<ChangeType, Consumer<UserStatsPanel>> refreshers = new EnumMap<>(ChangeType.class);
+    {
+        refreshers.put(ChangeType.BALANCE, UserStatsPanel::refreshBalance);
+        refreshers.put(ChangeType.HEALTH, UserStatsPanel::refreshHealth);
+        refreshers.put(ChangeType.ENERGY, UserStatsPanel::refreshEnergy);
+        refreshers.put(ChangeType.XP, UserStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.REPUTATION, UserStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.JOBS, UserStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.SKILLS, panel -> { /* no skill display here */ });
+    }
     private JPanel animationPanel;
     private JPanel rightPanel;
     private JButton exitButton, helpButton, bottomExitButton, newGameButton;
@@ -205,10 +221,19 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         updateUserInfo();
     }
 
-    // Full refresh when anything changes.
+    // Selective refresh via the dispatch table above — no switch.
     @Override
     public void update(ChangeType whatChanged) {
-        updateUserInfo();
+        if (whatChanged == null) {
+            updateUserInfo();
+            return;
+        }
+        Consumer<UserStatsPanel> refresh = refreshers.get(whatChanged);
+        if (refresh == null) {
+            updateUserInfo();
+            return;
+        }
+        refresh.accept(statsPanel);
     }
 
     public void updateUserInfo() {
