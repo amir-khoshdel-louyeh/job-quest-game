@@ -1,5 +1,7 @@
 package model.goals;
 
+import java.util.Objects;
+
 // A mission the player can finish for extra rewards.
 // Base is concrete for compatibility, but each ChallengeType has a
 // subclass (like Achievement): new kinds extend, not switch (OCP).
@@ -94,7 +96,26 @@ public class Challenge {
     public int getCurrentProgress() { return currentProgress; }
     
     public boolean isCompleted() { return completed; }
-    
+
+    // Entity equality by id: two snapshots of the same challenge stay
+    // equal across progress changes (progress is state, not identity).
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Challenge other = (Challenge) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     @Override
     public String toString() {
         return name + " [" + currentProgress + "/" + targetValue + "] - Reward: $" + rewardMoney + " + " + rewardExperience + " XP";

@@ -1,5 +1,7 @@
 package model.goals;
 
+import java.util.Objects;
+
 // An unlockable goal with a reward.
 // Depends only on AchievementStats (DIP), never on player.User:
 // no goals -> player package cycle.
@@ -50,5 +52,24 @@ public abstract class Achievement {
 
     public String toString() {
         return name + " - " + description;
+    }
+
+    // Entity equality by id: unlock state lives in AchievementBook
+    // (per player), not in this shared definition object.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Achievement other = (Achievement) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
