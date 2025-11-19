@@ -137,7 +137,11 @@ public class StartPanel extends JPanel {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         headerPanel.setOpaque(false);
         // Skipped silently if the picture file is not there yet.
-        java.net.URL imageUrl = getClass().getResource(option.getImagePath());
+        String imagePath = IdentityOptionProvider.imagePathFor(option);
+        java.net.URL imageUrl = null;
+        if (imagePath != null) {
+            imageUrl = getClass().getResource(imagePath);
+        }
         if (imageUrl != null) {
             ImageIcon icon = new ImageIcon(imageUrl);
             java.awt.Image scaled = icon.getImage().getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);

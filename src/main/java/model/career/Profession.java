@@ -12,11 +12,10 @@ public final class Profession implements Identity {
     private final String displayName;
     private final String description;
     private final int startingBalance;
-    private final String imagePath;
     private final WorkGameKind workGameKind;
 
     public Profession(String professionName, String displayName, String description,
-                      int startingBalance, String imagePath, WorkGameKind workGameKind) {
+                      int startingBalance, WorkGameKind workGameKind) {
         if (professionName == null || professionName.trim().equals("")) {
             throw new IllegalArgumentException("professionName required");
         }
@@ -27,7 +26,6 @@ public final class Profession implements Identity {
         this.displayName = displayName;
         this.description = description;
         this.startingBalance = startingBalance;
-        this.imagePath = imagePath;
         this.workGameKind = workGameKind;
     }
 
@@ -42,9 +40,6 @@ public final class Profession implements Identity {
 
     @Override
     public int getStartingBalance() { return startingBalance; }
-
-    @Override
-    public String getImagePath() { return imagePath; }
 
     @Override
     public WorkGameKind getWorkGameKind() { return workGameKind; }

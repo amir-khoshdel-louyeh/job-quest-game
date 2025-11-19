@@ -18,13 +18,13 @@ public class IdentityProvider {
 
     static {
         REGISTRY.put("doctor", () -> new Profession("Doctor", "Doctor", "Heal players and earn big money.",
-                500, "/images/doctor.png", WorkGameKind.DIAGNOSIS));
+                500, WorkGameKind.DIAGNOSIS));
         REGISTRY.put("programmer", () -> new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
-                300, "/images/programmer.png", WorkGameKind.CODE));
+                300, WorkGameKind.CODE));
         REGISTRY.put("logodesigner", () -> new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
-                200, "/images/logodesigner.png", WorkGameKind.DESIGN));
+                200, WorkGameKind.DESIGN));
         REGISTRY.put("typist", () -> new Profession("Typist", "Typist", "Type documents for clients.",
-                200, "/images/typist.png", WorkGameKind.TYPING));
+                200, WorkGameKind.TYPING));
     }
 
     public static Identity createIdentity(String identityName) {
