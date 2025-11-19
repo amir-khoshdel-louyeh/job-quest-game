@@ -3,9 +3,9 @@ package model.goals;
 import java.util.Objects;
 
 // A mission the player can finish for extra rewards.
-// Base is concrete for compatibility, but each ChallengeType has a
-// subclass (like Achievement): new kinds extend, not switch (OCP).
-// copy() is polymorphic so services clone without "new Challenge".
+// One concrete class keyed by ChallengeType (former per-type subclasses
+// were pure type tags with no behavior, so they were collapsed).
+// copy() clones with zero progress; copySnapshot() preserves it.
 public class Challenge {
     private final String id;
     private final String name;
