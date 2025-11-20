@@ -17,7 +17,6 @@ import java.awt.event.MouseEvent;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import utils.TimerUtil;
 
 public class GamePanel extends JPanel implements Observer, MessageSink {
     private User currentUser;
@@ -156,7 +155,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         add(southPanel, BorderLayout.SOUTH);
 
     // Start periodic background tasks.
-    setupTimers();
+    routineController.startSchedulers();
     // Show onboarding hints for fresh accounts.
     maybeShowOnboarding();
 
@@ -164,14 +163,6 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
             JOptionPane.showMessageDialog(this,
                 "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
         }
-
-        // Unblock after 5 minutes (10h-run tuning, was 48 hours).
-        final controller.UserController myUserController1 = userController;
-        utils.TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
-            public void run() {
-                myUserController1.unblockUser();
-            }
-        });
     }
 
     
@@ -197,34 +188,6 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
 
     public void updateUserInfo() {
         statsPanel.refresh();
-    }
-
-    private void setupTimers() {
-        final controller.RoutineController myRoutine1 = routineController;
-        TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                myRoutine1.decreaseEnergy();
-            }
-        });
-        final controller.RoutineController myRoutine2 = routineController;
-        TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                myRoutine2.decreaseHealth();
-            }
-        });
-        final controller.RoutineController myRoutine3 = routineController;
-        TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                myRoutine3.sicknessCheck();
-            }
-        });
-
-        final controller.UserController myUser2 = userController;
-        TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
-            public void run() {
-                myUser2.unblockUser();
-            }
-        });
     }
 
     private void maybeShowOnboarding() {

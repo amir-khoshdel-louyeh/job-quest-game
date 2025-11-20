@@ -49,4 +49,34 @@ public class RoutineController {
             messages.addChatMessage(message);
         }
     }
+
+    // Starts the background upkeep timers (energy/health drains, sickness
+    // rolls, block expiry). Owned here — not in the view — so scheduling
+    // lives next to the logic it triggers, scheduled exactly once.
+    public void startSchedulers() {
+        final RoutineController self = this;
+        utils.TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                self.decreaseEnergy();
+            }
+        });
+        utils.TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                self.decreaseHealth();
+            }
+        });
+        utils.TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                self.sicknessCheck();
+            }
+        });
+
+        // Unblock after 5 minutes (10h-run tuning, was 48 hours).
+        final UserController users = userController;
+        utils.TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
+            public void run() {
+                users.unblockUser();
+            }
+        });
+    }
 }
