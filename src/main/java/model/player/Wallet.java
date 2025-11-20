@@ -18,8 +18,9 @@ public class Wallet {
     }
 
     // Exact setter. Values below zero become zero.
-    // Lets callers say "set to X" and trust the domain to clamp (Tell-Don't-Ask).
-    public void setBalance(int newBalance) {
+    // Private: only deposit/withdraw/earn/debug may set an exact value
+    // so game logic cannot forge money (Tell-Don't-Ask).
+    private void setBalance(int newBalance) {
         if (newBalance < 0) {
             newBalance = 0;
         }
@@ -38,13 +39,23 @@ public class Wallet {
         }
     }
 
-    public int getTotalMoneyEarned() {
-        return totalMoneyEarned;
-    }
-
-    public void addToTotalMoneyEarned(int amount) {
+    // Atomic earning: balance + lifetime total move together.
+    // Use this for job income so callers cannot forget the second half.
+    // Pure gifts/bonuses (events, achievements) keep using deposit().
+    public void earn(int amount) {
         if (amount > 0) {
+            setBalance(balance + amount);
             totalMoneyEarned = totalMoneyEarned + amount;
         }
+    }
+
+    // Demo/debug only: lets the Developer panel set an exact value.
+    // Game logic must use deposit/withdraw/earn instead.
+    public void debugSetBalance(int newBalance) {
+        setBalance(newBalance);
+    }
+
+    public int getTotalMoneyEarned() {
+        return totalMoneyEarned;
     }
 }

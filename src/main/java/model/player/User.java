@@ -43,10 +43,6 @@ public class User implements AchievementStats, ServiceTarget {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public Identity getIdentity() {
         return identity;
     }
@@ -58,10 +54,6 @@ public class User implements AchievementStats, ServiceTarget {
             return "?";
         }
         return identity.getDisplayName();
-    }
-
-    public void setIdentity(Identity identity) {
-        this.identity = identity;
     }
 
     public int getBalance() {
@@ -76,19 +68,26 @@ public class User implements AchievementStats, ServiceTarget {
         wallet.withdraw(amount);
     }
 
-    // Exact setter. Clamping (>= 0) lives inside Wallet,
-    // so callers just say "set to X" (Tell-Don't-Ask).
-    public void setBalance(int amount) {
-        wallet.setBalance(amount);
+    // Atomic job income: delegates to Wallet.earn so balance and
+    // lifetime total can never diverge (no temporal coupling).
+    public void earn(int amount) {
+        wallet.earn(amount);
+    }
+
+    // Demo/debug only: exact balance override for the Developer panel.
+    // Game logic must use deposit/withdraw/earn instead.
+    public void debugSetBalance(int amount) {
+        wallet.debugSetBalance(amount);
     }
 
     public int getHealth() {
         return vitals.getHealth();
     }
 
-    // Exact setter. Clamping (0..MAX_HEALTH) lives inside Vitals.
-    public void setHealth(int hp) {
-        vitals.setHealth(hp);
+    // Demo/debug only: exact health override for the Developer panel.
+    // Game logic must use gainHealth/loseHealth/restoreFull instead.
+    public void debugSetHealth(int hp) {
+        vitals.debugSetHealth(hp);
     }
 
     @Override
@@ -104,9 +103,10 @@ public class User implements AchievementStats, ServiceTarget {
         return vitals.getEnergy();
     }
 
-    // Exact setter. Clamping (0..MAX_ENERGY) lives inside Vitals.
-    public void setEnergy(int energy) {
-        vitals.setEnergy(energy);
+    // Demo/debug only: exact energy override for the Developer panel.
+    // Game logic must use gainEnergy/loseEnergy/restoreFull instead.
+    public void debugSetEnergy(int energy) {
+        vitals.debugSetEnergy(energy);
     }
 
     @Override
@@ -135,6 +135,12 @@ public class User implements AchievementStats, ServiceTarget {
 
     public boolean hasSkill(String skillName) {
         return skillBook.hasSkill(skillName);
+    }
+
+    // Query-only view (no mutators): safe to share — callers ask behavior,
+    // they never receive the mutable list or book itself.
+    public model.career.SkillSet getSkillSet() {
+        return skillBook;
     }
 
     public long getTotalPlayTime() {
@@ -174,21 +180,14 @@ public class User implements AchievementStats, ServiceTarget {
         return progress.getLevel();
     }
 
-    public void setLevel(int level) {
-        progress.setLevel(level);
+    // Demo/debug only: exact level override for the Developer panel.
+    // Game logic must use addExperience instead.
+    public void debugSetLevel(int level) {
+        progress.debugSetLevel(level);
     }
 
     public int getExperience() {
         return progress.getExperience();
-    }
-
-    // Returns true on level up. Refills health/energy on level up (aggregate invariant).
-    public boolean setExperience(int experience) {
-        boolean leveledUp = progress.setExperience(experience);
-        if (leveledUp) {
-            vitals.restoreFull();
-        }
-        return leveledUp;
     }
 
     // Returns true on level up. Refills health/energy on level up (aggregate invariant).
@@ -198,10 +197,6 @@ public class User implements AchievementStats, ServiceTarget {
             vitals.restoreFull();
         }
         return leveledUp;
-    }
-
-    public void restoreFull() {
-        vitals.restoreFull();
     }
 
     public int getRequiredExperienceForNextLevel() {
@@ -216,8 +211,10 @@ public class User implements AchievementStats, ServiceTarget {
         return progress.getReputation();
     }
 
-    public void setReputation(int reputation) {
-        progress.setReputation(reputation);
+    // Demo/debug only: exact reputation override for the Developer panel.
+    // Game logic must use addReputation instead.
+    public void debugSetReputation(int reputation) {
+        progress.debugSetReputation(reputation);
     }
 
     public void addReputation(int amount) {
@@ -226,10 +223,6 @@ public class User implements AchievementStats, ServiceTarget {
 
     public int getTotalMoneyEarned() {
         return wallet.getTotalMoneyEarned();
-    }
-
-    public void addToTotalMoneyEarned(int amount) {
-        wallet.addToTotalMoneyEarned(amount);
     }
 
     public int getTotalJobsCompleted() {
@@ -246,7 +239,8 @@ public class User implements AchievementStats, ServiceTarget {
 
     // Job bonus is guarded inside the domain (0..15) so callers
     // cannot forge it with a raw setter. +1 per 10 jobs, max +30%.
-    public void setJobBonus(int jobBonus) {
+    // Private: game logic uses increment/record paths; demos use debug below.
+    private void setJobBonus(int jobBonus) {
         if (jobBonus < 0) {
             jobBonus = 0;
         }
@@ -254,6 +248,25 @@ public class User implements AchievementStats, ServiceTarget {
             jobBonus = 15;
         }
         this.jobBonus = jobBonus;
+    }
+
+    // New-account welcome: grants the first bonus point through domain rules.
+    // StartPanel uses this instead of a raw setter (no forgery path for game logic).
+    public void grantStartingBonus() {
+        if (this.jobBonus == 0) {
+            setJobBonus(1);
+        }
+    }
+
+    // Domain behavior: +1 bonus point (capped 0..15 inside). Used every 10 jobs
+    // so controllers never do get-then-set forgery.
+    public void grantJobBonusIncrement() {
+        setJobBonus(this.jobBonus + 1);
+    }
+
+    // Demo/debug only: exact bonus override for the Developer panel.
+    public void debugSetJobBonus(int jobBonus) {
+        setJobBonus(jobBonus);
     }
 
     // Returns a copy so the stored list can't be changed from outside.
@@ -295,11 +308,5 @@ public class User implements AchievementStats, ServiceTarget {
     // Removes finished daily challenges.
     public void pruneCompletedDailyChallenges() {
         challengeBook.pruneCompletedDailyChallenges();
-    }
-
-    public void removeChallenge(Challenge challenge) {
-        if (challenge != null) {
-            challengeBook.removeChallengeById(challenge.getId());
-        }
     }
 }

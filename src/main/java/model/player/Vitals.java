@@ -13,7 +13,8 @@ public class Vitals {
     }
 
     // Keeps the value between 0 and the max.
-    public void setHealth(int newHealth) {
+    // Private: game logic must use gain/lose/restore so intent is explicit.
+    private void setHealth(int newHealth) {
         if (newHealth < 0) {
             newHealth = 0;
         }
@@ -40,7 +41,8 @@ public class Vitals {
     }
 
     // Keeps the value between 0 and the max.
-    public void setEnergy(int newEnergy) {
+    // Private: game logic must use gain/lose/restore so intent is explicit.
+    private void setEnergy(int newEnergy) {
         if (newEnergy < 0) {
             newEnergy = 0;
         }
@@ -66,5 +68,15 @@ public class Vitals {
     public void restoreFull() {
         setHealth(MAX_HEALTH);
         setEnergy(MAX_ENERGY);
+    }
+
+    // Demo/debug only: lets the Developer panel set exact values.
+    // Game logic must use gainHealth/loseHealth/gainEnergy/loseEnergy/restoreFull.
+    public void debugSetHealth(int newHealth) {
+        setHealth(newHealth);
+    }
+
+    public void debugSetEnergy(int newEnergy) {
+        setEnergy(newEnergy);
     }
 }

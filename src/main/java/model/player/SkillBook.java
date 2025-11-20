@@ -5,7 +5,9 @@ import java.util.List;
 
 // Owns the learned-skill list. Extracted from User for SRP:
 // skill rules change here, not in User.
-public class SkillBook {
+// Implements career.SkillSet (query-only) so model.career can ask
+// behavior without depending on model.player (no package cycle).
+public class SkillBook implements model.career.SkillSet {
     private ArrayList<String> skills = new ArrayList<String>();
 
     public List<String> getSkills() {

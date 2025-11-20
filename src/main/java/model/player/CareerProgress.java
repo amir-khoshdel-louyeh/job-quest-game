@@ -13,7 +13,8 @@ public class CareerProgress {
     }
 
     // Keeps the level between 1 and the max.
-    public void setLevel(int newLevel) {
+    // Private: levels are earned via XP, not forged (see addExperience).
+    private void setLevel(int newLevel) {
         if (newLevel < 1) { newLevel = 1;}
         if (newLevel > MAX_LEVEL) { newLevel = MAX_LEVEL;}
         this.level = newLevel;
@@ -21,15 +22,6 @@ public class CareerProgress {
 
     public int getExperience() {
         return experience;
-    }
-
-    // Returns true when there is enough XP to move up one level.
-    public boolean setExperience(int newExp) {
-        if (newExp < 0) {
-            newExp = 0;
-        }
-        this.experience = newExp;
-        return checkLevelUp();
     }
 
     // Returns true when there is enough XP to move up one level.
@@ -67,7 +59,8 @@ public class CareerProgress {
     }
 
     // Keeps reputation between 0 and 100.
-    public void setReputation(int newRep) {
+    // Private: game logic must use addReputation so the 0..100 rule stays inside.
+    private void setReputation(int newRep) {
         if (newRep < 0) {
             newRep = 0;
         }
@@ -79,5 +72,15 @@ public class CareerProgress {
 
     public void addReputation(int amount) {
         setReputation(reputation + amount);
+    }
+
+    // Demo/debug only: lets the Developer panel set exact values.
+    // Game logic must use addExperience/addReputation instead.
+    public void debugSetLevel(int newLevel) {
+        setLevel(newLevel);
+    }
+
+    public void debugSetReputation(int newRep) {
+        setReputation(newRep);
     }
 }
