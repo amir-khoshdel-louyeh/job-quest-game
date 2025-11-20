@@ -69,21 +69,12 @@ public class ChallengeBook {
         return false;
     }
 
+    // Removes finished daily challenges. Polymorphic flag on Challenge —
+    // no magic-string id check here, so renaming ids never breaks pruning (OCP).
     public void pruneCompletedDailyChallenges() {
         for (int i = activeChallenges.size() - 1; i >= 0; i--) {
             Challenge c = activeChallenges.get(i);
-            if (c.getId().startsWith("daily_") && c.isCompleted()) {
-                activeChallenges.remove(i);
-            }
-        }
-    }
-
-    public void removeChallengeById(String challengeId) {
-        if (challengeId == null) {
-            return;
-        }
-        for (int i = activeChallenges.size() - 1; i >= 0; i--) {
-            if (challengeId.equals(activeChallenges.get(i).getId())) {
+            if (c.isDaily() && c.isCompleted()) {
                 activeChallenges.remove(i);
             }
         }

@@ -5,20 +5,36 @@ import java.util.Objects;
 // An unlockable goal with a reward.
 // Depends only on AchievementStats (DIP), never on player.User:
 // no goals -> player package cycle.
-public abstract class Achievement {
+// One concrete class + Strategy (value extractor): the old per-metric
+// subclasses differed by a single line, so inheritance was class
+// explosion — composition carries the varying part instead.
+// New metrics pass a lambda; this class never changes (OCP).
+public class Achievement {
     private final String id;
     private final String name;
     private final String description;
     private final int rewardMoney;
     private final int requiredValue;
+    private final java.util.function.ToIntFunction<AchievementStats> valueExtractor;
 
     public Achievement(String id, String name, String description, int rewardMoney,
-                      int requiredValue) {
+                       int requiredValue,
+                       java.util.function.ToIntFunction<AchievementStats> valueExtractor) {
+        if (id == null || id.trim().equals("")) {
+            throw new IllegalArgumentException("id required");
+        }
+        if (requiredValue <= 0) {
+            throw new IllegalArgumentException("requiredValue must be > 0");
+        }
+        if (valueExtractor == null) {
+            throw new IllegalArgumentException("valueExtractor required");
+        }
         this.id = id;
         this.name = name;
         this.description = description;
         this.rewardMoney = rewardMoney;
         this.requiredValue = requiredValue;
+        this.valueExtractor = valueExtractor;
     }
 
     public String getId() { return id; }
@@ -34,7 +50,9 @@ public abstract class Achievement {
         return stats.hasAchievement(id);
     }
 
-    protected abstract int getCurrentValue(AchievementStats stats);
+    protected int getCurrentValue(AchievementStats stats) {
+        return valueExtractor.applyAsInt(stats);
+    }
 
     public boolean checkRequirement(AchievementStats stats) {
         if (stats == null) {

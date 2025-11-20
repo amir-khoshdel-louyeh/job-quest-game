@@ -11,6 +11,7 @@ public class Challenge {
     private final String name;
     private final String description;
     private final ChallengeType type;
+    private final boolean daily;
     private final int targetValue;
     private final int rewardMoney;
     private final int rewardExperience;
@@ -23,8 +24,10 @@ public class Challenge {
         LEARN_SKILLS
     }
     
+    // Primary constructor: daily-ness is explicit data, not an id-prefix
+    // convention — no magic-string type check at prune time (OCP).
     public Challenge(String id, String name, String description, ChallengeType type,
-                int targetValue, int rewardMoney, int rewardExperience) {
+                int targetValue, int rewardMoney, int rewardExperience, boolean daily) {
         if (id == null || id.trim().equals("")) {
             throw new IllegalArgumentException("id required");
         }
@@ -49,6 +52,7 @@ public class Challenge {
             this.description = description;
         }
         this.type = type;
+        this.daily = daily;
         this.targetValue = targetValue;
         this.rewardMoney = rewardMoney;
         this.rewardExperience = rewardExperience;
@@ -56,9 +60,14 @@ public class Challenge {
         this.completed = false;
     }
 
-    // Polymorphic clone with zero progress: subclasses return their own type.
+    // Daily challenges reset; main-story ones persist once completed.
+    public boolean isDaily() {
+        return daily;
+    }
+
+    // Fresh clone with zero progress, preserving the daily flag.
     public Challenge copy() {
-        Challenge c = new Challenge(id, name, description, type, targetValue, rewardMoney, rewardExperience);
+        Challenge c = new Challenge(id, name, description, type, targetValue, rewardMoney, rewardExperience, daily);
         return c;
     }
 
