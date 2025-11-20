@@ -28,7 +28,7 @@ public class TypingGameDialog extends JDialog {
     private JLabel statusLabel;
 
     private TextTask current;
-    private long startMillis;
+    private final utils.ElapsedTimer stopwatch = new utils.ElapsedTimer();
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
@@ -212,7 +212,7 @@ public class TypingGameDialog extends JDialog {
         }
         startButton.setEnabled(false);
         submitButton.setEnabled(true);
-        startMillis = System.currentTimeMillis();
+        stopwatch.start();
         stopTick();
         final int limit = current.getParSeconds() * 3;
         tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
@@ -239,7 +239,7 @@ public class TypingGameDialog extends JDialog {
     }
 
     private int elapsedSeconds() {
-        return (int) ((System.currentTimeMillis() - startMillis) / 1000);
+        return stopwatch.elapsedSeconds();
     }
 
     private void submit() {

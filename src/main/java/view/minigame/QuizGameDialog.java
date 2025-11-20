@@ -32,7 +32,7 @@ public class QuizGameDialog extends JDialog {
     private List<QuizQuestion> round;
     private List<Integer> picked;
     private int index;
-    private long startMillis;
+    private final utils.ElapsedTimer stopwatch = new utils.ElapsedTimer();
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
@@ -123,7 +123,7 @@ public class QuizGameDialog extends JDialog {
             picked.add(-2);
         }
         index = 0;
-        startMillis = System.currentTimeMillis();
+        stopwatch.start();
         stopTick();
         tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -155,7 +155,7 @@ public class QuizGameDialog extends JDialog {
     }
 
     private int elapsedSeconds() {
-        return (int) ((System.currentTimeMillis() - startMillis) / 1000);
+        return stopwatch.elapsedSeconds();
     }
 
     private void showQuestion() {
