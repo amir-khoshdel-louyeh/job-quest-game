@@ -60,9 +60,9 @@ public final class Job {
         return energyCost;
     }
 
-    public Identity getRequiredIdentity() {
-        return requiredIdentity;
-    }
+    // No getRequiredIdentity(): the live Identity reference would leak
+    // (the interface doesn't guarantee immutability). Callers ask
+    // isForIdentity/isAvailableFor/missingSkills instead (Demeter).
 
     // Returns a copy so the stored list can't be changed from outside.
     public List<String> getRequiredSkills() {
@@ -81,18 +81,33 @@ public final class Job {
     }
 
     // True when the profession matches and the player has every needed skill.
-    public boolean isAvailableFor(Identity identity, List<String> userSkills) {        if (identity == null || userSkills == null) {
+    // Primary rule: behavior (SkillSet) is passed, not raw data — no manual
+    // contains loop at call sites (no feature envy / primitive obsession).
+    public boolean isAvailableFor(Identity identity, SkillSet skills) {
+        if (identity == null || skills == null) {
             return false;
         }
         if (!requiredIdentity.isSameProfession(identity)) {
             return false;
         }
+        return skills.hasAllSkills(requiredSkills);
+    }
+
+    // Which required skills are still missing (empty = ready to work).
+    // Single source for lock reasons — views format, they don't compute.
+    public List<String> missingSkills(SkillSet skills) {
+        ArrayList<String> missing = new ArrayList<String>();
+        if (skills == null) {
+            missing.addAll(requiredSkills);
+            return missing;
+        }
         for (int i = 0; i < requiredSkills.size(); i++) {
-            if (!userSkills.contains(requiredSkills.get(i))) {
-                return false;
+            String need = requiredSkills.get(i);
+            if (!skills.hasSkill(need)) {
+                missing.add(need);
             }
         }
-        return true;
+        return missing;
     }
 
     @Override

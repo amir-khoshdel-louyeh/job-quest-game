@@ -55,14 +55,8 @@ public final class LearnableSkill {
         return requiredPlayTimeMinutes;
     }
 
-    // Returns a copy so the stored list can't be changed from outside.
-    public List<Identity> getIdentities() {
-        ArrayList<Identity> copy = new ArrayList<Identity>();
-        for (int i = 0; i < identities.size(); i++) {
-            copy.add(identities.get(i));
-        }
-        return copy;
-    }
+    // No getIdentities(): the shallow copy still aliased live Identity refs.
+    // Callers ask isForIdentity instead (Demeter).
 
     public boolean isForIdentity(Identity identity) {
         if (identity == null) {
