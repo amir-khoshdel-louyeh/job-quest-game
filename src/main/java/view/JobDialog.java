@@ -190,43 +190,30 @@ public class JobDialog extends JDialog {
         }
     }
 
+    // Registry instead of a switch: a new WorkGameKind adds one entry,
+    // the dialog itself never changes (OCP).
+    private static final java.util.Map<model.WorkGameKind, view.minigame.MiniGameLauncher> LAUNCHERS =
+            new java.util.EnumMap<>(model.WorkGameKind.class);
+    static {
+        LAUNCHERS.put(model.WorkGameKind.TYPING, new view.minigame.TypingLauncher());
+        LAUNCHERS.put(model.WorkGameKind.CODE, new view.minigame.CodeLauncher());
+        LAUNCHERS.put(model.WorkGameKind.DIAGNOSIS, new view.minigame.DiagnosisLauncher());
+        LAUNCHERS.put(model.WorkGameKind.DESIGN, new view.minigame.DesignLauncher());
+    }
+
     private model.minigame.MiniGameResult playWorkGame(JFrame parent, Identity identity, Job job) {
         String jobName = "Job";
         if (job != null) {
             jobName = job.getName();
         }
-        // Exhaustive switch on the enum: adding a WorkGameKind forces a case
-        // here at compile time (no silent String fall-through anymore).
         model.WorkGameKind gameKind = identity.getWorkGameKind();
         if (gameKind == null) {
             return null;
         }
-        switch (gameKind) {
-            case TYPING: {
-                view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
-                        parent, jobName + " — Typing Sprint",
-                        provider.TypingTaskProvider.get().getTaskForJob(jobName), null, false);
-                return d.showAndPlay();
-            }
-            case CODE: {
-                view.minigame.TypingGameDialog d = new view.minigame.TypingGameDialog(
-                        parent, jobName + " — Write the Program",
-                        provider.CodeTaskProvider.get().getTaskForJob(jobName), null, true);
-                return d.showAndPlay();
-            }
-            case DIAGNOSIS: {
-                view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
-                        parent, jobName + " — Diagnosis Round", provider.QuizProvider.getDiagnosisQuestions(), null);
-                return d.showAndPlay();
-            }
-            case DESIGN: {
-                view.minigame.QuizGameDialog d = new view.minigame.QuizGameDialog(
-                        parent, jobName + " — Client Brief Round", provider.QuizProvider.getDesignQuestions(), null);
-                return d.showAndPlay();
-            }
-            default: {
-                return null;
-            }
+        view.minigame.MiniGameLauncher launcher = LAUNCHERS.get(gameKind);
+        if (launcher == null) {
+            return null;
         }
+        return launcher.launch(parent, jobName);
     }
 }
