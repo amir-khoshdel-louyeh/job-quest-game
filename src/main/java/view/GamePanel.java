@@ -42,8 +42,8 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     }
     private JPanel animationPanel;
     private JPanel rightPanel;
-    private JButton exitButton, helpButton, bottomExitButton, newGameButton;
-    private javax.swing.Action exitAction;
+    private SessionPanel sessionPanel;
+    private JButton bottomExitButton;
     private final long sessionStartTime;
 
     public GamePanel(User user) {
@@ -69,47 +69,14 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
 
         statsPanel = new UserStatsPanel(userController, currentUser);
 
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
-        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-        buttonsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
-        
-        helpButton = AppTheme.createSecondaryButton("📖 Help & About");
-        helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sessionPanel = new SessionPanel();
 
-        // No save - in-memory only. Exit closes, New Game goes back to career pick.
-        exitAction = new AbstractAction("❌ Exit") {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.exit(0);
-            }
-        };
-        exitButton = AppTheme.createDangerButton("❌ Exit");
-        exitButton.setAction(exitAction);
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         bottomExitButton = AppTheme.createDangerButton("❌ Exit");
-        bottomExitButton.setAction(exitAction);
-
-        newGameButton = AppTheme.createSecondaryButton("🔄 New Game");
-        newGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        newGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
-                if (frame instanceof MainFrame) {
-                    ((MainFrame) frame).showPanel(new StartPanel((MainFrame) frame));
-                }
-            }
-        });
-        
-        buttonsPanel.add(helpButton);
-        buttonsPanel.add(Box.createVerticalStrut(5));
-        buttonsPanel.add(newGameButton);
-        buttonsPanel.add(Box.createVerticalStrut(5));
-        buttonsPanel.add(exitButton);
+        bottomExitButton.setAction(sessionPanel.getExitAction());
 
         rightPanel.add(statsPanel);
         rightPanel.add(Box.createVerticalStrut(10));
-        rightPanel.add(buttonsPanel);
+        rightPanel.add(sessionPanel);
 
         JScrollPane rightScrollPane = new JScrollPane(rightPanel);
         rightScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -187,14 +154,6 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         southPanel.add(chatPanel, BorderLayout.CENTER);
         southPanel.add(bottomActionsPanel, BorderLayout.SOUTH);
         add(southPanel, BorderLayout.SOUTH);
-
-        helpButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                AboutDialog aboutDialog = new AboutDialog((JFrame) SwingUtilities.getWindowAncestor(GamePanel.this));
-                aboutDialog.setVisible(true);
-            }
-        });
-        // NOTE: exit is handled by the shared exitAction above.
 
     // Start periodic background tasks.
     setupTimers();
