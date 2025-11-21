@@ -17,55 +17,79 @@ public class DeveloperController {
         return userController.getUser();
     }
 
+    // Read delegates: views ask here instead of digging via getUser().
+    public int getHealth() {
+        return userController.getHealth();
+    }
+
+    public int getEnergy() {
+        return userController.getEnergy();
+    }
+
+    public int getLevel() {
+        return userController.getLevel();
+    }
+
+    public int getReputation() {
+        return userController.getReputation();
+    }
+
+    public long getTotalPlayTime() {
+        return userController.getTotalPlayTime();
+    }
+
+    public int getJobBonus() {
+        return userController.getJobBonus();
+    }
+
     public int getBalance() {
         return userController.getBalance();
     }
 
-    /** Set balance to an exact value (clamped >= 0 inside Wallet). */
+    /** Set balance to an exact value (clamped >= 0 inside Wallet). Demo only. */
     public void setBalance(int amount) {
-        userController.getUser().setBalance(amount);
+        userController.getUser().debugSetBalance(amount);
         userController.refresh();
     }
 
-    /** Set health to an exact value (clamped 0..MAX_HEALTH inside Vitals). */
+    /** Set health to an exact value (clamped 0..MAX_HEALTH inside Vitals). Demo only. */
     public void setHealth(int hp) {
-        userController.getUser().setHealth(hp);
+        userController.getUser().debugSetHealth(hp);
         userController.refresh();
     }
 
-    /** Set energy to an exact value (clamped 0..MAX_ENERGY inside Vitals). */
+    /** Set energy to an exact value (clamped 0..MAX_ENERGY inside Vitals). Demo only. */
     public void setEnergy(int energy) {
-        userController.getUser().setEnergy(energy);
+        userController.getUser().debugSetEnergy(energy);
         userController.refresh();
     }
 
     /** Add (or remove, when negative) playtime — drives skill unlock gates. */
     public void addPlaytimeMinutes(long minutes) {
         if (minutes == 0) return;
-        User user = userController.getUser();
         if (minutes > 0) {
-            user.addPlayTime(minutes * 60 * 1000);
+            userController.addPlayTime(minutes * 60 * 1000);
         }
         // Negative minutes intentionally ignored: play time never rewinds
         // (encapsulation — use a dedicated reset if rewinding is ever needed).
         userController.refresh();
     }
 
-    /** Set level directly (clamped 1..MAX_LEVEL inside CareerProgress). */
+    /** Set level directly (clamped 1..MAX_LEVEL inside CareerProgress). Demo only. */
     public void setLevel(int level) {
-        userController.getUser().setLevel(level);
+        userController.getUser().debugSetLevel(level);
         userController.refresh();
     }
 
-    /** Set reputation directly (clamped 0-100 inside User). */
+    /** Set reputation directly (clamped 0-100 inside User). Demo only. */
     public void setReputation(int reputation) {
-        userController.getUser().setReputation(reputation);
+        userController.getUser().debugSetReputation(reputation);
         userController.refresh();
     }
 
-    /** Set job bonus level directly (clamped 0..15 inside User). */
+    /** Set job bonus level directly (clamped 0..15 inside User). Demo only. */
     public void setJobBonus(int level) {
-        userController.getUser().setJobBonus(level);
+        userController.getUser().debugSetJobBonus(level);
         userController.refresh();
     }
 

@@ -5,11 +5,11 @@ import model.minigame.MiniGameResult;
 import model.player.User;
 import model.goals.Achievement;
 import model.goals.Challenge;
-import model.store.GameEvent;
 import model.store.JobResult;
 import model.store.Service;
 import provider.JobProvider;
 import provider.ServiceProvider;
+import provider.SkillProvider;
 import services.AchievementService;
 import services.ChallengeService;
 import java.util.List;
@@ -21,8 +21,11 @@ public class GameController {
     private JobController jobController;
     private SkillController skillController;
     private StatsController statsController;
-    private EventController eventController;
-    private long sessionStartTime;
+    private ChallengeService challengeService;
+    private AchievementService achievementService;
+    private JobProvider jobProvider;
+    private SkillProvider skillProvider;
+    private final long sessionStartTime;
     private int sessionJobsCompleted = 0;
 
     public GameController(User user, long sessionStartTime) {
@@ -36,7 +39,6 @@ public class GameController {
                 new JobController(userController),
                 new SkillController(userController),
                 new StatsController(),
-                new EventController(),
                 sessionStartTime);
     }
 
@@ -46,7 +48,36 @@ public class GameController {
                           JobController jobController,
                           SkillController skillController,
                           StatsController statsController,
-                          EventController eventController,
+                          long sessionStartTime) {
+        this(userController, economyController, jobController, skillController,
+             statsController,
+             new ChallengeService(), new AchievementService(), sessionStartTime);
+    }
+
+    // Full injection seam: services come from outside (testable, swappable).
+    public GameController(UserController userController,
+                          EconomyController economyController,
+                          JobController jobController,
+                          SkillController skillController,
+                          StatsController statsController,
+                          ChallengeService challengeService,
+                          AchievementService achievementService,
+                          long sessionStartTime) {
+        this(userController, economyController, jobController, skillController,
+             statsController, challengeService, achievementService,
+             new JobProvider(), new SkillProvider(), sessionStartTime);
+    }
+
+    // Fullest injection seam: catalogs come from outside (testable).
+    public GameController(UserController userController,
+                          EconomyController economyController,
+                          JobController jobController,
+                          SkillController skillController,
+                          StatsController statsController,
+                          ChallengeService challengeService,
+                          AchievementService achievementService,
+                          JobProvider jobProvider,
+                          SkillProvider skillProvider,
                           long sessionStartTime) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -63,18 +94,34 @@ public class GameController {
         if (statsController == null) {
             throw new IllegalArgumentException("statsController must not be null");
         }
-        if (eventController == null) {
-            throw new IllegalArgumentException("eventController must not be null");
-        }
         this.sessionStartTime = sessionStartTime;
         this.userController = userController;
         this.economyController = economyController;
         this.jobController = jobController;
         this.skillController = skillController;
         this.statsController = statsController;
-        this.eventController = eventController;
+        if (challengeService != null) {
+            this.challengeService = challengeService;
+        } else {
+            this.challengeService = new ChallengeService();
+        }
+        if (achievementService != null) {
+            this.achievementService = achievementService;
+        } else {
+            this.achievementService = new AchievementService();
+        }
+        if (jobProvider != null) {
+            this.jobProvider = jobProvider;
+        } else {
+            this.jobProvider = new JobProvider();
+        }
+        if (skillProvider != null) {
+            this.skillProvider = skillProvider;
+        } else {
+            this.skillProvider = new SkillProvider();
+        }
         // make sure new users have challenges
-        ChallengeService.initializeChallenges(userController.getUser());
+        this.challengeService.initializeChallenges(userController.getUser());
     }
 
     // Buy a service (instant effect)
@@ -95,7 +142,7 @@ public class GameController {
     // Check jobs (workshop always opens dialog if jobs exist)
     public ActionResult doWork() {
         try {
-            List<Job> allJobs = JobProvider.getAllJobs();
+            List<Job> allJobs = jobProvider.getAllJobs();
             if (allJobs != null && !allJobs.isEmpty()) {
                 return new ActionResult(true, "", NextAction.OPEN_JOB_DIALOG);
             } else {
@@ -105,6 +152,15 @@ public class GameController {
             utils.GameLog.error("checking available jobs", ex);
             return new ActionResult(false, "Error checking available jobs.");
         }
+    }
+
+    // Catalog queries for views: NavBar asks the controller, never the provider.
+    public List<Job> getJobsForCurrentIdentity() {
+        return jobProvider.getJobsForIdentity(userController.getIdentity());
+    }
+
+    public List<model.career.LearnableSkill> getSkillsForCurrentIdentity() {
+        return skillProvider.getSkillsForIdentity(userController.getIdentity());
     }
 
     public ActionResult doJob(Job job) {
@@ -127,16 +183,6 @@ public class GameController {
         }
     }
 
-    // No persistence - game runs in memory only. Just track play time.
-    // Play time only moves forward via User.addPlayTime (encapsulation:
-    // no wholesale setTotalPlayTime that could rewind the clock).
-    public ActionResult saveGame() {
-        long sessionDuration = System.currentTimeMillis() - sessionStartTime;
-        userController.addPlayTime(sessionDuration);
-        sessionStartTime = System.currentTimeMillis();
-        return new ActionResult(true, "Progress kept for this session (no save file).");
-    }
-
     public ActionResult learnSkill(String skillName) {
         boolean ok = skillController.learnSkill(skillName);
         if (ok) {
@@ -155,19 +201,15 @@ public class GameController {
     }
 
     public List<Challenge> getActiveChallenges() {
-        return ChallengeService.getActiveIncompleteChallenges(userController.getUser());
+        return challengeService.getActiveIncompleteChallenges(userController.getUser());
     }
 
     public List<Challenge> getCompletedChallenges() {
-        return ChallengeService.getCompletedChallenges(userController.getUser());
+        return challengeService.getCompletedChallenges(userController.getUser());
     }
 
     public List<Achievement> getAchievementsWithStatus() {
-        return AchievementService.getAchievementsWithStatus(userController.getUser());
-    }
-
-    public GameEvent triggerRandomEvent() {
-        return eventController.triggerRandomEvent(userController.getUser());
+        return achievementService.getAchievementsWithStatus(userController.getUser());
     }
 
     // Play time in minutes plus jobs done this session.

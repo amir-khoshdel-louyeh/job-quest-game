@@ -4,10 +4,14 @@ import services.RoutineService;
 
 // Runs daily upkeep like energy, health, and sickness checks.
 // Depends on MessageSink, not on the Swing panel (DIP).
+// Owns its Swing Timers so the panel can stop them on detach (no leak
+// when MainFrame swaps panels): startSchedulers is idempotent, and
+// stopSchedulers halts all periodic tasks.
 public class RoutineController {
     private final UserController userController;
     private final MessageSink messages;
     private final RoutineService routines;
+    private final java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 
     public RoutineController(UserController userController, MessageSink messages) {
         this(userController, messages, new RoutineService());
@@ -52,24 +56,26 @@ public class RoutineController {
 
     // Starts the background upkeep timers (energy/health drains, sickness
     // rolls, block expiry). Owned here — not in the view — so scheduling
-    // lives next to the logic it triggers, scheduled exactly once.
+    // lives next to the logic it triggers. Idempotent: calling twice
+    // restarts cleanly instead of piling up duplicate timers.
     public void startSchedulers() {
+        stopSchedulers();
         final RoutineController self = this;
-        utils.TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
+        timers.add(utils.TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 self.decreaseEnergy();
             }
-        });
-        utils.TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
+        }));
+        timers.add(utils.TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 self.decreaseHealth();
             }
-        });
-        utils.TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
+        }));
+        timers.add(utils.TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 self.sicknessCheck();
             }
-        });
+        }));
 
         // Unblock after 5 minutes (10h-run tuning, was 48 hours).
         final UserController users = userController;
@@ -78,5 +84,17 @@ public class RoutineController {
                 users.unblockUser();
             }
         });
+    }
+
+    // Halts all periodic upkeep (called when the panel detaches).
+    public void stopSchedulers() {
+        for (int i = 0; i < timers.size(); i++) {
+            try {
+                timers.get(i).stop();
+            } catch (Exception e) {
+                utils.GameLog.error("stopping scheduler", e);
+            }
+        }
+        timers.clear();
     }
 }

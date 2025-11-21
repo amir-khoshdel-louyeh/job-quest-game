@@ -19,8 +19,9 @@ public class EconomyController {
         }
         if (userController.deductBalance(service.getPrice())) {
             service.apply(userController.getUser());
+            // Single coherent notification (refresh blasts once).
+            // Previously refresh()+notifyObservers() fired two identical blasts.
             userController.refresh();
-            userController.notifyObservers();
             return true;
         }
         return false;

@@ -11,7 +11,9 @@ import observer.SimpleSubject;
 import observer.Subject;
 
 // Holds one player and handles balance, health, energy, and XP changes.
-public class UserController implements Subject {
+// Implements AchievementStats by delegation so views pass this controller
+// where stats are needed — never the live User (Law of Demeter).
+public class UserController implements Subject, model.goals.AchievementStats {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
 
@@ -38,6 +40,10 @@ public class UserController implements Subject {
         return user;
     }
 
+    // Internal escape hatch for services (Challenge/Achievement/Event/Job):
+    // domain logic works on User. Views must use the delegates below instead.
+    // (Kept to avoid a bigger service-layer refactor in this step.)
+
     public String getUsername() {
         return user.getUsername();
     }
@@ -58,6 +64,60 @@ public class UserController implements Subject {
 
     public boolean hasSkill(String skillName) {
         return user.hasSkill(skillName);
+    }
+
+    // Query-only skill view for career rules (no list digging, no manual loops).
+    public model.career.SkillSet getSkillSet() {
+        return user.getSkillSet();
+    }
+
+    // Read delegates: views ask here instead of digging via getUser().
+    public int getLevel() {
+        return user.getLevel();
+    }
+
+    public int getExperience() {
+        return user.getExperience();
+    }
+
+    public int getRequiredExperienceForNextLevel() {
+        return user.getRequiredExperienceForNextLevel();
+    }
+
+    public int getExperiencePercentage() {
+        return user.getExperiencePercentage();
+    }
+
+    public int getReputation() {
+        return user.getReputation();
+    }
+
+    public long getTotalPlayTime() {
+        return user.getTotalPlayTime();
+    }
+
+    @Override
+    public int getTotalJobsCompleted() {
+        return user.getTotalJobsCompleted();
+    }
+
+    @Override
+    public int getTotalMoneyEarned() {
+        return user.getTotalMoneyEarned();
+    }
+
+    public int getJobBonus() {
+        return user.getJobBonus();
+    }
+
+    @Override
+    public int getSkillCount() {
+        return user.getSkillCount();
+    }
+
+    @Override
+    public boolean hasAchievement(String id) {
+        return user.hasAchievement(id);
     }
 
     public List<Challenge> getActiveChallenges() {
@@ -157,11 +217,6 @@ public class UserController implements Subject {
         return false;
     }
 
-    /** Return the wrapped User model (escape hatch for read-only providers). */
-    public int getLevel() {
-        return user.getLevel();
-    }
-
     /** Adds XP (level-up refill happens inside User). */
     public void addExperience(int amount) {
         if (amount > 0) {
@@ -181,15 +236,17 @@ public class UserController implements Subject {
     // Adds one completed job to the player's totals.
     // 10-hour run tuning: +1 jobBonus every 10 jobs (capped at 15 for +30%),
     // so the job bonus is reachable in a single run.
+    // Single atomic transaction: balance + lifetime total move together
+    // via User.earn, so callers make ONE call instead of addBalance + addTotal.
     public void recordJobCompletion(int moneyEarned) {
         user.incrementJobsCompleted();
         if (moneyEarned > 0) {
-            user.addToTotalMoneyEarned(moneyEarned);
+            user.earn(moneyEarned);
+            notifyObservers(ChangeType.BALANCE);
         }
         if (user.getTotalJobsCompleted() % 10 == 0) {
-            // Cap lives inside User.setJobBonus (0..15); controller just asks.
-            int next = user.getJobBonus() + 1;
-            user.setJobBonus(next);
+            // Domain behavior: cap lives inside User (0..15).
+            user.grantJobBonusIncrement();
         }
         notifyObservers(ChangeType.JOBS);
     }

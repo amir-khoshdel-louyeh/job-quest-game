@@ -16,17 +16,21 @@ import java.util.List;
 public class JobController {
     private UserController userController;
     private JobService jobService;
+    private ChallengeService challengeService;
+    private AchievementService achievementService;
 
     public JobController(UserController userController) {
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
-        }
-        this.userController = userController;
-        this.jobService = new JobService();
+        this(userController, new JobService(), new ChallengeService(), new AchievementService());
     }
 
     // Constructor for tests (can pass own JobService)
     public JobController(UserController userController, JobService jobService) {
+        this(userController, jobService, new ChallengeService(), new AchievementService());
+    }
+
+    // Full injection seam: services come from outside (testable, swappable).
+    public JobController(UserController userController, JobService jobService,
+                         ChallengeService challengeService, AchievementService achievementService) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
         }
@@ -35,6 +39,16 @@ public class JobController {
             this.jobService = jobService;
         } else {
             this.jobService = new JobService();
+        }
+        if (challengeService != null) {
+            this.challengeService = challengeService;
+        } else {
+            this.challengeService = new ChallengeService();
+        }
+        if (achievementService != null) {
+            this.achievementService = achievementService;
+        } else {
+            this.achievementService = new AchievementService();
         }
     }
 
@@ -57,7 +71,7 @@ public class JobController {
         }
         // Check identity + skills via controller delegates (Law of Demeter:
         // no getUser().getIdentity()/getSkills() train-wreck here).
-        if (!job.isAvailableFor(userController.getIdentity(), userController.getSkills())) {
+        if (!job.isAvailableFor(userController.getIdentity(), userController.getSkillSet())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
         // Check energy
@@ -89,25 +103,26 @@ public class JobController {
         int levelBefore = user.getLevel();
 
         // Hand out the rewards.
+        // ONE atomic call: recordJobCompletion deposits + tracks lifetime total
+        // (see User.earn), so balance and stats can never diverge.
         userController.decreaseEnergy(job.getEnergyCost());
-        userController.addBalance(finalPay);
+        userController.recordJobCompletion(finalPay);
         userController.addExperience(xp);
         userController.addReputation(rep);
-        userController.recordJobCompletion(finalPay);
 
         int levelAfter = userController.getLevel();
 
         // Update challenges
         if (userController.getActiveChallenges().isEmpty()) {
-            ChallengeService.initializeChallenges(user);
+            challengeService.initializeChallenges(user);
         }
         ArrayList<Challenge> completed = new ArrayList<Challenge>();
         collectCompleted(completed,
-                ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1));
+                challengeService.updateChallengeProgress(user, Challenge.ChallengeType.COMPLETE_JOBS, 1));
         collectCompleted(completed,
-                ChallengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay));
+                challengeService.updateChallengeProgress(user, Challenge.ChallengeType.EARN_MONEY, finalPay));
 
-        List<Achievement> unlocked = AchievementService.checkAndUnlockAchievements(user);
+        List<Achievement> unlocked = achievementService.checkAndUnlockAchievements(user);
 
         userController.refresh();
 
