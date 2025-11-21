@@ -1,5 +1,7 @@
 package model.player;
 
+import java.util.Objects;
+
 // Holds the player's money and guards against negative balance.
 public class Wallet {
     private int balance;
@@ -57,5 +59,29 @@ public class Wallet {
 
     public int getTotalMoneyEarned() {
         return totalMoneyEarned;
+    }
+
+    // Value equality: two wallets match when money matches.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Wallet other = (Wallet) obj;
+        return balance == other.balance
+                && totalMoneyEarned == other.totalMoneyEarned;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(balance, totalMoneyEarned);
+    }
+
+    @Override
+    public String toString() {
+        return "Wallet [balance $" + balance + ", earned $" + totalMoneyEarned + "]";
     }
 }

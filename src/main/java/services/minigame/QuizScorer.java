@@ -36,17 +36,11 @@ public class QuizScorer {
         if (n > 0) {
             accuracy = (int) Math.round(correct * 100.0 / n);
         }
-        int timeForMath = elapsedSeconds;
-        if (timeForMath < 1) {
-            timeForMath = 1;
-        }
-        double speedRatio = ROUND_PAR_SECONDS / (double) timeForMath;
-        if (speedRatio > MAX_SPEED_RATIO) {
-            speedRatio = MAX_SPEED_RATIO;
-        }
+        // Shared mix (DRY): clamp + ratio cap + weighted sum live in ScoreMixer.
+        double speedRatio = ScoreMixer.speedRatio(ROUND_PAR_SECONDS, elapsedSeconds, MAX_SPEED_RATIO);
         int score = 0;
         if (n > 0) {
-            score = (int) Math.round(accuracy * ACCURACY_WEIGHT + speedRatio * 100 * SPEED_WEIGHT);
+            score = ScoreMixer.blend(accuracy, speedRatio * 100, ACCURACY_WEIGHT, SPEED_WEIGHT);
         }
 
         List<String> highlights = new ArrayList<>();

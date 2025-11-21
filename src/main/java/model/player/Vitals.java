@@ -1,5 +1,7 @@
 package model.player;
 
+import java.util.Objects;
+
 // Tracks health and energy and keeps them within limits.
 public class Vitals {
     public static final int MAX_HEALTH = 100;
@@ -68,6 +70,30 @@ public class Vitals {
     public void restoreFull() {
         setHealth(MAX_HEALTH);
         setEnergy(MAX_ENERGY);
+    }
+
+    // Value equality: two vitals match when health and energy match.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Vitals other = (Vitals) obj;
+        return health == other.health && energy == other.energy;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(health, energy);
+    }
+
+    @Override
+    public String toString() {
+        return "Vitals [health " + health + "/" + MAX_HEALTH
+                + ", energy " + energy + "/" + MAX_ENERGY + "]";
     }
 
     // Demo/debug only: lets the Developer panel set exact values.

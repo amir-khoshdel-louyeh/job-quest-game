@@ -23,19 +23,10 @@ public class TypingScorer {
         int wpm = wpm(actual, elapsedSeconds);
 
         // Speed bonus: typing faster than the par time scores more.
-        int timeForMath = elapsedSeconds;
-        if (timeForMath < 1) {
-            timeForMath = 1;
-        }
-        double speedRatio = task.getParSeconds() / (double) timeForMath;
-        if (speedRatio > MAX_SPEED_RATIO) {
-            speedRatio = MAX_SPEED_RATIO;
-        }
-        int speedPoints = (int) Math.round(speedRatio * 100);
-        if (speedPoints > 100) {
-            speedPoints = 100;
-        }
-        int score = (int) Math.round(accuracy * ACCURACY_WEIGHT + speedPoints * SPEED_WEIGHT);
+        // Shared mix (DRY): clamp + ratio cap + weighted sum live in ScoreMixer.
+        double speedRatio = ScoreMixer.speedRatio(task.getParSeconds(), elapsedSeconds, MAX_SPEED_RATIO);
+        int speedPoints = ScoreMixer.cappedSpeedPoints(speedRatio);
+        int score = ScoreMixer.blend(accuracy, speedPoints, ACCURACY_WEIGHT, SPEED_WEIGHT);
 
         List<String> highlights = new ArrayList<>();
         if (accuracy == 100) highlights.add("flawless ⌨️");
