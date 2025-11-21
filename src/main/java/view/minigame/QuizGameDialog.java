@@ -21,11 +21,7 @@ public class QuizGameDialog extends JDialog {
     private JLabel promptLabel;
     private JPanel optionsPanel;
 
-    /**
-     * Test affordance: marks the correct option with " *" so question-based
-     * jobs are easy to verify manually. Set to false for production builds.
-     */
-    private static final boolean SHOW_CORRECT_MARKER = true;    private JLabel feedbackLabel;
+    private JLabel feedbackLabel;
     private JButton nextButton;
     private JProgressBar timeBar;
 

@@ -10,7 +10,6 @@ public class AppTheme {
     public static final Color PRIMARY_DARK = new Color(48, 63, 159);         // Dark Indigo
     public static final Color PRIMARY_LIGHT = new Color(92, 107, 192);       // Light Indigo
     
-    public static final Color ACCENT_COLOR = new Color(255, 64, 129);        // Pink Accent
     public static final Color SUCCESS_COLOR = new Color(76, 175, 80);        // Green
     public static final Color WARNING_COLOR = new Color(255, 152, 0);        // Orange
     public static final Color ERROR_COLOR = new Color(244, 67, 54);          // Red
@@ -22,7 +21,6 @@ public class AppTheme {
     
     public static final Color TEXT_PRIMARY = new Color(33, 33, 33);          // Dark Gray
     public static final Color TEXT_SECONDARY = new Color(117, 117, 117);     // Medium Gray
-    public static final Color TEXT_HINT = new Color(189, 189, 189);          // Light Gray
     
     public static final Color BORDER_COLOR = new Color(224, 224, 224);
     public static final Color DIVIDER_COLOR = new Color(238, 238, 238);
@@ -127,17 +125,6 @@ public class AppTheme {
     
     public static JTextField createTextField(int columns) {
         JTextField field = new JTextField(columns);
-        field.setFont(FONT_BODY);
-        field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        field.setPreferredSize(new Dimension(field.getPreferredSize().width, INPUT_HEIGHT));
-        return field;
-    }
-    
-    public static JPasswordField createPasswordField(int columns) {
-        JPasswordField field = new JPasswordField(columns);
         field.setFont(FONT_BODY);
         field.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BORDER_COLOR, 1),

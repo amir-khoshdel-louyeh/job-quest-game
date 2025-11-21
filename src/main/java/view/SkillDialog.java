@@ -1,8 +1,8 @@
 package view;
 
 import controller.GameController;
+import controller.UserController;
 import model.career.LearnableSkill;
-import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -15,18 +15,18 @@ public class SkillDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
-    private final User user;
+    private final UserController users;
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
     public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                       List<LearnableSkill> allSkills, User user) {
+                       List<LearnableSkill> allSkills, UserController users) {
         super(parent, "School of Skills", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
         this.allSkills = allSkills != null ? new ArrayList<>(allSkills) : new ArrayList<>();
-        this.user = user;
-        String userIdentity = user.getIdentity().getDisplayName();
+        this.users = users;
+        String userIdentity = users.getIdentityName();
         setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);
@@ -67,16 +67,16 @@ public class SkillDialog extends JDialog {
     private void populateSkills() {
         skillsContainer.removeAll();
 
-        long playMinutes = user.getTotalPlayTime() / (1000 * 60);
+        long playMinutes = users.getTotalPlayTime() / (1000 * 60);
         List<LearnableSkill> available = new ArrayList<>();
         List<LearnableSkill> locked = new ArrayList<>();
         List<LearnableSkill> learned = new ArrayList<>();
         for (LearnableSkill skill : allSkills) {
             // Drop other careers' lessons if an unfiltered list arrives.
-            if (!skill.isForIdentity(user.getIdentity())) {
+            if (!skill.isForIdentity(users.getIdentity())) {
                 continue;
             }
-            if (user.hasSkill(skill.getName())) {
+            if (users.hasSkill(skill.getName())) {
                 learned.add(skill);
             } else if (playMinutes >= skill.getRequiredPlayTimeMinutes()) {
                 available.add(skill);

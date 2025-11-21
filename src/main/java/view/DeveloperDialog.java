@@ -1,7 +1,6 @@
 package view;
 
 import controller.DeveloperController;
-import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -126,24 +125,22 @@ public class DeveloperDialog extends JDialog {
     }
 
     private void refreshFields() {
-        User user = devController.getUser();
-        balanceField.setText(String.valueOf(user.getBalance()));
-        healthField.setText(String.valueOf(user.getHealth()));
-        energyField.setText(String.valueOf(user.getEnergy()));
-        levelField.setText(String.valueOf(user.getLevel()));
-        reputationField.setText(String.valueOf(user.getReputation()));
-        playtimeField.setText(String.valueOf(user.getTotalPlayTime() / (1000 * 60)));
-        jobBonusField.setText(String.valueOf(user.getJobBonus()));
+        balanceField.setText(String.valueOf(devController.getBalance()));
+        healthField.setText(String.valueOf(devController.getHealth()));
+        energyField.setText(String.valueOf(devController.getEnergy()));
+        levelField.setText(String.valueOf(devController.getLevel()));
+        reputationField.setText(String.valueOf(devController.getReputation()));
+        playtimeField.setText(String.valueOf(devController.getTotalPlayTime() / (1000 * 60)));
+        jobBonusField.setText(String.valueOf(devController.getJobBonus()));
     }
 
     private void applyValues() {
-        User user = devController.getUser();
-        devController.setBalance(parse(balanceField, user.getBalance()));
-        devController.setHealth(parse(healthField, user.getHealth()));
-        devController.setEnergy(parse(energyField, user.getEnergy()));
-        devController.setLevel(parse(levelField, user.getLevel()));
-        devController.setReputation(parse(reputationField, user.getReputation()));
-        long currentMinutes = user.getTotalPlayTime() / (1000 * 60);
+        devController.setBalance(parse(balanceField, devController.getBalance()));
+        devController.setHealth(parse(healthField, devController.getHealth()));
+        devController.setEnergy(parse(energyField, devController.getEnergy()));
+        devController.setLevel(parse(levelField, devController.getLevel()));
+        devController.setReputation(parse(reputationField, devController.getReputation()));
+        long currentMinutes = devController.getTotalPlayTime() / (1000 * 60);
         int currentInt = (int) currentMinutes;
         // Keep inside int range.
         if (currentMinutes > Integer.MAX_VALUE) {
@@ -151,7 +148,7 @@ public class DeveloperDialog extends JDialog {
         }
         long wanted = parse(playtimeField, currentInt);
         devController.addPlaytimeMinutes(wanted - currentMinutes);
-        devController.setJobBonus(parse(jobBonusField, user.getJobBonus()));
+        devController.setJobBonus(parse(jobBonusField, devController.getJobBonus()));
         refreshFields();
         gamePanel.addChatMessage("Dev: values applied.");
         gamePanel.updateUserInfo();

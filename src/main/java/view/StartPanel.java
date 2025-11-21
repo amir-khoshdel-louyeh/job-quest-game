@@ -198,7 +198,7 @@ public class StartPanel extends JPanel {
                 name,
                 IdentityProvider.createIdentity(selected.getProfessionName()),
                 selected.getStartingBalance());
-            user.setJobBonus(1);
+            user.grantStartingBonus();
             mainFrame.showPanel(new GamePanel(user));
         } catch (IllegalArgumentException ex) {
             errorLabel.setText("Error: " + ex.getMessage());

@@ -3,7 +3,6 @@ package view;
 import controller.UserController;
 import model.player.Vitals;
 import utils.GameBalance;
-import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -15,21 +14,16 @@ import java.awt.*;
 public class UserStatsPanel extends JPanel {
 
     private final UserController userController;
-    private final User user;
 
     private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
     private JLabel levelLabel, xpLabel, reputationLabel, jobBonusLabel;
     private JProgressBar xpProgressBar, healthBar, energyBar;
 
-    public UserStatsPanel(UserController userController, User user) {
+    public UserStatsPanel(UserController userController) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
         }
-        if (user == null) {
-            throw new IllegalArgumentException("user must not be null");
-        }
         this.userController = userController;
-        this.user = user;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(AppTheme.BACKGROUND_COLOR);
 
@@ -56,22 +50,22 @@ public class UserStatsPanel extends JPanel {
 
         JPanel progressPanel = AppTheme.createSectionPanel("⭐ Progression");
 
-        levelLabel = new JLabel("Level: " + user.getLevel());
+        levelLabel = new JLabel("Level: " + userController.getLevel());
         levelLabel.setFont(AppTheme.FONT_BODY);
-        xpLabel = new JLabel("XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel());
+        xpLabel = new JLabel("XP: " + userController.getExperience() + "/" + userController.getRequiredExperienceForNextLevel());
         xpLabel.setFont(AppTheme.FONT_SMALL);
         xpLabel.setForeground(AppTheme.TEXT_SECONDARY);
         xpProgressBar = new JProgressBar(0, 100); // percent scale
-        xpProgressBar.setValue(user.getExperiencePercentage());
+        xpProgressBar.setValue(userController.getExperiencePercentage());
         xpProgressBar.setStringPainted(true);
-        xpProgressBar.setString(user.getExperiencePercentage() + "%");
+        xpProgressBar.setString(userController.getExperiencePercentage() + "%");
         xpProgressBar.setForeground(AppTheme.PRIMARY_COLOR);
         xpProgressBar.setBackground(AppTheme.DIVIDER_COLOR);
         xpProgressBar.setFont(AppTheme.FONT_SMALL);
 
-        reputationLabel = new JLabel("🏆 Rep: " + user.getReputation() + " (" + utils.ReputationText.titleFor(user.getReputation()) + ")");
+        reputationLabel = new JLabel("🏆 Rep: " + userController.getReputation() + " (" + utils.ReputationText.titleFor(userController.getReputation()) + ")");
         reputationLabel.setFont(AppTheme.FONT_BODY);
-        jobBonusLabel = new JLabel("💰 Job Bonus: " + user.getJobBonus());
+        jobBonusLabel = new JLabel("💰 Job Bonus: " + userController.getJobBonus());
         jobBonusLabel.setFont(AppTheme.FONT_BODY);
         jobBonusLabel.setForeground(AppTheme.WARNING_COLOR.darker());
 
@@ -157,11 +151,11 @@ public class UserStatsPanel extends JPanel {
     }
 
     public void refreshProgress() {
-        levelLabel.setText("Level: " + user.getLevel());
-        xpLabel.setText("XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel());
-        xpProgressBar.setValue(user.getExperiencePercentage());
-        xpProgressBar.setString(user.getExperiencePercentage() + "%");
-        reputationLabel.setText("🏆 Rep: " + user.getReputation() + " (" + utils.ReputationText.titleFor(user.getReputation()) + ")");
-        jobBonusLabel.setText("💰 Job Bonus: " + user.getJobBonus());
+        levelLabel.setText("Level: " + userController.getLevel());
+        xpLabel.setText("XP: " + userController.getExperience() + "/" + userController.getRequiredExperienceForNextLevel());
+        xpProgressBar.setValue(userController.getExperiencePercentage());
+        xpProgressBar.setString(userController.getExperiencePercentage() + "%");
+        reputationLabel.setText("🏆 Rep: " + userController.getReputation() + " (" + utils.ReputationText.titleFor(userController.getReputation()) + ")");
+        jobBonusLabel.setText("💰 Job Bonus: " + userController.getJobBonus());
     }
 }

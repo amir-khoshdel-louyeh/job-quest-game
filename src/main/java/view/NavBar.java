@@ -5,10 +5,7 @@ import controller.GameController;
 import controller.UserController;
 import model.career.Job;
 import model.career.LearnableSkill;
-import model.player.User;
-import provider.JobProvider;
 import provider.ServiceProvider;
-import provider.SkillProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -20,17 +17,13 @@ import java.awt.*;
 public class NavBar extends JPanel {
 
     private final GameController controller;
-    private final User user;
     private final UserController userController;
     private final GamePanel host;
 
-    public NavBar(GameController controller, User user, UserController userController, GamePanel host) {
+    public NavBar(GameController controller, UserController userController, GamePanel host) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {
             throw new IllegalArgumentException("controller must not be null");
-        }
-        if (user == null) {
-            throw new IllegalArgumentException("user must not be null");
         }
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -39,7 +32,6 @@ public class NavBar extends JPanel {
             throw new IllegalArgumentException("host must not be null");
         }
         this.controller = controller;
-        this.user = user;
         this.userController = userController;
         this.host = host;
         setBackground(AppTheme.BACKGROUND_COLOR);
@@ -82,8 +74,8 @@ public class NavBar extends JPanel {
     public void openWorkshop() {
         GameController.ActionResult result = controller.doWork();
         if (result.isSuccess() && result.getNextAction() == GameController.NextAction.OPEN_JOB_DIALOG) {
-            java.util.List<Job> myJobs = JobProvider.getJobsForIdentity(user.getIdentity());
-            new JobDialog(frame(), controller, host, myJobs, user).setVisible(true);
+            java.util.List<Job> myJobs = controller.getJobsForCurrentIdentity();
+            new JobDialog(frame(), controller, host, myJobs, userController).setVisible(true);
         } else {
             host.addChatMessage(result.getMessage());
         }
@@ -94,8 +86,8 @@ public class NavBar extends JPanel {
     }
 
     public void openSchool() {
-        java.util.List<LearnableSkill> mySkills = SkillProvider.getSkillsForIdentity(user.getIdentity());
-        new SkillDialog(frame(), controller, host, mySkills, user).setVisible(true);
+        java.util.List<LearnableSkill> mySkills = controller.getSkillsForCurrentIdentity();
+        new SkillDialog(frame(), controller, host, mySkills, userController).setVisible(true);
     }
 
     public void openProgress() {

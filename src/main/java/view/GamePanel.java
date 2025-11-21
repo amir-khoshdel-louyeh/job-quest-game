@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class GamePanel extends JPanel implements Observer, MessageSink {
-    private User currentUser;
     private GameController controller;
     private RoutineController routineController;
     private UserController userController;
@@ -46,7 +45,6 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private final long sessionStartTime;
 
     public GamePanel(User user) {
-        this.currentUser = user;
         this.sessionStartTime = System.currentTimeMillis();
         this.controller = new GameController(user, sessionStartTime);
         this.userController = controller.getUserController();
@@ -66,7 +64,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        statsPanel = new UserStatsPanel(userController, currentUser);
+        statsPanel = new UserStatsPanel(userController);
 
         sessionPanel = new SessionPanel();
 
@@ -142,7 +140,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         }
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
-        navBar = new NavBar(controller, currentUser, userController, this);
+        navBar = new NavBar(controller, userController, this);
         centerPanel.add(navBar, BorderLayout.NORTH);
         centerPanel.add(animationPanel, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
@@ -190,9 +188,37 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         statsPanel.refresh();
     }
 
+    // Lifecycle: MainFrame swaps content panes without disposing the old one,
+    // so detach here — stop timers + unsubscribe — or dead panels keep
+    // receiving updates and draining stats in the background (observer leak).
+    // Swing calls removeNotify when this panel leaves the component hierarchy.
+    @Override
+    public void removeNotify() {
+        try {
+            disposePanel();
+        } catch (Exception e) {
+            utils.GameLog.error("disposing game panel", e);
+        }
+        super.removeNotify();
+    }
+
+    // Explicit detach (also called from removeNotify above).
+    public void disposePanel() {
+        try {
+            userController.removeObserver(this);
+        } catch (Exception e) {
+            utils.GameLog.error("removing panel observer", e);
+        }
+        try {
+            routineController.stopSchedulers();
+        } catch (Exception e) {
+            utils.GameLog.error("stopping schedulers", e);
+        }
+    }
+
     private void maybeShowOnboarding() {
-        boolean fresh = currentUser.getTotalJobsCompleted() == 0
-                && currentUser.getSkills().isEmpty();
+        boolean fresh = userController.getTotalJobsCompleted() == 0
+                && userController.getSkills().isEmpty();
         if (!fresh) return;
         addChatMessage("👋 Welcome to Job Quest! Your goal: earn, learn skills, unlock better jobs.");
         addChatMessage("🎯 Next: 1) 🔨 Workshop — do your first job  2) 📊 Progress — track challenges  3) 🎓 School — learn a skill");
@@ -209,6 +235,6 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
 
     /** Returns the player's profession object for game routing. */
     public model.Identity getUserIdentity() {
-        return currentUser.getIdentity();
+        return userController.getIdentity();
     }
 }

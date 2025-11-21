@@ -1,10 +1,8 @@
 package view;
 
 import controller.GameController;
-import model.player.User;
 import model.goals.Achievement;
 import model.goals.Challenge;
-import services.AchievementService;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -109,10 +107,10 @@ public class ProgressDialog extends JDialog {
 
     private JComponent buildAchievementsTab() {
         List<Achievement> all = controller.getAchievementsWithStatus();
-        User user = controller.getUserController().getUser();
+        model.goals.AchievementStats stats = controller.getUserController();
         int unlocked = 0;
         for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).isUnlocked(user)) {
+            if (all.get(i).isUnlocked(stats)) {
                 unlocked = unlocked + 1;
             }
         }
@@ -134,8 +132,8 @@ public class ProgressDialog extends JDialog {
     }
 
     private JPanel achievementRow(Achievement a) {
-        User user = controller.getUserController().getUser();
-        boolean unlocked = a.isUnlocked(user);
+        model.goals.AchievementStats stats = controller.getUserController();
+        boolean unlocked = a.isUnlocked(stats);
         JPanel card = AppTheme.createItemCard();
         card.setLayout(new BorderLayout(8, 8));
         JPanel top = new JPanel(new BorderLayout());
@@ -154,10 +152,10 @@ public class ProgressDialog extends JDialog {
         card.add(AppTheme.createCardDescription(a.getDescription()), BorderLayout.CENTER);
 
         // Get progress, clamped to 0-100.
+        // Polymorphic: behavior lives on the Achievement itself, no service lookup.
         int pct = 0;
         try {
-            int p = AchievementService.getAchievementProgress(
-                    controller.getUserController().getUser(), a);
+            int p = a.getProgress(controller.getUserController());
             if (p < 0) {
                 p = 0;
             }

@@ -1,9 +1,9 @@
 package view;
 
 import controller.GameController;
+import controller.UserController;
 import model.Identity;
 import model.career.Job;
-import model.player.User;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -17,11 +17,11 @@ public class JobDialog extends JDialog {
     private final GamePanel gamePanel;
 
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                     List<Job> allJobs, User user) {
+                     List<Job> allJobs, UserController users) {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        String userIdentity = user.getIdentity().getDisplayName();
+        String userIdentity = users.getIdentityName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);
@@ -35,17 +35,17 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        List<String> userSkills = user.getSkills();
+        model.career.SkillSet skills = users.getSkillSet();
 
         // Available first, locked after.
         // Drop other careers' jobs if an unfiltered list arrives.
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
-            if (!job.isForIdentity(user.getIdentity())) {
+            if (!job.isForIdentity(users.getIdentity())) {
                 continue;
             }
-            if (job.isAvailableFor(user.getIdentity(), userSkills)) {
+            if (job.isAvailableFor(users.getIdentity(), skills)) {
                 available.add(job);
             } else {
                 locked.add(job);
@@ -76,7 +76,7 @@ public class JobDialog extends JDialog {
             jobsContainer.add(Box.createVerticalStrut(10));
         }
         for (Job job : locked) {
-            jobsContainer.add(createJobPanel(job, false, lockReason(job, userSkills)));
+            jobsContainer.add(createJobPanel(job, false, lockReason(job, skills)));
             jobsContainer.add(Box.createVerticalStrut(10));
         }
 
@@ -88,15 +88,9 @@ public class JobDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    private static String lockReason(Job job, List<String> userSkills) {
-        List<String> missing = new java.util.ArrayList<String>();
-        List<String> need = job.getRequiredSkills();
-        for (int i = 0; i < need.size(); i++) {
-            String s = need.get(i);
-            if (!userSkills.contains(s)) {
-                missing.add(s);
-            }
-        }
+    // View formats; the missing set is computed inside Job (single source).
+    private static String lockReason(Job job, model.career.SkillSet skills) {
+        List<String> missing = job.missingSkills(skills);
         if (missing.isEmpty()) {
             return "Not available yet";
         }
