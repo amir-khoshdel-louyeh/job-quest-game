@@ -8,7 +8,7 @@ import utils.GameBalance;
 
 // Handles daily sickness, energy, and health drops.
 // Instance (not static): the clock/random come from outside, so sickness
-// rolls are deterministic in tests (same pattern as EventService).
+// rolls are deterministic in tests.
 public class RoutineService {
 
     private final Random random;
