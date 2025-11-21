@@ -5,23 +5,38 @@ import java.util.List;
 
 import model.Identity;
 import model.career.LearnableSkill;
-import model.player.User;
 
 // Holds all skills the player can learn at school.
+// Instance repository (not static holder): the catalog comes from outside,
+// so callers depend on an object they can inject/mock (DIP).
 public class SkillProvider {
 
-    private static ArrayList<LearnableSkill> ALL_SKILLS = new ArrayList<LearnableSkill>();
+    private final ArrayList<LearnableSkill> allSkills;
 
-    static {
+    public SkillProvider() {
+        this(buildDefaultCatalog());
+    }
+
+    // Test seam: custom catalog makes every run reproducible.
+    public SkillProvider(List<LearnableSkill> skills) {
+        if (skills == null) {
+            throw new IllegalArgumentException("skills must not be null");
+        }
+        this.allSkills = new ArrayList<LearnableSkill>(skills);
+    }
+
+    private static ArrayList<LearnableSkill> buildDefaultCatalog() {
+        ArrayList<LearnableSkill> skills = new ArrayList<LearnableSkill>();
         // 10-hour run tuning: time gates cut from max 480min (80% of budget)
         // to max 110min, costs cut ~3x so a full profession path (~5-8k total)
         // is affordable in the first 2-3 hours.
-        ALL_SKILLS.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
-        ALL_SKILLS.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(IdentityProvider.createIdentity("LogoDesigner"))));
-        ALL_SKILLS.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
-        ALL_SKILLS.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("LogoDesigner"))));
-        ALL_SKILLS.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(IdentityProvider.createIdentity("Programmer"))));
-        ALL_SKILLS.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(IdentityProvider.createIdentity("LogoDesigner"))));
+        skills.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("LogoDesigner"))));
+        skills.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(IdentityProvider.createIdentity("Programmer"))));
+        skills.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("Doctor"))));
+        return skills;
     }
 
     private static ArrayList<Identity> makeList1(Identity i1) {
@@ -37,9 +52,9 @@ public class SkillProvider {
         return list;
     }
 
-    public static LearnableSkill getSkill(String name) {
-        for (int i = 0; i < ALL_SKILLS.size(); i++) {
-            LearnableSkill skill = ALL_SKILLS.get(i);
+    public LearnableSkill getSkill(String name) {
+        for (int i = 0; i < allSkills.size(); i++) {
+            LearnableSkill skill = allSkills.get(i);
             if (skill.getName().equals(name)) {
                 return skill;
             }
@@ -47,44 +62,15 @@ public class SkillProvider {
         return null;
     }
 
-    public static List<LearnableSkill> getAllSkills() {
-        ArrayList<LearnableSkill> copy = new ArrayList<LearnableSkill>();
-        for (int i = 0; i < ALL_SKILLS.size(); i++) {
-            copy.add(ALL_SKILLS.get(i));
-        }
-        return copy;
-    }
-
-    public static List<LearnableSkill> getSkillsForIdentity(Identity identity) {
+    public List<LearnableSkill> getSkillsForIdentity(Identity identity) {
         ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
         if (identity == null) {
             return result;
         }
-        for (int i = 0; i < ALL_SKILLS.size(); i++) {
-            LearnableSkill skill = ALL_SKILLS.get(i);
+        for (int i = 0; i < allSkills.size(); i++) {
+            LearnableSkill skill = allSkills.get(i);
             if (skill.isForIdentity(identity)) {
                 result.add(skill);
-            }
-        }
-        return result;
-    }
-
-    // Return skills that user can learn now (own profession, enough playtime, not learned yet)
-    public static List<LearnableSkill> getAvailableSkillsForUser(User user) {
-        ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
-        if (user == null || user.getIdentity() == null) {
-            return result;
-        }
-        long minutesPlayed = user.getTotalPlayTime() / (1000 * 60);
-        for (int i = 0; i < ALL_SKILLS.size(); i++) {
-            LearnableSkill skill = ALL_SKILLS.get(i);
-            if (!skill.isForIdentity(user.getIdentity())) {
-                continue;
-            }
-            if (minutesPlayed >= skill.getRequiredPlayTimeMinutes()) {
-                if (!user.hasSkill(skill.getName())) {
-                    result.add(skill);
-                }
             }
         }
         return result;
