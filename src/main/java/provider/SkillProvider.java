@@ -27,15 +27,16 @@ public class SkillProvider {
 
     private static ArrayList<LearnableSkill> buildDefaultCatalog() {
         ArrayList<LearnableSkill> skills = new ArrayList<LearnableSkill>();
+        IdentityProvider identities = new IdentityProvider();
         // 10-hour run tuning: time gates cut from max 480min (80% of budget)
         // to max 110min, costs cut ~3x so a full profession path (~5-8k total)
         // is affordable in the first 2-3 hours.
-        skills.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
-        skills.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(IdentityProvider.createIdentity("LogoDesigner"))));
-        skills.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(IdentityProvider.createIdentity("Typist"), IdentityProvider.createIdentity("Doctor"))));
-        skills.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("LogoDesigner"))));
-        skills.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(IdentityProvider.createIdentity("Programmer"))));
-        skills.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(IdentityProvider.createIdentity("Programmer"), IdentityProvider.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(identities.createIdentity("Typist"), identities.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(identities.createIdentity("LogoDesigner"))));
+        skills.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(identities.createIdentity("Typist"), identities.createIdentity("Doctor"))));
+        skills.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(identities.createIdentity("Programmer"), identities.createIdentity("LogoDesigner"))));
+        skills.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(identities.createIdentity("Programmer"))));
+        skills.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(identities.createIdentity("Programmer"), identities.createIdentity("Doctor"))));
         return skills;
     }
 

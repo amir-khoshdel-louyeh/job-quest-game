@@ -17,6 +17,8 @@ public class StartPanel extends JPanel {
     private JButton startButton;
     private JLabel errorLabel;
     private ButtonGroup identityGroup;
+    private final IdentityOptionProvider options = new IdentityOptionProvider();
+    private final IdentityProvider identities = new IdentityProvider();
 
     public StartPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
@@ -53,13 +55,13 @@ public class StartPanel extends JPanel {
         headerPanel.add(Box.createVerticalStrut(20));
         add(headerPanel, BorderLayout.NORTH);
 
-        List<Identity> options = IdentityOptionProvider.getAvailableOptions();
+        List<Identity> available = options.getAvailableOptions();
         JPanel optionsPanel = new JPanel();
         optionsPanel.setOpaque(false);
         optionsPanel.setLayout(new GridLayout(2, 2, 12, 12));
         identityGroup = new ButtonGroup();
 
-        for (Identity option : options) {
+        for (Identity option : available) {
             optionsPanel.add(createIdentityCard(option));
         }
 
@@ -137,7 +139,7 @@ public class StartPanel extends JPanel {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
         headerPanel.setOpaque(false);
         // Skipped silently if the picture file is not there yet.
-        String imagePath = IdentityOptionProvider.imagePathFor(option);
+        String imagePath = options.imagePathFor(option);
         java.net.URL imageUrl = null;
         if (imagePath != null) {
             imageUrl = getClass().getResource(imagePath);
@@ -196,7 +198,7 @@ public class StartPanel extends JPanel {
         try {
             User user = new User(
                 name,
-                IdentityProvider.createIdentity(selected.getProfessionName()),
+                identities.createIdentity(selected.getProfessionName()),
                 selected.getStartingBalance());
             user.grantStartingBonus();
             mainFrame.showPanel(new GamePanel(user));

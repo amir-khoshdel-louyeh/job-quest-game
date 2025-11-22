@@ -10,37 +10,46 @@ import model.Identity;
 // Holds the 4 starting professions the player can choose from.
 // Also owns their card artwork: image paths are presentation data for the
 // option screen, so they live here — not in the domain Identity.
+// Instance repository (not static holder) so StartPanel can inject/mock it.
 public class IdentityOptionProvider {
 
-    private static final ArrayList<Identity> OPTIONS = new ArrayList<Identity>();
+    private final ArrayList<Identity> options = new ArrayList<Identity>();
 
-    private static final Map<String, String> IMAGE_PATHS = new HashMap<String, String>();
+    private final Map<String, String> imagePaths = new HashMap<String, String>();
 
-    static {
-        OPTIONS.add(IdentityProvider.createIdentity("Doctor"));
-        OPTIONS.add(IdentityProvider.createIdentity("Programmer"));
-        OPTIONS.add(IdentityProvider.createIdentity("LogoDesigner"));
-        OPTIONS.add(IdentityProvider.createIdentity("Typist"));
-
-        IMAGE_PATHS.put("Doctor", "/images/doctor.png");
-        IMAGE_PATHS.put("Programmer", "/images/programmer.png");
-        IMAGE_PATHS.put("LogoDesigner", "/images/logodesigner.png");
-        IMAGE_PATHS.put("Typist", "/images/typist.png");
+    public IdentityOptionProvider() {
+        this(new IdentityProvider());
     }
 
-    public static List<Identity> getAvailableOptions() {
+    // Test seam: identities come from outside (testable, swappable).
+    public IdentityOptionProvider(IdentityProvider identities) {
+        if (identities == null) {
+            throw new IllegalArgumentException("identities must not be null");
+        }
+        options.add(identities.createIdentity("Doctor"));
+        options.add(identities.createIdentity("Programmer"));
+        options.add(identities.createIdentity("LogoDesigner"));
+        options.add(identities.createIdentity("Typist"));
+
+        imagePaths.put("Doctor", "/images/doctor.png");
+        imagePaths.put("Programmer", "/images/programmer.png");
+        imagePaths.put("LogoDesigner", "/images/logodesigner.png");
+        imagePaths.put("Typist", "/images/typist.png");
+    }
+
+    public List<Identity> getAvailableOptions() {
         ArrayList<Identity> copy = new ArrayList<Identity>();
-        for (int i = 0; i < OPTIONS.size(); i++) {
-            copy.add(OPTIONS.get(i));
+        for (int i = 0; i < options.size(); i++) {
+            copy.add(options.get(i));
         }
         return copy;
     }
 
     // Card artwork for an option, or null when it has none.
-    public static String imagePathFor(Identity option) {
+    public String imagePathFor(Identity option) {
         if (option == null) {
             return null;
         }
-        return IMAGE_PATHS.get(option.getProfessionName());
+        return imagePaths.get(option.getProfessionName());
     }
 }
