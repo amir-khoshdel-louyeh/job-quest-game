@@ -6,7 +6,6 @@ import utils.GameBalance;
 import view.theme.AppTheme;
 
 import javax.swing.*;
-import java.awt.*;
 
 // Profile + progression + identity stats on the side of the game screen.
 // Extracted from GamePanel (SRP): this owns all stat labels/bars and the
