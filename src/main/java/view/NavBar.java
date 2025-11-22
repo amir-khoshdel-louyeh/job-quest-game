@@ -5,7 +5,6 @@ import controller.GameController;
 import controller.UserController;
 import model.career.Job;
 import model.career.LearnableSkill;
-import provider.ServiceProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -68,7 +67,7 @@ public class NavBar extends JPanel {
     }
 
     public void openHospital() {
-        new ServiceDialog(frame(), controller, host, ServiceProvider.getHealthServices()).setVisible(true);
+        new ServiceDialog(frame(), controller, host, controller.getHealthServices()).setVisible(true);
     }
 
     public void openWorkshop() {
@@ -82,7 +81,7 @@ public class NavBar extends JPanel {
     }
 
     public void openMarket() {
-        new ServiceDialog(frame(), controller, host, ServiceProvider.getEnergyServices()).setVisible(true);
+        new ServiceDialog(frame(), controller, host, controller.getEnergyServices()).setVisible(true);
     }
 
     public void openSchool() {

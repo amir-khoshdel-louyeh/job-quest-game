@@ -8,7 +8,6 @@ import model.goals.Challenge;
 import model.store.JobResult;
 import model.store.Service;
 import provider.JobProvider;
-import provider.ServiceProvider;
 import provider.SkillProvider;
 import services.AchievementService;
 import services.ChallengeService;
@@ -124,19 +123,25 @@ public class GameController {
         this.challengeService.initializeChallenges(userController.getUser());
     }
 
-    // Buy a service (instant effect)
+    // Buy a service (instant effect). Single lookup: the purchased Service
+    // comes back from the economy transaction, so no second provider query.
     public ActionResult purchaseService(String serviceName) {
-        boolean ok = economyController.purchaseService(serviceName);
-        Service service = ServiceProvider.getService(serviceName);
-        String effect = "";
+        Service service = economyController.purchaseService(serviceName);
         if (service != null) {
-            effect = utils.EffectText.formatServiceEffect(service.getEnergyEffect(), service.getHealthEffect());
-        }
-        if (ok) {
+            String effect = utils.EffectText.formatServiceEffect(service.getEnergyEffect(), service.getHealthEffect());
             return new ActionResult(true, "Service " + serviceName + " purchased. Effect: " + effect + ".");
         } else {
             return new ActionResult(false, "Failed to purchase " + serviceName + ". Not enough balance ($" + userController.getBalance() + ").");
         }
+    }
+
+    // Catalog queries for views: NavBar asks the controller, never the provider.
+    public List<Service> getHealthServices() {
+        return economyController.getHealthServices();
+    }
+
+    public List<Service> getEnergyServices() {
+        return economyController.getEnergyServices();
     }
 
     // Check jobs (workshop always opens dialog if jobs exist)

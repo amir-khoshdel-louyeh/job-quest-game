@@ -53,6 +53,16 @@ public final class Service implements Purchasable {
         return energyEffect;
     }
 
+    // Catalog predicates live here (Information Expert): the provider asks,
+    // it never branches on raw effect numbers (no external if-chain).
+    public boolean isHealthService() {
+        return healthEffect > 0 && energyEffect == 0;
+    }
+
+    public boolean isEnergyService() {
+        return energyEffect > 0 && healthEffect == 0;
+    }
+
     // Adds the stored health and energy amounts to the player.
     @Override
     public void apply(ServiceTarget target) {
