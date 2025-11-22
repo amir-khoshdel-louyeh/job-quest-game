@@ -1,9 +1,12 @@
 package controller;
 
+import observer.ChangeType;
 import services.RoutineService;
 
 // Runs daily upkeep like energy, health, and sickness checks.
 // Depends on MessageSink, not on the Swing panel (DIP).
+// Owns all observer notifications for upkeep: the service mutates the
+// User silently, so exactly one place decides what the UI hears.
 // Owns its Swing Timers so the panel can stop them on detach (no leak
 // when MainFrame swaps panels): startSchedulers is idempotent, and
 // stopSchedulers halts all periodic tasks.
@@ -34,22 +37,29 @@ public class RoutineController {
     }
 
     public void decreaseEnergy() {
-        String message = routines.processEnergyDecrease(userController);
+        if (userController.getEnergy() <= 0) {
+            return; // matches the service guard: nothing changes, nothing notifies
+        }
+        String message = routines.processEnergyDecrease(userController.getUser());
+        userController.notifyObservers(ChangeType.ENERGY);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
     public void decreaseHealth() {
-        String message = routines.processHealthDecrease(userController);
+        String message = routines.processHealthDecrease(userController.getUser());
+        userController.notifyObservers(ChangeType.HEALTH);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
     public void sicknessCheck() {
-        String message = routines.processSicknessCheck(userController);
+        String message = routines.processSicknessCheck(userController.getUser());
         if (message != null) {
+            // A message means sickness struck (the only state change that notifies).
+            userController.notifyObservers(ChangeType.HEALTH);
             messages.addChatMessage(message);
         }
     }

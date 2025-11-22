@@ -3,12 +3,15 @@ package services;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import controller.UserController;
+import model.player.User;
 import utils.GameBalance;
 
 // Handles daily sickness, energy, and health drops.
 // Instance (not static): the clock/random come from outside, so sickness
 // rolls are deterministic in tests.
+// Works on the User model directly — never on UserController (layering:
+// service -> model, not service -> controller). State changes are silent;
+// the caller (RoutineController) owns all observer notifications.
 public class RoutineService {
 
     private final Random random;
@@ -30,56 +33,56 @@ public class RoutineService {
         this.clock = clock;
     }
 
-    public String processSicknessCheck(UserController userController) {
+    public String processSicknessCheck(User user) {
         long now = clock.get();
         // 10-hour run tuning: allow sickness once per hour (was 24h),
         // lighter damage so one event can't ruin a run.
-        if (now - userController.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
+        if (now - user.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
             return null;
         }
         // 10% chance to get sick.
         if (random.nextInt(GameBalance.SICKNESS_ROLL_BOUND) < GameBalance.SICKNESS_ROLL_HIT_BELOW) {
             int healthLoss = GameBalance.SICKNESS_MIN_HEALTH_LOSS
                     + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE); // Lose 5-10 health
-            userController.decreaseHealth(healthLoss);
-            userController.markSicknessChecked(now);
+            user.loseHealth(healthLoss);
+            user.setLastSicknessTime(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
         }
         // No sickness occurred
-        userController.markSicknessChecked(now); // Mark checked for today
+        user.setLastSicknessTime(now); // Mark checked for today
         return null;
     }
-    public String processEnergyDecrease(UserController userController) {
-        if (userController.getEnergy() <= 0) return null;
+    public String processEnergyDecrease(User user) {
+        if (user.getEnergy() <= 0) return null;
 
         int energyLoss = GameBalance.BASE_ENERGY_LOSS;
         String message = null;
 
-        if (userController.getHealth() < GameBalance.LOW_HEALTH_THRESHOLD) {
+        if (user.getHealth() < GameBalance.LOW_HEALTH_THRESHOLD) {
             energyLoss = GameBalance.SICKLY_ENERGY_LOSS;
             message = "⚡ Energy decreased by " + energyLoss + " due to poor health.";
         }
 
-        userController.decreaseEnergy(energyLoss);
+        user.loseEnergy(energyLoss);
 
-        if (userController.getEnergy() == 0) {
-            blockUser(userController, "Energy reached 0");
+        if (user.getEnergy() == 0) {
+            blockUser(user, "Energy reached 0");
         }
         return message;
     }
-    public String processHealthDecrease(UserController userController) {
+    public String processHealthDecrease(User user) {
         int healthLoss = GameBalance.BASE_HEALTH_LOSS;
         String message = null;
 
-        if (userController.getEnergy() < GameBalance.LOW_ENERGY_THRESHOLD) {
+        if (user.getEnergy() < GameBalance.LOW_ENERGY_THRESHOLD) {
             healthLoss = GameBalance.EXHAUSTED_HEALTH_LOSS;
             message = "❤️‍🩹 Health decreased by " + healthLoss + " due to extreme fatigue!";
         }
 
-        userController.decreaseHealth(healthLoss);
+        user.loseHealth(healthLoss);
 
-        if (userController.getHealth() == 0) {
-            blockUser(userController, "Health reached 0");
+        if (user.getHealth() == 0) {
+            blockUser(user, "Health reached 0");
         }
         return message;
     }
@@ -88,10 +91,14 @@ public class RoutineService {
     // Blocks the player briefly with a small money penalty.
     // 10-hour run tuning: 5 minutes (was 48 hours), penalty 200 (was 2000),
     // so hitting 0 energy/health is a setback, not a run-ender.
-    private void blockUser(UserController userController, String reason) {
+    private void blockUser(User user, String reason) {
         int penalty = GameBalance.KNOCKOUT_MONEY_PENALTY;
-        userController.deductBalance(penalty);
-        userController.blockUser(GameBalance.KNOCKOUT_BLOCK_MILLIS);
+        // Same refusal rule as UserController.deductBalance: no partial
+        // charge when the balance is short (withdraw alone would clamp).
+        if (penalty > 0 && user.getBalance() >= penalty) {
+            user.withdraw(penalty);
+        }
+        user.setBlockedUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
         // The service does not show dialogs. It just changes the state.
     }
 }
