@@ -1,7 +1,5 @@
 package controller;
 
-import model.player.User;
-
 // Lets developers set stats by hand for demos and testing.
 public class DeveloperController {
     private final UserController userController;
@@ -13,9 +11,8 @@ public class DeveloperController {
         this.userController = userController;
     }
 
-    public User getUser() {
-        return userController.getUser();
-    }
+    // No getUser(): views read via the delegates below, never the live
+    // User — the last mutable escape hatch is closed (Demeter).
 
     // Read delegates: views ask here instead of digging via getUser().
     public int getHealth() {
