@@ -12,7 +12,7 @@ import model.career.Profession;
 // Instance registry (Factory): each profession registers one map entry,
 // so adding a new one never edits the createIdentity dispatch (OCP).
 // Keys are normalized (trim + lowercase + no spaces), so "LogoDesigner"
-// and "Logo Designer" (old save compatibility) resolve to the same entry.
+// and "Logo Designer" resolve to the same entry.
 public class IdentityProvider {
     private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
 
