@@ -105,8 +105,8 @@ public class AboutDialog extends JDialog {
                 <li>Learn all 6 skills to become a Master!</li>
             </ol>
             
-            <h3>💾 Saving Your Progress</h3>
-            <p>Click "Save & Exit" button to save your game progress and exit safely.</p>
+            <h3>💾 Your Progress</h3>
+            <p>The game runs in memory only — progress lives for this session. Use "New Game" to restart.</p>
             </body>
             </html>
             """;
