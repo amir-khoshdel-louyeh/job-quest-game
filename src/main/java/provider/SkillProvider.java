@@ -7,11 +7,10 @@ import model.Identity;
 import model.career.LearnableSkill;
 
 // Holds all skills the player can learn at school.
-// Instance repository (not static holder): the catalog comes from outside,
-// so callers depend on an object they can inject/mock (DIP).
-public class SkillProvider {
-
-    private final ArrayList<LearnableSkill> allSkills;
+// Single-list catalog: extends AbstractCatalog<LearnableSkill> (lookup
+// mechanics inherited). The catalog comes from outside, so callers depend
+// on an object they can inject/mock (DIP).
+public class SkillProvider extends AbstractCatalog<LearnableSkill> {
 
     public SkillProvider() {
         this(buildDefaultCatalog());
@@ -19,10 +18,7 @@ public class SkillProvider {
 
     // Test seam: custom catalog makes every run reproducible.
     public SkillProvider(List<LearnableSkill> skills) {
-        if (skills == null) {
-            throw new IllegalArgumentException("skills must not be null");
-        }
-        this.allSkills = new ArrayList<LearnableSkill>(skills);
+        super(skills);
     }
 
     private static ArrayList<LearnableSkill> buildDefaultCatalog() {
@@ -54,8 +50,9 @@ public class SkillProvider {
     }
 
     public LearnableSkill getSkill(String name) {
-        for (int i = 0; i < allSkills.size(); i++) {
-            LearnableSkill skill = allSkills.get(i);
+        List<LearnableSkill> all = snapshot();
+        for (int i = 0; i < all.size(); i++) {
+            LearnableSkill skill = all.get(i);
             if (skill.getName().equals(name)) {
                 return skill;
             }
@@ -68,8 +65,9 @@ public class SkillProvider {
         if (identity == null) {
             return result;
         }
-        for (int i = 0; i < allSkills.size(); i++) {
-            LearnableSkill skill = allSkills.get(i);
+        List<LearnableSkill> all = snapshot();
+        for (int i = 0; i < all.size(); i++) {
+            LearnableSkill skill = all.get(i);
             if (skill.isForIdentity(identity)) {
                 result.add(skill);
             }

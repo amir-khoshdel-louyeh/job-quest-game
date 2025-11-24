@@ -7,10 +7,12 @@ import java.util.List;
 import model.store.Service;
 
 // Holds all food and hospital services the player can buy.
-// Instance repository (not static holder): the catalog comes from outside,
-// so EconomyController can inject/mock it (DIP) — same pattern as the
+// Single-list catalog: extends AbstractCatalog<Service> (defensive-copy
+// mechanics inherited). A name -> service map is kept as a lookup index
+// on top — extends for storage, composition (map) for fast lookup.
+// EconomyController can inject/mock it (DIP) — same pattern as the
 // other providers.
-public class ServiceProvider {
+public class ServiceProvider extends AbstractCatalog<Service> {
 
     // map name -> service, for quick lookup
     private final HashMap<String, Service> servicesByName = new HashMap<String, Service>();
@@ -21,11 +23,10 @@ public class ServiceProvider {
 
     // Test seam: custom catalog makes every run reproducible.
     public ServiceProvider(List<Service> services) {
-        if (services == null) {
-            throw new IllegalArgumentException("services must not be null");
-        }
-        for (int i = 0; i < services.size(); i++) {
-            addService(services.get(i));
+        super(services);
+        List<Service> all = snapshot();
+        for (int i = 0; i < all.size(); i++) {
+            addService(all.get(i));
         }
     }
 
@@ -71,7 +72,7 @@ public class ServiceProvider {
     // Return only health services. The rule lives on Service itself.
     public List<Service> getHealthServices() {
         ArrayList<Service> result = new ArrayList<Service>();
-        ArrayList<Service> all = new ArrayList<Service>(servicesByName.values());
+        List<Service> all = snapshot();
         for (int i = 0; i < all.size(); i++) {
             Service s = all.get(i);
             if (s.isHealthService()) {
@@ -84,7 +85,7 @@ public class ServiceProvider {
     // Return only energy services. The rule lives on Service itself.
     public List<Service> getEnergyServices() {
         ArrayList<Service> result = new ArrayList<Service>();
-        ArrayList<Service> all = new ArrayList<Service>(servicesByName.values());
+        List<Service> all = snapshot();
         for (int i = 0; i < all.size(); i++) {
             Service s = all.get(i);
             if (s.isEnergyService()) {

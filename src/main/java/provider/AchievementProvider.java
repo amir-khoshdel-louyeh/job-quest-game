@@ -8,13 +8,12 @@ import model.goals.Achievement;
 import model.goals.AchievementStats;
 
 // Holds all achievements the player can earn.
-// Instance repository (not static holder): the catalog comes from outside,
-// so AchievementService can inject/mock it (DIP) — same pattern as the
+// Single-list catalog: extends AbstractCatalog<Achievement> (defensive-copy
+// mechanics inherited). Achievement templates come from outside, so
+// AchievementService can inject/mock it (DIP) — same pattern as the
 // other providers. One concrete Achievement + Strategy lambdas replaces
 // the four one-line subclasses (composition over inheritance).
-public class AchievementProvider {
-
-    private final List<Achievement> allAchievements;
+public class AchievementProvider extends AbstractCatalog<Achievement> {
 
     public AchievementProvider() {
         this(buildDefaultCatalog());
@@ -22,10 +21,7 @@ public class AchievementProvider {
 
     // Test seam: custom catalog makes every run reproducible.
     public AchievementProvider(List<Achievement> achievements) {
-        if (achievements == null) {
-            throw new IllegalArgumentException("achievements must not be null");
-        }
-        this.allAchievements = new ArrayList<Achievement>(achievements);
+        super(achievements);
     }
 
     private static List<Achievement> buildDefaultCatalog() {
@@ -60,7 +56,8 @@ public class AchievementProvider {
         return all;
     }
 
+    // Kept name for backward compatibility; mechanics inherited from base.
     public List<Achievement> getAllAchievements() {
-        return new ArrayList<Achievement>(allAchievements);
+        return getAll();
     }
 }

@@ -7,12 +7,11 @@ import model.Identity;
 import model.career.Job;
 
 // Builds the list of jobs the player can pick from.
-// Instance repository (not static holder): the catalog comes from outside,
+// Single-list catalog: extends AbstractCatalog<Job> (data only, lookup
+// mechanics inherited). The catalog comes from outside via constructor,
 // so callers depend on an object they can inject/mock (DIP) —
 // same pattern as ChallengeService/AchievementService.
-public class JobProvider {
-
-    private final ArrayList<Job> allJobs;
+public class JobProvider extends AbstractCatalog<Job> {
 
     public JobProvider() {
         this(buildDefaultCatalog());
@@ -20,10 +19,7 @@ public class JobProvider {
 
     // Test seam: custom catalog makes every run reproducible.
     public JobProvider(List<Job> jobs) {
-        if (jobs == null) {
-            throw new IllegalArgumentException("jobs must not be null");
-        }
-        this.allJobs = new ArrayList<Job>(jobs);
+        super(jobs);
     }
 
     private static ArrayList<Job> buildDefaultCatalog() {
@@ -76,12 +72,9 @@ public class JobProvider {
     }
 
     // Return a copy so callers can't change the original list.
+    // Kept name for backward compatibility; mechanics inherited from base.
     public List<Job> getAllJobs() {
-        ArrayList<Job> copy = new ArrayList<Job>();
-        for (int i = 0; i < allJobs.size(); i++) {
-            copy.add(allJobs.get(i));
-        }
-        return copy;
+        return getAll();
     }
 
     // Return jobs for one profession.
@@ -90,8 +83,9 @@ public class JobProvider {
         if (identity == null) {
             return result;
         }
-        for (int i = 0; i < allJobs.size(); i++) {
-            Job job = allJobs.get(i);
+        List<Job> all = snapshot();
+        for (int i = 0; i < all.size(); i++) {
+            Job job = all.get(i);
             if (job.isForIdentity(identity)) {
                 result.add(job);
             }
