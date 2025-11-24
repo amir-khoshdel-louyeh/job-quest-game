@@ -8,6 +8,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 <build>
     <plugins>
@@ -19,6 +25,12 @@
                 <source>17</source>  <!-- or 11 or 20 depending on JDK -->
                 <target>17</target>
             </configuration>
+        </plugin>
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
         </plugin>
 
         <plugin>
