@@ -42,12 +42,6 @@ public final class QuizQuestion {
         }
     }
 
-    public String getId() {
-        return id;
-    }
-    public Category getCategory() {
-        return category;
-    }
     public String getPrompt() {
         return prompt;
     }
