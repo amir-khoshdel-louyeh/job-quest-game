@@ -43,11 +43,11 @@ public class IdentityProvider {
 
     public Identity createIdentity(String identityName) {
         if (identityName == null) {
-            throw new IllegalArgumentException("Unknown identity type: null");
+            throw new UnknownIdentityException(null);
         }
         Supplier<Identity> factory = registry.get(normalize(identityName));
         if (factory == null) {
-            throw new IllegalArgumentException("Unknown identity type: " + identityName);
+            throw new UnknownIdentityException(identityName);
         }
         return factory.get();
     }

@@ -4,6 +4,7 @@ import model.Identity;
 import model.player.User;
 import provider.IdentityOptionProvider;
 import provider.IdentityProvider;
+import provider.UnknownIdentityException;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -202,6 +203,11 @@ public class StartPanel extends JPanel {
                 selected.getStartingBalance());
             user.grantStartingBonus();
             mainFrame.showPanel(new GamePanel(user));
+        } catch (UnknownIdentityException ex) {
+            // Specific-before-general: this subclass branch runs for bad
+            // profession keys; the IAE branch below stays for every other
+            // validation failure (e.g. blank profession name in Profession).
+            errorLabel.setText("Unknown career selected. Please pick again.");
         } catch (IllegalArgumentException ex) {
             errorLabel.setText("Error: " + ex.getMessage());
         }
