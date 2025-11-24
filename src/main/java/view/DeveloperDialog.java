@@ -154,10 +154,17 @@ public class DeveloperDialog extends JDialog {
         gamePanel.updateUserInfo();
     }
 
+    // Multi-catch: only the two failures a parse can honestly produce
+    // (bad digits -> NumberFormatException, missing text -> NullPointerException).
+    // A broad catch (Exception) would also swallow real bugs; the fallback
+    // restores the field so the dialog never shows a broken value.
     private static int parse(JTextField field, int fallback) {
+        if (field == null) {
+            return fallback;
+        }
         try {
             return Integer.parseInt(field.getText().trim());
-        } catch (Exception ex) {
+        } catch (NumberFormatException | NullPointerException ex) {
             field.setText(String.valueOf(fallback));
             return fallback;
         }
