@@ -45,11 +45,11 @@ public class RoutineService {
             int healthLoss = GameBalance.SICKNESS_MIN_HEALTH_LOSS
                     + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE); // Lose 5-10 health
             user.loseHealth(healthLoss);
-            user.setLastSicknessTime(now);
+            user.markSicknessChecked(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
         }
         // No sickness occurred
-        user.setLastSicknessTime(now); // Mark checked for today
+        user.markSicknessChecked(now); // Mark checked for today
         return null;
     }
     public String processEnergyDecrease(User user) {
@@ -98,7 +98,7 @@ public class RoutineService {
         if (penalty > 0 && user.getBalance() >= penalty) {
             user.withdraw(penalty);
         }
-        user.setBlockedUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
+        user.blockUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
         // The service does not show dialogs. It just changes the state.
     }
 }

@@ -3,6 +3,8 @@ package model.player;
 import java.util.Objects;
 
 // Tracks health and energy and keeps them within limits.
+// Used by model.player.User (sole owner); read via User/UserController.
+
 public class Vitals {
     public static final int MAX_HEALTH = 100;
     public static final int MAX_ENERGY = 100000;
@@ -10,12 +12,16 @@ public class Vitals {
     private int health = 100;
     private int energy = 100000;
 
+    // ----- Getter -----
     public int getHealth() {
         return health;
     }
 
-    // Keeps the value between 0 and the max.
-    // Private: game logic must use gain/lose/restore so intent is explicit.
+    public int getEnergy() {
+        return energy;
+    }
+
+    // ----- Setter -----
     private void setHealth(int newHealth) {
         if (newHealth < 0) {
             newHealth = 0;
@@ -26,6 +32,17 @@ public class Vitals {
         this.health = newHealth;
     }
 
+    private void setEnergy(int newEnergy) {
+        if (newEnergy < 0) {
+            newEnergy = 0;
+        }
+        if (newEnergy > MAX_ENERGY) {
+            newEnergy = MAX_ENERGY;
+        }
+        this.energy = newEnergy;
+    }
+
+    // ----- Commands -----
     public void gainHealth(int amount) {
         if (amount > 0) {
             setHealth(health + amount);
@@ -36,22 +53,6 @@ public class Vitals {
         if (amount > 0) {
             setHealth(health - amount);
         }
-    }
-
-    public int getEnergy() {
-        return energy;
-    }
-
-    // Keeps the value between 0 and the max.
-    // Private: game logic must use gain/lose/restore so intent is explicit.
-    private void setEnergy(int newEnergy) {
-        if (newEnergy < 0) {
-            newEnergy = 0;
-        }
-        if (newEnergy > MAX_ENERGY) {
-            newEnergy = MAX_ENERGY;
-        }
-        this.energy = newEnergy;
     }
 
     public void gainEnergy(int amount) {
@@ -66,13 +67,22 @@ public class Vitals {
         }
     }
 
-    // Refills both to full after a level up.
     public void restoreFull() {
         setHealth(MAX_HEALTH);
         setEnergy(MAX_ENERGY);
     }
 
-    // Value equality: two vitals match when health and energy match.
+    // ----- Cheat harness -----
+    // Package-private: only User/CheatService (same package) may call these.
+    void setHealthForCheat(int newHealth) {
+        setHealth(newHealth);
+    }
+
+    void setEnergyForCheat(int newEnergy) {
+        setEnergy(newEnergy);
+    }
+
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -94,14 +104,5 @@ public class Vitals {
     public String toString() {
         return "Vitals [health " + health + "/" + MAX_HEALTH
                 + ", energy " + energy + "/" + MAX_ENERGY + "]";
-    }
-
-    // ----- Demo scenario -----
-    public void debugSetHealth(int newHealth) {
-        setHealth(newHealth);
-    }
-
-    public void debugSetEnergy(int newEnergy) {
-        setEnergy(newEnergy);
     }
 }

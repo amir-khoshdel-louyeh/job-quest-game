@@ -44,7 +44,7 @@ public class JobService {
     }
 
     // Job bonus: +2% per jobBonus point, max +30% (15 points).
-    // JobBonus grows every 10 jobs (see UserController.recordJobCompletion),
+    // JobBonus grows every 10 jobs (see JobRecord.addCompletedJob),
     // so a single ~10h run can reach the cap.
     public double jobBonus(User user) {
         if (user == null) {
@@ -113,8 +113,9 @@ public class JobService {
     // Mini-game scaling (moved out of JobController.execute so the
     // controller orchestrates but never does arithmetic).
 
-    // Score earning +1 reputation.
+    // Score earning +1 reputation, perfect score +2.
     public static final int SCORE_FOR_EXTRA_REPUTATION = 80;
+    public static final int SCORE_FOR_PERFECT_REPUTATION = 100;
     // Floor for scaled rewards: a played game always pays at least 1.
     private static final int MIN_SCALED_REWARD = 1;
 
@@ -142,8 +143,11 @@ public class JobService {
         return scaled;
     }
 
-    // Great games earn +1 reputation (0 without a game or below the bar).
+    // Great games earn +1 reputation, perfect games +2 (0 without a game or below the bar).
     public int extraReputation(MiniGameResult game) {
+        if (game != null && game.getScore() >= SCORE_FOR_PERFECT_REPUTATION) {
+            return 2;
+        }
         if (game != null && game.getScore() >= SCORE_FOR_EXTRA_REPUTATION) {
             return 1;
         }

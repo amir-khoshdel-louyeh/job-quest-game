@@ -2,7 +2,7 @@ package model.player;
 
 import java.util.Objects;
 
-// The User Wallet.
+// Tracks a user's money balance.
 // Used by model.player.User (sole owner); read via User/UserController/EconomyController.
 
 public class Wallet {
@@ -56,8 +56,9 @@ public class Wallet {
         }
     }
 
-    // ----- Demo scenario -----
-    public void debugSetBalance(int newBalance) {
+    // ----- Cheat harness -----
+    // Package-private: only User/CheatService (same package) may call this.
+    void setBalanceForCheat(int newBalance) {
         setBalance(newBalance);
     }
 

@@ -1,5 +1,6 @@
 package controller;
 
+import model.player.CareerProgress;
 import model.player.User;
 
 // Builds the text block shown for player stats.
@@ -12,7 +13,7 @@ public class StatsController {
         stats = stats + "===================================\n";
         stats = stats + " XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel();
         stats = stats + " (" + user.getExperiencePercentage() + "%)\n";
-        stats = stats + " Reputation: " + user.getReputation() + "/100 (" + utils.ReputationText.titleFor(user.getReputation()) + ")\n";
+        stats = stats + " Reputation: " + user.getReputation() + "/" + CareerProgress.MAX_REPUTATION + " (" + utils.ReputationText.titleFor(user.getReputation()) + ")\n";
         stats = stats + " Job Bonus: " + user.getJobBonus() + "\n";
         stats = stats + " Played: " + (user.getTotalPlayTime() / (1000 * 60)) + " min\n";
         stats = stats + " Total Earned: $" + user.getTotalMoneyEarned() + "\n";

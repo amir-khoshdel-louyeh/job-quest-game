@@ -129,12 +129,12 @@ public class UserController implements Subject, model.goals.AchievementStats {
     }
 
     public void markSicknessChecked(long now) {
-        user.setLastSicknessTime(now);
+        user.markSicknessChecked(now);
     }
 
-    public void addPlayTime(long deltaMillis) {
-        user.addPlayTime(deltaMillis);
-    }
+    // Demo/cheat mutations live in model.player.CheatService (via
+    // controller.DeveloperController), never here: this controller owns
+    // only rule-abiding mutations (deposit/withdraw/gain/lose/...).
 
     public int getBalance() {
         return user.getBalance();
@@ -201,11 +201,11 @@ public class UserController implements Subject, model.goals.AchievementStats {
     }
 
     public void blockUser(long durationMillis) {
-        user.setBlockedUntil(System.currentTimeMillis() + durationMillis);
+        user.blockUntil(System.currentTimeMillis() + durationMillis);
     }
 
     public void unblockUser() {
-        user.setBlockedUntil(0);
+        user.unblock();
     }
 
     // Adds a new skill. Returns true if the skill is new.
@@ -225,64 +225,38 @@ public class UserController implements Subject, model.goals.AchievementStats {
         }
     }
 
-    /** Adds reputation (stays between 0-100). */
-    public void addReputation(int amount) {
-        if (amount != 0) {
-            user.addReputation(amount);
+    /** Gains reputation (stays between 0-MAX_REPUTATION). */
+    public void gainReputation(int amount) {
+        if (amount > 0) {
+            user.gainReputation(amount);
+            notifyObservers(ChangeType.REPUTATION);
+        }
+    }
+
+    /** Loses reputation (stays between 0-MAX_REPUTATION). */
+    public void loseReputation(int amount) {
+        if (amount > 0) {
+            user.loseReputation(amount);
             notifyObservers(ChangeType.REPUTATION);
         }
     }
 
     // Adds one completed job to the player's totals.
     // 10-hour run tuning: +1 jobBonus every 10 jobs (capped at 15 for +30%),
-    // so the job bonus is reachable in a single run.
+    // so the job bonus is reachable in a single run. The every-10-jobs rule
+    // lives inside JobRecord (via User.addCompletedJob), so callers make ONE call.
     // Single atomic transaction: balance + lifetime total move together
     // via User.earn, so callers make ONE call instead of addBalance + addTotal.
     public void recordJobCompletion(int moneyEarned) {
-        user.incrementJobsCompleted();
+        user.addCompletedJob();
         if (moneyEarned > 0) {
             user.earn(moneyEarned);
             notifyObservers(ChangeType.BALANCE);
-        }
-        if (user.getTotalJobsCompleted() % 10 == 0) {
-            // Domain behavior: cap lives inside User (0..15).
-            user.grantJobBonusIncrement();
         }
         notifyObservers(ChangeType.JOBS);
     }
 
     public void refresh() {
-        notifyObservers();
-    }
-
-    // ----- Demo scenario -----
-    public void setBalanceForDemo(int amount) {
-        user.debugSetBalance(amount);
-        notifyObservers(ChangeType.BALANCE);
-    }
-
-    public void setHealthForDemo(int hp) {
-        user.debugSetHealth(hp);
-        notifyObservers(ChangeType.HEALTH);
-    }
-
-    public void setEnergyForDemo(int energy) {
-        user.debugSetEnergy(energy);
-        notifyObservers(ChangeType.ENERGY);
-    }
-
-    public void setLevelForDemo(int level) {
-        user.debugSetLevel(level);
-        notifyObservers(ChangeType.XP);
-    }
-
-    public void setReputationForDemo(int reputation) {
-        user.debugSetReputation(reputation);
-        notifyObservers(ChangeType.REPUTATION);
-    }
-
-    public void setJobBonusForDemo(int jobBonus) {
-        user.debugSetJobBonus(jobBonus);
         notifyObservers();
     }
 }

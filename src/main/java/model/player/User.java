@@ -1,6 +1,7 @@
 package model.player;
 
 import java.util.List;
+import java.util.Objects;
 
 import model.Identity;
 import model.goals.AchievementBook;
@@ -12,33 +13,34 @@ import model.store.ServiceTarget;
 // Represents one player. Thin aggregate root: owns Wallet/Vitals/Progress
 // plus small book objects (skills, blocking, achievements, challenges).
 // Owns its aggregate invariant: level-up always refills health/energy here,
-// so callers never need a separate restoreFull() call.
 // Implements AchievementStats + ServiceTarget so goals/store depend on
-// small interfaces (DIP), not on this concrete class.
 public class User implements AchievementStats, ServiceTarget {
-    private String username;
-    private Identity identity;
-    private Wallet wallet;
-    private Vitals vitals;
-    private CareerProgress progress;
-    private SkillBook skillBook = new SkillBook();
-    private BlockStatus blockStatus = new BlockStatus();
-    private AchievementBook achievementBook = new AchievementBook();
-    private ChallengeBook challengeBook = new ChallengeBook();
+    private final String username;
+    private final Identity identity;
+    private final Wallet wallet;
+    private final Vitals vitals;
+    private final CareerProgress progress;
+    private final SkillBook skillBook = new SkillBook();
+    private final BlockStatus blockStatus = new BlockStatus();
+    private final JobRecord jobRecord = new JobRecord();
+    private final AchievementBook achievementBook = new AchievementBook();
+    private final ChallengeBook challengeBook = new ChallengeBook();
 
     private long totalPlayTime = 0;
 
-    private int totalJobsCompleted = 0;
-    private int jobBonus = 0;
-
+    // ----- Construction -----
     public User(String username, Identity identity, int balance) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("username required");
+        }
         this.username = username;
-        this.identity = identity;
+        this.identity = Objects.requireNonNull(identity, "identity must not be null");
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
     }
 
+    // ----- Identity Delegate -----
     public String getUsername() {
         return username;
     }
@@ -47,8 +49,6 @@ public class User implements AchievementStats, ServiceTarget {
         return identity;
     }
 
-    // Convenience for views: keeps the getIdentity().getDisplayName()
-    // chain inside the aggregate so callers obey the Law of Demeter.
     public String getIdentityName() {
         if (identity == null) {
             return "?";
@@ -56,6 +56,7 @@ public class User implements AchievementStats, ServiceTarget {
         return identity.getDisplayName();
     }
 
+    // ----- Wallet Delegate -----
     public int getBalance() {
         return wallet.getBalance();
     }
@@ -68,26 +69,17 @@ public class User implements AchievementStats, ServiceTarget {
         wallet.withdraw(amount);
     }
 
-    // Atomic job income: delegates to Wallet.earn so balance and
-    // lifetime total can never diverge (no temporal coupling).
     public void earn(int amount) {
         wallet.earn(amount);
     }
 
-    // Demo/debug only: exact balance override for the Developer panel.
-    // Game logic must use deposit/withdraw/earn instead.
-    public void debugSetBalance(int amount) {
-        wallet.debugSetBalance(amount);
+    public int getTotalMoneyEarned() {
+        return wallet.getTotalMoneyEarned();
     }
 
+    // ----- Vitals Delegate -----
     public int getHealth() {
         return vitals.getHealth();
-    }
-
-    // Demo/debug only: exact health override for the Developer panel.
-    // Game logic must use gainHealth/loseHealth/restoreFull instead.
-    public void debugSetHealth(int hp) {
-        vitals.debugSetHealth(hp);
     }
 
     @Override
@@ -103,12 +95,6 @@ public class User implements AchievementStats, ServiceTarget {
         return vitals.getEnergy();
     }
 
-    // Demo/debug only: exact energy override for the Developer panel.
-    // Game logic must use gainEnergy/loseEnergy/restoreFull instead.
-    public void debugSetEnergy(int energy) {
-        vitals.debugSetEnergy(energy);
-    }
-
     @Override
     public void gainEnergy(int amount) {
         vitals.gainEnergy(amount);
@@ -118,79 +104,67 @@ public class User implements AchievementStats, ServiceTarget {
         vitals.loseEnergy(amount);
     }
 
-    // Returns a copy so the stored list can't be changed from outside.
+    // ----- SkillBook Delegate -----
     public List<String> getSkills() {
         return skillBook.getSkills();
     }
 
-    // Adds the skill unless it is missing or already learned.
     public boolean addSkill(String skillName) {
         return skillBook.addSkill(skillName);
     }
 
     @Override
     public int getSkillCount() {
-        return skillBook.getSkills().size();
+        return skillBook.getSkillCount();
     }
 
     public boolean hasSkill(String skillName) {
         return skillBook.hasSkill(skillName);
     }
 
-    // Query-only view (no mutators): safe to share — callers ask behavior,
-    // they never receive the mutable list or book itself.
     public model.career.SkillSet getSkillSet() {
         return skillBook;
     }
 
+    // ----- Play time Delegate -----
     public long getTotalPlayTime() {
         return totalPlayTime;
     }
 
-    // Rich behavior: play time only moves forward. Negative deltas are ignored,
-    // so callers cannot rewind or forge the clock with a wholesale setter.
-    public void addPlayTime(long deltaMillis) {
-        if (deltaMillis > 0) {
-            this.totalPlayTime += deltaMillis;
-        }
+    // ----- BlockStatus Delegate -----
+    public void blockUntil(long time) {
+        blockStatus.blockUntil(time);
     }
 
-    public void setBlockedUntil(long time) {
-        blockStatus.setBlockedUntil(time);
+    public void unblock() {
+        blockStatus.unblock();
+    }
+
+    public void markSicknessChecked(long time) {
+        blockStatus.markSicknessChecked(time);
     }
 
     public long getBlockedUntil() {
         return blockStatus.getBlockedUntil();
     }
 
-    // Blocked while the current time is before the stored time.
     public boolean isBlocked() {
         return blockStatus.isBlocked();
-    }
-
-    public void setLastSicknessTime(long time) {
-        blockStatus.setLastSicknessTime(time);
     }
 
     public long getLastSicknessTime() {
         return blockStatus.getLastSicknessTime();
     }
 
+    // ----- CareerProgress Delegate -----
     public int getLevel() {
         return progress.getLevel();
-    }
-
-    // Demo/debug only: exact level override for the Developer panel.
-    // Game logic must use addExperience instead.
-    public void debugSetLevel(int level) {
-        progress.debugSetLevel(level);
     }
 
     public int getExperience() {
         return progress.getExperience();
     }
 
-    // Returns true on level up. Refills health/energy on level up (aggregate invariant).
     public boolean addExperience(int amount) {
         boolean leveledUp = progress.addExperience(amount);
         if (leveledUp) {
@@ -211,65 +185,32 @@ public class User implements AchievementStats, ServiceTarget {
         return progress.getReputation();
     }
 
-    // Demo/debug only: exact reputation override for the Developer panel.
-    // Game logic must use addReputation instead.
-    public void debugSetReputation(int reputation) {
-        progress.debugSetReputation(reputation);
+    public void gainReputation(int amount) {
+        progress.gainReputation(amount);
     }
 
-    public void addReputation(int amount) {
-        progress.addReputation(amount);
+    public void loseReputation(int amount) {
+        progress.loseReputation(amount);
     }
 
-    public int getTotalMoneyEarned() {
-        return wallet.getTotalMoneyEarned();
-    }
-
+    // ----- Jobs Delegate -----
     public int getTotalJobsCompleted() {
-        return totalJobsCompleted;
+        return jobRecord.getTotalJobsCompleted();
     }
 
-    public void incrementJobsCompleted() {
-        this.totalJobsCompleted++;
+    public void addCompletedJob() {
+        jobRecord.addCompletedJob();
     }
 
     public int getJobBonus() {
-        return jobBonus;
+        return jobRecord.getJobBonus();
     }
 
-    // Job bonus is guarded inside the domain (0..15) so callers
-    // cannot forge it with a raw setter. +1 per 10 jobs, max +30%.
-    // Private: game logic uses increment/record paths; demos use debug below.
-    private void setJobBonus(int jobBonus) {
-        if (jobBonus < 0) {
-            jobBonus = 0;
-        }
-        if (jobBonus > 15) {
-            jobBonus = 15;
-        }
-        this.jobBonus = jobBonus;
-    }
-
-    // New-account welcome: grants the first bonus point through domain rules.
-    // StartPanel uses this instead of a raw setter (no forgery path for game logic).
     public void grantStartingBonus() {
-        if (this.jobBonus == 0) {
-            setJobBonus(1);
-        }
+        jobRecord.grantStartingBonus();
     }
 
-    // Domain behavior: +1 bonus point (capped 0..15 inside). Used every 10 jobs
-    // so controllers never do get-then-set forgery.
-    public void grantJobBonusIncrement() {
-        setJobBonus(this.jobBonus + 1);
-    }
-
-    // Demo/debug only: exact bonus override for the Developer panel.
-    public void debugSetJobBonus(int jobBonus) {
-        setJobBonus(jobBonus);
-    }
-
-    // Returns a copy so the stored list can't be changed from outside.
+    // ----- AchievementBook Delegate -----
     public List<String> getUnlockedAchievements() {
         return achievementBook.getUnlockedAchievements();
     }
@@ -282,13 +223,11 @@ public class User implements AchievementStats, ServiceTarget {
         return achievementBook.hasAchievement(id);
     }
 
-    // Returns deep copies so the stored progress can't be changed from outside.
+    // ----- ChallengeBook Delegate -----
     public List<Challenge> getActiveChallenges() {
         return challengeBook.getActiveChallenges();
     }
 
-    // Rich behavior: progress mutation lives inside the aggregate.
-    // Returns snapshots of newly completed challenges (for rewards/display).
     public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
         return challengeBook.updateProgress(type, amount);
     }
@@ -305,8 +244,46 @@ public class User implements AchievementStats, ServiceTarget {
         return challengeBook.hasChallenge(challengeId);
     }
 
-    // Removes finished daily challenges.
     public void pruneCompletedDailyChallenges() {
         challengeBook.pruneCompletedDailyChallenges();
+    }
+
+    // ----- Cheat harness access -----
+    Wallet wallet() { return wallet; }
+    Vitals vitals() { return vitals; }
+    CareerProgress progress() { return progress; }
+    JobRecord jobRecord() { return jobRecord; }
+    void addPlayTimeForCheat(long deltaMillis) {
+        if (deltaMillis > 0) {
+            this.totalPlayTime += deltaMillis;
+        }
+    }
+
+    // ----- Object overrides -----
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        User other = (User) obj;
+        return Objects.equals(username, other.username)
+                && Objects.equals(identity, other.identity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, identity);
+    }
+
+    @Override
+    public String toString() {
+        return "User [" + username + " (" + getIdentityName() + ")"
+                + ", level " + getLevel()
+                + ", balance $" + getBalance()
+                + ", health " + getHealth()
+                + ", energy " + getEnergy() + "]";
     }
 }

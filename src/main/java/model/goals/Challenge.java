@@ -81,13 +81,13 @@ public class Challenge {
     }
     // Adds to progress but never past the target, and marks finished at the target.
     public void addProgress(int amount) {
-        if (!completed) {
-            currentProgress = currentProgress + amount;
-            
-            if (currentProgress >= targetValue) {
-                currentProgress = targetValue;
-                completed = true;
-            }
+        if (amount <= 0 || completed) {
+            return;
+        }
+        currentProgress = currentProgress + amount;
+        if (currentProgress >= targetValue) {
+            currentProgress = targetValue;
+            completed = true;
         }
     }
     // Progress shown as a number from 0 to 100.

@@ -85,7 +85,10 @@ public class JobController {
             userController.decreaseEnergy(job.getEnergyCost());
             int repLoss = 0;
             if (game.getScore() == 0) {
-                userController.addReputation(-1);
+                userController.loseReputation(2);
+                repLoss = 2;
+            } else {
+                userController.loseReputation(1);
                 repLoss = 1;
             }
             return JobResult.failedAttempt(job, game.getScore(), job.getEnergyCost(), repLoss, game);
@@ -108,7 +111,7 @@ public class JobController {
         userController.decreaseEnergy(job.getEnergyCost());
         userController.recordJobCompletion(finalPay);
         userController.addExperience(xp);
-        userController.addReputation(rep);
+        userController.gainReputation(rep);
 
         int levelAfter = userController.getLevel();
 

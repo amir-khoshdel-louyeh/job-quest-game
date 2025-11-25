@@ -70,7 +70,7 @@ public class ChallengeService {
     private void giveReward(User user, Challenge challenge) {
         user.deposit(challenge.getRewardMoney());
         user.addExperience(challenge.getRewardExperience());
-        user.addReputation(2);
+        user.gainReputation(2);
     }
 
     // Returns challenges that are not finished yet.

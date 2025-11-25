@@ -9,6 +9,8 @@ import java.util.Collection;
 public interface SkillSet {
     boolean hasSkill(String skillName);
 
+    int getSkillCount();
+
     // True when every required skill is present (empty requirement = true).
     default boolean hasAllSkills(Collection<String> required) {
         if (required == null) {

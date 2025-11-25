@@ -23,7 +23,7 @@ public class ChallengeBook {
     // Returns snapshots of the newly completed ones (for rewards/display).
     public List<Challenge> updateProgress(Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
-        if (type == null || amount <= 0) {
+        if (type == null) {
             return finished;
         }
         for (int i = 0; i < activeChallenges.size(); i++) {
