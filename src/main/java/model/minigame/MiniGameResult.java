@@ -5,7 +5,7 @@ import java.util.List;
 
 // Holds the score and summary of a mini-game.
 public final class MiniGameResult {
-    // Pass threshold shared by typing()/quiz() and result texts (was a
+    // Pass threshold shared by the quiz scorer and result texts (was a
     // magic 50 in three places).
     public static final int PASS_SCORE = 50;
     private static final int MAX_SCORE = 100;
@@ -14,20 +14,15 @@ public final class MiniGameResult {
     private String gameName;
     private int score;
     private int accuracy;
-    private int wpm;
     private int elapsedSeconds;
     private boolean passed;
     private ArrayList<String> highlights;
 
-    private MiniGameResult(String gameName, int score, int accuracy, int wpm,
+    private MiniGameResult(String gameName, int score, int accuracy,
                            int elapsedSeconds, boolean passed, List<String> highlights) {
         this.gameName = gameName;
         this.score = makeSafe(score);
         this.accuracy = makeSafe(accuracy);
-        this.wpm = wpm;
-        if (this.wpm < 0) {
-            this.wpm = 0;
-        }
         this.elapsedSeconds = elapsedSeconds;
         if (this.elapsedSeconds < 0) {
             this.elapsedSeconds = 0;
@@ -42,23 +37,13 @@ public final class MiniGameResult {
     }
 
     // A score of PASS_SCORE or more counts as a pass.
-    public static MiniGameResult typing(String gameName, int score, int accuracy,
-                                        int wpm, int elapsedSeconds, List<String> highlights) {
-        boolean pass = false;
-        if (score >= PASS_SCORE) {
-            pass = true;
-        }
-        return new MiniGameResult(gameName, score, accuracy, wpm, elapsedSeconds, pass, highlights);
-    }
-
-    // A score of PASS_SCORE or more counts as a pass.
     public static MiniGameResult quiz(String gameName, int score, int accuracy,
                                       int elapsedSeconds, List<String> highlights) {
         boolean pass = false;
         if (score >= PASS_SCORE) {
             pass = true;
         }
-        return new MiniGameResult(gameName, score, accuracy, 0, elapsedSeconds, pass, highlights);
+        return new MiniGameResult(gameName, score, accuracy, elapsedSeconds, pass, highlights);
     }
 
     // Keeps the value between 0 and MAX_SCORE.
@@ -80,9 +65,6 @@ public final class MiniGameResult {
     }
     public int getAccuracy() {
         return accuracy;
-    }
-    public int getWpm() {
-        return wpm;
     }
     public int getElapsedSeconds() {
         return elapsedSeconds;

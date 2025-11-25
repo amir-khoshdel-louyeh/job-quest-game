@@ -1,10 +1,8 @@
 package services.minigame;
 
-// Shared accuracy+speed blending for mini-game scorers (Strategy core).
-// QuizScorer and TypingScorer had the same time-clamp, speed-ratio cap
-// and weighted-sum lines copied — now both delegate here (DRY), each
-// keeping only its own weights, par source and highlights (OCP: new game
-// = new weights + new highlights, this class never changes).
+// Shared accuracy+speed blending for the quiz scorer.
+// Clamp + ratio cap + weighted sum live here (DRY); the scorer keeps
+// only its own weights, par and highlights.
 public final class ScoreMixer {
     private ScoreMixer() {
     }
@@ -25,19 +23,6 @@ public final class ScoreMixer {
             return maxRatio;
         }
         return ratio;
-    }
-
-    // Speed term on the 0..100 scale, clamped so it never exceeds a
-    // perfect accuracy term.
-    public static int cappedSpeedPoints(double speedRatio) {
-        int points = (int) Math.round(speedRatio * 100);
-        if (points < 0) {
-            return 0;
-        }
-        if (points > 100) {
-            return 100;
-        }
-        return points;
     }
 
     // Weighted sum on the 0..100 scale, rounded once. Weights travel

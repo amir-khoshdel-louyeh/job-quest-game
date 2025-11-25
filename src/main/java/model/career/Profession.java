@@ -3,7 +3,6 @@ package model.career;
 import java.util.Objects;
 
 import model.Identity;
-import model.WorkGameKind;
 
 // Single data-driven profession. Replaces one-class-per-job inheritance:
 // professions differ only in data, not behavior.
@@ -12,21 +11,16 @@ public final class Profession implements Identity {
     private final String displayName;
     private final String description;
     private final int startingBalance;
-    private final WorkGameKind workGameKind;
 
     public Profession(String professionName, String displayName, String description,
-                      int startingBalance, WorkGameKind workGameKind) {
+                      int startingBalance) {
         if (professionName == null || professionName.trim().equals("")) {
             throw new IllegalArgumentException("professionName required");
-        }
-        if (workGameKind == null) {
-            throw new IllegalArgumentException("workGameKind required");
         }
         this.professionName = professionName;
         this.displayName = displayName;
         this.description = description;
         this.startingBalance = startingBalance;
-        this.workGameKind = workGameKind;
     }
 
     @Override
@@ -40,9 +34,6 @@ public final class Profession implements Identity {
 
     @Override
     public int getStartingBalance() { return startingBalance; }
-
-    @Override
-    public WorkGameKind getWorkGameKind() { return workGameKind; }
 
     @Override
     public boolean isSameProfession(Identity other) {

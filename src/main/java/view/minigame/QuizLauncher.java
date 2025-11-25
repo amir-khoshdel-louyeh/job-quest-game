@@ -5,16 +5,16 @@ import javax.swing.JFrame;
 import model.minigame.MiniGameResult;
 import provider.QuizProvider;
 
-// Diagnosis quiz for doctors.
-public final class DiagnosisLauncher implements MiniGameLauncher {
+// The single quiz game every profession plays.
+public final class QuizLauncher implements MiniGameLauncher {
     private final QuizProvider quizzes;
 
-    public DiagnosisLauncher() {
+    public QuizLauncher() {
         this(new QuizProvider());
     }
 
     // Test seam: fixed question bank makes every run reproducible.
-    public DiagnosisLauncher(QuizProvider quizzes) {
+    public QuizLauncher(QuizProvider quizzes) {
         if (quizzes == null) {
             throw new IllegalArgumentException("quizzes must not be null");
         }
@@ -24,7 +24,7 @@ public final class DiagnosisLauncher implements MiniGameLauncher {
     @Override
     public MiniGameResult launch(JFrame parent, String jobName) {
         QuizGameDialog dialog = new QuizGameDialog(
-                parent, jobName + " — Diagnosis Round", quizzes.getDiagnosisQuestions(), null);
+                parent, jobName + " — Quiz Round", quizzes.getQuestions(), null);
         return dialog.showAndPlay();
     }
 }

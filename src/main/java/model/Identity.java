@@ -8,6 +8,5 @@ public interface Identity {
     String getDisplayName();
     String getDescription();
     int getStartingBalance();
-    WorkGameKind getWorkGameKind();
     boolean isSameProfession(Identity other);
 }

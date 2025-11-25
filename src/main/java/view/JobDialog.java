@@ -166,12 +166,9 @@ public class JobDialog extends JDialog {
         if (identity != null) {
             // Single-pick flow: the job chosen above IS the work —
             // the mini-game opens locked to that job, no second picker.
-            // Which game to open is asked from the profession itself,
-            // so adding a new profession needs no change here
-            // as long as it reuses an existing game kind.
-            model.minigame.MiniGameResult game = playWorkGame(parent, identity, job);
+            model.minigame.MiniGameResult game = playWorkGame(parent, job);
             if (game == null) {
-                return; // cancelled or unknown game kind — nothing happens, dialog stays open
+                return; // cancelled — nothing happens, dialog stays open
             }
             result = controller.doJob(job, game);
         } else {
@@ -184,30 +181,15 @@ public class JobDialog extends JDialog {
         }
     }
 
-    // Registry instead of a switch: a new WorkGameKind adds one entry,
-    // the dialog itself never changes (OCP).
-    private static final java.util.Map<model.WorkGameKind, view.minigame.MiniGameLauncher> LAUNCHERS =
-            new java.util.EnumMap<>(model.WorkGameKind.class);
-    static {
-        LAUNCHERS.put(model.WorkGameKind.TYPING, new view.minigame.TypingLauncher());
-        LAUNCHERS.put(model.WorkGameKind.CODE, new view.minigame.CodeLauncher());
-        LAUNCHERS.put(model.WorkGameKind.DIAGNOSIS, new view.minigame.DiagnosisLauncher());
-        LAUNCHERS.put(model.WorkGameKind.DESIGN, new view.minigame.DesignLauncher());
-    }
+    // One mini-game for every profession: quiz, launched directly.
+    private static final view.minigame.MiniGameLauncher WORK_GAME =
+            new view.minigame.QuizLauncher();
 
-    private model.minigame.MiniGameResult playWorkGame(JFrame parent, Identity identity, Job job) {
+    private model.minigame.MiniGameResult playWorkGame(JFrame parent, Job job) {
         String jobName = "Job";
         if (job != null) {
             jobName = job.getName();
         }
-        model.WorkGameKind gameKind = identity.getWorkGameKind();
-        if (gameKind == null) {
-            return null;
-        }
-        view.minigame.MiniGameLauncher launcher = LAUNCHERS.get(gameKind);
-        if (launcher == null) {
-            return null;
-        }
-        return launcher.launch(parent, jobName);
+        return WORK_GAME.launch(parent, jobName);
     }
 }

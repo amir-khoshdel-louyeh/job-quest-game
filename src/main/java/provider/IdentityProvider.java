@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import model.Identity;
-import model.WorkGameKind;
 import model.career.Profession;
 
 // Builds the starting profession the player picks.
@@ -31,13 +30,13 @@ public class IdentityProvider {
     private static Map<String, Supplier<Identity>> defaultRegistry() {
         Map<String, Supplier<Identity>> defaults = new HashMap<String, Supplier<Identity>>();
         defaults.put("doctor", () -> new Profession("Doctor", "Doctor", "Heal players and earn big money.",
-                500, WorkGameKind.DIAGNOSIS));
+                500));
         defaults.put("programmer", () -> new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
-                300, WorkGameKind.CODE));
+                300));
         defaults.put("logodesigner", () -> new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
-                200, WorkGameKind.DESIGN));
+                200));
         defaults.put("typist", () -> new Profession("Typist", "Typist", "Type documents for clients.",
-                200, WorkGameKind.TYPING));
+                200));
         return defaults;
     }
 

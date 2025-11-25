@@ -9,13 +9,8 @@ public final class GameSummaryText {
     }
 
     public static String summaryLine(String gameName, int score, int accuracy,
-                                     int wpm, int elapsedSeconds, List<String> highlights) {
-        String base;
-        if (wpm > 0) {
-            base = gameName + ": score " + score + "/100, accuracy " + accuracy + "%, " + wpm + " WPM in " + elapsedSeconds + "s";
-        } else {
-            base = gameName + ": score " + score + "/100, accuracy " + accuracy + "% in " + elapsedSeconds + "s";
-        }
+                                     int elapsedSeconds, List<String> highlights) {
+        String base = gameName + ": score " + score + "/100, accuracy " + accuracy + "% in " + elapsedSeconds + "s";
         if (highlights != null && !highlights.isEmpty()) {
             String h = "";
             for (int i = 0; i < highlights.size(); i++) {

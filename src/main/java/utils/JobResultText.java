@@ -45,7 +45,7 @@ public final class JobResultText {
             return baseMessage;
         }
         String gameLine = GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
+                game.getAccuracy(), game.getElapsedSeconds(), game.getHighlights());
         return baseMessage + "\n" + gameLine;
     }
 
@@ -66,7 +66,7 @@ public final class JobResultText {
         msg = msg + ". No pay, XP or progress. Rest up and retry.";
         if (game != null) {
             msg = msg + "\n" + GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                    game.getAccuracy(), game.getWpm(), game.getElapsedSeconds(), game.getHighlights());
+                    game.getAccuracy(), game.getElapsedSeconds(), game.getHighlights());
         }
         return msg;
     }
