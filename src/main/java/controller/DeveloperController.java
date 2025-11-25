@@ -45,20 +45,17 @@ public class DeveloperController {
 
     /** Set balance to an exact value (clamped >= 0 inside Wallet). Demo only. */
     public void setBalance(int amount) {
-        userController.getUser().debugSetBalance(amount);
-        userController.refresh();
+        userController.setBalanceForDemo(amount);
     }
 
     /** Set health to an exact value (clamped 0..MAX_HEALTH inside Vitals). Demo only. */
     public void setHealth(int hp) {
-        userController.getUser().debugSetHealth(hp);
-        userController.refresh();
+        userController.setHealthForDemo(hp);
     }
 
     /** Set energy to an exact value (clamped 0..MAX_ENERGY inside Vitals). Demo only. */
     public void setEnergy(int energy) {
-        userController.getUser().debugSetEnergy(energy);
-        userController.refresh();
+        userController.setEnergyForDemo(energy);
     }
 
     /** Add (or remove, when negative) playtime — drives skill unlock gates. */
@@ -74,20 +71,17 @@ public class DeveloperController {
 
     /** Set level directly (clamped 1..MAX_LEVEL inside CareerProgress). Demo only. */
     public void setLevel(int level) {
-        userController.getUser().debugSetLevel(level);
-        userController.refresh();
+        userController.setLevelForDemo(level);
     }
 
     /** Set reputation directly (clamped 0-100 inside User). Demo only. */
     public void setReputation(int reputation) {
-        userController.getUser().debugSetReputation(reputation);
-        userController.refresh();
+        userController.setReputationForDemo(reputation);
     }
 
     /** Set job bonus level directly (clamped 0..15 inside User). Demo only. */
     public void setJobBonus(int level) {
-        userController.getUser().debugSetJobBonus(level);
-        userController.refresh();
+        userController.setJobBonusForDemo(level);
     }
 
     /** Lift any active block (e.g. after demoing the 0-health/0-energy state). */

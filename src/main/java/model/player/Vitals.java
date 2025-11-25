@@ -96,8 +96,7 @@ public class Vitals {
                 + ", energy " + energy + "/" + MAX_ENERGY + "]";
     }
 
-    // Demo/debug only: lets the Developer panel set exact values.
-    // Game logic must use gainHealth/loseHealth/gainEnergy/loseEnergy/restoreFull.
+    // ----- Demo scenario -----
     public void debugSetHealth(int newHealth) {
         setHealth(newHealth);
     }

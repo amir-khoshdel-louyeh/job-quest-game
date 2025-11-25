@@ -2,11 +2,14 @@ package model.player;
 
 import java.util.Objects;
 
-// Holds the player's money and guards against negative balance.
+// The User Wallet.
+// Used by model.player.User (sole owner); read via User/UserController/EconomyController.
+
 public class Wallet {
     private int balance;
     private int totalMoneyEarned;
 
+    // ----- Construction -----
     public Wallet(int startingBalance) {
         if (startingBalance < 0) {
             startingBalance = 0;
@@ -15,13 +18,7 @@ public class Wallet {
         this.totalMoneyEarned = 0;
     }
 
-    public int getBalance() {
-        return balance;
-    }
-
-    // Exact setter. Values below zero become zero.
-    // Private: only deposit/withdraw/earn/debug may set an exact value
-    // so game logic cannot forge money (Tell-Don't-Ask).
+    // ----- Setter -----
     private void setBalance(int newBalance) {
         if (newBalance < 0) {
             newBalance = 0;
@@ -29,6 +26,17 @@ public class Wallet {
         this.balance = newBalance;
     }
 
+
+    // ----- Getter -----
+    public int getBalance() {
+        return balance;
+    }
+
+    public int getTotalMoneyEarned() {
+        return totalMoneyEarned;
+    }
+
+    // ----- Commands -----
     public void deposit(int amount) {
         if (amount > 0) {
             setBalance(balance + amount);
@@ -41,9 +49,6 @@ public class Wallet {
         }
     }
 
-    // Atomic earning: balance + lifetime total move together.
-    // Use this for job income so callers cannot forget the second half.
-    // Pure gifts/bonuses (events, achievements) keep using deposit().
     public void earn(int amount) {
         if (amount > 0) {
             setBalance(balance + amount);
@@ -51,17 +56,12 @@ public class Wallet {
         }
     }
 
-    // Demo/debug only: lets the Developer panel set an exact value.
-    // Game logic must use deposit/withdraw/earn instead.
+    // ----- Demo scenario -----
     public void debugSetBalance(int newBalance) {
         setBalance(newBalance);
     }
 
-    public int getTotalMoneyEarned() {
-        return totalMoneyEarned;
-    }
-
-    // Value equality: two wallets match when money matches.
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -71,8 +71,7 @@ public class Wallet {
             return false;
         }
         Wallet other = (Wallet) obj;
-        return balance == other.balance
-                && totalMoneyEarned == other.totalMoneyEarned;
+        return balance == other.balance && totalMoneyEarned == other.totalMoneyEarned;
     }
 
     @Override

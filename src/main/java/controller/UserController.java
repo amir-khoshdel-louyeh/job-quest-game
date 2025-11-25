@@ -254,4 +254,35 @@ public class UserController implements Subject, model.goals.AchievementStats {
     public void refresh() {
         notifyObservers();
     }
+
+    // ----- Demo scenario -----
+    public void setBalanceForDemo(int amount) {
+        user.debugSetBalance(amount);
+        notifyObservers(ChangeType.BALANCE);
+    }
+
+    public void setHealthForDemo(int hp) {
+        user.debugSetHealth(hp);
+        notifyObservers(ChangeType.HEALTH);
+    }
+
+    public void setEnergyForDemo(int energy) {
+        user.debugSetEnergy(energy);
+        notifyObservers(ChangeType.ENERGY);
+    }
+
+    public void setLevelForDemo(int level) {
+        user.debugSetLevel(level);
+        notifyObservers(ChangeType.XP);
+    }
+
+    public void setReputationForDemo(int reputation) {
+        user.debugSetReputation(reputation);
+        notifyObservers(ChangeType.REPUTATION);
+    }
+
+    public void setJobBonusForDemo(int jobBonus) {
+        user.debugSetJobBonus(jobBonus);
+        notifyObservers();
+    }
 }

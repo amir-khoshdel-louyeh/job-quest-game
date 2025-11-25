@@ -74,8 +74,7 @@ public class CareerProgress {
         setReputation(reputation + amount);
     }
 
-    // Demo/debug only: lets the Developer panel set exact values.
-    // Game logic must use addExperience/addReputation instead.
+    // ----- Demo scenario -----
     public void debugSetLevel(int newLevel) {
         setLevel(newLevel);
     }
