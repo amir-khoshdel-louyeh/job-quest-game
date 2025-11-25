@@ -7,16 +7,13 @@ import java.util.Objects;
 // One quiz question with answer options.
 public final class QuizQuestion {
 
-    public enum Category { DIAGNOSIS, DESIGN }
-
     private String id;
-    private Category category;
     private String prompt;
     private ArrayList<String> options;
     private int correctIndex;
     private String explanation;
 
-    public QuizQuestion(String id, Category category, String prompt,
+    public QuizQuestion(String id, String prompt,
                         List<String> options, int correctIndex, String explanation) {
         if (id == null || id.trim().equals("")) {
             throw new IllegalArgumentException("id required");
@@ -28,7 +25,6 @@ public final class QuizQuestion {
             throw new IllegalArgumentException("bad correctIndex");
         }
         this.id = id;
-        this.category = category;
         this.prompt = prompt;
         this.options = new ArrayList<String>();
         for (int i = 0; i < options.size(); i++) {
@@ -75,7 +71,6 @@ public final class QuizQuestion {
         QuizQuestion other = (QuizQuestion) obj;
         return correctIndex == other.correctIndex
                 && Objects.equals(id, other.id)
-                && category == other.category
                 && Objects.equals(prompt, other.prompt)
                 && Objects.equals(options, other.options)
                 && Objects.equals(explanation, other.explanation);
@@ -83,11 +78,11 @@ public final class QuizQuestion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, category, prompt, options, correctIndex, explanation);
+        return Objects.hash(id, prompt, options, correctIndex, explanation);
     }
 
     @Override
     public String toString() {
-        return prompt + " [" + id + ", " + category + "]";
+        return prompt + " [" + id + "]";
     }
 }
