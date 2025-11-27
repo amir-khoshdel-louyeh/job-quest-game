@@ -244,10 +244,6 @@ public class User implements AchievementStats, ServiceTarget {
         return challengeBook.hasChallenge(challengeId);
     }
 
-    public void pruneCompletedDailyChallenges() {
-        challengeBook.pruneCompletedDailyChallenges();
-    }
-
     // ----- Cheat harness access -----
     Wallet wallet() { return wallet; }
     Vitals vitals() { return vitals; }

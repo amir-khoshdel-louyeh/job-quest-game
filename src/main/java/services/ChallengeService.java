@@ -6,48 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Hands out challenges and tracks their progress and rewards.
-// Instance (not static): challenge templates come from outside via Suppliers,
+// Instance (not static): challenge templates come from outside via Supplier,
 // so behavior is deterministic in tests and swappable per session (DIP) —
 // same pattern as RoutineService.
 public class ChallengeService {
-    private final java.util.function.Supplier<List<Challenge>> dailySource;
-    private final java.util.function.Supplier<List<Challenge>> mainSource;
+    private final java.util.function.Supplier<List<Challenge>> challengeSource;
 
     public ChallengeService() {
         provider.ChallengeProvider defaults = new provider.ChallengeProvider();
-        this.dailySource = defaults::getDailyChallenges;
-        this.mainSource = defaults::getMainChallenges;
+        this.challengeSource = defaults::getChallenges;
     }
 
-    // Test seam: fixed template lists make every run reproducible.
-    public ChallengeService(java.util.function.Supplier<List<Challenge>> dailySource,
-                            java.util.function.Supplier<List<Challenge>> mainSource) {
-        if (dailySource == null || mainSource == null) {
-            throw new IllegalArgumentException("challenge sources must not be null");
+    // Test seam: fixed template list makes every run reproducible.
+    public ChallengeService(java.util.function.Supplier<List<Challenge>> challengeSource) {
+        if (challengeSource == null) {
+            throw new IllegalArgumentException("challenge source must not be null");
         }
-        this.dailySource = dailySource;
-        this.mainSource = mainSource;
+        this.challengeSource = challengeSource;
     }
 
     // Give starting challenges to a new user
     public void initializeChallenges(User user) {
         if (user.getActiveChallenges().isEmpty()) {
-            user.addChallenges(mainSource.get());
-            refreshDailyChallenges(user);
-        }
-    }
-
-    // Add daily challenges, remove old completed daily ones
-    // Uses polymorphic copy(): no "new Challenge" switch here.
-    public void refreshDailyChallenges(User user) {
-        user.pruneCompletedDailyChallenges();
-        List<Challenge> daily = dailySource.get();
-        for (int i = 0; i < daily.size(); i++) {
-            Challenge template = daily.get(i);
-            if (!user.hasChallenge(template.getId())) {
-                // fresh copy so progress is separate, same runtime type
-                user.addChallenge(template.copy());
-            }
+            user.addChallenges(challengeSource.get());
         }
     }
 

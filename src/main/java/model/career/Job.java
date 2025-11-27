@@ -8,8 +8,6 @@ import model.Identity;
 
 // One piece of work the player can do for pay.
 // Depends only on Identity + skill names, never on User:
-// keeps model.career free of model.player (no package cycle).
-// Immutable value object: all fields final, validated in constructor.
 public final class Job {
     private final String name;
     private final String description;
@@ -60,11 +58,6 @@ public final class Job {
         return energyCost;
     }
 
-    // No getRequiredIdentity(): the live Identity reference would leak
-    // (the interface doesn't guarantee immutability). Callers ask
-    // isForIdentity/isAvailableFor/missingSkills instead (Demeter).
-
-    // Returns a copy so the stored list can't be changed from outside.
     public List<String> getRequiredSkills() {
         ArrayList<String> copy = new ArrayList<String>();
         for (int i = 0; i < requiredSkills.size(); i++) {
@@ -74,10 +67,7 @@ public final class Job {
     }
 
     public boolean isForIdentity(Identity identity) {
-        if (identity == null) {
-            return false;
-        }
-        return requiredIdentity.isSameProfession(identity);
+        return identity != null && requiredIdentity.isSameProfession(identity);
     }
 
     // True when the profession matches and the player has every needed skill.

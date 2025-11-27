@@ -17,10 +17,9 @@ import java.util.List;
 // - protected generic method copyOf(): a second parametric-polymorphism spot.
 //
 // Why not everything extends this? Different-shaped catalogs
-// (ChallengeProvider with daily/main, the factory registry in
-// IdentityProvider with Map<String, Supplier<Identity>>) would break SRP
-// under a single-list base. They reuse catalog behavior via composition
-// instead — composition over inheritance applied consciously.
+// (the factory registry in IdentityProvider with Map<String, Supplier<Identity>>)
+// would break SRP under a single-list base. They reuse catalog behavior
+// via composition instead — composition over inheritance applied consciously.
 public abstract class AbstractCatalog<T> {
 
     private final ArrayList<T> entries;

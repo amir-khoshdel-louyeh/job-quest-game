@@ -3,7 +3,7 @@ package controller;
 import observer.ChangeType;
 import services.RoutineService;
 
-// Runs daily upkeep like energy, health, and sickness checks.
+// Runs periodic upkeep like energy, health, and sickness checks.
 // Depends on MessageSink, not on the Swing panel (DIP).
 // Owns all observer notifications for upkeep: the service mutates the
 // User silently, so exactly one place decides what the UI hears.

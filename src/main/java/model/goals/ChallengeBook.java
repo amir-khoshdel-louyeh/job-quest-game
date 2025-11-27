@@ -3,8 +3,7 @@ package model.goals;
 import java.util.ArrayList;
 import java.util.List;
 
-// Owns active challenges. Extracted from User for SRP:
-// the "daily_" pruning rule lives next to Challenge, not in User.
+// Owns active challenges. Extracted from User for SRP.
 public class ChallengeBook {
     private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
@@ -67,16 +66,5 @@ public class ChallengeBook {
             }
         }
         return false;
-    }
-
-    // Removes finished daily challenges. Polymorphic flag on Challenge —
-    // no magic-string id check here, so renaming ids never breaks pruning (OCP).
-    public void pruneCompletedDailyChallenges() {
-        for (int i = activeChallenges.size() - 1; i >= 0; i--) {
-            Challenge c = activeChallenges.get(i);
-            if (c.isDaily() && c.isCompleted()) {
-                activeChallenges.remove(i);
-            }
-        }
     }
 }

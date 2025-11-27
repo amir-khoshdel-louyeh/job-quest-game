@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import model.player.User;
 import utils.GameBalance;
 
-// Handles daily sickness, energy, and health drops.
+// Handles periodic sickness, energy, and health drops.
 // Instance (not static): the clock/random come from outside, so sickness
 // rolls are deterministic in tests.
 // Works on the User model directly — never on UserController (layering:
