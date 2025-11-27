@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 // One quiz question with answer options.
+// Read via quiz provider/controller.
 public final class QuizQuestion {
 
     private String id;
@@ -13,6 +14,7 @@ public final class QuizQuestion {
     private int correctIndex;
     private String explanation;
 
+    // ----- Construction -----
     public QuizQuestion(String id, String prompt,
                         List<String> options, int correctIndex, String explanation) {
         if (id == null || id.trim().equals("")) {
@@ -38,10 +40,10 @@ public final class QuizQuestion {
         }
     }
 
+    // ----- Getter -----
     public String getPrompt() {
         return prompt;
     }
-    // Returns a copy so the stored list can't be changed from outside.
     public List<String> getOptions() {
         ArrayList<String> copy = new ArrayList<String>();
         for (int i = 0; i < options.size(); i++) {
@@ -56,10 +58,12 @@ public final class QuizQuestion {
         return explanation;
     }
 
+    // ----- Queries -----
     public boolean isCorrect(int picked) {
         return picked == correctIndex;
     }
 
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

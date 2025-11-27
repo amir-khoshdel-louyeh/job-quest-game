@@ -7,7 +7,7 @@ import java.util.Objects;
 import model.Identity;
 
 // One piece of work the player can do for pay.
-// Depends only on Identity + skill names, never on User:
+// Checked against Identity + SkillSet; read via JobProvider/JobController.
 public final class Job {
     private final String name;
     private final String description;
@@ -16,6 +16,8 @@ public final class Job {
     private final Identity requiredIdentity;
     private final ArrayList<String> requiredSkills;
 
+    // ----- Construction -----
+    // Builds a job; null skills become an empty requirement.
     public Job(String name, String description, int payment, int energyCost, Identity requiredIdentity, List<String> requiredSkills) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("name required");
@@ -42,6 +44,7 @@ public final class Job {
         }
     }
 
+    // ----- Getter -----
     public String getName() {
         return name;
     }
@@ -66,13 +69,12 @@ public final class Job {
         return copy;
     }
 
+    // ----- Queries -----
     public boolean isForIdentity(Identity identity) {
         return identity != null && requiredIdentity.isSameProfession(identity);
     }
 
-    // True when the profession matches and the player has every needed skill.
-    // Primary rule: behavior (SkillSet) is passed, not raw data — no manual
-    // contains loop at call sites (no feature envy / primitive obsession).
+    // True when the profession matches and every needed skill is present.
     public boolean isAvailableFor(Identity identity, SkillSet skills) {
         if (identity == null || skills == null) {
             return false;
@@ -83,8 +85,7 @@ public final class Job {
         return skills.hasAllSkills(requiredSkills);
     }
 
-    // Which required skills are still missing (empty = ready to work).
-    // Single source for lock reasons — views format, they don't compute.
+    // Lists required skills still missing (empty = ready to work).
     public List<String> missingSkills(SkillSet skills) {
         ArrayList<String> missing = new ArrayList<String>();
         if (skills == null) {
@@ -100,6 +101,7 @@ public final class Job {
         return missing;
     }
 
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

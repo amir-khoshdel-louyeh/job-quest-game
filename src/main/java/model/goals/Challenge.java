@@ -3,9 +3,7 @@ package model.goals;
 import java.util.Objects;
 
 // A mission the player can finish for extra rewards.
-// One concrete class keyed by ChallengeType (former per-type subclasses
-// were pure type tags with no behavior, so they were collapsed).
-// copy() clones with zero progress; copySnapshot() preserves it.
+// Tracked by ChallengeBook; read via ChallengeProvider/ChallengeService.
 public class Challenge {
     private final String id;
     private final String name;
@@ -23,6 +21,7 @@ public class Challenge {
         LEARN_SKILLS
     }
     
+    // ----- Construction -----
     // Primary constructor: all challenges are one-shot story goals.
     public Challenge(String id, String name, String description, ChallengeType type,
                 int targetValue, int rewardMoney, int rewardExperience) {
@@ -57,21 +56,20 @@ public class Challenge {
         this.completed = false;
     }
 
+    // ----- Commands -----
     // Fresh clone with zero progress.
     public Challenge copy() {
         Challenge c = new Challenge(id, name, description, type, targetValue, rewardMoney, rewardExperience);
         return c;
     }
 
-    // Snapshot clone preserving progress: copy() is polymorphic so the
-    // runtime type is kept, then progress is replayed via addProgress
-    // (which re-applies the target cap + completed flag identically).
+    // Clone carrying the current progress.
     public Challenge copySnapshot() {
         Challenge c = copy();
         c.addProgress(this.currentProgress);
         return c;
     }
-    // Adds to progress but never past the target, and marks finished at the target.
+    // Adds progress, capped at the target.
     public void addProgress(int amount) {
         if (amount <= 0 || completed) {
             return;
@@ -82,11 +80,13 @@ public class Challenge {
             completed = true;
         }
     }
-    // Progress shown as a number from 0 to 100.
+    // ----- Queries -----
+    // Progress from 0 to 100.
     public int getProgressPercentage() {
         return utils.ProgressUtil.percent(currentProgress, targetValue);
     }
     
+    // ----- Getter -----
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -98,8 +98,8 @@ public class Challenge {
     
     public boolean isCompleted() { return completed; }
 
-    // Entity equality by id: two snapshots of the same challenge stay
-    // equal across progress changes (progress is state, not identity).
+    // Equal by id.
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

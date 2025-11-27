@@ -2,10 +2,8 @@ package model.career;
 
 import java.util.Collection;
 
-// Query-only view of learned skills. model.career depends on this
-// interface (own package), never on model.player — so no package cycle,
-// and callers pass behavior (Tell-Don't-Ask) instead of raw List<String>
-// with manual contains loops (no primitive obsession / feature envy).
+// Query-only view of learned skills.
+// Implemented by SkillBook; used by Job checks.
 public interface SkillSet {
     boolean hasSkill(String skillName);
 

@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Holds the score and summary of a mini-game.
+// Built via quiz(); read by JobController.
 public final class MiniGameResult {
-    // Pass threshold shared by the quiz scorer and result texts (was a
-    // magic 50 in three places).
     public static final int PASS_SCORE = 50;
     private static final int MAX_SCORE = 100;
     private static final double REWARD_BASE = 0.5;
@@ -18,6 +17,7 @@ public final class MiniGameResult {
     private boolean passed;
     private ArrayList<String> highlights;
 
+    // ----- Construction -----
     private MiniGameResult(String gameName, int score, int accuracy,
                            int elapsedSeconds, boolean passed, List<String> highlights) {
         this.gameName = gameName;
@@ -36,7 +36,7 @@ public final class MiniGameResult {
         }
     }
 
-    // A score of PASS_SCORE or more counts as a pass.
+    // Builds a quiz result; score >= PASS_SCORE passes.
     public static MiniGameResult quiz(String gameName, int score, int accuracy,
                                       int elapsedSeconds, List<String> highlights) {
         boolean pass = false;
@@ -46,7 +46,8 @@ public final class MiniGameResult {
         return new MiniGameResult(gameName, score, accuracy, elapsedSeconds, pass, highlights);
     }
 
-    // Keeps the value between 0 and MAX_SCORE.
+    // ----- Private helpers -----
+    // Clamps the value to 0..MAX_SCORE.
     private static int makeSafe(int v) {
         if (v < 0) {
             return 0;
@@ -57,6 +58,7 @@ public final class MiniGameResult {
         return v;
     }
 
+    // ----- Getter -----
     public String getGameName() {
         return gameName;
     }
@@ -80,7 +82,8 @@ public final class MiniGameResult {
         return copy;
     }
 
-    // Higher scores give a bigger reward, from REWARD_BASE to REWARD_BASE + REWARD_RANGE.
+    // ----- Queries -----
+    // Bigger score gives a bigger reward.
     public double rewardMultiplier() {
         return REWARD_BASE + score * REWARD_RANGE / MAX_SCORE;
     }

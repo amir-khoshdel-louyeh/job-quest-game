@@ -1,7 +1,7 @@
 package model.store;
 
-// Small interface so model.store never imports model.player.User.
-// User implements this; Service applies only health/energy (DIP).
+// Health/energy surface a service can affect.
+// Implemented by model.player.User.
 public interface ServiceTarget {
     void gainHealth(int amount);
     void gainEnergy(int amount);

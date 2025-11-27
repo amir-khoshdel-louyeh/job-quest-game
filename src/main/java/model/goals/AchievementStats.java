@@ -1,7 +1,7 @@
 package model.goals;
 
-// Small interface so model.goals never imports model.player.User.
-// User implements this; Achievement reads only what it needs (DIP).
+// Stats needed to check achievements.
+// Implemented by model.player.User.
 public interface AchievementStats {
     int getTotalJobsCompleted();
     int getTotalMoneyEarned();

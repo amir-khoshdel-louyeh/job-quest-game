@@ -7,7 +7,7 @@ import java.util.Objects;
 import model.Identity;
 
 // A skill offered at school with a cost and requirements.
-// Immutable value object: all fields final, validated in constructor.
+// Checked against Identity; read via SkillProvider/SkillController.
 public final class LearnableSkill {
     private final String name;
     private final String description;
@@ -15,6 +15,7 @@ public final class LearnableSkill {
     private final long requiredPlayTimeMinutes;
     private final ArrayList<Identity> identities;
 
+    // ----- Construction -----
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
                           List<Identity> identities) {
         if (name == null || name.trim().equals("")) {
@@ -39,6 +40,7 @@ public final class LearnableSkill {
         }
     }
 
+    // ----- Getter -----
     public String getName() {
         return name;
     }
@@ -55,9 +57,7 @@ public final class LearnableSkill {
         return requiredPlayTimeMinutes;
     }
 
-    // No getIdentities(): the shallow copy still aliased live Identity refs.
-    // Callers ask isForIdentity instead (Demeter).
-
+    // ----- Queries -----
     public boolean isForIdentity(Identity identity) {
         if (identity == null) {
             return false;
@@ -70,6 +70,7 @@ public final class LearnableSkill {
         return false;
     }
 
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

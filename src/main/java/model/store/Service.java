@@ -3,8 +3,7 @@ package model.store;
 import java.util.Objects;
 
 // A buyable service that restores health or energy right away.
-// Applies to ServiceTarget, not to User directly (DIP).
-// Immutable value object: all fields final.
+// Applied to a ServiceTarget; read via service provider/controller.
 public final class Service implements Purchasable {
     private final String name;
     private final String description;
@@ -12,6 +11,7 @@ public final class Service implements Purchasable {
     private final int healthEffect;
     private final int energyEffect;
 
+    // ----- Construction -----
     public Service(String name, String description, int cost, int healthEffect, int energyEffect) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Service name must not be blank");
@@ -30,6 +30,7 @@ public final class Service implements Purchasable {
         this.energyEffect = energyEffect;
     }
 
+    // ----- Getter -----
     @Override
     public String getName() {
         return name;
@@ -53,8 +54,7 @@ public final class Service implements Purchasable {
         return energyEffect;
     }
 
-    // Catalog predicates live here (Information Expert): the provider asks,
-    // it never branches on raw effect numbers (no external if-chain).
+    // ----- Queries -----
     public boolean isHealthService() {
         return healthEffect > 0 && energyEffect == 0;
     }
@@ -63,7 +63,8 @@ public final class Service implements Purchasable {
         return energyEffect > 0 && healthEffect == 0;
     }
 
-    // Adds the stored health and energy amounts to the player.
+    // ----- Commands -----
+    // Applies the stored health and energy amounts.
     @Override
     public void apply(ServiceTarget target) {
         if (target == null) {
@@ -77,6 +78,7 @@ public final class Service implements Purchasable {
         }
     }
 
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

@@ -3,12 +3,7 @@ package model.goals;
 import java.util.Objects;
 
 // An unlockable goal with a reward.
-// Depends only on AchievementStats (DIP), never on player.User:
-// no goals -> player package cycle.
-// One concrete class + Strategy (value extractor): the old per-metric
-// subclasses differed by a single line, so inheritance was class
-// explosion — composition carries the varying part instead.
-// New metrics pass a lambda; this class never changes (OCP).
+// Checked against AchievementStats; read via AchievementProvider/AchievementService.
 public class Achievement {
     private final String id;
     private final String name;
@@ -17,6 +12,8 @@ public class Achievement {
     private final int requiredValue;
     private final java.util.function.ToIntFunction<AchievementStats> valueExtractor;
 
+    // ----- Construction -----
+    // Builds an achievement; valueExtractor reads the current value from stats.
     public Achievement(String id, String name, String description, int rewardMoney,
                        int requiredValue,
                        java.util.function.ToIntFunction<AchievementStats> valueExtractor) {
@@ -37,12 +34,14 @@ public class Achievement {
         this.valueExtractor = valueExtractor;
     }
 
+    // ----- Getter -----
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
     public int getRewardMoney() { return rewardMoney; }
     public int getRequiredValue() { return requiredValue; }
 
+    // ----- Queries -----
     public boolean isUnlocked(AchievementStats stats) {
         if (stats == null) {
             return false;
@@ -54,6 +53,7 @@ public class Achievement {
         return valueExtractor.applyAsInt(stats);
     }
 
+    // True when the current value reaches the requirement.
     public boolean checkRequirement(AchievementStats stats) {
         if (stats == null) {
             return false;
@@ -61,6 +61,7 @@ public class Achievement {
         return getCurrentValue(stats) >= getRequiredValue();
     }
 
+    // Progress from 0 to 100.
     public int getProgress(AchievementStats stats) {
         if (stats == null) {
             return 0;
@@ -72,8 +73,8 @@ public class Achievement {
         return name + " - " + description;
     }
 
-    // Entity equality by id: unlock state lives in AchievementBook
-    // (per player), not in this shared definition object.
+    // Equal by id.
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

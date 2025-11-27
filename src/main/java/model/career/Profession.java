@@ -4,14 +4,15 @@ import java.util.Objects;
 
 import model.Identity;
 
-// Single data-driven profession. Replaces one-class-per-job inheritance:
-// professions differ only in data, not behavior.
+// One profession with its starting balance.
+// Implements Identity; read via IdentityProvider.
 public final class Profession implements Identity {
     private final String professionName;
     private final String displayName;
     private final String description;
     private final int startingBalance;
 
+    // ----- Construction -----
     public Profession(String professionName, String displayName, String description,
                       int startingBalance) {
         if (professionName == null || professionName.trim().equals("")) {
@@ -23,6 +24,7 @@ public final class Profession implements Identity {
         this.startingBalance = startingBalance;
     }
 
+    // ----- Getter -----
     @Override
     public String getProfessionName() { return professionName; }
 
@@ -35,16 +37,17 @@ public final class Profession implements Identity {
     @Override
     public int getStartingBalance() { return startingBalance; }
 
+    // ----- Queries -----
     @Override
     public boolean isSameProfession(Identity other) {
         if (other == null) {
             return false;
         }
-        // Single name rule lives in equals: a profession IS its name.
         return equals(other);
     }
 
-    // Value equality by profession name (the profession's identity).
+    // Equal by profession name.
+    // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

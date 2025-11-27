@@ -3,13 +3,13 @@ package model.goals;
 import java.util.ArrayList;
 import java.util.List;
 
-// Owns active challenges. Extracted from User for SRP.
+// Owns active challenges.
+// Used by model.player.User (sole owner).
 public class ChallengeBook {
     private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
-    // Deep copy: each Challenge is snapshotted so callers cannot mutate
-    // the stored progress via the returned list (Challenge is mutable).
-    // Mutation goes through updateProgress() inside this aggregate.
+    // ----- Getter -----
+    // Returns snapshots so callers cannot mutate the stored progress.
     public List<Challenge> getActiveChallenges() {
         ArrayList<Challenge> copy = new ArrayList<Challenge>();
         for (int i = 0; i < activeChallenges.size(); i++) {
@@ -18,8 +18,8 @@ public class ChallengeBook {
         return copy;
     }
 
-    // Rich behavior: adds progress to stored challenges of this type.
-    // Returns snapshots of the newly completed ones (for rewards/display).
+    // ----- Commands -----
+    // Adds progress to challenges of this type; returns newly completed ones.
     public List<Challenge> updateProgress(Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         if (type == null) {
@@ -55,6 +55,7 @@ public class ChallengeBook {
         }
     }
 
+    // ----- Queries -----
     public boolean hasChallenge(String challengeId) {
         if (challengeId == null) {
             return false;

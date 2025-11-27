@@ -10,10 +10,9 @@ import model.goals.Challenge;
 import model.goals.ChallengeBook;
 import model.store.ServiceTarget;
 
-// Represents one player. Thin aggregate root: owns Wallet/Vitals/Progress
-// plus small book objects (skills, blocking, achievements, challenges).
-// Owns its aggregate invariant: level-up always refills health/energy here,
-// Implements AchievementStats + ServiceTarget so goals/store depend on
+// Represents one player. Owns Wallet/Vitals/Progress plus skill,
+// blocking, achievement, and challenge books.
+// Read via UserController; mutated via controllers and services.
 public class User implements AchievementStats, ServiceTarget {
     private final String username;
     private final Identity identity;
@@ -165,6 +164,7 @@ public class User implements AchievementStats, ServiceTarget {
         return progress.getExperience();
     }
 
+    // Adds XP; refills health/energy on level-up.
     public boolean addExperience(int amount) {
         boolean leveledUp = progress.addExperience(amount);
         if (leveledUp) {

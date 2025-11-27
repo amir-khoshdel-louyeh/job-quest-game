@@ -6,13 +6,13 @@ import model.career.Job;
 import model.goals.Achievement;
 import model.goals.Challenge;
 
-// Holds the outcome of doing a job. Minimal DTO: success + prebuilt message.
-// Detail data stays at the factory call site (message wording lives in
-// utils.JobResultText); nothing reads stored breakdowns, so no dead getters.
+// Holds the outcome of doing a job: success flag + display message.
+// Built via success()/failure(); read by JobController and views.
 public final class JobResult {
     private final boolean success;
     private final String message;
 
+    // ----- Construction -----
     private JobResult(boolean success, String message) {
         this.success = success;
         if (message == null) {
@@ -22,7 +22,8 @@ public final class JobResult {
         }
     }
 
-    // Success data; the message wording lives in utils.JobResultText (SRP).
+    // ----- Factories -----
+    // Builds a success; message wording lives in JobResultText.
     public static JobResult success(Job job, int basePayment, int bonusAmount, int finalPayment,
                                     int xpGained, int reputationGained,
                                     int levelBefore, int levelAfter,
@@ -48,18 +49,20 @@ public final class JobResult {
         return new JobResult(true, withGame);
     }
 
+    // Builds a failure; message wording lives in JobResultText.
     public static JobResult failure(Job job, String reason) {
         String msg = utils.JobResultText.failureLine(job, reason);
         return new JobResult(false, msg);
     }
 
-    // Failed-attempt data; the message wording lives in utils.JobResultText (SRP).
+    // Builds a failed attempt; message wording lives in JobResultText.
     public static JobResult failedAttempt(Job job, int score, int energyLost, int repLost,
                                           model.minigame.MiniGameResult game) {
         String msg = utils.JobResultText.failedAttemptLine(job, score, energyLost, repLost, game);
         return new JobResult(false, msg);
     }
 
+    // ----- Getter -----
     public boolean isSuccess() {
         return success;
     }
