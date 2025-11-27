@@ -81,7 +81,7 @@ public class RoutineController {
                 self.decreaseHealth();
             }
         }));
-        timers.add(utils.TimerUtil.runPeriodic(24 * 60 * 60 * 1000, new java.awt.event.ActionListener() {
+        timers.add(utils.TimerUtil.runPeriodic((int) utils.GameBalance.SICKNESS_COOLDOWN_MILLIS, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 self.sicknessCheck();
             }
