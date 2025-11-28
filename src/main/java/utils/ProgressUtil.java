@@ -1,7 +1,7 @@
 package utils;
 
-// Single home for 0-100 progress math. Replaces the duplicated
-// percentage code in CareerProgress, Challenge and Achievement.
+// 0-100 progress math.
+// Shared by CareerProgress, Challenge, and Achievement.
 public final class ProgressUtil {
     private ProgressUtil() {
     }

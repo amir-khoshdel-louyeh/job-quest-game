@@ -1,8 +1,7 @@
 package utils;
 
-// Single home for gameplay tuning numbers (was magic literals scattered
-// across services and views). Changing the game balance means editing
-// here — never hunting for raw 30s and 25000s.
+// Gameplay tuning numbers.
+// Edit here to rebalance the game.
 public final class GameBalance {
     private GameBalance() {
     }

@@ -2,9 +2,8 @@ package utils;
 
 import java.util.function.Supplier;
 
-// Stopwatch for elapsed-time measurement (mini-game rounds).
-// Extracted from the duplicated startMillis/elapsedSeconds code in the
-// game dialogs (DRY). The clock is injectable, so timing is testable.
+// Stopwatch for elapsed-time measurement.
+// Clock is injectable for tests.
 public final class ElapsedTimer {
     private final Supplier<Long> clock;
     private long startMillis;
@@ -13,6 +12,7 @@ public final class ElapsedTimer {
         this(System::currentTimeMillis);
     }
 
+    // Custom clock for tests.
     public ElapsedTimer(Supplier<Long> clock) {
         if (clock == null) {
             throw new IllegalArgumentException("clock must not be null");

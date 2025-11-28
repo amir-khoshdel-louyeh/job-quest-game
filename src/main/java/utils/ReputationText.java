@@ -1,6 +1,6 @@
 package utils;
 
-// Single home for reputation titles. Keeps view words out of CareerProgress.
+// Reputation titles.
 public final class ReputationText {
     private ReputationText() {
     }

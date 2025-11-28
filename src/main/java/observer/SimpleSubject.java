@@ -3,15 +3,17 @@ package observer;
 import java.util.ArrayList;
 import java.util.List;
 
-// Holds a list of watchers and tells them when something changes.
+// Holds watchers and tells them when something changes.
 public class SimpleSubject implements Subject {
     private final List<Observer> observers = new ArrayList<Observer>();
 
-    // One shared copy method so both notify methods do the same thing.
+    // ----- Private helpers -----
+    // One shared copy so both notify methods behave the same.
     private List<Observer> snapshot() {
         return new ArrayList<Observer>(observers);
     }
 
+    // ----- Commands -----
     @Override
     public void addObserver(Observer observer) {
         if (observer == null) {

@@ -1,7 +1,6 @@
 package utils;
 
-// Single home for shop/service effect text. Models call this
-// instead of each building "+X Energy" strings themselves.
+// Shop/service effect text.
 public final class EffectText {
     private EffectText() {
     }

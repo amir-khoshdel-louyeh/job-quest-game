@@ -7,13 +7,14 @@ import model.goals.Achievement;
 import model.goals.Challenge;
 import model.minigame.MiniGameResult;
 
-// Single home for job-result message texts (same role as GameSummaryText
-// for mini-games). Keeps string building out of the JobResult DTO (SRP):
-// the model holds data, this owns the wording.
+// Job-result message texts.
+// Owns wording; JobResult holds data.
 public final class JobResultText {
     private JobResultText() {
     }
 
+    // ----- Queries -----
+    // Builds the success message.
     public static String successLine(Job job, int basePayment, int bonusAmount, int finalPayment,
                                      int xpGained, int reputationGained,
                                      int levelBefore, int levelAfter,
@@ -40,6 +41,7 @@ public final class JobResultText {
         return msg;
     }
 
+    // Appends the mini-game summary.
     public static String successWithGameLine(String baseMessage, MiniGameResult game) {
         if (game == null) {
             return baseMessage;
@@ -49,6 +51,7 @@ public final class JobResultText {
         return baseMessage + "\n" + gameLine;
     }
 
+    // Builds the failure message.
     public static String failureLine(Job job, String reason) {
         String name = "Job";
         if (job != null) {
@@ -57,6 +60,7 @@ public final class JobResultText {
         return name + ": " + reason;
     }
 
+    // Builds the failed-attempt message.
     public static String failedAttemptLine(Job job, int score, int energyLost, int repLost,
                                            MiniGameResult game) {
         String msg = job.getName() + " failed! Score " + score + "/100 (need " + MiniGameResult.PASS_SCORE + "+). Energy -" + energyLost;

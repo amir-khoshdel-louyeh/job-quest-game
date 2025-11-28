@@ -1,8 +1,6 @@
 package utils;
 
-// Single home for error reporting (replaces scattered printStackTrace /
-// System.err calls and silent empty catches): every report carries the
-// context of where it happened, so failures stay visible and greppable.
+// Error reporting; failures stay visible and greppable.
 public final class GameLog {
     private GameLog() {
     }

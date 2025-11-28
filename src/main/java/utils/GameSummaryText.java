@@ -2,8 +2,7 @@ package utils;
 
 import java.util.List;
 
-// Single home for mini-game one-line summaries.
-// Keeps string building out of the MiniGameResult DTO.
+// Mini-game one-line summaries.
 public final class GameSummaryText {
     private GameSummaryText() {
     }
