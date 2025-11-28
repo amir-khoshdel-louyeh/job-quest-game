@@ -4,23 +4,19 @@ import observer.ChangeType;
 import services.RoutineService;
 
 // Runs periodic upkeep like energy, health, and sickness checks.
-// Depends on MessageSink, not on the Swing panel (DIP).
-// Owns all observer notifications for upkeep: the service mutates the
-// User silently, so exactly one place decides what the UI hears.
-// Owns its Swing Timers so the panel can stop them on detach (no leak
-// when MainFrame swaps panels): startSchedulers is idempotent, and
-// stopSchedulers halts all periodic tasks.
+// Owns the Swing timers; the service mutates silently and this notifies.
 public class RoutineController {
     private final UserController userController;
     private final MessageSink messages;
     private final RoutineService routines;
     private final java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
 
+    // ----- Construction -----
     public RoutineController(UserController userController, MessageSink messages) {
         this(userController, messages, new RoutineService());
     }
 
-    // Test seam: inject a service with fixed clock/random.
+    // Custom service for tests.
     public RoutineController(UserController userController, MessageSink messages, RoutineService routines) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -36,9 +32,10 @@ public class RoutineController {
         this.routines = routines;
     }
 
+    // ----- Commands -----
     public void decreaseEnergy() {
         if (userController.getEnergy() <= 0) {
-            return; // matches the service guard: nothing changes, nothing notifies
+            return;
         }
         String message = routines.processEnergyDecrease(userController.getUser());
         userController.notifyObservers(ChangeType.ENERGY);
@@ -58,16 +55,12 @@ public class RoutineController {
     public void sicknessCheck() {
         String message = routines.processSicknessCheck(userController.getUser());
         if (message != null) {
-            // A message means sickness struck (the only state change that notifies).
             userController.notifyObservers(ChangeType.HEALTH);
             messages.addChatMessage(message);
         }
     }
 
-    // Starts the background upkeep timers (energy/health drains, sickness
-    // rolls, block expiry). Owned here — not in the view — so scheduling
-    // lives next to the logic it triggers. Idempotent: calling twice
-    // restarts cleanly instead of piling up duplicate timers.
+    // Starts background upkeep timers; restarts cleanly if called twice.
     public void startSchedulers() {
         stopSchedulers();
         final RoutineController self = this;
@@ -87,7 +80,7 @@ public class RoutineController {
             }
         }));
 
-        // Unblock after 5 minutes (10h-run tuning, was 48 hours).
+        // Unblocks after 5 minutes.
         final UserController users = userController;
         utils.TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
             public void run() {
@@ -96,7 +89,7 @@ public class RoutineController {
         });
     }
 
-    // Halts all periodic upkeep (called when the panel detaches).
+    // Halts upkeep timers.
     public void stopSchedulers() {
         for (int i = 0; i < timers.size(); i++) {
             try {

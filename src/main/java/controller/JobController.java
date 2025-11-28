@@ -19,16 +19,17 @@ public class JobController {
     private ChallengeService challengeService;
     private AchievementService achievementService;
 
+    // ----- Construction -----
     public JobController(UserController userController) {
         this(userController, new JobService(), new ChallengeService(), new AchievementService());
     }
 
-    // Constructor for tests (can pass own JobService)
+    // Custom JobService for tests.
     public JobController(UserController userController, JobService jobService) {
         this(userController, jobService, new ChallengeService(), new AchievementService());
     }
 
-    // Full injection seam: services come from outside (testable, swappable).
+    // Services come from outside.
     public JobController(UserController userController, JobService jobService,
                          ChallengeService challengeService, AchievementService achievementService) {
         if (userController == null) {
@@ -52,12 +53,13 @@ public class JobController {
         }
     }
 
-    // Do a job without mini-game
+    // ----- Commands -----
+    // Runs a job without a mini-game.
     public JobResult doJob(Job job) {
         return execute(job, null);
     }
 
-    // Do a job with mini-game result
+    // Runs a job with a mini-game result.
     public JobResult doJob(Job job, MiniGameResult game) {
         return execute(job, game);
     }
@@ -69,18 +71,17 @@ public class JobController {
         if (userController.isBlocked()) {
             return JobResult.failure(job, "You are blocked. Rest and try later.");
         }
-        // Check identity + skills via controller delegates (Law of Demeter:
-        // no getUser().getIdentity()/getSkills() train-wreck here).
+        // Identity + skills gate the job.
         if (!job.isAvailableFor(userController.getIdentity(), userController.getSkillSet())) {
             return JobResult.failure(job, "Not available for your identity/skills. Learn more skills!");
         }
-        // Check energy
+        // Energy gate.
         if (userController.getEnergy() < job.getEnergyCost()) {
             String msg = "Not enough energy (need " + job.getEnergyCost() + ", have " + userController.getEnergy() + "). Eat or rest first.";
             return JobResult.failure(job, msg);
         }
 
-        // If mini-game failed (score < 50), lose energy but get nothing
+        // Failed mini-game: lose energy, gain nothing.
         if (game != null && !game.isPassed()) {
             userController.decreaseEnergy(job.getEnergyCost());
             int repLoss = 0;
@@ -94,7 +95,7 @@ public class JobController {
             return JobResult.failedAttempt(job, game.getScore(), job.getEnergyCost(), repLoss, game);
         }
 
-        // Calculate rewards (arithmetic lives in JobService; this only orchestrates).
+        // Rewards math lives in JobService.
         User user = userController.getUser();
         int base = job.getPayment();
         int scaledBase = jobService.scalePayment(base, game);
@@ -105,9 +106,7 @@ public class JobController {
         int bonus = jobService.bonusAmount(finalPay, base);
         int levelBefore = user.getLevel();
 
-        // Hand out the rewards.
-        // ONE atomic call: recordJobCompletion deposits + tracks lifetime total
-        // (see User.earn), so balance and stats can never diverge.
+        // Hand out the rewards in one call each.
         userController.decreaseEnergy(job.getEnergyCost());
         userController.recordJobCompletion(finalPay);
         userController.addExperience(xp);
@@ -115,7 +114,7 @@ public class JobController {
 
         int levelAfter = userController.getLevel();
 
-        // Update challenges
+        // Update challenges and achievements.
         if (userController.getActiveChallenges().isEmpty()) {
             challengeService.initializeChallenges(user);
         }
@@ -135,6 +134,7 @@ public class JobController {
         return JobResult.success(job, base, bonus, finalPay, xp, rep, levelBefore, levelAfter, completed, unlocked);
     }
 
+    // ----- Private helpers -----
     private static void collectCompleted(ArrayList<Challenge> into, List<Challenge> part) {
         for (int i = 0; i < part.size(); i++) {
             into.add(part.get(i));

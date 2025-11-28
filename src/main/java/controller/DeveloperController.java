@@ -4,18 +4,17 @@ import model.player.CheatService;
 import observer.ChangeType;
 
 // Lets developers set stats by hand for demos and testing.
-// All out-of-rules mutations live in CheatService (service -> model);
-// this controller only orchestrates: cheat + notify observers.
-// Views read via the delegates below, never the live User (Demeter).
+// Out-of-rules mutations live in CheatService; this only cheats + notifies.
 public class DeveloperController {
     private final UserController userController;
     private final CheatService cheats;
 
+    // ----- Construction -----
     public DeveloperController(UserController userController) {
         this(userController, new CheatService());
     }
 
-    // Injection seam: pass a shared/stub CheatService in tests.
+    // Custom CheatService for tests.
     public DeveloperController(UserController userController, CheatService cheats) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -27,10 +26,7 @@ public class DeveloperController {
         this.cheats = cheats;
     }
 
-    // No getUser(): views read via the delegates below, never the live
-    // User — the last mutable escape hatch is closed (Demeter).
-
-    // Read delegates: views ask here instead of digging via getUser().
+    // ----- Read delegates -----
     public int getHealth() {
         return userController.getHealth();
     }
@@ -59,52 +55,51 @@ public class DeveloperController {
         return userController.getBalance();
     }
 
-    /** Set balance to an exact value (clamped >= 0 inside Wallet). Demo only. */
+    // ----- Commands -----
+    // Sets balance. Demo only.
     public void setBalance(int amount) {
         cheats.setBalance(userController.getUser(), amount);
         userController.notifyObservers(ChangeType.BALANCE);
     }
 
-    /** Set health to an exact value (clamped 0..MAX_HEALTH inside Vitals). Demo only. */
+    // Sets health. Demo only.
     public void setHealth(int hp) {
         cheats.setHealth(userController.getUser(), hp);
         userController.notifyObservers(ChangeType.HEALTH);
     }
 
-    /** Set energy to an exact value (clamped 0..MAX_ENERGY inside Vitals). Demo only. */
+    // Sets energy. Demo only.
     public void setEnergy(int energy) {
         cheats.setEnergy(userController.getUser(), energy);
         userController.notifyObservers(ChangeType.ENERGY);
     }
 
-    /** Add (or remove, when negative) playtime — drives skill unlock gates. */
+    // Adds playtime in minutes; non-positive values are ignored.
     public void addPlaytimeMinutes(long minutes) {
         if (minutes == 0) return;
         cheats.addPlaytimeMinutes(userController.getUser(), minutes);
-        // Negative minutes intentionally ignored inside CheatService:
-        // play time never rewinds (use a dedicated reset if needed).
         userController.refresh();
     }
 
-    /** Set level directly (clamped 1..MAX_LEVEL inside CareerProgress). Demo only. */
+    // Sets level. Demo only.
     public void setLevel(int level) {
         cheats.setLevel(userController.getUser(), level);
         userController.notifyObservers(ChangeType.XP);
     }
 
-    /** Set reputation directly (clamped 0-100 inside User). Demo only. */
+    // Sets reputation. Demo only.
     public void setReputation(int reputation) {
         cheats.setReputation(userController.getUser(), reputation);
         userController.notifyObservers(ChangeType.REPUTATION);
     }
 
-    /** Set job bonus level directly (clamped 0..15 inside User). Demo only. */
+    // Sets job bonus. Demo only.
     public void setJobBonus(int level) {
         cheats.setJobBonus(userController.getUser(), level);
         userController.notifyObservers();
     }
 
-    /** Lift any active block (e.g. after demoing the 0-health/0-energy state). */
+    // Lifts any active block. Demo only.
     public void unblock() {
         userController.unblockUser();
         userController.refresh();

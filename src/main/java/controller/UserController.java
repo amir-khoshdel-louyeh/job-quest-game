@@ -11,12 +11,12 @@ import observer.SimpleSubject;
 import observer.Subject;
 
 // Holds one player and handles balance, health, energy, and XP changes.
-// Implements AchievementStats by delegation so views pass this controller
-// where stats are needed — never the live User (Law of Demeter).
+// Views read via the delegates below, never the live User.
 public class UserController implements Subject, model.goals.AchievementStats {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
 
+    // ----- Construction -----
     public UserController(User user) {
         if (user == null) {
             throw new IllegalArgumentException("user must not be null");
@@ -24,6 +24,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         this.user = user;
     }
 
+    // ----- Observer delegates -----
     @Override
     public void addObserver(Observer observer) { subject.addObserver(observer); }
 
@@ -36,20 +37,16 @@ public class UserController implements Subject, model.goals.AchievementStats {
     @Override
     public void notifyObservers(ChangeType whatChanged) { subject.notifyObservers(whatChanged); }
 
+    // ----- Getter -----
     public User getUser() {
         return user;
     }
-
-    // Internal escape hatch for services (Challenge/Achievement/Event/Job):
-    // domain logic works on User. Views must use the delegates below instead.
-    // (Kept to avoid a bigger service-layer refactor in this step.)
 
     public String getUsername() {
         return user.getUsername();
     }
 
-    // Law-of-Demeter delegates: callers ask the controller instead of
-    // digging via getUser().getIdentity()/getSkills()/getLastSicknessTime().
+    // ----- Identity delegates -----
     public String getIdentityName() {
         return user.getIdentityName();
     }
@@ -66,12 +63,11 @@ public class UserController implements Subject, model.goals.AchievementStats {
         return user.hasSkill(skillName);
     }
 
-    // Query-only skill view for career rules (no list digging, no manual loops).
     public model.career.SkillSet getSkillSet() {
         return user.getSkillSet();
     }
 
-    // Read delegates: views ask here instead of digging via getUser().
+    // ----- Read delegates -----
     public int getLevel() {
         return user.getLevel();
     }
@@ -132,10 +128,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         user.markSicknessChecked(now);
     }
 
-    // Demo/cheat mutations live in model.player.CheatService (via
-    // controller.DeveloperController), never here: this controller owns
-    // only rule-abiding mutations (deposit/withdraw/gain/lose/...).
-
+    // ----- Commands -----
     public int getBalance() {
         return user.getBalance();
     }
@@ -156,7 +149,6 @@ public class UserController implements Subject, model.goals.AchievementStats {
     }
 
     public boolean deductBalance(int amount) {
-        // No screen refresh here; the caller refreshes once the whole action is done.
         if (amount > 0 && user.getBalance() >= amount) {
             user.withdraw(amount);
             return true;
@@ -217,7 +209,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         return false;
     }
 
-    /** Adds XP (level-up refill happens inside User). */
+    // Adds XP.
     public void addExperience(int amount) {
         if (amount > 0) {
             user.addExperience(amount);
@@ -225,7 +217,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         }
     }
 
-    /** Gains reputation (stays between 0-MAX_REPUTATION). */
+    // Gains reputation.
     public void gainReputation(int amount) {
         if (amount > 0) {
             user.gainReputation(amount);
@@ -233,7 +225,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         }
     }
 
-    /** Loses reputation (stays between 0-MAX_REPUTATION). */
+    // Loses reputation.
     public void loseReputation(int amount) {
         if (amount > 0) {
             user.loseReputation(amount);
@@ -241,12 +233,7 @@ public class UserController implements Subject, model.goals.AchievementStats {
         }
     }
 
-    // Adds one completed job to the player's totals.
-    // 10-hour run tuning: +1 jobBonus every 10 jobs (capped at 15 for +30%),
-    // so the job bonus is reachable in a single run. The every-10-jobs rule
-    // lives inside JobRecord (via User.addCompletedJob), so callers make ONE call.
-    // Single atomic transaction: balance + lifetime total move together
-    // via User.earn, so callers make ONE call instead of addBalance + addTotal.
+    // Records one completed job and its pay.
     public void recordJobCompletion(int moneyEarned) {
         user.addCompletedJob();
         if (moneyEarned > 0) {

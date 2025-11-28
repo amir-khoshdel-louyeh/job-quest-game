@@ -4,8 +4,10 @@ import model.player.CareerProgress;
 import model.player.User;
 
 // Builds the text block shown for player stats.
+// Read by stats views.
 public class StatsController {
 
+    // ----- Queries -----
     public String getDetailedStats(User user) {
         String stats = "";
         stats = stats + "===================================\n";

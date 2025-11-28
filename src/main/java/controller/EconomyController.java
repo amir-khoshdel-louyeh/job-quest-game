@@ -4,16 +4,17 @@ import model.store.Service;
 import provider.ServiceProvider;
 
 // Handles money: buying services like food or hospital visits.
-// Owns its ServiceProvider (injected, DIP): no static catalog lookup.
+// Catalog is injected.
 public class EconomyController {
     private UserController userController;
     private ServiceProvider serviceProvider;
 
+    // ----- Construction -----
     public EconomyController(UserController userController) {
         this(userController, new ServiceProvider());
     }
 
-    // Injection seam: catalog comes from outside (testable, swappable).
+    // Custom catalog for tests.
     public EconomyController(UserController userController, ServiceProvider serviceProvider) {
         if (userController == null) {
             throw new IllegalArgumentException("userController must not be null");
@@ -26,10 +27,9 @@ public class EconomyController {
         }
     }
 
-    // Buys a service with an instant effect (for example: eat food).
-    // One atomic transaction: lookup + charge + effect happen here together,
-    // so callers can never deduct without applying (or vice versa).
-    // Returns the purchased service, or null when unknown/unaffordable.
+    // ----- Commands -----
+    // Buys a service; lookup + charge + effect happen together.
+    // Returns the service, or null when unknown/unaffordable.
     public Service purchaseService(String serviceName) {
         Service service = serviceProvider.getService(serviceName);
         if (service == null) {
@@ -37,15 +37,13 @@ public class EconomyController {
         }
         if (userController.deductBalance(service.getPrice())) {
             service.apply(userController.getUser());
-            // Single coherent notification (refresh blasts once).
             userController.refresh();
             return service;
         }
         return null;
     }
 
-    // Catalog queries for views: NavBar asks here via GameController,
-    // never the provider directly (Demeter).
+    // ----- Catalog queries -----
     public java.util.List<Service> getHealthServices() {
         return serviceProvider.getHealthServices();
     }

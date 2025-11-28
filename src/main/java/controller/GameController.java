@@ -27,11 +27,12 @@ public class GameController {
     private final long sessionStartTime;
     private int sessionJobsCompleted = 0;
 
+    // ----- Construction -----
     public GameController(User user, long sessionStartTime) {
         this(new UserController(user), sessionStartTime);
     }
 
-    // Convenience: builds the default sub-controllers around one UserController.
+    // Default sub-controllers around one UserController.
     public GameController(UserController userController, long sessionStartTime) {
         this(userController,
                 new EconomyController(userController),
@@ -41,7 +42,7 @@ public class GameController {
                 sessionStartTime);
     }
 
-    // Injection seam: collaborators come from outside (testable, swappable).
+    // Collaborators come from outside.
     public GameController(UserController userController,
                           EconomyController economyController,
                           JobController jobController,
@@ -53,7 +54,7 @@ public class GameController {
              new ChallengeService(), new AchievementService(), sessionStartTime);
     }
 
-    // Full injection seam: services come from outside (testable, swappable).
+    // Services come from outside.
     public GameController(UserController userController,
                           EconomyController economyController,
                           JobController jobController,
@@ -67,7 +68,7 @@ public class GameController {
              new JobProvider(), new SkillProvider(), sessionStartTime);
     }
 
-    // Fullest injection seam: catalogs come from outside (testable).
+    // Catalogs come from outside.
     public GameController(UserController userController,
                           EconomyController economyController,
                           JobController jobController,
@@ -119,12 +120,12 @@ public class GameController {
         } else {
             this.skillProvider = new SkillProvider();
         }
-        // make sure new users have challenges
+        // New users start with challenges.
         this.challengeService.initializeChallenges(userController.getUser());
     }
 
-    // Buy a service (instant effect). Single lookup: the purchased Service
-    // comes back from the economy transaction, so no second provider query.
+    // ----- Commands -----
+    // Buys a service with an instant effect.
     public ActionResult purchaseService(String serviceName) {
         Service service = economyController.purchaseService(serviceName);
         if (service != null) {
@@ -135,7 +136,7 @@ public class GameController {
         }
     }
 
-    // Catalog queries for views: NavBar asks the controller, never the provider.
+    // ----- Catalog queries -----
     public List<Service> getHealthServices() {
         return economyController.getHealthServices();
     }
@@ -144,7 +145,7 @@ public class GameController {
         return economyController.getEnergyServices();
     }
 
-    // Check jobs (workshop always opens dialog if jobs exist)
+    // Opens the job dialog when jobs exist.
     public ActionResult doWork() {
         try {
             List<Job> allJobs = jobProvider.getAllJobs();
@@ -159,7 +160,6 @@ public class GameController {
         }
     }
 
-    // Catalog queries for views: NavBar asks the controller, never the provider.
     public List<Job> getJobsForCurrentIdentity() {
         return jobProvider.getJobsForIdentity(userController.getIdentity());
     }
@@ -217,6 +217,7 @@ public class GameController {
         return achievementService.getAchievementsWithStatus(userController.getUser());
     }
 
+    // ----- Session queries -----
     // Play time in minutes plus jobs done this session.
     public String getSessionStats() {
         long now = System.currentTimeMillis();
@@ -224,14 +225,13 @@ public class GameController {
         return "Session: " + minutes + " minutes | Jobs: " + sessionJobsCompleted;
     }
 
-    // What the view should do next. Replaces the old "JOB_DIALOG_REQUIRED"
-    // magic message: control flow is typed, display text stays in message.
+    // What the view should do next.
     public enum NextAction {
         NONE,
         OPEN_JOB_DIALOG
     }
 
-    // Small immutable helper class to return success + message + next action.
+    // Success + message + next action.
     public static class ActionResult {
         private final boolean success;
         private final String message;

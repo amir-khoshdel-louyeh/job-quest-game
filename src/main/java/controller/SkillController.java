@@ -14,18 +14,19 @@ public class SkillController {
     private AchievementService achievementService;
     private SkillProvider skillProvider;
 
+    // ----- Construction -----
     public SkillController(UserController userController) {
         this(userController, new ChallengeService(), new AchievementService(), new SkillProvider());
     }
 
-    // Injection seam: services come from outside (testable, swappable).
+    // Services come from outside.
     public SkillController(UserController userController,
                            ChallengeService challengeService,
                            AchievementService achievementService) {
         this(userController, challengeService, achievementService, new SkillProvider());
     }
 
-    // Full injection seam: skill catalog comes from outside (testable).
+    // Skill catalog comes from outside.
     public SkillController(UserController userController,
                            ChallengeService challengeService,
                            AchievementService achievementService,
@@ -51,30 +52,24 @@ public class SkillController {
         }
     }
 
-    // Tries to learn a skill by name. Returns true if learned.
+    // ----- Commands -----
+    // Learns a skill; returns true if learned.
     public boolean learnSkill(String skillName) {
         LearnableSkill toLearn = skillProvider.getSkill(skillName);
         if (toLearn == null) {
             return false;
         }
         User user = userController.getUser();
-        // only own profession can learn it
         if (!toLearn.isForIdentity(user.getIdentity())) {
             return false;
         }
-        // already known?
         if (user.hasSkill(toLearn.getName())) {
             return false;
         }
-        // try to pay
         if (userController.deductBalance(toLearn.getCost())) {
             userController.addSkill(toLearn.getName());
-            // update challenges + achievements
             challengeService.updateChallengeProgress(user, Challenge.ChallengeType.LEARN_SKILLS, 1);
             achievementService.checkAndUnlockAchievements(user);
-            // Single coherent notification: addSkill already sent SKILLS;
-            // refresh() blasts once so balance/cost change repaints too.
-            // (Previously refresh()+notifyObservers() fired two identical blasts.)
             userController.refresh();
             return true;
         }
