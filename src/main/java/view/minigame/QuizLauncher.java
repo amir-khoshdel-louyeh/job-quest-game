@@ -13,7 +13,7 @@ public final class QuizLauncher implements MiniGameLauncher {
         this(new QuizProvider());
     }
 
-    // Test seam: fixed question bank makes every run reproducible.
+    // Custom question bank for tests.
     public QuizLauncher(QuizProvider quizzes) {
         if (quizzes == null) {
             throw new IllegalArgumentException("quizzes must not be null");

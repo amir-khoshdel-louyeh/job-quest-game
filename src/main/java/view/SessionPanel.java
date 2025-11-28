@@ -6,8 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 // Side session controls: help, new game, exit.
-// Extracted from GamePanel (SRP). The shared exit action is exposed so the
-// bottom bar reuses it instead of duplicating the exit logic.
+// Shares its exit action with the bottom bar.
 public class SessionPanel extends JPanel {
 
     private final Action exitAction;

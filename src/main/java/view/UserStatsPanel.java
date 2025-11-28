@@ -7,9 +7,8 @@ import view.theme.AppTheme;
 
 import javax.swing.*;
 
-// Profile + progression + identity stats on the side of the game screen.
-// Extracted from GamePanel (SRP): this owns all stat labels/bars and the
-// refresh logic; GamePanel only keeps a delegate so observers don't change.
+// Side stats: profile, progression, and identity bars.
+// Owned by GamePanel.
 public class UserStatsPanel extends JPanel {
 
     private final UserController userController;

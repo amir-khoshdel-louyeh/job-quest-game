@@ -7,8 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 // Chat + toast notifications at the bottom of the game screen.
-// Extracted from GamePanel (SRP): this owns the chat area and the toast
-// popup; GamePanel only keeps a delegate so existing callers don't change.
+// Owned by GamePanel.
 public class ChatPanel extends JPanel implements MessageSink {
 
     private final JTextArea chatArea;

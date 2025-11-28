@@ -10,9 +10,8 @@ import view.theme.AppTheme;
 import javax.swing.*;
 import java.awt.*;
 
-// Top navigation bar + the screens it opens (hospital, workshop, market,
-// school, progress, dev controls). Extracted from GamePanel (SRP):
-// GamePanel keeps layout/timers, this owns "where to go".
+// Top bar + the screens it opens (hospital, workshop, market,
+// school, progress, dev controls). Owned by GamePanel.
 public class NavBar extends JPanel {
 
     private final GameController controller;
