@@ -7,21 +7,19 @@ import model.player.User;
 import utils.GameBalance;
 
 // Handles periodic sickness, energy, and health drops.
-// Instance (not static): the clock/random come from outside, so sickness
-// rolls are deterministic in tests.
-// Works on the User model directly — never on UserController (layering:
-// service -> model, not service -> controller). State changes are silent;
-// the caller (RoutineController) owns all observer notifications.
+// Clock/random come from outside; state changes are silent and the
+// caller owns observer notifications.
 public class RoutineService {
 
     private final Random random;
     private final Supplier<Long> clock;
 
+    // ----- Construction -----
     public RoutineService() {
         this(new Random(), System::currentTimeMillis);
     }
 
-    // Test seam: fixed clock + seeded random make every run reproducible.
+    // Fixed clock + seeded random for tests.
     public RoutineService(Random random, Supplier<Long> clock) {
         if (random == null) {
             throw new IllegalArgumentException("random must not be null");
@@ -33,23 +31,22 @@ public class RoutineService {
         this.clock = clock;
     }
 
+    // ----- Commands -----
+    // Rolls sickness; at most once per cooldown hour.
     public String processSicknessCheck(User user) {
         long now = clock.get();
-        // 10-hour run tuning: allow sickness once per hour (was 24h),
-        // lighter damage so one event can't ruin a run.
         if (now - user.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
             return null;
         }
         // 10% chance to get sick.
         if (random.nextInt(GameBalance.SICKNESS_ROLL_BOUND) < GameBalance.SICKNESS_ROLL_HIT_BELOW) {
             int healthLoss = GameBalance.SICKNESS_MIN_HEALTH_LOSS
-                    + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE); // Lose 5-10 health
+                    + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE);
             user.loseHealth(healthLoss);
             user.markSicknessChecked(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
         }
-        // No sickness occurred
-        user.markSicknessChecked(now); // Mark checked for today
+        user.markSicknessChecked(now);
         return null;
     }
     public String processEnergyDecrease(User user) {
@@ -88,17 +85,14 @@ public class RoutineService {
     }
 
 
+    // ----- Private helpers -----
     // Blocks the player briefly with a small money penalty.
-    // 10-hour run tuning: 5 minutes (was 48 hours), penalty 200 (was 2000),
-    // so hitting 0 energy/health is a setback, not a run-ender.
     private void blockUser(User user, String reason) {
         int penalty = GameBalance.KNOCKOUT_MONEY_PENALTY;
-        // Same refusal rule as UserController.deductBalance: no partial
-        // charge when the balance is short (withdraw alone would clamp).
+        // No partial charge when the balance is short.
         if (penalty > 0 && user.getBalance() >= penalty) {
             user.withdraw(penalty);
         }
         user.blockUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
-        // The service does not show dialogs. It just changes the state.
     }
 }

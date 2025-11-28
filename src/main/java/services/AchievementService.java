@@ -6,18 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Checks player stats and unlocks earned achievements with rewards.
-// Instance (not static): achievement templates come from outside via Supplier,
-// so behavior is deterministic in tests and swappable per session (DIP) —
-// same pattern as RoutineService.
+// Templates come from outside; injected into GameController.
 public class AchievementService {
     private final java.util.function.Supplier<List<Achievement>> allSource;
 
+    // ----- Construction -----
     public AchievementService() {
         provider.AchievementProvider defaults = new provider.AchievementProvider();
         this.allSource = defaults::getAllAchievements;
     }
 
-    // Test seam: fixed template list makes every run reproducible.
+    // Custom template list for tests.
     public AchievementService(java.util.function.Supplier<List<Achievement>> allSource) {
         if (allSource == null) {
             throw new IllegalArgumentException("achievement source must not be null");
@@ -25,7 +24,8 @@ public class AchievementService {
         this.allSource = allSource;
     }
 
-    // Checks every achievement, unlocks new ones, and hands out rewards.
+    // ----- Commands -----
+    // Unlocks new achievements and hands out rewards.
     public List<Achievement> checkAndUnlockAchievements(User user) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
         List<Achievement> all = allSource.get();
@@ -42,11 +42,11 @@ public class AchievementService {
         return newOnes;
     }
 
+    // ----- Queries -----
     public int getAchievementProgress(User user, Achievement achievement) {
         return achievement.getProgress(user);
     }
 
-    // Achievements are immutable; unlocked status is derived from User.
     public List<Achievement> getAchievementsWithStatus(User user) {
         return allSource.get();
     }

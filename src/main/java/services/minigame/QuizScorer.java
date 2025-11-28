@@ -9,6 +9,7 @@ import model.minigame.QuizQuestion;
 // Scores quiz rounds from correct answers and speed.
 public class QuizScorer {
 
+    // ----- Constants -----
     // Par time for a round.
     public static final int ROUND_PAR_SECONDS = 90;
 
@@ -16,6 +17,7 @@ public class QuizScorer {
     private static final double SPEED_WEIGHT = 0.2;
     private static final double MAX_SPEED_RATIO = 1.0;
 
+    // ----- Queries -----
     // Grades one quiz round.
     public MiniGameResult score(String gameName, List<QuizQuestion> questions,
                                 List<Integer> picked, int elapsedSeconds) {
@@ -36,7 +38,7 @@ public class QuizScorer {
         if (n > 0) {
             accuracy = (int) Math.round(correct * 100.0 / n);
         }
-        // Shared mix (DRY): clamp + ratio cap + weighted sum live in ScoreMixer.
+        // Blend lives in ScoreMixer.
         double speedRatio = ScoreMixer.speedRatio(ROUND_PAR_SECONDS, elapsedSeconds, MAX_SPEED_RATIO);
         int score = 0;
         if (n > 0) {
