@@ -7,21 +7,20 @@ import java.util.Map;
 
 import model.Identity;
 
-// Holds the 4 starting professions the player can choose from.
-// Also owns their card artwork: image paths are presentation data for the
-// option screen, so they live here — not in the domain Identity.
-// Instance repository (not static holder) so StartPanel can inject/mock it.
+// Holds the 4 starting professions plus card artwork.
+// Read by StartPanel.
 public class IdentityOptionProvider {
 
     private final ArrayList<Identity> options = new ArrayList<Identity>();
 
     private final Map<String, String> imagePaths = new HashMap<String, String>();
 
+    // ----- Construction -----
+    // Identities come from outside.
     public IdentityOptionProvider() {
         this(new IdentityProvider());
     }
 
-    // Test seam: identities come from outside (testable, swappable).
     public IdentityOptionProvider(IdentityProvider identities) {
         if (identities == null) {
             throw new IllegalArgumentException("identities must not be null");
@@ -37,6 +36,7 @@ public class IdentityOptionProvider {
         imagePaths.put("Typist", "/images/typist.png");
     }
 
+    // ----- Getter -----
     public List<Identity> getAvailableOptions() {
         ArrayList<Identity> copy = new ArrayList<Identity>();
         for (int i = 0; i < options.size(); i++) {
@@ -45,6 +45,7 @@ public class IdentityOptionProvider {
         return copy;
     }
 
+    // ----- Queries -----
     // Card artwork for an option, or null when it has none.
     public String imagePathFor(Identity option) {
         if (option == null) {

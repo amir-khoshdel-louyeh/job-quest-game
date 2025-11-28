@@ -6,28 +6,24 @@ import java.util.List;
 import model.Identity;
 import model.career.Job;
 
-// Builds the list of jobs the player can pick from.
-// Single-list catalog: extends AbstractCatalog<Job> (data only, lookup
-// mechanics inherited). The catalog comes from outside via constructor,
-// so callers depend on an object they can inject/mock (DIP) —
-// same pattern as ChallengeService/AchievementService.
+// Builds the job catalog the player picks from.
+// Extends AbstractCatalog; injected into JobController/JobService.
 public class JobProvider extends AbstractCatalog<Job> {
 
+    // ----- Construction -----
     public JobProvider() {
         this(buildDefaultCatalog());
     }
 
-    // Test seam: custom catalog makes every run reproducible.
+    // Custom catalog for tests.
     public JobProvider(List<Job> jobs) {
         super(jobs);
     }
 
+    // Tuned for a 10-hour run: ~200 jobs from start to end.
     private static ArrayList<Job> buildDefaultCatalog() {
         ArrayList<Job> jobs = new ArrayList<Job>();
         IdentityProvider identities = new IdentityProvider();
-        // 10-hour run tuning: floor raised ~10x so the first skill
-        // costs ~2 jobs instead of ~35. Profession gap compressed to
-        // ~150$ (start) -> ~3500$ (end) so every path finishes in ~200 jobs.
         // --- Typist Jobs ---
         jobs.add(new Job("Transcribe Audio Clip", "Transcribe a short audio file.", 150, 1000, identities.createIdentity("Typist"), makeEmptyList()));
         jobs.add(new Job("Basic Data Entry", "Enter data from a scanned document.", 300, 1200, identities.createIdentity("Typist"), makeList1("Typing Proficiency")));
@@ -71,13 +67,13 @@ public class JobProvider extends AbstractCatalog<Job> {
         return list;
     }
 
-    // Return a copy so callers can't change the original list.
-    // Kept name for backward compatibility; mechanics inherited from base.
+    // ----- Queries -----
+    // Old name for getAll().
     public List<Job> getAllJobs() {
         return getAll();
     }
 
-    // Return jobs for one profession.
+    // Returns jobs for one profession.
     public List<Job> getJobsForIdentity(Identity identity) {
         ArrayList<Job> result = new ArrayList<Job>();
         if (identity == null) {

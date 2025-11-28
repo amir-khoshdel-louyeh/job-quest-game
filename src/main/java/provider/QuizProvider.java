@@ -5,18 +5,18 @@ import java.util.List;
 
 import model.minigame.QuizQuestion;
 
-// Holds the quiz questions for the (single) quiz mini-game.
-// Instance repository (not static holder): the catalog comes from outside,
-// so the launcher can inject/mock it (DIP).
+// Holds the quiz questions for the quiz mini-game.
+// Injected into the quiz launcher/controller.
 public final class QuizProvider {
 
     private final ArrayList<QuizQuestion> questions;
 
+    // ----- Construction -----
     public QuizProvider() {
         this(buildCatalog());
     }
 
-    // Test seam: custom catalog makes every run reproducible.
+    // Custom catalog for tests.
     public QuizProvider(List<QuizQuestion> questions) {
         if (questions == null) {
             throw new IllegalArgumentException("quiz catalog must not be null");
@@ -79,6 +79,7 @@ public final class QuizProvider {
         return list;
     }
 
+    // ----- Getter -----
     public List<QuizQuestion> getQuestions() {
         ArrayList<QuizQuestion> copy = new ArrayList<QuizQuestion>();
         for (int i = 0; i < questions.size(); i++) {

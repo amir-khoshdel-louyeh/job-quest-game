@@ -8,18 +8,16 @@ import model.Identity;
 import model.career.Profession;
 
 // Builds the starting profession the player picks.
-// Instance registry (Factory): each profession registers one map entry,
-// so adding a new one never edits the createIdentity dispatch (OCP).
-// Keys are normalized (trim + lowercase + no spaces), so "LogoDesigner"
-// and "Logo Designer" resolve to the same entry.
+// Keys ignore case and spaces.
 public class IdentityProvider {
     private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
 
+    // ----- Construction -----
     public IdentityProvider() {
         this(defaultRegistry());
     }
 
-    // Test seam: custom registry makes every run reproducible.
+    // Custom registry for tests.
     public IdentityProvider(Map<String, Supplier<Identity>> registry) {
         if (registry == null) {
             throw new IllegalArgumentException("registry must not be null");
@@ -40,6 +38,7 @@ public class IdentityProvider {
         return defaults;
     }
 
+    // ----- Queries -----
     public Identity createIdentity(String identityName) {
         if (identityName == null) {
             throw new UnknownIdentityException(null);
@@ -51,7 +50,8 @@ public class IdentityProvider {
         return factory.get();
     }
 
-    // "Logo Designer" -> "logodesigner"; lookup is case/space-insensitive.
+    // "Logo Designer" -> "logodesigner".
+    // ----- Private helpers -----
     private static String normalize(String raw) {
         String trimmed = raw.trim().toLowerCase();
         StringBuilder key = new StringBuilder();

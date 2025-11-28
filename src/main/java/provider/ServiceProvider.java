@@ -7,21 +7,19 @@ import java.util.List;
 import model.store.Service;
 
 // Holds all food and hospital services the player can buy.
-// Single-list catalog: extends AbstractCatalog<Service> (defensive-copy
-// mechanics inherited). A name -> service map is kept as a lookup index
-// on top — extends for storage, composition (map) for fast lookup.
-// EconomyController can inject/mock it (DIP) — same pattern as the
-// other providers.
+// Extends AbstractCatalog plus a name map for fast lookup.
+// Injected into EconomyController.
 public class ServiceProvider extends AbstractCatalog<Service> {
 
     // map name -> service, for quick lookup
     private final HashMap<String, Service> servicesByName = new HashMap<String, Service>();
 
+    // ----- Construction -----
     public ServiceProvider() {
         this(buildDefaultCatalog());
     }
 
-    // Test seam: custom catalog makes every run reproducible.
+    // Custom catalog for tests.
     public ServiceProvider(List<Service> services) {
         super(services);
         List<Service> all = snapshot();
@@ -65,11 +63,12 @@ public class ServiceProvider extends AbstractCatalog<Service> {
         }
     }
 
+    // ----- Queries -----
     public Service getService(String name) {
         return servicesByName.get(name);
     }
 
-    // Return only health services. The rule lives on Service itself.
+    // Returns only health services.
     public List<Service> getHealthServices() {
         ArrayList<Service> result = new ArrayList<Service>();
         List<Service> all = snapshot();
@@ -82,7 +81,7 @@ public class ServiceProvider extends AbstractCatalog<Service> {
         return result;
     }
 
-    // Return only energy services. The rule lives on Service itself.
+    // Returns only energy services.
     public List<Service> getEnergyServices() {
         ArrayList<Service> result = new ArrayList<Service>();
         List<Service> all = snapshot();

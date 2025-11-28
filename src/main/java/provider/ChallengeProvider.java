@@ -6,20 +6,17 @@ import java.util.List;
 import model.goals.Challenge;
 
 // Holds the story challenges the player can try.
-// Instance repository (not static holder): the catalog comes from outside,
-// so ChallengeService can inject/mock it (DIP) — same pattern as
-// Job/Skill providers.
-// Note: every ChallengeType has both a producer (an entry below) and a
-// consumer (an updateChallengeProgress call) — no dead types.
+// Injected into ChallengeService.
 public class ChallengeProvider {
 
     private final List<Challenge> challenges;
 
+    // ----- Construction -----
     public ChallengeProvider() {
         this(buildCatalog());
     }
 
-    // Test seam: custom catalog makes every run reproducible.
+    // Custom catalog for tests.
     public ChallengeProvider(List<Challenge> challenges) {
         if (challenges == null) {
             throw new IllegalArgumentException("challenge catalog must not be null");
@@ -87,6 +84,7 @@ public class ChallengeProvider {
         return all;
     }
 
+    // ----- Getter -----
     public List<Challenge> getChallenges() {
         return new ArrayList<>(challenges);
     }

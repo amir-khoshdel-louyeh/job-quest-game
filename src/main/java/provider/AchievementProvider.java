@@ -8,27 +8,22 @@ import model.goals.Achievement;
 import model.goals.AchievementStats;
 
 // Holds all achievements the player can earn.
-// Single-list catalog: extends AbstractCatalog<Achievement> (defensive-copy
-// mechanics inherited). Achievement templates come from outside, so
-// AchievementService can inject/mock it (DIP) — same pattern as the
-// other providers. One concrete Achievement + Strategy lambdas replaces
-// the four one-line subclasses (composition over inheritance).
+// Extends AbstractCatalog; injected into AchievementService.
 public class AchievementProvider extends AbstractCatalog<Achievement> {
 
+    // ----- Construction -----
     public AchievementProvider() {
         this(buildDefaultCatalog());
     }
 
-    // Test seam: custom catalog makes every run reproducible.
+    // Custom catalog for tests.
     public AchievementProvider(List<Achievement> achievements) {
         super(achievements);
     }
 
+    // Thresholds tuned for a 10-hour run (~150-200 jobs).
     private static List<Achievement> buildDefaultCatalog() {
         List<Achievement> all = new ArrayList<Achievement>();
-        // 10-hour run tuning: money thresholds cut ~3-4x to match ~150-200 jobs
-        // at ~800$ average (total ~120-160k incl. bonuses/quests). Job counts
-        // capped at 100 so Legend is reachable in one run.
         all.add(new Achievement("first_dollar", "First Dollar", "Earn your first $100", 50, 100, AchievementStats::getTotalMoneyEarned));
         all.add(new Achievement("pocket_money", "Pocket Money", "Earn $1,000 in total", 200, 1000, AchievementStats::getTotalMoneyEarned));
         all.add(new Achievement("money_maker", "Money Maker", "Earn $5,000 in total", 500, 5000, AchievementStats::getTotalMoneyEarned));
@@ -56,7 +51,8 @@ public class AchievementProvider extends AbstractCatalog<Achievement> {
         return all;
     }
 
-    // Kept name for backward compatibility; mechanics inherited from base.
+    // ----- Queries -----
+    // Old name for getAll().
     public List<Achievement> getAllAchievements() {
         return getAll();
     }
