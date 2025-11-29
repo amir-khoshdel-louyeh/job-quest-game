@@ -63,6 +63,12 @@ public final class JobProvider extends AbstractCatalog<Job> implements JobCatalo
         return list;
     }
 
+    // ----- Template hook -----
+    @Override
+    protected String nameOf(Job entry) {
+        return entry.getName();
+    }
+
     // ----- Queries -----
     // Returns jobs for one profession.
     public List<Job> getJobsForIdentity(Identity identity) {

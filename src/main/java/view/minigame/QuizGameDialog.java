@@ -9,7 +9,6 @@ import model.minigame.MiniGameResult;
 import model.minigame.QuizQuestion;
 import model.minigame.QuizRound;
 import model.minigame.ScoreStrategy;
-import services.minigame.QuizScorer;
 import utils.Lists;
 import view.theme.AppTheme;
 
@@ -39,7 +38,7 @@ public class QuizGameDialog extends JDialog {
         super(parent, gameName, true);
         this.gameName = gameName;
         this.bank = Lists.copyOf(bank);
-        this.scorer = scorer != null ? scorer : new QuizScorer();
+        this.scorer = utils.Require.notNull(scorer, "scorer");
         AppTheme.styleDialog(this, 600, 520);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         buildUi();
@@ -61,7 +60,7 @@ public class QuizGameDialog extends JDialog {
         root.setBackground(AppTheme.BACKGROUND_COLOR);
         root.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        timeBar = new JProgressBar(0, QuizScorer.ROUND_PAR_SECONDS);
+        timeBar = new JProgressBar(0, ScoreStrategy.ROUND_PAR_SECONDS);
         timeBar.setStringPainted(true);
         timeBar.setForeground(AppTheme.PRIMARY_COLOR);
         timeBar.setBackground(AppTheme.DIVIDER_COLOR);
@@ -88,18 +87,10 @@ public class QuizGameDialog extends JDialog {
         JPanel bottom = new JPanel(new BorderLayout(8, 8));
         bottom.setBackground(AppTheme.BACKGROUND_COLOR);
         JButton skip = AppTheme.createSecondaryButton("Skip");
-        skip.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                answer(QuizRound.SKIPPED);
-            }
-        });
+        skip.addActionListener(e -> answer(QuizRound.SKIPPED));
         nextButton = AppTheme.createPrimaryButton("Next");
         nextButton.setEnabled(false);
-        nextButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                next();
-            }
-        });
+        nextButton.addActionListener(e -> next());
         bottom.add(skip, BorderLayout.WEST);
         bottom.add(nextButton, BorderLayout.EAST);
         root.add(bottom, BorderLayout.SOUTH);
@@ -112,23 +103,21 @@ public class QuizGameDialog extends JDialog {
                 new Random(), scorer);
         stopwatch.start();
         stopTick();
-        tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                int left = QuizScorer.ROUND_PAR_SECONDS - elapsedSeconds();
-                if (left < 0) {
-                    left = 0;
-                }
-                timeBar.setMaximum(QuizScorer.ROUND_PAR_SECONDS);
-                timeBar.setValue(left);
-                timeBar.setString(left + "s left - Q" + (round.getIndex() + 1) + "/" + round.size());
-                if (left <= 15) {
-                    timeBar.setForeground(AppTheme.ERROR_COLOR);
-                } else {
-                    timeBar.setForeground(AppTheme.PRIMARY_COLOR);
-                }
-                if (left <= 0) {
-                    finish();
-                }
+        tick = new javax.swing.Timer(200, e -> {
+            int left = ScoreStrategy.ROUND_PAR_SECONDS - elapsedSeconds();
+            if (left < 0) {
+                left = 0;
+            }
+            timeBar.setMaximum(ScoreStrategy.ROUND_PAR_SECONDS);
+            timeBar.setValue(left);
+            timeBar.setString(left + "s left - Q" + (round.getIndex() + 1) + "/" + round.size());
+            if (left <= 15) {
+                timeBar.setForeground(AppTheme.ERROR_COLOR);
+            } else {
+                timeBar.setForeground(AppTheme.PRIMARY_COLOR);
+            }
+            if (left <= 0) {
+                finish();
             }
         });
         tick.start();
@@ -149,11 +138,7 @@ public class QuizGameDialog extends JDialog {
             final int choice = i;
             JButton button = AppTheme.createSecondaryButton(options.get(i));
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
-            button.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    answer(choice);
-                }
-            });
+            button.addActionListener(e -> answer(choice));
             optionsPanel.add(button);
             optionsPanel.add(Box.createVerticalStrut(8));
         }

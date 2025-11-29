@@ -1,11 +1,11 @@
 package model.goals;
 
-import java.util.Objects;
+import model.AbstractIdentified;
 
 // An unlockable goal with a reward.
 // Checked against AchievementStats; read via AchievementProvider/AchievementService.
 // Final: the stat extractor is part of its construction, not an extension point.
-public final class Achievement {
+public final class Achievement extends AbstractIdentified {
     private final String id;
     private final String name;
     private final String description;
@@ -36,6 +36,7 @@ public final class Achievement {
     }
 
     // ----- Getter -----
+    @Override
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -72,24 +73,5 @@ public final class Achievement {
 
     public String toString() {
         return name + " - " + description;
-    }
-
-    // Equal by id.
-    // ----- Object overrides -----
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Achievement other = (Achievement) obj;
-        return Objects.equals(id, other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import model.goals.AchievementStats;
 import model.goals.Challenge;
+import model.goals.ChallengeType;
 
 // The goal surface the rule services need: challenge progress, achievement
 // unlocks, and the rewards both of them hand out.
@@ -14,7 +15,7 @@ public interface PlayerProgress extends AchievementStats {
     // ----- Challenges -----
     List<Challenge> getActiveChallenges();
 
-    List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount);
+    List<Challenge> updateChallengeProgress(ChallengeType type, int amount);
 
     void addChallenges(List<Challenge> challenges);
 

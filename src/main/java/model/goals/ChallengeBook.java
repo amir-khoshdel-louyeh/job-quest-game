@@ -21,7 +21,7 @@ public final class ChallengeBook {
 
     // ----- Commands -----
     // Adds progress to challenges of this type; returns newly completed ones.
-    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
+    public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         if (type == null) {
             return finished;

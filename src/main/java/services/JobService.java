@@ -6,15 +6,17 @@ import model.minigame.MiniGameResult;
 import model.player.PaymentStats;
 import services.job.JobPaymentCalculator;
 import services.job.JobRewardCalculator;
+import services.job.JobRewardRules;
 
 // Composes the two job rule calculators into one JobRewards value.
 // Payment math lives in JobPaymentCalculator; XP/rep in JobRewardCalculator.
-public final class JobService {
+public final class JobService implements JobRewardRules {
     private final JobPaymentCalculator payments = new JobPaymentCalculator();
     private final JobRewardCalculator rewards = new JobRewardCalculator();
 
     // ----- Queries -----
     // One call produces every reward a successful job pays out.
+    @Override
     public JobRewards calculateRewards(Job job, PaymentStats stats, MiniGameResult game) {
         if (job == null || stats == null) {
             return new JobRewards(0, 0, 0, 0, 0);
@@ -30,6 +32,7 @@ public final class JobService {
     }
 
     // A failed attempt loses reputation; the amount is a reward rule.
+    @Override
     public int reputationPenalty(MiniGameResult game) {
         return rewards.reputationPenalty(game);
     }

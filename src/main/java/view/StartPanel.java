@@ -1,8 +1,10 @@
 package view;
 
-import controller.GameSession;
+import controller.GameContext;
+import controller.GameStarter;
 import model.Identity;
-import provider.IdentityProvider;
+import provider.IdentityCatalog;
+import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -16,12 +18,17 @@ public class StartPanel extends JPanel {
     private JButton startButton;
     private JLabel errorLabel;
     private ButtonGroup identityGroup;
-    private final IdentityProvider options;
+    private final IdentityCatalog options;
+    private final GameStarter gameStarter;
+    private final MiniGameLauncher workGame;
 
-    // The career catalog is supplied by MainFrame, not built here.
-    public StartPanel(MainFrame mainFrame, IdentityProvider options) {
+    // The career catalog and the game starter are supplied by MainFrame.
+    public StartPanel(MainFrame mainFrame, IdentityCatalog options, GameStarter gameStarter,
+                      MiniGameLauncher workGame) {
         this.mainFrame = mainFrame;
         this.options = utils.Require.notNull(options, "identity options");
+        this.gameStarter = utils.Require.notNull(gameStarter, "gameStarter");
+        this.workGame = utils.Require.notNull(workGame, "workGame");
         setBackground(AppTheme.BACKGROUND_COLOR);
         setLayout(new BorderLayout(AppTheme.PADDING_LARGE, AppTheme.PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(
@@ -162,27 +169,14 @@ public class StartPanel extends JPanel {
         desc.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
         card.add(desc, BorderLayout.CENTER);
 
-        card.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                radioButton.setSelected(true);
-            }
-        });
+        card.addMouseListener(new CardSelectionListener(radioButton));
 
         return card;
     }
 
     private void initActions() {
-        startButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                startGame();
-            }
-        });
-        nameField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                startGame();
-            }
-        });
+        startButton.addActionListener(e -> startGame());
+        nameField.addActionListener(e -> startGame());
     }
 
     private void startGame() {
@@ -197,8 +191,8 @@ public class StartPanel extends JPanel {
         }
         try {
             // The selected option is already a complete Identity; reuse it.
-            GameSession session = GameSession.start(name, selected);
-            mainFrame.showPanel(new GamePanel(session));
+            GameContext game = gameStarter.start(name, selected);
+            mainFrame.showPanel(new GamePanel(game, workGame));
         } catch (IllegalArgumentException ex) {
             errorLabel.setText("Error: " + ex.getMessage());
         }

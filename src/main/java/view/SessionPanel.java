@@ -19,33 +19,24 @@ public class SessionPanel extends JPanel {
 
         JButton helpButton = AppTheme.createSecondaryButton("📖 Help & About");
         helpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        helpButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                AboutDialog aboutDialog = new AboutDialog(
-                        (JFrame) SwingUtilities.getWindowAncestor(SessionPanel.this));
-                aboutDialog.setVisible(true);
-            }
+        helpButton.addActionListener(e -> {
+            AboutDialog aboutDialog = new AboutDialog(
+                    (JFrame) SwingUtilities.getWindowAncestor(SessionPanel.this));
+            aboutDialog.setVisible(true);
         });
 
         // No save - in-memory only. Exit closes, New Game goes back to career pick.
-        exitAction = new AbstractAction("❌ Exit") {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.exit(0);
-            }
-        };
+        exitAction = new ExitAction();
         JButton exitButton = AppTheme.createDangerButton("❌ Exit");
         exitButton.setAction(exitAction);
         exitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton newGameButton = AppTheme.createSecondaryButton("🔄 New Game");
         newGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        newGameButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(SessionPanel.this);
-                if (frame instanceof MainFrame) {
-                    ((MainFrame) frame).showStartPanel();
-                }
+        newGameButton.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(SessionPanel.this);
+            if (frame instanceof MainFrame) {
+                ((MainFrame) frame).showStartPanel();
             }
         });
 

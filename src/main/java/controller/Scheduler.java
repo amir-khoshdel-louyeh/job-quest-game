@@ -6,9 +6,4 @@ public interface Scheduler {
 
     // Starts the task and returns a handle that stops it.
     Cancelable every(long periodMillis, Runnable task);
-
-    // One scheduled task.
-    interface Cancelable {
-        void cancel();
-    }
 }

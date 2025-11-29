@@ -1,6 +1,6 @@
 package view;
 
-import controller.DeveloperController;
+import controller.DeveloperCommands;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -9,7 +9,7 @@ import java.awt.*;
 // The developer screen: change money, health, and other stats quickly for demos.
 public class DeveloperDialog extends JDialog {
 
-    private DeveloperController devController;
+    private DeveloperCommands devController;
     private GamePanel gamePanel;
 
     private JTextField balanceField;
@@ -20,7 +20,7 @@ public class DeveloperDialog extends JDialog {
     private JTextField playtimeField;
     private JTextField jobBonusField;
 
-    public DeveloperDialog(JFrame parent, DeveloperController devController, GamePanel gamePanel) {
+    public DeveloperDialog(JFrame parent, DeveloperCommands devController, GamePanel gamePanel) {
         super(parent, "Developer Controls", true);
         this.devController = devController;
         this.gamePanel = gamePanel;
@@ -56,46 +56,32 @@ public class DeveloperDialog extends JDialog {
 
         JPanel quickRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
         quickRow.setBackground(AppTheme.BACKGROUND_COLOR);
-        quickRow.add(quickButton("Full HP", new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                devController.setHealth(100);
-                afterQuick("Full HP");
-            }
+        quickRow.add(quickButton("Full HP", e -> {
+            devController.setHealth(100);
+            afterQuick("Full HP");
         }));
-        quickRow.add(quickButton("Full EN", new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                devController.setEnergy(100000);
-                afterQuick("Full EN");
-            }
+        quickRow.add(quickButton("Full EN", e -> {
+            devController.setEnergy(100000);
+            afterQuick("Full EN");
         }));
-        quickRow.add(quickButton("+$5k", new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                int now = devController.getBalance();
-                devController.setBalance(now + 5000);
-                afterQuick("+$5k");
-            }
+        quickRow.add(quickButton("+$5k", e -> {
+            int now = devController.getBalance();
+            devController.setBalance(now + 5000);
+            afterQuick("+$5k");
         }));
-        quickRow.add(quickButton("+60 min", new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                devController.addPlaytimeMinutes(60);
-                afterQuick("+60 min");
-            }
+        quickRow.add(quickButton("+60 min", e -> {
+            devController.addPlaytimeMinutes(60);
+            afterQuick("+60 min");
         }));
-        quickRow.add(quickButton("Unblock", new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                devController.unblock();
-                afterQuick("Unblock");
-            }
+        quickRow.add(quickButton("Unblock", e -> {
+            devController.unblock();
+            afterQuick("Unblock");
         }));
         bottom.add(quickRow);
 
         JButton applyButton = AppTheme.createSuccessButton("Apply Values");
         applyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        applyButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                applyValues();
-            }
-        });
+        applyButton.addActionListener(e -> applyValues());
         bottom.add(Box.createVerticalStrut(6));
         bottom.add(applyButton);
 

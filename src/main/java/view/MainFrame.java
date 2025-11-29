@@ -1,16 +1,24 @@
 package view;
 
+import controller.GameStarter;
+import provider.IdentityCatalog;
+import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
-import provider.IdentityProvider;
 import javax.swing.*;
 import java.awt.*;
 
 // The app window: starts maximized with standard exit button (X).
 public class MainFrame extends JFrame {
-    // One shared read-only catalog for every start screen in this window.
-    private final IdentityProvider identityOptions = new IdentityProvider();
-    
-    public MainFrame() {
+    // All three collaborators are contracts; main.Main wires the concretes.
+    private final IdentityCatalog identityOptions;
+    private final GameStarter gameStarter;
+    private final MiniGameLauncher workGame;
+
+    public MainFrame(IdentityCatalog identityOptions, GameStarter gameStarter,
+                     MiniGameLauncher workGame) {
+        this.identityOptions = utils.Require.notNull(identityOptions, "identityOptions");
+        this.gameStarter = utils.Require.notNull(gameStarter, "gameStarter");
+        this.workGame = utils.Require.notNull(workGame, "workGame");
         AppTheme.initialize();
         
         setTitle("Job Quest - Professional Career Simulation");
@@ -38,17 +46,14 @@ public class MainFrame extends JFrame {
 
     // Builds the start screen with the shared career catalog.
     public void showStartPanel() {
-        showPanel(new StartPanel(this, identityOptions));
+        showPanel(new StartPanel(this, identityOptions, gameStarter, workGame));
     }
     
     public void showPanel(JPanel panel) {
-        final JPanel myPanel = panel;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                setContentPane(myPanel);
-                revalidate();
-                repaint();
-            }
+        SwingUtilities.invokeLater(() -> {
+            setContentPane(panel);
+            revalidate();
+            repaint();
         });
     }
 

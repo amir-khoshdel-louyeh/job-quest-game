@@ -1,14 +1,12 @@
 package controller;
 
-import java.util.List;
-
 import model.player.PurchaseTarget;
 import model.store.Service;
 import provider.ServiceCatalog;
 
 // Handles money: buying services like food or hospital visits.
 // Catalog is injected. Package-private: only GameSession/GameController wire it.
-final class EconomyController {
+final class EconomyController implements ServicePurchases {
     private final PurchaseTarget player;
     private final ServiceCatalog serviceProvider;
 
@@ -21,6 +19,7 @@ final class EconomyController {
 
     // ----- Commands -----
     // Buys a service; lookup + charge + effect happen together.
+    @Override
     public Outcome<Service> purchaseService(String serviceName) {
         Service service = serviceProvider.getService(serviceName);
         if (service == null) {
@@ -37,14 +36,5 @@ final class EconomyController {
                 service.getEnergyEffect(), service.getHealthEffect());
         return Outcome.success("Service " + serviceName
                 + " purchased. Effect: " + effect + ".", service);
-    }
-
-    // ----- Catalog queries -----
-    public List<Service> getHealthServices() {
-        return serviceProvider.getHealthServices();
-    }
-
-    public List<Service> getEnergyServices() {
-        return serviceProvider.getEnergyServices();
     }
 }

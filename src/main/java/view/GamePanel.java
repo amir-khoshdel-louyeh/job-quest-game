@@ -1,14 +1,15 @@
 package view;
 
 // The main game screen: stats on the side, world in the middle, chat at the bottom.
-import controller.GameController;
-import controller.GameSession;
+import controller.GameCommands;
+import controller.GameContext;
 import controller.MessageSink;
-import controller.RoutineController;
+import controller.RoutineControl;
 import model.player.PlayerView;
 import observer.ChangeType;
 import observer.Observable;
 import observer.Observer;
+import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -18,8 +19,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class GamePanel extends JPanel implements Observer, MessageSink {
-    private final GameController controller;
-    private final RoutineController routineController;
+    private final GameCommands controller;
+    private final RoutineControl routineController;
     private final Observable observable;
     private final PlayerView player;
     private final UserStatsPanel statsPanel;
@@ -40,13 +41,15 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private final JPanel rightPanel;
     private final SessionPanel sessionPanel;
     private final JButton bottomExitButton;
+    private final MiniGameLauncher workGame;
 
-    public GamePanel(GameSession session) {
-        this.controller = session.gameController();
-        this.player = session.playerView();
-        this.observable = session.observable();
+    public GamePanel(GameContext context, MiniGameLauncher workGame) {
+        this.controller = context.gameController();
+        this.player = context.playerView();
+        this.observable = context.observable();
         this.observable.addObserver(this); // Get stat updates.
-        this.routineController = session.createRoutineController(this, new SwingScheduler());
+        this.workGame = utils.Require.notNull(workGame, "workGame");
+        this.routineController = context.createRoutineController(this, new SwingScheduler());
         setLayout(new BorderLayout(10,10));
         setBackground(AppTheme.BACKGROUND_COLOR);
 
@@ -82,8 +85,8 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         bottomActionsPanel.add(bottomExitButton);
 
-        this.navBar = new NavBar(controller, session.gameQueries(),
-                session.developerController(), player, this);
+        this.navBar = new NavBar(controller, context.gameQueries(),
+                context.developerController(), player, this, workGame);
         WorldViewPanel worldView = new WorldViewPanel(navBar);
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
@@ -136,7 +139,9 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     public void removeNotify() {
         try {
             disposePanel();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // Detach is best-effort: the panel is already leaving the hierarchy,
+            // so log the failure and still let Swing finish its own cleanup.
             utils.GameLog.error("disposing game panel", e);
         }
         super.removeNotify();
@@ -146,12 +151,14 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     public void disposePanel() {
         try {
             observable.removeObserver(this);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // No checked failures here; keep going so the scheduler still stops.
             utils.GameLog.error("removing panel observer", e);
         }
         try {
             routineController.stopSchedulers();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // Same rule: cleanup of the other collaborators must not be skipped.
             utils.GameLog.error("stopping schedulers", e);
         }
     }

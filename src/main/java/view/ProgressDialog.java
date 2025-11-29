@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameQueries;
+import controller.GameReads;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import view.theme.AppTheme;
@@ -12,9 +12,9 @@ import java.util.List;
 // The progress screen: challenges, achievements, and stats in tabs.
 public class ProgressDialog extends JDialog {
 
-    private final GameQueries queries;
+    private final GameReads queries;
 
-    public ProgressDialog(JFrame parent, GameQueries queries) {
+    public ProgressDialog(JFrame parent, GameReads queries) {
         super(parent, "📊 Progress", true);
         this.queries = queries;
         AppTheme.styleDialog(this, 560, 620);
@@ -29,11 +29,7 @@ public class ProgressDialog extends JDialog {
         add(tabs, BorderLayout.CENTER);
 
         JButton close = AppTheme.createSecondaryButton("Close");
-        close.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                dispose();
-            }
-        });
+        close.addActionListener(e -> dispose());
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         footer.setBackground(AppTheme.BACKGROUND_COLOR);
         footer.add(close);

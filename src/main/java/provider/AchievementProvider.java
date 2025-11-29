@@ -46,6 +46,12 @@ public final class AchievementProvider extends AbstractCatalog<Achievement> impl
         return all;
     }
 
+    // ----- Template hook -----
+    @Override
+    protected String nameOf(Achievement entry) {
+        return entry.getName();
+    }
+
     // ----- Queries -----
     // Old name for getAll().
     public List<Achievement> getAllAchievements() {

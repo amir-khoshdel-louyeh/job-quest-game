@@ -1,10 +1,10 @@
 package model.goals;
 
-import java.util.Objects;
+import model.AbstractIdentified;
 
 // A mission the player can finish for extra rewards.
 // Tracked by ChallengeBook; read via ChallengeProvider/ChallengeService.
-public final class Challenge {
+public final class Challenge extends AbstractIdentified {
     private final String id;
     private final String name;
     private final String description;
@@ -14,13 +14,7 @@ public final class Challenge {
     private final int rewardExperience;
     private int currentProgress;
     private boolean completed;
-    
-    public enum ChallengeType {
-        COMPLETE_JOBS,
-        EARN_MONEY,
-        LEARN_SKILLS
-    }
-    
+
     // ----- Construction -----
     // Primary constructor: all challenges are one-shot story goals.
     public Challenge(String id, String name, String description, ChallengeType type,
@@ -88,6 +82,7 @@ public final class Challenge {
     }
     
     // ----- Getter -----
+    @Override
     public String getId() { return id; }
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -99,25 +94,7 @@ public final class Challenge {
     
     public boolean isCompleted() { return completed; }
 
-    // Equal by id.
     // ----- Object overrides -----
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Challenge other = (Challenge) obj;
-        return Objects.equals(id, other.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
     @Override
     public String toString() {
         return name + " [" + currentProgress + "/" + targetValue + "] - Reward: $" + rewardMoney + " + " + rewardExperience + " XP";

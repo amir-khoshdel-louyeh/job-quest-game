@@ -8,7 +8,7 @@ import java.util.List;
 
 // Checks player stats and unlocks earned achievements with rewards.
 // The catalog is injected, so this rule layer never constructs its own copy.
-public final class AchievementService {
+public final class AchievementService implements AchievementRules {
     private final AchievementCatalog catalog;
 
     // ----- Construction -----
@@ -19,6 +19,7 @@ public final class AchievementService {
 
     // ----- Commands -----
     // Unlocks new achievements and hands out rewards.
+    @Override
     public List<Achievement> checkAndUnlockAchievements(PlayerProgress player) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
         List<Achievement> all = catalog.getAllAchievements();
@@ -33,6 +34,7 @@ public final class AchievementService {
     }
 
     // ----- Queries -----
+    @Override
     public List<Achievement> getAllAchievements() {
         return catalog.getAllAchievements();
     }

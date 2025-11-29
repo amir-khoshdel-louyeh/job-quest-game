@@ -13,7 +13,7 @@ import utils.Lists;
 // The profession registry: creates any career by name and lists the four
 // starting cards (with artwork) the start screen shows.
 // Keys ignore case and spaces.
-public final class IdentityProvider {
+public final class IdentityProvider implements IdentityCatalog {
     private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
     private final ArrayList<Identity> options = new ArrayList<Identity>();
     private final Map<String, String> imagePaths = new HashMap<String, String>();
@@ -45,6 +45,7 @@ public final class IdentityProvider {
     }
 
     // ----- Queries -----
+    @Override
     public Identity createIdentity(String identityName) {
         if (identityName == null) {
             throw new UnknownIdentityException(null);
@@ -57,11 +58,13 @@ public final class IdentityProvider {
     }
 
     // The four starting careers, in card order.
+    @Override
     public List<Identity> getAvailableOptions() {
         return Lists.copyOf(options);
     }
 
     // Card artwork for an option, or null when it has none.
+    @Override
     public String imagePathFor(Identity option) {
         if (option == null) {
             return null;

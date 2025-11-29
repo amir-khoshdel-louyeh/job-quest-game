@@ -3,54 +3,55 @@ package controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import services.RoutineService;
+import model.player.UpkeepTarget;
+import services.UpkeepRules;
 import utils.GameBalance;
 
 // Runs periodic upkeep like energy, health, sickness, and play time.
 // Scheduling is injected (view.SwingScheduler in the app), so this class
-// stays free of Swing; UserController is the UpkeepTarget and publishes the
-// matching changes itself.
-public final class RoutineController {
+// stays free of Swing. Its collaborators are abstractions: the UpkeepTarget
+// port, the UpkeepRules contract, and the Scheduler handle.
+public final class RoutineController implements RoutineControl {
     private static final long ENERGY_TICK_MILLIS = 30 * 1000L;
     private static final long HEALTH_TICK_MILLIS = 60 * 1000L;
     private static final long PLAY_TIME_TICK_MILLIS = 60 * 1000L;
 
-    private final UserController userController;
+    private final UpkeepTarget player;
     private final MessageSink messages;
-    private final RoutineService routines;
+    private final UpkeepRules routines;
     private final Scheduler scheduler;
-    private final List<Scheduler.Cancelable> tasks = new ArrayList<Scheduler.Cancelable>();
+    private final List<Cancelable> tasks = new ArrayList<Cancelable>();
 
     // ----- Construction -----
     // Package-private: GameSession.createRoutineController is the only entry.
-    RoutineController(UserController userController, MessageSink messages,
+    RoutineController(UpkeepTarget player, UpkeepRules routines, MessageSink messages,
                       Scheduler scheduler) {
-        this.userController = utils.Require.notNull(userController, "userController");
+        this.player = utils.Require.notNull(player, "player");
+        this.routines = utils.Require.notNull(routines, "routines");
         this.messages = utils.Require.notNull(messages, "messages");
-        this.routines = new RoutineService();
         this.scheduler = utils.Require.notNull(scheduler, "scheduler");
     }
 
     // ----- Commands -----
     // Tick actions stay package-private; views only start/stop the schedulers.
     void decreaseEnergy() {
-        // UserController is the UpkeepTarget: drains and the knockout fine
-        // notify observers themselves, so this only reports the message.
-        String message = routines.processEnergyDecrease(userController);
+        // The UpkeepTarget adapter publishes its own changes, so this only
+        // reports the message.
+        String message = routines.processEnergyDecrease(player);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
     void decreaseHealth() {
-        String message = routines.processHealthDecrease(userController);
+        String message = routines.processHealthDecrease(player);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
     void sicknessCheck() {
-        String message = routines.processSicknessCheck(userController);
+        String message = routines.processSicknessCheck(player);
         if (message != null) {
             messages.addChatMessage(message);
         }
@@ -58,10 +59,11 @@ public final class RoutineController {
 
     // Records one minute of play time; exposed to package tests only.
     void recordPlayTime() {
-        userController.addPlayTime(PLAY_TIME_TICK_MILLIS);
+        player.addPlayTime(PLAY_TIME_TICK_MILLIS);
     }
 
     // Starts background upkeep; restarts cleanly if called twice.
+    @Override
     public void startSchedulers() {
         stopSchedulers();
         tasks.add(scheduler.every(ENERGY_TICK_MILLIS, this::decreaseEnergy));
@@ -71,11 +73,13 @@ public final class RoutineController {
     }
 
     // Halts upkeep.
+    @Override
     public void stopSchedulers() {
-        for (Scheduler.Cancelable task : tasks) {
+        for (Cancelable task : tasks) {
             try {
                 task.cancel();
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
+                // One bad task must not leave the rest of the schedulers running.
                 utils.GameLog.error("stopping scheduler", e);
             }
         }

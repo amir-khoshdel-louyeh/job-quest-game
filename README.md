@@ -177,7 +177,7 @@ port or the aggregate.
 | Encapsulation | `User` composition; `QuizRound` state; `Wallet`/`Vitals` setter guards; defensive `ChallengeBook` copies |
 | Information hiding | Package-private `UserController`/`SkillBook`/rule controllers; views get read-only `PlayerView` and `Observable` projections, so no cast back to a command port or `User`; `DevControls` demo port |
 | Abstraction | `Identity`, `SkillSet`, `PaymentStats`, `ServiceTarget`, `ScoreStrategy`, `PlayerView`, `UpkeepTarget`, `DevControls` |
-| Inheritance | `AbstractCatalog<T>`, `UnknownIdentityException` |
+| Inheritance | `AbstractCatalog<T>` (template method), `AbstractIdentified` (shared identity), `UnknownIdentityException` |
 | Polymorphism | `Identity`/`Profession`, `Service.apply(ServiceTarget)`, `MiniGameLauncher`/`QuizLauncher` |
 | Composition | `User` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
 | Immutability / value objects | `Job`, `JobRewards`, `Service`, `MiniGameResult`, `QuizQuestion` |
@@ -223,12 +223,17 @@ job-quest-game/
 
 ## 🧪 Testing
 
-This snapshot has no `src/test` source set, so `mvn test` only compiles the main
-code and runs no tests.
+`mvn test` runs the JUnit 5 suite under `src/test/java`:
 
-The design is still testable: rules depend on small ports (`PaymentStats`,
-`UpkeepTarget`, `PlayerProgress`, `ServiceTarget`) and time is injected as a
-`Supplier<Long>`, so tests can run headless with fixed clocks and fake players.
+- `UserTest` — player aggregate rules.
+- `JobGateTest`, `JobServiceTest` — eligibility and reward math.
+- `ChallengeServiceTest`, `AchievementServiceTest` — goal progress and rewards.
+- `RoutineServiceTest`, `DrainRuleTest`, `SicknessRuleTest`, `KnockoutPolicyTest` — upkeep rules.
+- `AbstractCatalogTest`, `AbstractIdentifiedTest` — abstract base behaviour.
+
+The rules depend on small ports (`PaymentStats`, `UpkeepTarget`,
+`PlayerProgress`, `ServiceTarget`) and time is injected as a `Supplier<Long>`,
+so the suite runs headless with fake players and no Swing window.
 
 ## 🛠️ Developer panel
 

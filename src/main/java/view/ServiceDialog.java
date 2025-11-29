@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameController;
+import controller.GameCommands;
 import controller.Outcome;
 import model.store.Service;
 import view.theme.AppTheme;
@@ -12,10 +12,10 @@ import java.util.List;
 // The shop screen: buy services to restore health or energy.
 public class ServiceDialog extends JDialog {
 
-    private final GameController controller;
+    private final GameCommands controller;
     private final GamePanel gamePanel;
 
-    public ServiceDialog(JFrame parent, GameController controller, GamePanel gamePanel, List<Service> services) {
+    public ServiceDialog(JFrame parent, GameCommands controller, GamePanel gamePanel, List<Service> services) {
         super(parent, "Available Services", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
@@ -70,12 +70,7 @@ public class ServiceDialog extends JDialog {
         actionPanel.add(costLabel, BorderLayout.WEST);
 
         JButton buyButton = AppTheme.createSuccessButton("Buy");
-        final Service myService = service;
-        buyButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                handleBuyService(myService);
-            }
-        });
+        buyButton.addActionListener(e -> handleBuyService(service));
         actionPanel.add(buyButton, BorderLayout.EAST);
 
         panel.add(actionPanel, BorderLayout.SOUTH);

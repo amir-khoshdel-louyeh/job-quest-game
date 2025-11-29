@@ -39,7 +39,9 @@ public final class SimpleSubject implements Subject {
         for (Observer o : copy) {
             try {
                 o.update();
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
+                // One faulty observer must not stop the others; runtime
+                // failures are all an observer callback can throw.
                 utils.GameLog.error("notifying observer", e);
             }
         }
@@ -52,7 +54,9 @@ public final class SimpleSubject implements Subject {
         for (Observer o : copy) {
             try {
                 o.update(whatChanged);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
+                // One faulty observer must not stop the others; runtime
+                // failures are all an observer callback can throw.
                 utils.GameLog.error("notifying observer", e);
             }
         }

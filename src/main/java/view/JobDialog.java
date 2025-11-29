@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameController;
+import controller.GameCommands;
 import controller.Outcome;
 import model.career.Job;
 import model.career.SkillSet;
@@ -16,11 +16,11 @@ import java.util.List;
 // The workshop screen: do your career's jobs, locked ones show missing skills.
 public class JobDialog extends JDialog {
 
-    private final GameController controller;
+    private final GameCommands controller;
     private final GamePanel gamePanel;
     private final MiniGameLauncher workGame;
 
-    public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
+    public JobDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
                      List<Job> allJobs, PlayerView player, MiniGameLauncher workGame) {
         super(parent, "Jobs", true);
         this.controller = controller;
@@ -145,12 +145,7 @@ public class JobDialog extends JDialog {
         if (!available) {
             doItButton.setToolTipText(lockReason);
         } else {
-            final Job myJob = job;
-            doItButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    handleDoJob(myJob);
-                }
-            });
+            doItButton.addActionListener(e -> handleDoJob(job));
         }
         actionPanel.add(doItButton, BorderLayout.EAST);
 

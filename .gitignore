@@ -1,6 +1,10 @@
 # Compiled class files
 *.class
 
+# Test class files
+*.test.class
+test/
+
 # Log files
 *.log
 

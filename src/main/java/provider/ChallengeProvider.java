@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.goals.Challenge;
+import model.goals.ChallengeType;
 
 // Holds the story challenges the player can try.
 // Injected into ChallengeService.
@@ -26,7 +27,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "hustle_3",
             "Hustle",
             "Complete 3 jobs",
-            Challenge.ChallengeType.COMPLETE_JOBS,
+            ChallengeType.COMPLETE_JOBS,
             3, 500, 100
         ));
 
@@ -34,7 +35,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "earn_1000",
             "Earnings",
             "Earn $1,000",
-            Challenge.ChallengeType.EARN_MONEY,
+            ChallengeType.EARN_MONEY,
             1000, 300, 50
         ));
 
@@ -42,7 +43,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "main_first_job",
             "First Steps",
             "Complete your first job",
-            Challenge.ChallengeType.COMPLETE_JOBS,
+            ChallengeType.COMPLETE_JOBS,
             1, 200, 50
         ));
 
@@ -50,7 +51,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "main_beginner",
             "Getting Started",
             "Complete 10 jobs",
-            Challenge.ChallengeType.COMPLETE_JOBS,
+            ChallengeType.COMPLETE_JOBS,
             10, 1000, 200
         ));
 
@@ -58,7 +59,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "main_first_thousand",
             "First Thousand",
             "Earn $1,000 in total",
-            Challenge.ChallengeType.EARN_MONEY,
+            ChallengeType.EARN_MONEY,
             1000, 500, 100
         ));
 
@@ -66,7 +67,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "main_skilled_worker",
             "Skilled Worker",
             "Learn 3 different skills",
-            Challenge.ChallengeType.LEARN_SKILLS,
+            ChallengeType.LEARN_SKILLS,
             3, 1500, 300
         ));
 
@@ -74,7 +75,7 @@ public final class ChallengeProvider implements ChallengeCatalog {
             "main_professional",
             "Professional",
             "Complete 40 jobs",
-            Challenge.ChallengeType.COMPLETE_JOBS,
+            ChallengeType.COMPLETE_JOBS,
             40, 5000, 1000
         ));
         return all;

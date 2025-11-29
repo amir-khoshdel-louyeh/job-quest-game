@@ -1,12 +1,12 @@
 package view;
 
-import controller.DeveloperController;
-import controller.GameController;
-import controller.GameQueries;
+import controller.DeveloperCommands;
+import controller.GameCommands;
+import controller.GameReads;
 import model.career.Job;
 import model.career.LearnableSkill;
 import model.player.PlayerView;
-import view.minigame.QuizLauncher;
+import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -15,18 +15,18 @@ import java.util.List;
 
 // Top bar + the screens it opens (hospital, workshop, market,
 // school, progress, dev controls). Owned by GamePanel.
-public class NavBar extends JPanel implements WorldViewPanel.Navigator {
+public class NavBar extends JPanel implements Navigator {
 
-    private final GameController controller;
-    private final GameQueries queries;
-    private final DeveloperController developerController;
+    private final GameCommands controller;
+    private final GameReads queries;
+    private final DeveloperCommands developerController;
     private final PlayerView player;
     private final GamePanel host;
-    private final view.minigame.MiniGameLauncher workGame = new QuizLauncher();
+    private final MiniGameLauncher workGame;
 
-    public NavBar(GameController controller, GameQueries queries,
-                  DeveloperController developerController,
-                  PlayerView player, GamePanel host) {
+    public NavBar(GameCommands controller, GameReads queries,
+                  DeveloperCommands developerController,
+                  PlayerView player, GamePanel host, MiniGameLauncher workGame) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {
             throw new IllegalArgumentException("controller must not be null");
@@ -43,42 +43,22 @@ public class NavBar extends JPanel implements WorldViewPanel.Navigator {
         if (host == null) {
             throw new IllegalArgumentException("host must not be null");
         }
+        if (workGame == null) {
+            throw new IllegalArgumentException("workGame must not be null");
+        }
         this.controller = controller;
         this.queries = queries;
         this.developerController = developerController;
         this.player = player;
         this.host = host;
+        this.workGame = workGame;
         setBackground(AppTheme.BACKGROUND_COLOR);
-        add(navButton("Hospital", "Buy health services (heal)", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openHospital();
-            }
-        }));
-        add(navButton("Workshop", "Do jobs to earn money and XP", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openWorkshop();
-            }
-        }));
-        add(navButton("Market", "Buy energy services (eat)", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openMarket();
-            }
-        }));
-        add(navButton("School", "Learn skills to unlock better jobs", true, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openSchool();
-            }
-        }));
-        add(navButton("Progress", "Challenges, achievements and stats", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openProgress();
-            }
-        }));
-        add(navButton("Dev", "Developer demo controls (change variables)", false, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                openDevControls();
-            }
-        }));
+        add(navButton("Hospital", "Buy health services (heal)", true, e -> openHospital()));
+        add(navButton("Workshop", "Do jobs to earn money and XP", true, e -> openWorkshop()));
+        add(navButton("Market", "Buy energy services (eat)", true, e -> openMarket()));
+        add(navButton("School", "Learn skills to unlock better jobs", true, e -> openSchool()));
+        add(navButton("Progress", "Challenges, achievements and stats", false, e -> openProgress()));
+        add(navButton("Dev", "Developer demo controls (change variables)", false, e -> openDevControls()));
     }
 
     @Override

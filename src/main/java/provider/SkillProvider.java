@@ -43,16 +43,15 @@ public final class SkillProvider extends AbstractCatalog<LearnableSkill> impleme
         return list;
     }
 
+    // ----- Template hook -----
+    @Override
+    protected String nameOf(LearnableSkill entry) {
+        return entry.getName();
+    }
+
     // ----- Queries -----
     public LearnableSkill getSkill(String name) {
-        List<LearnableSkill> all = snapshot();
-        for (int i = 0; i < all.size(); i++) {
-            LearnableSkill skill = all.get(i);
-            if (skill.getName().equals(name)) {
-                return skill;
-            }
-        }
-        return null;
+        return findByName(name);
     }
 
     public List<LearnableSkill> getSkillsForIdentity(Identity identity) {

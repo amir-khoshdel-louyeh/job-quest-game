@@ -12,23 +12,24 @@ import provider.SkillProvider;
 import services.AchievementService;
 import services.ChallengeService;
 import services.JobService;
+import services.RoutineService;
 import services.job.JobGate;
 
 // One game run: creates the player aggregate, its shared services, its
-// controllers, and its read queries. This is the composition root, so views
-// receive a read-only PlayerView, a read-only Observable, and GameQueries
-// instead of the mutable controllers.
-public final class GameSession {
+// controllers, and its read queries. This is the composition root, so it is
+// the only class that names concrete implementations; everything it hands
+// out is an abstraction.
+public final class GameSession implements GameContext {
     private final UserController userController;
     private final PlayerView playerView;
-    private final GameController gameController;
-    private final GameQueries gameQueries;
-    private final DeveloperController developerController;
+    private final GameCommands gameController;
+    private final GameReads gameQueries;
+    private final DeveloperCommands developerController;
 
     // ----- Construction -----
     private GameSession(UserController userController, PlayerView playerView,
-                        GameController gameController, GameQueries gameQueries,
-                        DeveloperController developerController) {
+                        GameCommands gameController, GameReads gameQueries,
+                        DeveloperCommands developerController) {
         this.userController = userController;
         this.playerView = playerView;
         this.gameController = gameController;
@@ -65,39 +66,46 @@ public final class GameSession {
                 users, challenges, achievements, skills);
         SessionTracker session = new SessionTracker(System.currentTimeMillis());
         GameController game = new GameController(economy, jobController, skillController, session);
-        GameQueries queries = new GameQueries(users, economy, jobs, skills, playerView,
+        GameQueries queries = new GameQueries(users, services, jobs, skills, playerView,
                 challenges, achievements, session);
 
         // A fresh run starts with the story challenges available.
         challenges.initializeChallenges(users);
-        return new GameSession(users, playerView, game, queries, new DeveloperController(users));
+        return new GameSession(users, playerView, game, queries,
+                new DeveloperController(playerView, users.devControls(), users));
     }
 
     // ----- Getter -----
+    @Override
     public PlayerView playerView() {
         return playerView;
     }
 
     // Views may subscribe, but cannot notify or mutate.
+    @Override
     public Observable observable() {
         return userController.observable();
     }
 
-    public DeveloperController developerController() {
+    @Override
+    public DeveloperCommands developerController() {
         return developerController;
     }
 
-    public GameController gameController() {
+    @Override
+    public GameCommands gameController() {
         return gameController;
     }
 
     // Read-only screen data; no player mutations are reachable from here.
-    public GameQueries gameQueries() {
+    @Override
+    public GameReads gameQueries() {
         return gameQueries;
     }
 
     // Builds the upkeep controller with the caller's scheduler and message sink.
-    public RoutineController createRoutineController(MessageSink messages, Scheduler scheduler) {
-        return new RoutineController(userController, messages, scheduler);
+    @Override
+    public RoutineControl createRoutineController(MessageSink messages, Scheduler scheduler) {
+        return new RoutineController(userController, new RoutineService(), messages, scheduler);
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import model.Identity;
 import model.career.SkillSet;
 import model.goals.Challenge;
+import model.goals.ChallengeType;
 import model.player.DevControls;
 import model.player.JobPlayer;
 import model.player.PlayerView;
@@ -26,12 +27,14 @@ final class UserController implements Subject, JobPlayer,
         SkillLearner, PurchaseTarget, UpkeepTarget {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
-    private final PlayerView playerView = new ReadOnlyPlayer();
-    private final Observable observable = new SubscriptionPort();
+    private final PlayerView playerView;
+    private final Observable observable;
 
     // ----- Construction -----
     public UserController(User user) {
         this.user = utils.Require.notNull(user, "user");
+        this.playerView = new ReadOnlyPlayerView(user);
+        this.observable = new SubscriptionPort(subject);
     }
 
     // ----- Read-only projections -----
@@ -106,6 +109,7 @@ final class UserController implements Subject, JobPlayer,
     }
 
     // Adds elapsed play time; the upkeep scheduler calls this once per minute.
+    @Override
     public void addPlayTime(long millis) {
         if (millis > 0) {
             user.addPlayTime(millis);
@@ -232,10 +236,6 @@ final class UserController implements Subject, JobPlayer,
         return user.getLastSicknessTime();
     }
 
-    public void unblockUser() {
-        user.unblock();
-    }
-
     // ----- Skills / progress -----
     // Adds a new skill. Returns true if the skill is new.
     @Override
@@ -299,7 +299,7 @@ final class UserController implements Subject, JobPlayer,
     }
 
     @Override
-    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
+    public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
         return user.updateChallengeProgress(type, amount);
     }
 
@@ -318,141 +318,5 @@ final class UserController implements Subject, JobPlayer,
     // touch several stats at once use this instead of guessing a subset.
     public void publishAll() {
         notifyObservers();
-    }
-
-    // ----- Nested projections -----
-    // Read-only player data for screens. It deliberately implements nothing
-    // else, so it cannot be cast to a command port.
-    private final class ReadOnlyPlayer implements PlayerView {
-
-        @Override
-        public String getUsername() {
-            return user.getUsername();
-        }
-
-        @Override
-        public Identity getIdentity() {
-            return user.getIdentity();
-        }
-
-        @Override
-        public String getIdentityName() {
-            return user.getIdentityName();
-        }
-
-        @Override
-        public SkillSet getSkillSet() {
-            return user.getSkillSet();
-        }
-
-        @Override
-        public int getSkillCount() {
-            return user.getSkillCount();
-        }
-
-        @Override
-        public int getLevel() {
-            return user.getLevel();
-        }
-
-        @Override
-        public int getExperience() {
-            return user.getExperience();
-        }
-
-        @Override
-        public int getRequiredExperienceForNextLevel() {
-            return user.getRequiredExperienceForNextLevel();
-        }
-
-        @Override
-        public int getExperiencePercentage() {
-            return user.getExperiencePercentage();
-        }
-
-        @Override
-        public int getReputation() {
-            return user.getReputation();
-        }
-
-        @Override
-        public int getJobBonus() {
-            return user.getJobBonus();
-        }
-
-        @Override
-        public long getPlayTimeMinutes() {
-            return user.getPlayTimeMinutes();
-        }
-
-        @Override
-        public int getHealth() {
-            return user.getHealth();
-        }
-
-        @Override
-        public int getHealthPercentage() {
-            return user.getHealthPercentage();
-        }
-
-        @Override
-        public int getEnergy() {
-            return user.getEnergy();
-        }
-
-        @Override
-        public int getEnergyPercentage() {
-            return user.getEnergyPercentage();
-        }
-
-        @Override
-        public int getBalance() {
-            return user.getBalance();
-        }
-
-        @Override
-        public boolean isBlocked() {
-            return user.isBlocked();
-        }
-
-        @Override
-        public long getBlockedUntil() {
-            return user.getBlockedUntil();
-        }
-
-        @Override
-        public int getAchievementCount() {
-            return user.getAchievementCount();
-        }
-
-        @Override
-        public int getTotalJobsCompleted() {
-            return user.getTotalJobsCompleted();
-        }
-
-        @Override
-        public int getTotalMoneyEarned() {
-            return user.getTotalMoneyEarned();
-        }
-
-        @Override
-        public boolean hasAchievement(String id) {
-            return user.hasAchievement(id);
-        }
-    }
-
-    // Subscribe-only view of the subject. It deliberately implements nothing
-    // else, so a view cannot cast it to Subject and call notifyObservers().
-    private final class SubscriptionPort implements Observable {
-
-        @Override
-        public void addObserver(Observer observer) {
-            UserController.this.addObserver(observer);
-        }
-
-        @Override
-        public void removeObserver(Observer observer) {
-            UserController.this.removeObserver(observer);
-        }
     }
 }

@@ -1,8 +1,9 @@
 package view;
 
-import controller.GameController;
+import controller.GameCommands;
 import controller.Outcome;
 import model.career.LearnableSkill;
+import model.career.SkillAvailability;
 import model.player.PlayerView;
 import utils.DurationText;
 import utils.Lists;
@@ -16,13 +17,13 @@ import java.util.List;
 // The school screen: learn your career's lessons, locked ones show playtime needed.
 public class SkillDialog extends JDialog {
 
-    private final GameController controller;
+    private final GameCommands controller;
     private final GamePanel gamePanel;
     private final PlayerView player;
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
-    public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel,
+    public SkillDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
                        List<LearnableSkill> allSkills, PlayerView player) {
         super(parent, "School of Skills", true);
         this.controller = controller;
@@ -75,11 +76,11 @@ public class SkillDialog extends JDialog {
         List<LearnableSkill> locked = new ArrayList<>();
         List<LearnableSkill> learned = new ArrayList<>();
         for (LearnableSkill skill : allSkills) {
-            LearnableSkill.Availability availability = skill.availabilityFor(
+            SkillAvailability availability = skill.availabilityFor(
                     player.getSkillSet(), playMinutes);
-            if (availability == LearnableSkill.Availability.LEARNED) {
+            if (availability == SkillAvailability.LEARNED) {
                 learned.add(skill);
-            } else if (availability == LearnableSkill.Availability.AVAILABLE) {
+            } else if (availability == SkillAvailability.AVAILABLE) {
                 available.add(skill);
             } else {
                 locked.add(skill);
@@ -95,7 +96,7 @@ public class SkillDialog extends JDialog {
         }
 
         for (LearnableSkill skill : available) {
-            skillsContainer.add(createSkillPanel(skill, LearnableSkill.Availability.AVAILABLE, null));
+            skillsContainer.add(createSkillPanel(skill, SkillAvailability.AVAILABLE, null));
             skillsContainer.add(Box.createVerticalStrut(10));
         }
         if (!available.isEmpty() && !locked.isEmpty()) {
@@ -103,7 +104,7 @@ public class SkillDialog extends JDialog {
             skillsContainer.add(Box.createVerticalStrut(10));
         }
         for (LearnableSkill skill : locked) {
-            skillsContainer.add(createSkillPanel(skill, LearnableSkill.Availability.LOCKED,
+            skillsContainer.add(createSkillPanel(skill, SkillAvailability.LOCKED,
                     lockReason(skill, playMinutes)));
             skillsContainer.add(Box.createVerticalStrut(10));
         }
@@ -112,7 +113,7 @@ public class SkillDialog extends JDialog {
             skillsContainer.add(Box.createVerticalStrut(10));
         }
         for (LearnableSkill skill : learned) {
-            skillsContainer.add(createSkillPanel(skill, LearnableSkill.Availability.LEARNED,
+            skillsContainer.add(createSkillPanel(skill, SkillAvailability.LEARNED,
                     "✓ Already learned"));
             skillsContainer.add(Box.createVerticalStrut(10));
         }
@@ -137,7 +138,7 @@ public class SkillDialog extends JDialog {
                 + ") — play " + DurationText.formatMinutes(remaining) + " more to unlock";
     }
 
-    private JPanel createSkillPanel(LearnableSkill skill, LearnableSkill.Availability status,
+    private JPanel createSkillPanel(LearnableSkill skill, SkillAvailability status,
                                     String statusLine) {
         JPanel panel = AppTheme.createItemCard();
 
@@ -146,9 +147,9 @@ public class SkillDialog extends JDialog {
         infoPanel.setOpaque(false);
 
         String title = skill.getName();
-        if (status == LearnableSkill.Availability.LOCKED) {
+        if (status == SkillAvailability.LOCKED) {
             title += " 🔒";
-        } else if (status == LearnableSkill.Availability.LEARNED) {
+        } else if (status == SkillAvailability.LEARNED) {
             title += " ✓";
         }
         JLabel nameLabel = AppTheme.createCardTitle(title);
@@ -160,7 +161,7 @@ public class SkillDialog extends JDialog {
         if (statusLine != null) {
             JLabel statusLabel = new JLabel("<html>" + statusLine + "</html>");
             statusLabel.setFont(AppTheme.FONT_SMALL);
-            statusLabel.setForeground(status == LearnableSkill.Availability.LEARNED
+            statusLabel.setForeground(status == SkillAvailability.LEARNED
                     ? AppTheme.SUCCESS_COLOR.darker() : AppTheme.ERROR_COLOR);
             infoPanel.add(statusLabel);
         }
@@ -178,16 +179,10 @@ public class SkillDialog extends JDialog {
         actionPanel.add(costLabel, BorderLayout.CENTER);
 
         JButton learnButton;
-        if (status == LearnableSkill.Availability.AVAILABLE) {
+        if (status == SkillAvailability.AVAILABLE) {
             learnButton = AppTheme.createSuccessButton("Learn ($" + skill.getCost() + ")");
-            final LearnableSkill mySkill = skill;
-            final JButton myButton = learnButton;
-            learnButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    handleLearnSkill(mySkill, myButton);
-                }
-            });
-        } else if (status == LearnableSkill.Availability.LEARNED) {
+            learnButton.addActionListener(e -> handleLearnSkill(skill, learnButton));
+        } else if (status == SkillAvailability.LEARNED) {
             learnButton = AppTheme.createSuccessButton("Learned");
             learnButton.setEnabled(false);
         } else {

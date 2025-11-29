@@ -1,27 +1,19 @@
 package provider;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import model.store.Service;
 import utils.Lists;
 
 // Holds all food and hospital services the player can buy.
-// Extends AbstractCatalog plus a name map for fast lookup.
+// Extends AbstractCatalog, so name lookup comes from the base template.
 // Injected into EconomyController.
 public final class ServiceProvider extends AbstractCatalog<Service> implements ServiceCatalog {
-
-    // map name -> service, for quick lookup
-    private final HashMap<String, Service> servicesByName = new HashMap<String, Service>();
 
     // ----- Construction -----
     public ServiceProvider() {
         super(buildDefaultCatalog());
-        List<Service> all = snapshot();
-        for (int i = 0; i < all.size(); i++) {
-            addService(all.get(i));
-        }
     }
 
     private static List<Service> buildDefaultCatalog() {
@@ -53,15 +45,15 @@ public final class ServiceProvider extends AbstractCatalog<Service> implements S
         return services;
     }
 
-    private void addService(Service service) {
-        if (service != null) {
-            servicesByName.put(service.getName(), service);
-        }
+    // ----- Template hook -----
+    @Override
+    protected String nameOf(Service entry) {
+        return entry.getName();
     }
 
     // ----- Queries -----
     public Service getService(String name) {
-        return servicesByName.get(name);
+        return findByName(name);
     }
 
     // Returns only health services.

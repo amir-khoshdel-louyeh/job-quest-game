@@ -8,6 +8,7 @@ import model.career.SkillSet;
 import model.goals.AchievementBook;
 import model.goals.Challenge;
 import model.goals.ChallengeBook;
+import model.goals.ChallengeType;
 import model.store.ServiceTarget;
 
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
@@ -40,7 +41,8 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
         this.blockStatus = new BlockStatus();
-        this.devControls = new DemoMutations();
+        this.devControls = new DemoMutations(wallet, vitals, progress, jobRecord, playClock,
+                blockStatus);
     }
 
     // ----- Identity Delegate -----
@@ -131,6 +133,7 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         return playClock.getTotalMinutes();
     }
 
+    @Override
     public void addPlayTime(long millis) {
         playClock.addMillis(millis);
     }
@@ -229,7 +232,7 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         return challengeBook.getActiveChallenges();
     }
 
-    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
+    public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
         return challengeBook.updateChallengeProgress(type, amount);
     }
 
@@ -242,49 +245,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
     // is only reachable from the controller layer, so views cannot use this.
     public DevControls devControls() {
         return devControls;
-    }
-
-    // Exact-value demo mutations, kept out of the public User surface.
-    private final class DemoMutations implements DevControls {
-        @Override
-        public void setBalance(int amount) {
-            wallet.setBalanceForCheat(amount);
-        }
-
-        @Override
-        public void setHealth(int health) {
-            vitals.setHealthForCheat(health);
-        }
-
-        @Override
-        public void setEnergy(int energy) {
-            vitals.setEnergyForCheat(energy);
-        }
-
-        @Override
-        public void setLevel(int level) {
-            progress.setLevelForCheat(level);
-        }
-
-        @Override
-        public void setReputation(int reputation) {
-            progress.setReputationForCheat(reputation);
-        }
-
-        @Override
-        public void setJobBonus(int jobBonus) {
-            jobRecord.setJobBonusForCheat(jobBonus);
-        }
-
-        @Override
-        public void addPlayTimeMinutes(long minutes) {
-            playClock.addMillis(minutes * utils.DurationText.MILLIS_PER_MINUTE);
-        }
-
-        @Override
-        public void setPlayTimeMinutes(long minutes) {
-            playClock.setMinutesForCheat(minutes);
-        }
     }
 
     // ----- Achievement summary -----

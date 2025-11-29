@@ -1,110 +1,127 @@
 package controller;
 
 import model.player.DevControls;
+import model.player.PlayerView;
 import observer.ChangeType;
+import observer.Subject;
 
 // Lets developers set stats by hand for demos and testing.
-// Every mutation goes through the narrow DevControls port and then publishes
-// the matching change, so views stay in sync with the cheated aggregate.
-public final class DeveloperController {
-    private final UserController userController;
+// It depends only on abstractions: a read-only PlayerView for the current
+// values, the narrow DevControls port for mutations, and Subject for the
+// change notifications. No concrete aggregate or controller is referenced.
+public final class DeveloperController implements DeveloperCommands {
+    private final PlayerView player;
+    private final DevControls devControls;
+    private final Subject subject;
 
     // ----- Construction -----
     // Package-private: GameSession creates the one developer facade per run.
-    DeveloperController(UserController userController) {
-        this.userController = utils.Require.notNull(userController, "userController");
+    DeveloperController(PlayerView player, DevControls devControls, Subject subject) {
+        this.player = utils.Require.notNull(player, "player");
+        this.devControls = utils.Require.notNull(devControls, "devControls");
+        this.subject = utils.Require.notNull(subject, "subject");
     }
 
     // ----- Read delegates -----
+    @Override
     public int getHealth() {
-        return userController.getHealth();
+        return player.getHealth();
     }
 
+    @Override
     public int getEnergy() {
-        return userController.getEnergy();
+        return player.getEnergy();
     }
 
+    @Override
     public int getLevel() {
-        return userController.getLevel();
+        return player.getLevel();
     }
 
+    @Override
     public int getReputation() {
-        return userController.getReputation();
+        return player.getReputation();
     }
 
+    @Override
     public long getPlayTimeMinutes() {
-        return userController.getPlayTimeMinutes();
+        return player.getPlayTimeMinutes();
     }
 
+    @Override
     public int getJobBonus() {
-        return userController.getJobBonus();
+        return player.getJobBonus();
     }
 
+    @Override
     public int getBalance() {
-        return userController.getBalance();
+        return player.getBalance();
     }
 
     // ----- Commands -----
     // Sets balance. Demo only.
+    @Override
     public void setBalance(int amount) {
-        dev().setBalance(amount);
-        userController.notifyObservers(ChangeType.BALANCE);
+        devControls.setBalance(amount);
+        subject.notifyObservers(ChangeType.BALANCE);
     }
 
     // Sets health. Demo only.
-    public void setHealth(int hp) {
-        dev().setHealth(hp);
-        userController.notifyObservers(ChangeType.HEALTH);
+    @Override
+    public void setHealth(int health) {
+        devControls.setHealth(health);
+        subject.notifyObservers(ChangeType.HEALTH);
     }
 
     // Sets energy. Demo only.
+    @Override
     public void setEnergy(int energy) {
-        dev().setEnergy(energy);
-        userController.notifyObservers(ChangeType.ENERGY);
+        devControls.setEnergy(energy);
+        subject.notifyObservers(ChangeType.ENERGY);
     }
 
     // Adds playtime in minutes; non-positive values are ignored.
+    @Override
     public void addPlaytimeMinutes(long minutes) {
         if (minutes <= 0) {
             return;
         }
-        dev().addPlayTimeMinutes(minutes);
-        userController.publishAll();
+        devControls.addPlayTimeMinutes(minutes);
+        subject.notifyObservers();
     }
 
     // Sets playtime to an exact number of minutes. Demo only.
+    @Override
     public void setPlaytimeMinutes(long minutes) {
-        dev().setPlayTimeMinutes(minutes);
-        userController.publishAll();
+        devControls.setPlayTimeMinutes(minutes);
+        subject.notifyObservers();
     }
 
     // Sets level. Demo only.
+    @Override
     public void setLevel(int level) {
-        dev().setLevel(level);
-        userController.notifyObservers(ChangeType.XP);
+        devControls.setLevel(level);
+        subject.notifyObservers(ChangeType.XP);
     }
 
     // Sets reputation. Demo only.
+    @Override
     public void setReputation(int reputation) {
-        dev().setReputation(reputation);
-        userController.notifyObservers(ChangeType.REPUTATION);
+        devControls.setReputation(reputation);
+        subject.notifyObservers(ChangeType.REPUTATION);
     }
 
     // Sets job bonus. Demo only.
+    @Override
     public void setJobBonus(int jobBonus) {
-        dev().setJobBonus(jobBonus);
-        userController.notifyObservers();
+        devControls.setJobBonus(jobBonus);
+        subject.notifyObservers();
     }
 
     // Lifts any active block. Demo only.
+    @Override
     public void unblock() {
-        userController.unblockUser();
-        userController.publishAll();
-    }
-
-    // ----- Private helpers -----
-    // The aggregate's demo port; User itself never leaves the controller layer.
-    private DevControls dev() {
-        return userController.devControls();
+        devControls.unblock();
+        subject.notifyObservers();
     }
 }

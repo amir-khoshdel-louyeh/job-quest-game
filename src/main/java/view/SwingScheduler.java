@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.Timer;
 
+import controller.Cancelable;
 import controller.Scheduler;
 
 // Swing-backed scheduler: the only place where upkeep meets Swing.

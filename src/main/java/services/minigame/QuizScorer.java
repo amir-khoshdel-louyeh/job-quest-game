@@ -11,9 +11,6 @@ import model.minigame.ScoreStrategy;
 public final class QuizScorer implements ScoreStrategy {
 
     // ----- Constants -----
-    // Par time for a round.
-    public static final int ROUND_PAR_SECONDS = 90;
-
     private static final double ACCURACY_WEIGHT = 0.8;
     private static final double SPEED_WEIGHT = 0.2;
     private static final double MAX_SPEED_RATIO = 1.0;

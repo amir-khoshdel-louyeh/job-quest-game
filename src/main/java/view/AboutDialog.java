@@ -51,11 +51,7 @@ public class AboutDialog extends JDialog {
         add(new JScrollPane(text), BorderLayout.CENTER);
 
         JButton closeButton = AppTheme.createPrimaryButton("Close");
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                dispose();
-            }
-        });
+        closeButton.addActionListener(e -> dispose());
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottom.setBackground(AppTheme.BACKGROUND_COLOR);
         bottom.add(closeButton);

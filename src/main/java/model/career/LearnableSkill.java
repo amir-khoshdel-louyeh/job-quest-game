@@ -41,21 +41,15 @@ public final class LearnableSkill {
     }
 
     // ----- Queries -----
-    public enum Availability {
-        LEARNED,
-        AVAILABLE,
-        LOCKED
-    }
-
     // One rule for the school screen and the controller.
-    public Availability availabilityFor(SkillSet learnedSkills, long playTimeMinutes) {
+    public SkillAvailability availabilityFor(SkillSet learnedSkills, long playTimeMinutes) {
         if (learnedSkills != null && learnedSkills.hasSkill(name)) {
-            return Availability.LEARNED;
+            return SkillAvailability.LEARNED;
         }
         if (playTimeMinutes >= requiredPlayTimeMinutes) {
-            return Availability.AVAILABLE;
+            return SkillAvailability.AVAILABLE;
         }
-        return Availability.LOCKED;
+        return SkillAvailability.LOCKED;
     }
 
     // Minutes still needed before this skill unlocks (0 when ready).

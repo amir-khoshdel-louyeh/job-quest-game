@@ -52,7 +52,9 @@ public final class AppTheme {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             customizeDefaults();
             
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
+            // Only the look-and-feel lookup can fail here; a programming bug
+            // in customizeDefaults() should still surface.
             utils.GameLog.error("setting look and feel", e);
         }
     }
@@ -144,23 +146,8 @@ public final class AppTheme {
 
     private static void addHoverEffect(JButton button, Color base, Color hover,
                                        Color hoverForeground, Color baseForeground) {
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(hover);
-                if (hoverForeground != null) {
-                    button.setForeground(hoverForeground);
-                }
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(base);
-                if (baseForeground != null) {
-                    button.setForeground(baseForeground);
-                }
-            }
-        });
+        button.addMouseListener(
+                new ButtonHoverListener(button, base, hover, hoverForeground, baseForeground));
     }
     
     public static JPanel createCard() {

@@ -23,4 +23,7 @@ public interface DevControls {
 
     // Sets play time to an exact value; negative values become 0.
     void setPlayTimeMinutes(long minutes);
+
+    // Lifts any active block. Demo only.
+    void unblock();
 }

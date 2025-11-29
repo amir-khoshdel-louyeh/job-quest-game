@@ -11,7 +11,7 @@ import services.upkeep.SicknessRule;
 // Facade for periodic upkeep. Each rule lives in services.upkeep.
 // Clock/random come from outside; state changes are silent and the
 // caller owns observer notifications.
-public final class RoutineService {
+public final class RoutineService implements UpkeepRules {
 
     private final SicknessRule sickness;
     private final DrainRule drains;
@@ -24,14 +24,17 @@ public final class RoutineService {
     }
 
     // ----- Commands -----
+    @Override
     public String processSicknessCheck(UpkeepTarget player) {
         return sickness.applyTo(player);
     }
 
+    @Override
     public String processEnergyDecrease(UpkeepTarget player) {
         return drains.energy(player);
     }
 
+    @Override
     public String processHealthDecrease(UpkeepTarget player) {
         return drains.health(player);
     }

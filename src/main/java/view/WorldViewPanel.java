@@ -1,8 +1,6 @@
 package view;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.*;
 
 import view.theme.AppTheme;
@@ -10,17 +8,6 @@ import view.theme.AppTheme;
 // The world map in the middle of the game screen.
 // One responsibility: draw the image and turn a click into a navigation call.
 public class WorldViewPanel extends JPanel {
-
-    // What the map can open. NavBar implements this.
-    public interface Navigator {
-        void openHospital();
-
-        void openWorkshop();
-
-        void openMarket();
-
-        void openSchool();
-    }
 
     private final Navigator navigator;
     private Image background;
@@ -45,13 +32,10 @@ public class WorldViewPanel extends JPanel {
             background = new ImageIcon(imageUrl).getImage();
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             setToolTipText("Hospital | Workshop | (closed) | Market | School — or use the buttons above");
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent event) {
-                    openZone(event.getX());
-                }
-            });
-        } catch (Exception e) {
+            addMouseListener(new WorldZoneClickListener(this));
+        } catch (RuntimeException e) {
+            // The map is optional art: fall back to the placeholder instead of
+            // letting an unchecked image/URL failure abort the whole game screen.
             utils.GameLog.error("loading world view", e);
             showMissingImage();
         }
@@ -65,7 +49,7 @@ public class WorldViewPanel extends JPanel {
 
     // ----- Click routing -----
     // Five equal zones: Hospital, Workshop, closed, Market, School.
-    private void openZone(int x) {
+    void openZone(int x) {
         int width = getWidth();
         if (width <= 0 || x < 0 || x >= width) {
             return;

@@ -8,7 +8,7 @@ import utils.Lists;
 
 // Holds the quiz questions for the quiz mini-game.
 // Injected into the quiz launcher/controller.
-public final class QuizProvider {
+public final class QuizProvider implements QuizCatalog {
 
     private final ArrayList<QuizQuestion> questions;
 
@@ -73,6 +73,7 @@ public final class QuizProvider {
     }
 
     // ----- Getter -----
+    @Override
     public List<QuizQuestion> getQuestions() {
         return Lists.copyOf(questions);
     }

@@ -22,4 +22,7 @@ public interface UpkeepTarget {
     void markSicknessChecked(long time);
 
     long getLastSicknessTime();
+
+    // Adds elapsed play time; the upkeep scheduler calls this once per minute.
+    void addPlayTime(long millis);
 }

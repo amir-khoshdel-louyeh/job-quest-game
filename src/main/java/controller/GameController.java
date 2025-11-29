@@ -8,42 +8,46 @@ import model.store.Service;
 
 // Runs high-level player actions: buy services, do jobs, learn skills.
 // Screen reads (catalogs, progress, session stats) live in GameQueries.
-public final class GameController {
-    private final EconomyController economyController;
-    private final JobController jobController;
-    private final SkillController skillController;
-    private final SessionTracker session;
+public final class GameController implements GameCommands {
+    private final ServicePurchases purchases;
+    private final JobOperations jobs;
+    private final SkillOperations skills;
+    private final SessionStats session;
 
     // ----- Construction -----
-    // Every collaborator comes from GameSession; all are required, so job,
-    // skill, challenge, and achievement rules share the same service objects.
+    // Every collaborator is an abstraction supplied by GameSession, so this
+    // facade never depends on a concrete controller.
     // Package-private: views use this object, but never build it.
-    GameController(EconomyController economyController,
-                   JobController jobController,
-                   SkillController skillController,
-                   SessionTracker session) {
-        this.economyController = utils.Require.notNull(economyController, "economyController");
-        this.jobController = utils.Require.notNull(jobController, "jobController");
-        this.skillController = utils.Require.notNull(skillController, "skillController");
+    GameController(ServicePurchases purchases,
+                   JobOperations jobs,
+                   SkillOperations skills,
+                   SessionStats session) {
+        this.purchases = utils.Require.notNull(purchases, "purchases");
+        this.jobs = utils.Require.notNull(jobs, "jobs");
+        this.skills = utils.Require.notNull(skills, "skills");
         this.session = utils.Require.notNull(session, "session");
     }
 
     // ----- Commands -----
     // Buys a service with an instant effect.
+    @Override
     public Outcome<Service> purchaseService(String serviceName) {
-        return economyController.purchaseService(serviceName);
+        return purchases.purchaseService(serviceName);
     }
 
+    @Override
     public Outcome<JobRewards> doJob(Job job) {
-        return recordJob(jobController.doJob(job));
+        return recordJob(jobs.doJob(job));
     }
 
+    @Override
     public Outcome<JobRewards> doJob(Job job, MiniGameResult game) {
-        return recordJob(jobController.doJob(job, game));
+        return recordJob(jobs.doJob(job, game));
     }
 
+    @Override
     public Outcome<LearnableSkill> learnSkill(String skillName) {
-        return skillController.learnSkill(skillName);
+        return skills.learnSkill(skillName);
     }
 
     // ----- Private helpers -----
