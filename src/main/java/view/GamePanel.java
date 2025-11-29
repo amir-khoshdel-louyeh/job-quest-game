@@ -41,14 +41,12 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private final JPanel rightPanel;
     private final SessionPanel sessionPanel;
     private final JButton bottomExitButton;
-    private final MiniGameLauncher workGame;
-
     public GamePanel(GameContext context, MiniGameLauncher workGame) {
         this.controller = context.gameController();
         this.player = context.playerView();
         this.observable = context.observable();
         this.observable.addObserver(this); // Get stat updates.
-        this.workGame = utils.Require.notNull(workGame, "workGame");
+        utils.Require.notNull(workGame, "workGame");
         this.routineController = context.createRoutineController(this, new SwingScheduler());
         setLayout(new BorderLayout(10,10));
         setBackground(AppTheme.BACKGROUND_COLOR);
