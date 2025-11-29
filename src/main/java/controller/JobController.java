@@ -38,17 +38,17 @@ final class JobController implements JobOperations {
     // ----- Commands -----
     // Runs a job without a mini-game.
     @Override
-    public Outcome<JobRewards> doJob(Job job) {
+    public Outcome doJob(Job job) {
         return execute(job, null);
     }
 
     // Runs a job with a mini-game result.
     @Override
-    public Outcome<JobRewards> doJob(Job job, MiniGameResult game) {
+    public Outcome doJob(Job job, MiniGameResult game) {
         return execute(job, game);
     }
 
-    private Outcome<JobRewards> execute(Job job, MiniGameResult game) {
+    private Outcome execute(Job job, MiniGameResult game) {
         JobGateDecision gate = jobGate.check(job,
                 player.getIdentity(),
                 player.getSkillSet(),
@@ -89,6 +89,6 @@ final class JobController implements JobOperations {
         if (game != null) {
             message = utils.JobResultText.successWithGameLine(message, game);
         }
-        return Outcome.success(message, payout);
+        return Outcome.success(message);
     }
 }

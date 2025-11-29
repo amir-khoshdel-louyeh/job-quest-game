@@ -20,13 +20,8 @@ public final class SessionTracker implements SessionStats {
     }
 
     // ----- Queries -----
-    @Override
-    public int getJobsCompleted() {
-        return jobsCompleted;
-    }
-
-    @Override
-    public long getMinutes() {
+    // Package-private: only summary() needs the elapsed minutes.
+    long getMinutes() {
         return DurationText.minutesOf(System.currentTimeMillis() - startTime);
     }
 

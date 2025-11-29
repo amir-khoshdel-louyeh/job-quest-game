@@ -8,10 +8,6 @@ public final class PlayClock {
     private long totalMillis;
 
     // ----- Getter -----
-    public long getTotalMillis() {
-        return totalMillis;
-    }
-
     public long getTotalMinutes() {
         return DurationText.minutesOf(totalMillis);
     }

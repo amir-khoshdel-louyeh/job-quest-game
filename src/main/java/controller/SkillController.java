@@ -3,7 +3,6 @@ package controller;
 import model.career.LearnableSkill;
 import model.career.SkillAvailability;
 import model.player.SkillLearner;
-import model.goals.Challenge;
 import model.goals.ChallengeType;
 import provider.SkillCatalog;
 import services.AchievementRules;
@@ -32,7 +31,7 @@ final class SkillController implements SkillOperations {
     // ----- Commands -----
     // Learns a skill only when the profession, playtime, and money all allow it.
     @Override
-    public Outcome<LearnableSkill> learnSkill(String skillName) {
+    public Outcome learnSkill(String skillName) {
         LearnableSkill toLearn = skillProvider.getSkill(skillName);
         if (toLearn == null) {
             return Outcome.failure("That skill does not exist.");
@@ -57,6 +56,6 @@ final class SkillController implements SkillOperations {
         challengeRules.updateChallengeProgress(
                 player, ChallengeType.LEARN_SKILLS, 1);
         achievementRules.checkAndUnlockAchievements(player);
-        return Outcome.success("Skill learned successfully.", toLearn);
+        return Outcome.success("Skill learned successfully.");
     }
 }

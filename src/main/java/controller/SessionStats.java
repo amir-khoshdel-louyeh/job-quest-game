@@ -6,9 +6,5 @@ public interface SessionStats {
 
     void recordCompletedJob();
 
-    int getJobsCompleted();
-
-    long getMinutes();
-
     String summary();
 }

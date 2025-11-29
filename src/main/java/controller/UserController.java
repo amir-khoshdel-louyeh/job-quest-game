@@ -312,11 +312,4 @@ final class UserController implements Subject, JobPlayer,
     public void unlockAchievement(String id) {
         user.unlockAchievement(id);
     }
-
-    // ----- Full refresh -----
-    // Demo and play-time changes have no dedicated ChangeType; callers that
-    // touch several stats at once use this instead of guessing a subset.
-    public void publishAll() {
-        notifyObservers();
-    }
 }

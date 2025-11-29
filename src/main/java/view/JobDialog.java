@@ -161,7 +161,7 @@ public class JobDialog extends JDialog {
         if (game == null) {
             return; // cancelled — nothing happens, dialog stays open
         }
-        Outcome<?> result = controller.doJob(job, game);
+        Outcome result = controller.doJob(job, game);
         gamePanel.addChatMessage(result.getMessage());
         if (!result.isSuccess()) {
             JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Work", JOptionPane.WARNING_MESSAGE);

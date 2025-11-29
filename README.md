@@ -144,7 +144,7 @@ JobDialog (view)
       → JobService → JobPaymentCalculator + JobRewardCalculator
       → UserController (commands + notifications)
         → User → Wallet / Vitals / CareerProgress / books
-  → Outcome<JobRewards> back to the view
+  → Outcome (success/failure + message) back to the view
   → UserController notifies observers → GamePanel refreshes the stats panel
 ```
 

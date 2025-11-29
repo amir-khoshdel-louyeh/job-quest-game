@@ -1,28 +1,24 @@
 package controller;
 
-import java.util.Optional;
-
-// One result shape for every controller action: did it work, what should the
-// view say, and what (if anything) came back.
-public final class Outcome<T> {
+// One result shape for every controller action: did it work, and what should the
+// view say.
+public final class Outcome {
     private final boolean success;
     private final String message;
-    private final T payload;
 
     // ----- Construction -----
-    private Outcome(boolean success, String message, T payload) {
+    private Outcome(boolean success, String message) {
         this.success = success;
         this.message = message == null ? "" : message;
-        this.payload = payload;
     }
 
     // ----- Factories -----
-    public static <T> Outcome<T> success(String message, T payload) {
-        return new Outcome<T>(true, message, payload);
+    public static Outcome success(String message) {
+        return new Outcome(true, message);
     }
 
-    public static <T> Outcome<T> failure(String message) {
-        return new Outcome<T>(false, message, null);
+    public static Outcome failure(String message) {
+        return new Outcome(false, message);
     }
 
     // ----- Getter -----
@@ -32,10 +28,5 @@ public final class Outcome<T> {
 
     public String getMessage() {
         return message;
-    }
-
-    // Empty on failure.
-    public Optional<T> getPayload() {
-        return Optional.ofNullable(payload);
     }
 }

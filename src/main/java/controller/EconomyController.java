@@ -20,7 +20,7 @@ final class EconomyController implements ServicePurchases {
     // ----- Commands -----
     // Buys a service; lookup + charge + effect happen together.
     @Override
-    public Outcome<Service> purchaseService(String serviceName) {
+    public Outcome purchaseService(String serviceName) {
         Service service = serviceProvider.getService(serviceName);
         if (service == null) {
             return Outcome.failure("Unknown service: " + serviceName + ".");
@@ -35,6 +35,6 @@ final class EconomyController implements ServicePurchases {
         String effect = Service.describeEffect(
                 service.getEnergyEffect(), service.getHealthEffect());
         return Outcome.success("Service " + serviceName
-                + " purchased. Effect: " + effect + ".", service);
+                + " purchased. Effect: " + effect + ".");
     }
 }

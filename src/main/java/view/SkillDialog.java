@@ -198,7 +198,7 @@ public class SkillDialog extends JDialog {
 
     // Stays open after success; learned skills move to the Learned section.
     private void handleLearnSkill(LearnableSkill skill, JButton source) {
-        Outcome<?> result = controller.learnSkill(skill.getName());
+        Outcome result = controller.learnSkill(skill.getName());
         gamePanel.addChatMessage(result.getMessage());
         if (!result.isSuccess()) {
             JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Learn", JOptionPane.WARNING_MESSAGE);
