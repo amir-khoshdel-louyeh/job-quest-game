@@ -19,7 +19,7 @@ object-oriented design.
 - 🏆 Seven story challenges and 21 achievements
 - ⏱️ Passive energy/health drain, sickness checks, and knockout penalties
 - 🛠️ Developer panel for demos (change stats instantly)
-- 🧪 45 unit tests in four test classes (`mvn test`)
+- 🧩 Layered OOP design with read-only views and narrow ports
 
 ## 📋 Requirements
 
@@ -30,11 +30,17 @@ No database or external service is needed.
 
 ## 🚀 Run
 
-```bash
-# Run the tests
-mvn clean test
+The easiest way is the launcher script, which also handles UI scaling:
 
-# Start the game
+```bash
+./run.sh          # Linux / macOS
+python3 main.py   # same launcher, via Python
+```
+
+Or run with Maven directly:
+
+```bash
+mvn clean compile
 mvn exec:java -Dexec.mainClass="main.Main"
 ```
 
@@ -44,6 +50,11 @@ Build a runnable JAR:
 mvn clean package
 java -jar target/job-quest-game-1.0-SNAPSHOT.jar
 ```
+
+### Controls
+
+- **F11** — toggle fullscreen / windowed mode
+- **ESC** — ask to exit the game
 
 ## 🎮 Game mechanics
 
@@ -76,8 +87,10 @@ XP is `25 + base pay / 8`, also scaled by the quiz multiplier. The quiz score is
 - **Health** (0–100) is restored at the Hospital.
 - **Energy** (0–100,000) is restored at the Market.
 - Energy drains by 1 every 30 seconds; health drains by 1 every 60 seconds.
-- Low health doubles the energy drain; low energy triples the health drain.
-- Reaching 0 health or 0 energy costs $200 and blocks jobs for 5 minutes.
+- Below 30 health the energy drain doubles; below 25,000 energy the health
+  drain triples.
+- When a drain brings health or energy to 0, the player pays $200 and cannot
+  work for 5 minutes.
 - A sickness check runs hourly with a 10% chance to lose 5–10 health.
 
 ### Skills and jobs
@@ -89,86 +102,141 @@ XP is `25 + base pay / 8`, also scaled by the quiz multiplier. The quiz score is
 
 ## 🏗️ Architecture
 
-Dependencies point one way:
+Dependencies point one way only. A layer may use the layer below it, but never
+the other way around:
 
 ```
 main → view → controller → services / providers → model
-                                  ↘ observer
+                              ↘ observer
 ```
 
-- **model** — entities and value objects (`User`, `Wallet`, `Job`, `JobRewards`,
-  `QuizRound`, `Achievement`, ...)
-- **services** — pure game rules (`JobService`, `JobGate`, `ChallengeService`,
-  `AchievementService`, `RoutineService`, `QuizScorer`)
-- **provider** — read-only game catalogs (`JobProvider`, `SkillProvider`, ...)
+- **main** — starts Swing and opens the main window (`MainFrame`)
+- **view** — Swing screens; renders data and forwards clicks. It never
+  calculates a game rule
 - **controller** — application actions (`GameController`), read queries
-  (`GameQueries`), and observer notifications
-- **view** — Swing screens; it renders and forwards clicks
+  (`GameQueries`), and observer notifications. It never paints on screen
+- **services** — pure game rules (`JobService`, `JobGate`, `ChallengeService`,
+  `AchievementService`, `RoutineService`, `QuizScorer`). No UI, no database
+- **provider** — read-only catalogs of jobs, skills, services, achievements,
+  challenges, quizzes, and careers. These are data, not game logic
+- **model** — entities, value objects, small rules, and the ports that connect
+  the layers (`User`, `Wallet`, `Job`, `JobRewards`, `QuizRound`, ...)
 - **observer** — `Subject` / `Observer` / `ChangeType` for stat updates
 - **utils** — formatting and small shared helpers
 
-### OOP concepts in this project
+Four rules keep the design honest:
+
+- A view never calculates a game rule.
+- A controller never paints on screen.
+- A service never opens a dialog.
+- A model object never reads the keyboard or the screen.
+
+`model` is the bottom layer and depends only on `utils`. That is why the
+dependency arrows never point back up.
+
+### How a click travels
+
+```text
+JobDialog (view)
+  → GameController
+    → JobController
+      → JobGate (can this job start?)
+      → JobService → JobPaymentCalculator + JobRewardCalculator
+      → UserController (commands + notifications)
+        → User → Wallet / Vitals / CareerProgress / books
+  → Outcome<JobRewards> back to the view
+  → UserController notifies observers → GamePanel refreshes the stats panel
+```
+
+Views never receive the mutable `User`. `GameSession` hands them a read-only
+`PlayerView` and a subscribe-only `Observable`, so a cast cannot reach a command
+port or the aggregate.
+
+### 🧭 Where to start reading
+
+| Order | File | Why |
+| --- | --- | --- |
+| 1 | `model/Identity.java` | The profession contract |
+| 2 | `model/player/Wallet.java` | Encapsulation with guarded commands |
+| 3 | `model/player/Vitals.java` | Clamping inside private setters |
+| 4 | `model/player/CareerProgress.java` | Multi-level XP in one call |
+| 5 | `model/player/User.java` | Aggregate root built by composition |
+| 6 | `model/career/Job.java` + `JobRewards.java` | Immutable value objects |
+| 7 | `model/minigame/QuizRound.java` | A small state machine |
+| 8 | `provider/AbstractCatalog.java` | Generics + inheritance |
+| 9 | `services/JobService.java` | Composition of two rule classes |
+| 10 | `observer/SimpleSubject.java` | Defensive snapshot + safe notify |
+| 11 | `controller/UserController.java` | Adapter, ports, projections |
+| 12 | `controller/GameSession.java` | Composition root |
+| 13 | `controller/GameController.java` + `GameQueries.java` | Action/read split |
+
+## 🧠 OOP concepts in this project
 
 | Concept | Where to look |
 | --- | --- |
 | Encapsulation | `User` composition; `QuizRound` state; `Wallet`/`Vitals` setter guards; defensive `ChallengeBook` copies |
-| Information hiding | Package-private `UserController`/`PlayerReadModel`/`SkillBook`/rule controllers; `PlayerView`/`Observable`-only view surface; `DevControls` demo port |
-| Abstraction | `Identity`, `SkillSet`, `PaymentStats`, `ServiceTarget`, `ScoreStrategy`, `DevControls` |
+| Information hiding | Package-private `UserController`/`SkillBook`/rule controllers; views get read-only `PlayerView` and `Observable` projections, so no cast back to a command port or `User`; `DevControls` demo port |
+| Abstraction | `Identity`, `SkillSet`, `PaymentStats`, `ServiceTarget`, `ScoreStrategy`, `PlayerView`, `UpkeepTarget`, `DevControls` |
 | Inheritance | `AbstractCatalog<T>`, `UnknownIdentityException` |
-| Polymorphism | `LearnableSkill.Availability`, `Purchasable`, `MiniGameLauncher` |
+| Polymorphism | `Identity`/`Profession`, `Service.apply(ServiceTarget)`, `MiniGameLauncher`/`QuizLauncher` |
 | Composition | `User` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
 | Immutability / value objects | `Job`, `JobRewards`, `Service`, `MiniGameResult`, `QuizQuestion` |
 | Observer pattern | `Subject`, `SimpleSubject`, `Observer`, `ChangeType` |
 | Strategy pattern | `MiniGameLauncher`/`QuizLauncher`, `ScoreStrategy`/`QuizScorer` |
 | Factory methods | `Outcome.success`, `MiniGameResult.quiz`, `QuizRound.random` |
-| Dependency inversion | `JobService` depends on `PaymentStats`; services/controllers depend on `*Catalog` contracts; controllers depend on `GamePlayer`/`JobPlayer`/`SkillLearner`/`PurchaseTarget` ports |
-| Single responsibility | `PlayerReadModel` (reads) vs `UserController` (commands/notifications); `JobGate` (eligibility) vs `JobController` (outcomes); rule calculators each own one rule |
+| Dependency inversion | `JobService` depends on `PaymentStats`; upkeep rules on `UpkeepTarget`; goal services on `PlayerProgress`; controllers on `JobPlayer`/`SkillLearner`/`PurchaseTarget`; services and views on `*Catalog` contracts |
+| Single responsibility | `JobGate` (eligibility) vs `JobController` (outcomes); rule calculators each own one rule; `GameController` (actions) vs `GameQueries` (reads) |
 | Open/closed | Add a mini-game or achievement without editing the existing flow |
-| Interface segregation | Role views (`JobBoardView`, `SkillBoardView`, ...), command ports (`GamePlayer`, `JobPlayer`, `SkillLearner`, `PurchaseTarget`), `SkillSet`, `PaymentStats`, goal ports, and narrow upkeep targets for consumers |
-
-See [docs/OOP_DESIGN.md](docs/OOP_DESIGN.md) for a file-by-file tour.
+| Interface segregation | Read surface (`PlayerView`), goal surface (`PlayerProgress`), per-use-case ports (`JobPlayer`, `SkillLearner`, `PurchaseTarget`), plus `SkillSet`, `PaymentStats`, `AchievementStats`, and `UpkeepTarget` |
+| Adapter / port | `UserController` (adapter over `User`); `Scheduler`/`SwingScheduler`; `MessageSink`/`GamePanel` |
+| Composition root | `GameSession` builds the player, services, controllers, and queries |
+| Defensive copying | `utils.Lists`, `AbstractCatalog.getAll()`, `ChallengeProvider`, `QuizProvider` |
 
 ## 📁 Project structure
 
-```
+```text
 job-quest-game/
 ├── src/main/java/
 │   ├── main/            # Application entry point
-│   ├── model/           # Entities, value objects, interfaces
-│   │   ├── player/      # User, Wallet, Vitals, CareerProgress, PlayClock, ...
+│   ├── model/           # Entities, value objects, ports, small rules
 │   │   ├── career/      # Job, JobRewards, Profession, LearnableSkill
 │   │   ├── goals/       # Challenge, Achievement and their books
-│   │   ├── store/       # Service, Purchasable, ServiceTarget
-│   │   └── minigame/    # QuizRound, QuizQuestion, MiniGameResult, ScoreStrategy
-│   ├── services/        # Rule composers + job/ and upkeep/ rule classes
-│   ├── provider/        # Catalogs of jobs, skills, services, achievements
-│   ├── controller/      # GameSession, controllers, SessionTracker, Scheduler port
-│   ├── view/            # Swing panels/dialogs, WorldViewPanel, NotificationToast (+ theme, minigame)
+│   │   ├── minigame/    # QuizRound, QuizQuestion, MiniGameResult, ScoreStrategy
+│   │   ├── player/      # User, Wallet, Vitals, CareerProgress, ports
+│   │   └── store/       # Service, ServiceTarget
+│   ├── services/        # Rule composers
+│   │   ├── job/         # JobGate, payment and reward calculators
+│   │   ├── minigame/    # QuizScorer
+│   │   └── upkeep/      # Drain, sickness, knockout rules
+│   ├── provider/        # Read-only catalogs and identity factory
+│   ├── controller/      # GameSession, controllers, queries, ports
+│   ├── view/            # Swing screens, dialogs, theme
+│   │   ├── minigame/    # MiniGameLauncher, QuizLauncher, QuizGameDialog
+│   │   └── theme/       # AppTheme
 │   ├── observer/        # Observer pattern
-│   └── utils/           # Lists, DurationText, Require, text helpers, balance
-├── src/test/java/       # Domain unit tests
-├── docs/                # Design notes
-└── pom.xml
+│   └── utils/           # Lists, formatting, GameBalance, logging
+├── src/main/resources/images/
+├── pom.xml
+├── run.sh
+└── main.py
 ```
 
-## 🧪 Tests
+## 🧪 Testing
 
-```bash
-mvn test
-```
+This snapshot has no `src/test` source set, so `mvn test` only compiles the main
+code and runs no tests.
 
-The suite lives in `ModelRulesTest`, `GameRulesTest`, `UserControllerTest`, and
-`PlayerViewBoundaryTest`. It covers progression, resource caps, job rewards,
-mini-game scaling, quiz rounds, skill availability, services, routine upkeep,
-play-time accrual, purchase outcomes, challenge isolation, session summaries,
-and the read-only view boundary. Tests never open a window.
+The design is still testable: rules depend on small ports (`PaymentStats`,
+`UpkeepTarget`, `PlayerProgress`, `ServiceTarget`) and time is injected as a
+`Supplier<Long>`, so tests can run headless with fixed clocks and fake players.
 
 ## 🛠️ Developer panel
 
 The **Dev** button opens demo controls for balance, health, energy, level,
-reputation, playtime, and job bonus. These mutations live in `CheatService` and
-reach the player only through the narrow `DevControls` port, so the aggregate's
-`Wallet`, `Vitals`, `CareerProgress`, `JobRecord`, and `PlayClock` stay private.
+reputation, playtime, and job bonus. `DeveloperController` mutates through the
+narrow `DevControls` port only, so the aggregate's `Wallet`, `Vitals`,
+`CareerProgress`, `JobRecord`, and `PlayClock` stay private.
+
 Upkeep runs on an injected `Scheduler` (`SwingScheduler` in the app), so the
 controller layer has no Swing dependency.
 

@@ -84,10 +84,6 @@ public final class QuizRound {
         picked.set(index, choice);
     }
 
-    public void skip() {
-        answer(SKIPPED);
-    }
-
     // Advances to the next question; does nothing on the last one.
     public void next() {
         if (!isLastQuestion()) {

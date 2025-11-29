@@ -2,7 +2,7 @@ package services.upkeep;
 
 import java.util.function.Supplier;
 
-import model.player.KnockoutTarget;
+import model.player.UpkeepTarget;
 import utils.GameBalance;
 
 // Applies the knockout penalty: a small money fine and a temporary job block.
@@ -13,7 +13,7 @@ public final class KnockoutPolicy {
         this.clock = utils.Require.notNull(clock, "clock");
     }
 
-    public void applyTo(KnockoutTarget user) {
+    public void applyTo(UpkeepTarget user) {
         int penalty = GameBalance.KNOCKOUT_MONEY_PENALTY;
         // No partial charge when the balance is short.
         if (penalty > 0 && user.getBalance() >= penalty) {

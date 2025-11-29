@@ -1,6 +1,6 @@
 package services.upkeep;
 
-import model.player.DrainTarget;
+import model.player.UpkeepTarget;
 import utils.GameBalance;
 
 // Passive energy and health drain, including the knockout check.
@@ -12,7 +12,7 @@ public final class DrainRule {
     }
 
     // Returns a warning message when poor health increases the drain.
-    public String energy(DrainTarget user) {
+    public String energy(UpkeepTarget user) {
         if (user.getEnergy() <= 0) {
             return null;
         }
@@ -34,7 +34,7 @@ public final class DrainRule {
     }
 
     // Returns a warning message when exhaustion increases the drain.
-    public String health(DrainTarget user) {
+    public String health(UpkeepTarget user) {
         int healthLoss = GameBalance.BASE_HEALTH_LOSS;
         String message = null;
 

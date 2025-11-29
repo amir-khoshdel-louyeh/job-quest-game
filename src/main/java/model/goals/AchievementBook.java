@@ -1,20 +1,14 @@
 package model.goals;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import utils.Lists;
 
 // Owns unlocked achievements.
-// Used by model.player.User (sole owner); the id list only leaves as a copy.
-public final class AchievementBook implements AchievementLog {
+// Used by model.player.User (sole owner); callers only ask for a count or
+// whether an id was unlocked, so the stored list never leaves the book.
+public final class AchievementBook {
     private final ArrayList<String> unlockedAchievements = new ArrayList<String>();
 
     // ----- Getter -----
-    public List<String> getUnlockedAchievements() {
-        return Lists.copyOf(unlockedAchievements);
-    }
-
     public int getUnlockedCount() {
         return unlockedAchievements.size();
     }

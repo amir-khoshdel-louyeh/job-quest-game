@@ -7,8 +7,6 @@ import model.career.LearnableSkill;
 
 // Read-only skill catalog contract.
 public interface SkillCatalog {
-    List<LearnableSkill> getAll();
-
     LearnableSkill getSkill(String name);
 
     List<LearnableSkill> getSkillsForIdentity(Identity identity);

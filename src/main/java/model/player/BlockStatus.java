@@ -59,11 +59,7 @@ public final class BlockStatus {
     }
 
     // ----- Queries -----
-    public boolean isBlockedAt(long now) {
-        return now < blockedUntil;
-    }
-
     public boolean isBlocked() {
-        return isBlockedAt(clock.get());
+        return clock.get() < blockedUntil;
     }
 }

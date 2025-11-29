@@ -62,10 +62,6 @@ public final class Job {
         return energyCost;
     }
 
-    public List<String> getRequiredSkills() {
-        return Lists.copyOf(requiredSkills);
-    }
-
     // ----- Queries -----
     public boolean isForIdentity(Identity identity) {
         return identity != null && requiredIdentity.isSameProfession(identity);

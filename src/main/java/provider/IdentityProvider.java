@@ -1,16 +1,22 @@
 package provider;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import model.Identity;
 import model.career.Profession;
+import utils.Lists;
 
-// Builds the starting profession the player picks.
+// The profession registry: creates any career by name and lists the four
+// starting cards (with artwork) the start screen shows.
 // Keys ignore case and spaces.
 public final class IdentityProvider {
     private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
+    private final ArrayList<Identity> options = new ArrayList<Identity>();
+    private final Map<String, String> imagePaths = new HashMap<String, String>();
 
     // ----- Construction -----
     public IdentityProvider() {
@@ -23,6 +29,7 @@ public final class IdentityProvider {
             throw new IllegalArgumentException("registry must not be null");
         }
         this.registry.putAll(registry);
+        addStartingOptions();
     }
 
     private static Map<String, Supplier<Identity>> defaultRegistry() {
@@ -38,6 +45,22 @@ public final class IdentityProvider {
         return defaults;
     }
 
+    // One card per starting career, plus the artwork shown on it.
+    private void addStartingOptions() {
+        if (!registry.containsKey("doctor")) {
+            return; // custom registry: no cards to show
+        }
+        options.add(createIdentity("Doctor"));
+        options.add(createIdentity("Programmer"));
+        options.add(createIdentity("LogoDesigner"));
+        options.add(createIdentity("Typist"));
+
+        imagePaths.put("Doctor", "/images/doctor.png");
+        imagePaths.put("Programmer", "/images/programmer.png");
+        imagePaths.put("LogoDesigner", "/images/logodesigner.png");
+        imagePaths.put("Typist", "/images/typist.png");
+    }
+
     // ----- Queries -----
     public Identity createIdentity(String identityName) {
         if (identityName == null) {
@@ -48,6 +71,19 @@ public final class IdentityProvider {
             throw new UnknownIdentityException(identityName);
         }
         return factory.get();
+    }
+
+    // The four starting careers, in card order.
+    public List<Identity> getAvailableOptions() {
+        return Lists.copyOf(options);
+    }
+
+    // Card artwork for an option, or null when it has none.
+    public String imagePathFor(Identity option) {
+        if (option == null) {
+            return null;
+        }
+        return imagePaths.get(option.getProfessionName());
     }
 
     // "Logo Designer" -> "logodesigner".

@@ -1,7 +1,7 @@
 package view;
 
 import view.theme.AppTheme;
-import provider.IdentityOptionProvider;
+import provider.IdentityProvider;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -9,7 +9,7 @@ import java.awt.event.KeyEvent;
 // The app window: starts fullscreen, F11 toggles windowed, ESC asks to exit.
 public class MainFrame extends JFrame {
     // One shared read-only catalog for every start screen in this window.
-    private final IdentityOptionProvider identityOptions = new IdentityOptionProvider();
+    private final IdentityProvider identityOptions = new IdentityProvider();
     private GraphicsDevice device;
     
     public MainFrame() {

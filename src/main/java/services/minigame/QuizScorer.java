@@ -7,7 +7,7 @@ import model.minigame.MiniGameResult;
 import model.minigame.QuizQuestion;
 import model.minigame.ScoreStrategy;
 
-// Scores quiz rounds from correct answers and speed.
+// Scores quiz rounds by blending accuracy (80%) with speed (20%).
 public final class QuizScorer implements ScoreStrategy {
 
     // ----- Constants -----
@@ -38,11 +38,11 @@ public final class QuizScorer implements ScoreStrategy {
         if (n > 0) {
             accuracy = (int) Math.round(correct * 100.0 / n);
         }
-        // Blend lives in ScoreMixer.
-        double speedRatio = ScoreMixer.speedRatio(ROUND_PAR_SECONDS, elapsedSeconds, MAX_SPEED_RATIO);
+        // Speed contributes only up to par time; faster does not score higher.
+        double speedRatio = speedRatio(ROUND_PAR_SECONDS, elapsedSeconds, MAX_SPEED_RATIO);
         int score = 0;
         if (n > 0) {
-            score = ScoreMixer.blend(accuracy, speedRatio * 100, ACCURACY_WEIGHT, SPEED_WEIGHT);
+            score = blend(accuracy, speedRatio * 100, ACCURACY_WEIGHT, SPEED_WEIGHT);
         }
 
         List<String> highlights = new ArrayList<>();
@@ -51,5 +51,20 @@ public final class QuizScorer implements ScoreStrategy {
         if (elapsedSeconds <= ROUND_PAR_SECONDS && n > 0) highlights.add("quick decisions ⚡");
 
         return MiniGameResult.quiz(gameName, score, accuracy, elapsedSeconds, highlights);
+    }
+
+    // ----- Private helpers -----
+    // Faster than par, capped at maxRatio. Floors sub-second times so the
+    // division below can never use zero.
+    private static double speedRatio(int parSeconds, int elapsedSeconds, double maxRatio) {
+        int safeTime = elapsedSeconds < 1 ? 1 : elapsedSeconds;
+        double ratio = parSeconds / (double) safeTime;
+        return ratio > maxRatio ? maxRatio : ratio;
+    }
+
+    // Weighted sum on the 0..100 scale, rounded once.
+    private static int blend(int accuracy, double speedHundredths,
+                             double accuracyWeight, double speedWeight) {
+        return (int) Math.round(accuracy * accuracyWeight + speedHundredths * speedWeight);
     }
 }

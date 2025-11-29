@@ -1,7 +1,7 @@
 package model.player;
 
 // Tracks level, experience, and reputation.
-// Used by model.player.User (sole owner); read via User/UserController/StatsController.
+// Used by model.player.User (sole owner); read via PlayerView.
 public final class CareerProgress {
     public static final int MAX_LEVEL = 100;
     public static final int MAX_REPUTATION = 100;

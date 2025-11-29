@@ -108,7 +108,7 @@ public class NavBar extends JPanel implements WorldViewPanel.Navigator {
     }
 
     public void openProgress() {
-        new ProgressDialog(frame(), queries, host).setVisible(true);
+        new ProgressDialog(frame(), queries).setVisible(true);
     }
 
     public void openDevControls() {

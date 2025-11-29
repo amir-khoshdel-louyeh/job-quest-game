@@ -25,10 +25,6 @@ public abstract class AbstractCatalog<T> {
         return Lists.copyOf(entries);
     }
 
-    public final int size() {
-        return entries.size();
-    }
-
     // ----- Protected helpers -----
     // A copy to filter over; the stored list is never exposed.
     protected final List<T> snapshot() {

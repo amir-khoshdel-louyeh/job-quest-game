@@ -12,10 +12,4 @@ public final class Require {
         return value;
     }
 
-    public static String notBlank(String value, String name) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(name + " must not be blank");
-        }
-        return value;
-    }
 }

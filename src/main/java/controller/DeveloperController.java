@@ -1,24 +1,18 @@
 package controller;
 
+import model.player.DevControls;
 import observer.ChangeType;
 
 // Lets developers set stats by hand for demos and testing.
-// Out-of-rules mutations live in CheatService; this only cheats + notifies.
-// The aggregate is reached through UserController.devControls(), not User.
+// Every mutation goes through the narrow DevControls port and then publishes
+// the matching change, so views stay in sync with the cheated aggregate.
 public final class DeveloperController {
     private final UserController userController;
-    private final CheatService cheats;
 
     // ----- Construction -----
     // Package-private: GameSession creates the one developer facade per run.
     DeveloperController(UserController userController) {
-        this(userController, new CheatService());
-    }
-
-    // Custom CheatService for tests; every dependency is required.
-    DeveloperController(UserController userController, CheatService cheats) {
         this.userController = utils.Require.notNull(userController, "userController");
-        this.cheats = utils.Require.notNull(cheats, "cheats");
     }
 
     // ----- Read delegates -----
@@ -53,52 +47,52 @@ public final class DeveloperController {
     // ----- Commands -----
     // Sets balance. Demo only.
     public void setBalance(int amount) {
-        cheats.setBalance(userController.devControls(), amount);
+        dev().setBalance(amount);
         userController.notifyObservers(ChangeType.BALANCE);
     }
 
     // Sets health. Demo only.
     public void setHealth(int hp) {
-        cheats.setHealth(userController.devControls(), hp);
+        dev().setHealth(hp);
         userController.notifyObservers(ChangeType.HEALTH);
     }
 
     // Sets energy. Demo only.
     public void setEnergy(int energy) {
-        cheats.setEnergy(userController.devControls(), energy);
+        dev().setEnergy(energy);
         userController.notifyObservers(ChangeType.ENERGY);
     }
 
     // Adds playtime in minutes; non-positive values are ignored.
     public void addPlaytimeMinutes(long minutes) {
-        if (minutes == 0) {
+        if (minutes <= 0) {
             return;
         }
-        cheats.addPlaytimeMinutes(userController.devControls(), minutes);
+        dev().addPlayTimeMinutes(minutes);
         userController.publishAll();
     }
 
     // Sets playtime to an exact number of minutes. Demo only.
     public void setPlaytimeMinutes(long minutes) {
-        cheats.setPlaytimeMinutes(userController.devControls(), minutes);
+        dev().setPlayTimeMinutes(minutes);
         userController.publishAll();
     }
 
     // Sets level. Demo only.
     public void setLevel(int level) {
-        cheats.setLevel(userController.devControls(), level);
+        dev().setLevel(level);
         userController.notifyObservers(ChangeType.XP);
     }
 
     // Sets reputation. Demo only.
     public void setReputation(int reputation) {
-        cheats.setReputation(userController.devControls(), reputation);
+        dev().setReputation(reputation);
         userController.notifyObservers(ChangeType.REPUTATION);
     }
 
     // Sets job bonus. Demo only.
     public void setJobBonus(int jobBonus) {
-        cheats.setJobBonus(userController.devControls(), jobBonus);
+        dev().setJobBonus(jobBonus);
         userController.notifyObservers();
     }
 
@@ -106,5 +100,11 @@ public final class DeveloperController {
     public void unblock() {
         userController.unblockUser();
         userController.publishAll();
+    }
+
+    // ----- Private helpers -----
+    // The aggregate's demo port; User itself never leaves the controller layer.
+    private DevControls dev() {
+        return userController.devControls();
     }
 }

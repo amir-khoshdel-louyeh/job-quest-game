@@ -1,10 +1,11 @@
 package model.store;
 
+import java.util.Locale;
 import java.util.Objects;
 
 // A buyable service that restores health or energy right away.
 // Applied to a ServiceTarget; read via service provider/controller.
-public final class Service implements Purchasable {
+public final class Service {
     private final String name;
     private final String description;
     private final int cost;
@@ -14,7 +15,7 @@ public final class Service implements Purchasable {
     // ----- Construction -----
     // Description is derived from the effects so the catalog cannot drift.
     public Service(String name, int cost, int healthEffect, int energyEffect) {
-        this(name, utils.EffectText.formatServiceEffect(energyEffect, healthEffect),
+        this(name, describeEffect(energyEffect, healthEffect),
                 cost, healthEffect, energyEffect);
     }
 
@@ -37,17 +38,14 @@ public final class Service implements Purchasable {
     }
 
     // ----- Getter -----
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public String getDescription() {
         return description;
     }
 
-    @Override
     public int getPrice() {
         return cost;
     }
@@ -61,6 +59,28 @@ public final class Service implements Purchasable {
     }
 
     // ----- Queries -----
+    // "+25,000 Energy, +5 Health", or "No effect" for a service with no bars.
+    public static String describeEffect(int energyEffect, int healthEffect) {
+        if (energyEffect == 0 && healthEffect == 0) {
+            return "No effect";
+        }
+        String result = "";
+        if (energyEffect > 0) {
+            result = result + "+" + formatAmount(energyEffect) + " Energy";
+        }
+        if (healthEffect > 0) {
+            if (!result.equals("")) {
+                result = result + ", ";
+            }
+            result = result + "+" + formatAmount(healthEffect) + " Health";
+        }
+        return result;
+    }
+
+    private static String formatAmount(int amount) {
+        return String.format(Locale.US, "%,d", amount);
+    }
+
     public boolean isHealthService() {
         return healthEffect > 0 && energyEffect == 0;
     }
@@ -71,7 +91,6 @@ public final class Service implements Purchasable {
 
     // ----- Commands -----
     // Applies the stored health and energy amounts.
-    @Override
     public void apply(ServiceTarget target) {
         if (target == null) {
             return;

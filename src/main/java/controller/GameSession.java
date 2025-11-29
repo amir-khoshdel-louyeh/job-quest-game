@@ -47,7 +47,10 @@ public final class GameSession {
         User user = new User(username, identity, identity.getStartingBalance());
         user.grantStartingBonus();
         UserController users = new UserController(user);
-        PlayerView playerView = new PlayerReadModel(user);
+        // Views get projections, not the adapter: they can read the player and
+        // subscribe to changes, but cannot cast what they hold to a command
+        // port, to Subject, or to the mutable User aggregate.
+        PlayerView playerView = users.playerView();
 
         // One catalog/service instance per run: job, skill, challenge, and
         // achievement rules must see the same state. Catalogs are passed in
@@ -68,7 +71,7 @@ public final class GameSession {
         SessionTracker session = new SessionTracker(startTime);
         GameController game = new GameController(economy, jobController, skillController, session);
         GameQueries queries = new GameQueries(users, economy, jobs, skills, playerView,
-                new StatsController(), challenges, achievements, session);
+                challenges, achievements, session);
 
         // A fresh run starts with the story challenges available.
         challenges.initializeChallenges(users);
@@ -82,7 +85,7 @@ public final class GameSession {
 
     // Views may subscribe, but cannot notify or mutate.
     public Observable observable() {
-        return userController;
+        return userController.observable();
     }
 
     public DeveloperController developerController() {

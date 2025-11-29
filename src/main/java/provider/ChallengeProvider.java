@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.goals.Challenge;
-import utils.Lists;
 
 // Holds the story challenges the player can try.
 // Injected into ChallengeService.

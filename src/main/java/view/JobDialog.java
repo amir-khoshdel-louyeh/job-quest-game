@@ -5,7 +5,7 @@ import controller.Outcome;
 import model.career.Job;
 import model.career.SkillSet;
 import model.minigame.MiniGameResult;
-import model.player.JobBoardView;
+import model.player.PlayerView;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 
@@ -21,7 +21,7 @@ public class JobDialog extends JDialog {
     private final MiniGameLauncher workGame;
 
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                     List<Job> allJobs, JobBoardView player, MiniGameLauncher workGame) {
+                     List<Job> allJobs, PlayerView player, MiniGameLauncher workGame) {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;

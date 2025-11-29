@@ -5,7 +5,6 @@ import java.util.List;
 import model.player.PurchaseTarget;
 import model.store.Service;
 import provider.ServiceCatalog;
-import utils.EffectText;
 
 // Handles money: buying services like food or hospital visits.
 // Catalog is injected. Package-private: only GameSession/GameController wire it.
@@ -34,7 +33,7 @@ final class EconomyController {
         // The target applies health/energy effects; the adapter publishes the
         // matching change notifications.
         service.apply(player);
-        String effect = EffectText.formatServiceEffect(
+        String effect = Service.describeEffect(
                 service.getEnergyEffect(), service.getHealthEffect());
         return Outcome.success("Service " + serviceName
                 + " purchased. Effect: " + effect + ".", service);

@@ -48,9 +48,7 @@ public final class JobResultText {
         if (game == null) {
             return baseMessage;
         }
-        String gameLine = GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                game.getAccuracy(), game.getElapsedSeconds(), game.getHighlights());
-        return baseMessage + "\n" + gameLine;
+        return baseMessage + "\n" + summaryLine(game);
     }
 
     // Builds the failure message.
@@ -71,9 +69,19 @@ public final class JobResultText {
         }
         msg = msg + ". No pay, XP or progress. Rest up and retry.";
         if (game != null) {
-            msg = msg + "\n" + GameSummaryText.summaryLine(game.getGameName(), game.getScore(),
-                    game.getAccuracy(), game.getElapsedSeconds(), game.getHighlights());
+            msg = msg + "\n" + summaryLine(game);
         }
         return msg;
+    }
+
+    // One line per mini-game round: score, accuracy, time, and highlights.
+    private static String summaryLine(MiniGameResult game) {
+        String base = game.getGameName() + ": score " + game.getScore() + "/100, accuracy "
+                + game.getAccuracy() + "% in " + game.getElapsedSeconds() + "s";
+        List<String> highlights = game.getHighlights();
+        if (highlights != null && !highlights.isEmpty()) {
+            base = base + " — " + String.join("; ", highlights);
+        }
+        return base;
     }
 }

@@ -1,6 +1,5 @@
 package controller;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import model.Identity;
@@ -8,90 +7,65 @@ import model.career.SkillSet;
 import model.goals.Challenge;
 import model.player.DevControls;
 import model.player.JobPlayer;
-import model.player.PaymentStats;
+import model.player.PlayerView;
 import model.player.PurchaseTarget;
 import model.player.SkillLearner;
-import model.player.PlayerProgress;
 import model.player.UpkeepTarget;
 import model.player.User;
-import model.store.ServiceTarget;
 import observer.ChangeType;
+import observer.Observable;
 import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
 
-// Holds one player and handles commands plus observer notifications.
-// Reads live in PlayerReadModel; views see this object only as Observable.
-final class UserController implements Subject, PlayerProgress,
-        PaymentStats, ServiceTarget, UpkeepTarget,
-        JobPlayer, SkillLearner, PurchaseTarget {
+// Adapter around one player: commands plus observer notifications.
+// Commands are implemented on this class; reads and subscriptions are handed
+// out as two separate projection objects, so a view cannot downcast what it
+// receives back to a command port, to Subject, or to the mutable aggregate.
+final class UserController implements Subject, JobPlayer,
+        SkillLearner, PurchaseTarget, UpkeepTarget {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
-    private int batchDepth;
-    private boolean pendingFullRefresh;
-    private final EnumSet<ChangeType> pendingChanges = EnumSet.noneOf(ChangeType.class);
+    private final PlayerView playerView = new ReadOnlyPlayer();
+    private final Observable observable = new SubscriptionPort();
 
     // ----- Construction -----
     public UserController(User user) {
         this.user = utils.Require.notNull(user, "user");
     }
 
+    // ----- Read-only projections -----
+    // The object screens receive as their player data. It implements
+    // PlayerView and nothing else.
+    PlayerView playerView() {
+        return playerView;
+    }
+
+    // The object screens receive to subscribe. It implements Observable and
+    // nothing else, so a view cannot call notifyObservers().
+    Observable observable() {
+        return observable;
+    }
+
     // ----- Observer delegates -----
     @Override
-    public void addObserver(Observer observer) { subject.addObserver(observer); }
+    public void addObserver(Observer observer) {
+        subject.addObserver(observer);
+    }
 
     @Override
-    public void removeObserver(Observer observer) { subject.removeObserver(observer); }
+    public void removeObserver(Observer observer) {
+        subject.removeObserver(observer);
+    }
 
     @Override
     public void notifyObservers() {
-        if (batchDepth > 0) {
-            pendingFullRefresh = true;
-            return;
-        }
         subject.notifyObservers();
     }
 
     @Override
     public void notifyObservers(ChangeType whatChanged) {
-        if (batchDepth > 0) {
-            if (whatChanged == null) {
-                pendingFullRefresh = true;
-            } else {
-                pendingChanges.add(whatChanged);
-            }
-            return;
-        }
         subject.notifyObservers(whatChanged);
-    }
-
-    // ----- Batching -----
-    // Hold notifications until the whole action finishes, then publish once.
-    @Override
-    public void runBatch(Runnable action) {
-        utils.Require.notNull(action, "action");
-        batchDepth++;
-        try {
-            action.run();
-        } finally {
-            batchDepth--;
-            if (batchDepth == 0) {
-                flushBatch();
-            }
-        }
-    }
-
-    // One full refresh when several parts changed; one targeted update otherwise.
-    private void flushBatch() {
-        boolean fullRefresh = pendingFullRefresh;
-        EnumSet<ChangeType> changes = EnumSet.copyOf(pendingChanges);
-        pendingFullRefresh = false;
-        pendingChanges.clear();
-        if (fullRefresh || changes.size() > 1) {
-            subject.notifyObservers();
-        } else if (!changes.isEmpty()) {
-            subject.notifyObservers(changes.iterator().next());
-        }
     }
 
     // ----- Dev access -----
@@ -100,24 +74,33 @@ final class UserController implements Subject, PlayerProgress,
         return user.devControls();
     }
 
-    // ----- Domain read ports -----
-    // Only reads used by commands/services stay here; view reads moved out.
+    // ----- Reads required by the command ports -----
+    @Override
     public Identity getIdentity() {
         return user.getIdentity();
     }
 
+    @Override
     public SkillSet getSkillSet() {
         return user.getSkillSet();
     }
 
+    @Override
     public int getLevel() {
         return user.getLevel();
     }
 
+    @Override
     public int getReputation() {
         return user.getReputation();
     }
 
+    @Override
+    public int getJobBonus() {
+        return user.getJobBonus();
+    }
+
+    @Override
     public long getPlayTimeMinutes() {
         return user.getPlayTimeMinutes();
     }
@@ -130,6 +113,26 @@ final class UserController implements Subject, PlayerProgress,
     }
 
     @Override
+    public int getHealth() {
+        return user.getHealth();
+    }
+
+    @Override
+    public int getEnergy() {
+        return user.getEnergy();
+    }
+
+    @Override
+    public int getBalance() {
+        return user.getBalance();
+    }
+
+    @Override
+    public boolean isBlocked() {
+        return user.isBlocked();
+    }
+
+    @Override
     public int getTotalJobsCompleted() {
         return user.getTotalJobsCompleted();
     }
@@ -137,10 +140,6 @@ final class UserController implements Subject, PlayerProgress,
     @Override
     public int getTotalMoneyEarned() {
         return user.getTotalMoneyEarned();
-    }
-
-    public int getJobBonus() {
-        return user.getJobBonus();
     }
 
     @Override
@@ -153,19 +152,8 @@ final class UserController implements Subject, PlayerProgress,
         return user.hasAchievement(id);
     }
 
-    // ----- Commands -----
-    public int getBalance() {
-        return user.getBalance();
-    }
-
-    public int getHealth() {
-        return user.getHealth();
-    }
-
-    public int getEnergy() {
-        return user.getEnergy();
-    }
-
+    // ----- Money / vitals commands -----
+    @Override
     public boolean deductBalance(int amount) {
         if (user.withdraw(amount)) {
             notifyObservers(ChangeType.BALANCE);
@@ -204,10 +192,6 @@ final class UserController implements Subject, PlayerProgress,
         return false;
     }
 
-    public void decreaseEnergy(int amount) {
-        loseEnergy(amount);
-    }
-
     @Override
     public boolean loseEnergy(int amount) {
         if (user.loseEnergy(amount)) {
@@ -232,6 +216,7 @@ final class UserController implements Subject, PlayerProgress,
         return deductBalance(amount);
     }
 
+    // ----- Block -----
     @Override
     public void blockUntil(long time) {
         user.blockUntil(time);
@@ -247,15 +232,13 @@ final class UserController implements Subject, PlayerProgress,
         return user.getLastSicknessTime();
     }
 
-    public boolean isBlocked() {
-        return user.isBlocked();
-    }
-
     public void unblockUser() {
         user.unblock();
     }
 
+    // ----- Skills / progress -----
     // Adds a new skill. Returns true if the skill is new.
+    @Override
     public boolean addSkill(String skillName) {
         if (user.addSkill(skillName)) {
             notifyObservers(ChangeType.SKILLS);
@@ -290,6 +273,7 @@ final class UserController implements Subject, PlayerProgress,
     }
 
     // Loses reputation.
+    @Override
     public void loseReputation(int amount) {
         if (amount > 0) {
             user.loseReputation(amount);
@@ -298,6 +282,7 @@ final class UserController implements Subject, PlayerProgress,
     }
 
     // Records one completed job and its pay.
+    @Override
     public void recordJobCompletion(int moneyEarned) {
         user.addCompletedJob();
         if (moneyEarned > 0) {
@@ -324,11 +309,6 @@ final class UserController implements Subject, PlayerProgress,
     }
 
     @Override
-    public boolean hasChallenge(String challengeId) {
-        return user.hasChallenge(challengeId);
-    }
-
-    @Override
     public void unlockAchievement(String id) {
         user.unlockAchievement(id);
     }
@@ -338,5 +318,141 @@ final class UserController implements Subject, PlayerProgress,
     // touch several stats at once use this instead of guessing a subset.
     public void publishAll() {
         notifyObservers();
+    }
+
+    // ----- Nested projections -----
+    // Read-only player data for screens. It deliberately implements nothing
+    // else, so it cannot be cast to a command port.
+    private final class ReadOnlyPlayer implements PlayerView {
+
+        @Override
+        public String getUsername() {
+            return user.getUsername();
+        }
+
+        @Override
+        public Identity getIdentity() {
+            return user.getIdentity();
+        }
+
+        @Override
+        public String getIdentityName() {
+            return user.getIdentityName();
+        }
+
+        @Override
+        public SkillSet getSkillSet() {
+            return user.getSkillSet();
+        }
+
+        @Override
+        public int getSkillCount() {
+            return user.getSkillCount();
+        }
+
+        @Override
+        public int getLevel() {
+            return user.getLevel();
+        }
+
+        @Override
+        public int getExperience() {
+            return user.getExperience();
+        }
+
+        @Override
+        public int getRequiredExperienceForNextLevel() {
+            return user.getRequiredExperienceForNextLevel();
+        }
+
+        @Override
+        public int getExperiencePercentage() {
+            return user.getExperiencePercentage();
+        }
+
+        @Override
+        public int getReputation() {
+            return user.getReputation();
+        }
+
+        @Override
+        public int getJobBonus() {
+            return user.getJobBonus();
+        }
+
+        @Override
+        public long getPlayTimeMinutes() {
+            return user.getPlayTimeMinutes();
+        }
+
+        @Override
+        public int getHealth() {
+            return user.getHealth();
+        }
+
+        @Override
+        public int getHealthPercentage() {
+            return user.getHealthPercentage();
+        }
+
+        @Override
+        public int getEnergy() {
+            return user.getEnergy();
+        }
+
+        @Override
+        public int getEnergyPercentage() {
+            return user.getEnergyPercentage();
+        }
+
+        @Override
+        public int getBalance() {
+            return user.getBalance();
+        }
+
+        @Override
+        public boolean isBlocked() {
+            return user.isBlocked();
+        }
+
+        @Override
+        public long getBlockedUntil() {
+            return user.getBlockedUntil();
+        }
+
+        @Override
+        public int getAchievementCount() {
+            return user.getAchievementCount();
+        }
+
+        @Override
+        public int getTotalJobsCompleted() {
+            return user.getTotalJobsCompleted();
+        }
+
+        @Override
+        public int getTotalMoneyEarned() {
+            return user.getTotalMoneyEarned();
+        }
+
+        @Override
+        public boolean hasAchievement(String id) {
+            return user.hasAchievement(id);
+        }
+    }
+
+    // Subscribe-only view of the subject. It deliberately implements nothing
+    // else, so a view cannot cast it to Subject and call notifyObservers().
+    private final class SubscriptionPort implements Observable {
+
+        @Override
+        public void addObserver(Observer observer) {
+            UserController.this.addObserver(observer);
+        }
+
+        @Override
+        public void removeObserver(Observer observer) {
+            UserController.this.removeObserver(observer);
+        }
     }
 }

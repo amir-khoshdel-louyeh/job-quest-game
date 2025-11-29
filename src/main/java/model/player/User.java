@@ -13,8 +13,9 @@ import model.store.ServiceTarget;
 
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
 // blocking, achievement, and challenge books.
-// Read/mutated through UserController; services see narrow ports instead.
+// Mutated through UserController; services see narrow ports instead.
 // Raw components are private: the demo panel uses the DevControls port.
+// Views never receive this object (see PlayerView on UserController).
 public final class User implements PlayerProgress, ServiceTarget, PaymentStats, UpkeepTarget {
     private final String username;
     private final Identity identity;
@@ -127,10 +128,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         return skillBook.getSkillCount();
     }
 
-    public boolean hasSkill(String skillName) {
-        return skillBook.hasSkill(skillName);
-    }
-
     public SkillSet getSkillSet() {
         return skillBook;
     }
@@ -225,10 +222,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
     }
 
     // ----- AchievementBook Delegate -----
-    public List<String> getUnlockedAchievements() {
-        return achievementBook.getUnlockedAchievements();
-    }
-
     public void unlockAchievement(String id) {
         achievementBook.unlockAchievement(id);
     }
@@ -248,10 +241,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
 
     public void addChallenges(List<Challenge> list) {
         challengeBook.addChallenges(list);
-    }
-
-    public boolean hasChallenge(String challengeId) {
-        return challengeBook.hasChallenge(challengeId);
     }
 
     // ----- DevControls (demo panel) -----

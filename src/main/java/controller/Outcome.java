@@ -21,10 +21,6 @@ public final class Outcome<T> {
         return new Outcome<T>(true, message, payload);
     }
 
-    public static <T> Outcome<T> success(String message) {
-        return new Outcome<T>(true, message, null);
-    }
-
     public static <T> Outcome<T> failure(String message) {
         return new Outcome<T>(false, message, null);
     }
@@ -38,7 +34,7 @@ public final class Outcome<T> {
         return message;
     }
 
-    // Empty on failure or on a payload-less success.
+    // Empty on failure.
     public Optional<T> getPayload() {
         return Optional.ofNullable(payload);
     }

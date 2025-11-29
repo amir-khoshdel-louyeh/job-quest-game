@@ -3,7 +3,7 @@ package view;
 import controller.GameController;
 import controller.Outcome;
 import model.career.LearnableSkill;
-import model.player.SkillBoardView;
+import model.player.PlayerView;
 import utils.DurationText;
 import utils.Lists;
 import view.theme.AppTheme;
@@ -18,12 +18,12 @@ public class SkillDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
-    private final SkillBoardView player;
+    private final PlayerView player;
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
     public SkillDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                       List<LearnableSkill> allSkills, SkillBoardView player) {
+                       List<LearnableSkill> allSkills, PlayerView player) {
         super(parent, "School of Skills", true);
         this.controller = controller;
         this.gamePanel = gamePanel;

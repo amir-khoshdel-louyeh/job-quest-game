@@ -2,7 +2,7 @@ package view;
 
 import controller.GameSession;
 import model.Identity;
-import provider.IdentityOptionProvider;
+import provider.IdentityProvider;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -16,10 +16,10 @@ public class StartPanel extends JPanel {
     private JButton startButton;
     private JLabel errorLabel;
     private ButtonGroup identityGroup;
-    private final IdentityOptionProvider options;
+    private final IdentityProvider options;
 
     // The career catalog is supplied by MainFrame, not built here.
-    public StartPanel(MainFrame mainFrame, IdentityOptionProvider options) {
+    public StartPanel(MainFrame mainFrame, IdentityProvider options) {
         this.mainFrame = mainFrame;
         this.options = utils.Require.notNull(options, "identity options");
         setBackground(AppTheme.BACKGROUND_COLOR);

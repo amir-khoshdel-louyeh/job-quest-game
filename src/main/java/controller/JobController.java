@@ -57,10 +57,8 @@ final class JobController {
         // Failed mini-game: lose energy and reputation, gain nothing.
         if (game != null && !game.isPassed()) {
             int reputationLost = jobService.reputationPenalty(game);
-            player.runBatch(() -> {
-                player.loseEnergy(job.getEnergyCost());
-                player.loseReputation(reputationLost);
-            });
+            player.loseEnergy(job.getEnergyCost());
+            player.loseReputation(reputationLost);
             return Outcome.failure(utils.JobResultText.failedAttemptLine(
                     job, game.getScore(), job.getEnergyCost(), reputationLost, game));
         }
@@ -68,27 +66,22 @@ final class JobController {
         // All reward math lives in JobService and comes back as one value.
         JobRewards rewards = jobService.calculateRewards(job, player, game);
         int levelBefore = player.getLevel();
+
+        player.loseEnergy(job.getEnergyCost());
+        player.recordJobCompletion(rewards.getFinalPayment());
+        player.addExperience(rewards.getExperience());
+        player.gainReputation(rewards.getReputation());
+
         List<Challenge> completed = new ArrayList<Challenge>();
-        List<Achievement> unlocked = new ArrayList<Achievement>();
-
-        // One batch: views see the completed job only after all rewards land.
-        player.runBatch(() -> {
-            player.loseEnergy(job.getEnergyCost());
-            player.recordJobCompletion(rewards.getFinalPayment());
-            player.addExperience(rewards.getExperience());
-            player.gainReputation(rewards.getReputation());
-
-            completed.addAll(challengeService.updateChallengeProgress(
-                    player, Challenge.ChallengeType.COMPLETE_JOBS, 1));
-            completed.addAll(challengeService.updateChallengeProgress(
-                    player, Challenge.ChallengeType.EARN_MONEY, rewards.getFinalPayment()));
-            unlocked.addAll(achievementService.checkAndUnlockAchievements(player));
-        });
-
-        int levelAfter = player.getLevel();
+        completed.addAll(challengeService.updateChallengeProgress(
+                player, Challenge.ChallengeType.COMPLETE_JOBS, 1));
+        completed.addAll(challengeService.updateChallengeProgress(
+                player, Challenge.ChallengeType.EARN_MONEY, rewards.getFinalPayment()));
+        List<Achievement> unlocked =
+                achievementService.checkAndUnlockAchievements(player);
 
         String message = utils.JobResultText.successLine(
-                job, rewards, levelBefore, levelAfter, completed, unlocked);
+                job, rewards, levelBefore, player.getLevel(), completed, unlocked);
         if (game != null) {
             message = utils.JobResultText.successWithGameLine(message, game);
         }

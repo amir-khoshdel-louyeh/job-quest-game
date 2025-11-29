@@ -1,7 +1,7 @@
 package services;
 
-import model.player.AchievementPlayer;
 import model.goals.Achievement;
+import model.player.PlayerProgress;
 import provider.AchievementCatalog;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public final class AchievementService {
 
     // ----- Commands -----
     // Unlocks new achievements and hands out rewards.
-    public List<Achievement> checkAndUnlockAchievements(AchievementPlayer player) {
+    public List<Achievement> checkAndUnlockAchievements(PlayerProgress player) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
         List<Achievement> all = catalog.getAllAchievements();
         for (Achievement achievement : all) {

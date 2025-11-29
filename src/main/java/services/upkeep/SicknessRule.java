@@ -3,7 +3,7 @@ package services.upkeep;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import model.player.SicknessTarget;
+import model.player.UpkeepTarget;
 import utils.GameBalance;
 
 // Rolls the hourly sickness check and applies the health loss.
@@ -17,7 +17,7 @@ public final class SicknessRule {
     }
 
     // Returns a message when sickness hits; null when nothing happens.
-    public String applyTo(SicknessTarget user) {
+    public String applyTo(UpkeepTarget user) {
         long now = clock.get();
         if (now - user.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
             return null;
