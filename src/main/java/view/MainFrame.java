@@ -4,13 +4,11 @@ import view.theme.AppTheme;
 import provider.IdentityProvider;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
-// The app window: starts fullscreen, F11 toggles windowed, ESC asks to exit.
+// The app window: starts maximized with standard exit button (X).
 public class MainFrame extends JFrame {
     // One shared read-only catalog for every start screen in this window.
     private final IdentityProvider identityOptions = new IdentityProvider();
-    private GraphicsDevice device;
     
     public MainFrame() {
         AppTheme.initialize();
@@ -19,27 +17,9 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 
-        // Try to enter fullscreen. If not supported, maximize the window.
-        setUndecorated(true);
-        device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        if (device.isFullScreenSupported()) {
-            device.setFullScreenWindow(this);
-        } else {
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-            setSize(Toolkit.getDefaultToolkit().getScreenSize());
-        }
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
-
-        // Escape to exit, F11 to toggle fullscreen
-        addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    handleExitRequest();
-                } else if (e.getKeyCode() == KeyEvent.VK_F11) {
-                    toggleFullscreen();
-                }
-            }
-        });
         
         setFocusable(true);
         requestFocusInWindow();
@@ -71,47 +51,6 @@ public class MainFrame extends JFrame {
             }
         });
     }
-    
-    private void handleExitRequest() {
-        int confirm = JOptionPane.showConfirmDialog(
-            this,
-            "Are you sure you want to exit the game?\n(Hint: F11 toggles windowed mode)",
-            "Exit Game",
-            JOptionPane.YES_NO_OPTION
-        );
-        if (confirm == JOptionPane.YES_OPTION) {
-            exitFullscreenAndShutdown();
-        }
-    }
 
-    // Toggle fullscreen; switching window style needs dispose and show again.
-    private void toggleFullscreen() {
-        boolean isFullscreen = (device != null && device.getFullScreenWindow() == this);
-        dispose();
-        if (isFullscreen) {
-            device.setFullScreenWindow(null);
-            setUndecorated(false);
-            setSize(1280, 800);
-            setLocationRelativeTo(null);
-            setExtendedState(JFrame.NORMAL);
-        } else {
-            setUndecorated(true);
-            if (device != null && device.isFullScreenSupported()) {
-                device.setFullScreenWindow(this);
-            } else {
-                setExtendedState(JFrame.MAXIMIZED_BOTH);
-            }
-        }
-        setVisible(true);
-        requestFocusInWindow();
-    }
-    
-    private void exitFullscreenAndShutdown() {
-        if (device != null && device.getFullScreenWindow() == this) {
-            device.setFullScreenWindow(null);
-        }
-        dispose();
-        System.exit(0);
-    }
     
 }
