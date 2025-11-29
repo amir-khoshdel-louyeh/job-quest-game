@@ -13,12 +13,7 @@ public final class JobProvider extends AbstractCatalog<Job> implements JobCatalo
 
     // ----- Construction -----
     public JobProvider() {
-        this(buildDefaultCatalog());
-    }
-
-    // Custom catalog for tests.
-    public JobProvider(List<Job> jobs) {
-        super(jobs);
+        super(buildDefaultCatalog());
     }
 
     // Tuned for a 10-hour run: ~200 jobs from start to end.

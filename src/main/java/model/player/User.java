@@ -2,7 +2,6 @@ package model.player;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import model.Identity;
 import model.career.SkillSet;
@@ -32,11 +31,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
 
     // ----- Construction -----
     public User(String username, Identity identity, int balance) {
-        this(username, identity, balance, System::currentTimeMillis);
-    }
-
-    // Fixed clock for tests; the block check uses it instead of the wall clock.
-    public User(String username, Identity identity, int balance, Supplier<Long> clock) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("username required");
         }
@@ -45,7 +39,7 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
-        this.blockStatus = new BlockStatus(clock);
+        this.blockStatus = new BlockStatus();
         this.devControls = new DemoMutations();
     }
 

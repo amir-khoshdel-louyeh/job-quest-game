@@ -13,17 +13,9 @@ public final class ChallengeProvider implements ChallengeCatalog {
 
     // ----- Construction -----
     public ChallengeProvider() {
-        this(buildCatalog());
-    }
-
-    // Custom catalog for tests.
-    public ChallengeProvider(List<Challenge> challenges) {
-        if (challenges == null) {
-            throw new IllegalArgumentException("challenge catalog must not be null");
-        }
         // Keep private templates: callers may still hold the objects they pass.
         this.challenges = new ArrayList<Challenge>();
-        for (Challenge challenge : challenges) {
+        for (Challenge challenge : buildCatalog()) {
             this.challenges.add(challenge.copy());
         }
     }

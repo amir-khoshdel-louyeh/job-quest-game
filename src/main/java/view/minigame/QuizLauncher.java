@@ -7,19 +7,7 @@ import provider.QuizProvider;
 
 // The single quiz game every profession plays.
 public final class QuizLauncher implements MiniGameLauncher {
-    private final QuizProvider quizzes;
-
-    public QuizLauncher() {
-        this(new QuizProvider());
-    }
-
-    // Custom question bank for tests.
-    public QuizLauncher(QuizProvider quizzes) {
-        if (quizzes == null) {
-            throw new IllegalArgumentException("quizzes must not be null");
-        }
-        this.quizzes = quizzes;
-    }
+    private final QuizProvider quizzes = new QuizProvider();
 
     @Override
     public MiniGameResult launch(JFrame parent, String jobName) {

@@ -18,14 +18,8 @@ public final class RoutineService {
 
     // ----- Construction -----
     public RoutineService() {
-        this(new Random(), System::currentTimeMillis);
-    }
-
-    // Fixed clock + seeded random for tests.
-    public RoutineService(Random random, Supplier<Long> clock) {
-        utils.Require.notNull(random, "random");
-        utils.Require.notNull(clock, "clock");
-        this.sickness = new SicknessRule(random, clock);
+        Supplier<Long> clock = System::currentTimeMillis;
+        this.sickness = new SicknessRule(new Random(), clock);
         this.drains = new DrainRule(new KnockoutPolicy(clock));
     }
 

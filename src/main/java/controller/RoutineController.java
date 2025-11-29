@@ -25,15 +25,9 @@ public final class RoutineController {
     // Package-private: GameSession.createRoutineController is the only entry.
     RoutineController(UserController userController, MessageSink messages,
                       Scheduler scheduler) {
-        this(userController, messages, new RoutineService(), scheduler);
-    }
-
-    // Custom service + scheduler for tests; every dependency is required.
-    RoutineController(UserController userController, MessageSink messages,
-                      RoutineService routines, Scheduler scheduler) {
         this.userController = utils.Require.notNull(userController, "userController");
         this.messages = utils.Require.notNull(messages, "messages");
-        this.routines = utils.Require.notNull(routines, "routines");
+        this.routines = new RoutineService();
         this.scheduler = utils.Require.notNull(scheduler, "scheduler");
     }
 

@@ -10,19 +10,8 @@ import services.job.JobRewardCalculator;
 // Composes the two job rule calculators into one JobRewards value.
 // Payment math lives in JobPaymentCalculator; XP/rep in JobRewardCalculator.
 public final class JobService {
-    private final JobPaymentCalculator payments;
-    private final JobRewardCalculator rewards;
-
-    // ----- Construction -----
-    public JobService() {
-        this(new JobPaymentCalculator(), new JobRewardCalculator());
-    }
-
-    // Custom calculators for tests; both are required.
-    public JobService(JobPaymentCalculator payments, JobRewardCalculator rewards) {
-        this.payments = utils.Require.notNull(payments, "payments");
-        this.rewards = utils.Require.notNull(rewards, "rewards");
-    }
+    private final JobPaymentCalculator payments = new JobPaymentCalculator();
+    private final JobRewardCalculator rewards = new JobRewardCalculator();
 
     // ----- Queries -----
     // One call produces every reward a successful job pays out.

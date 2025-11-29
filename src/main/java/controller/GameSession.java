@@ -38,11 +38,6 @@ public final class GameSession {
 
     // Starts a run at the current time.
     public static GameSession start(String username, Identity identity) {
-        return start(username, identity, System.currentTimeMillis());
-    }
-
-    // Starts a run with a fixed clock for tests.
-    public static GameSession start(String username, Identity identity, long startTime) {
         utils.Require.notNull(identity, "identity");
         User user = new User(username, identity, identity.getStartingBalance());
         user.grantStartingBonus();
@@ -68,7 +63,7 @@ public final class GameSession {
                 users, new JobService(), new JobGate(), challenges, achievements);
         SkillController skillController = new SkillController(
                 users, challenges, achievements, skills);
-        SessionTracker session = new SessionTracker(startTime);
+        SessionTracker session = new SessionTracker(System.currentTimeMillis());
         GameController game = new GameController(economy, jobController, skillController, session);
         GameQueries queries = new GameQueries(users, economy, jobs, skills, playerView,
                 challenges, achievements, session);

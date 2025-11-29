@@ -14,15 +14,7 @@ public final class QuizProvider {
 
     // ----- Construction -----
     public QuizProvider() {
-        this(buildCatalog());
-    }
-
-    // Custom catalog for tests.
-    public QuizProvider(List<QuizQuestion> questions) {
-        if (questions == null) {
-            throw new IllegalArgumentException("quiz catalog must not be null");
-        }
-        this.questions = new ArrayList<QuizQuestion>(questions);
+        this.questions = buildCatalog();
     }
 
     private static ArrayList<QuizQuestion> buildCatalog() {

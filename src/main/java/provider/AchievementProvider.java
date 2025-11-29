@@ -13,12 +13,7 @@ public final class AchievementProvider extends AbstractCatalog<Achievement> impl
 
     // ----- Construction -----
     public AchievementProvider() {
-        this(buildDefaultCatalog());
-    }
-
-    // Custom catalog for tests.
-    public AchievementProvider(List<Achievement> achievements) {
-        super(achievements);
+        super(buildDefaultCatalog());
     }
 
     // Thresholds tuned for a 10-hour run (~150-200 jobs).

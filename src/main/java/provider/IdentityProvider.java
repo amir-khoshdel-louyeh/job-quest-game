@@ -20,36 +20,19 @@ public final class IdentityProvider {
 
     // ----- Construction -----
     public IdentityProvider() {
-        this(defaultRegistry());
-    }
-
-    // Custom registry for tests.
-    public IdentityProvider(Map<String, Supplier<Identity>> registry) {
-        if (registry == null) {
-            throw new IllegalArgumentException("registry must not be null");
-        }
-        this.registry.putAll(registry);
-        addStartingOptions();
-    }
-
-    private static Map<String, Supplier<Identity>> defaultRegistry() {
-        Map<String, Supplier<Identity>> defaults = new HashMap<String, Supplier<Identity>>();
-        defaults.put("doctor", () -> new Profession("Doctor", "Doctor", "Heal players and earn big money.",
+        registry.put("doctor", () -> new Profession("Doctor", "Doctor", "Heal players and earn big money.",
                 500));
-        defaults.put("programmer", () -> new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
+        registry.put("programmer", () -> new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
                 300));
-        defaults.put("logodesigner", () -> new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
+        registry.put("logodesigner", () -> new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
                 200));
-        defaults.put("typist", () -> new Profession("Typist", "Typist", "Type documents for clients.",
+        registry.put("typist", () -> new Profession("Typist", "Typist", "Type documents for clients.",
                 200));
-        return defaults;
+        addStartingOptions();
     }
 
     // One card per starting career, plus the artwork shown on it.
     private void addStartingOptions() {
-        if (!registry.containsKey("doctor")) {
-            return; // custom registry: no cards to show
-        }
         options.add(createIdentity("Doctor"));
         options.add(createIdentity("Programmer"));
         options.add(createIdentity("LogoDesigner"));

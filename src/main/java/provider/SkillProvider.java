@@ -13,12 +13,7 @@ public final class SkillProvider extends AbstractCatalog<LearnableSkill> impleme
 
     // ----- Construction -----
     public SkillProvider() {
-        this(buildDefaultCatalog());
-    }
-
-    // Custom catalog for tests.
-    public SkillProvider(List<LearnableSkill> skills) {
-        super(skills);
+        super(buildDefaultCatalog());
     }
 
     // Tuned for a 10-hour run: full path affordable in the first hours.

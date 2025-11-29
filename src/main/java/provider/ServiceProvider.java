@@ -17,12 +17,7 @@ public final class ServiceProvider extends AbstractCatalog<Service> implements S
 
     // ----- Construction -----
     public ServiceProvider() {
-        this(buildDefaultCatalog());
-    }
-
-    // Custom catalog for tests.
-    public ServiceProvider(List<Service> services) {
-        super(services);
+        super(buildDefaultCatalog());
         List<Service> all = snapshot();
         for (int i = 0; i < all.size(); i++) {
             addService(all.get(i));
