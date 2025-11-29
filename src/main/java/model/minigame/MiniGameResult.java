@@ -3,6 +3,8 @@ package model.minigame;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.Lists;
+
 // Holds the score and summary of a mini-game.
 // Built via quiz(); read by JobController.
 public final class MiniGameResult {
@@ -10,12 +12,12 @@ public final class MiniGameResult {
     private static final int MAX_SCORE = 100;
     private static final double REWARD_BASE = 0.5;
     private static final double REWARD_RANGE = 1.0;
-    private String gameName;
-    private int score;
-    private int accuracy;
-    private int elapsedSeconds;
-    private boolean passed;
-    private ArrayList<String> highlights;
+    private final String gameName;
+    private final int score;
+    private final int accuracy;
+    private final int elapsedSeconds;
+    private final boolean passed;
+    private final ArrayList<String> highlights;
 
     // ----- Construction -----
     private MiniGameResult(String gameName, int score, int accuracy,
@@ -23,17 +25,9 @@ public final class MiniGameResult {
         this.gameName = gameName;
         this.score = makeSafe(score);
         this.accuracy = makeSafe(accuracy);
-        this.elapsedSeconds = elapsedSeconds;
-        if (this.elapsedSeconds < 0) {
-            this.elapsedSeconds = 0;
-        }
+        this.elapsedSeconds = Math.max(elapsedSeconds, 0);
         this.passed = passed;
-        this.highlights = new ArrayList<String>();
-        if (highlights != null) {
-            for (int i = 0; i < highlights.size(); i++) {
-                this.highlights.add(highlights.get(i));
-            }
-        }
+        this.highlights = new ArrayList<String>(Lists.copyOf(highlights));
     }
 
     // Builds a quiz result; score >= PASS_SCORE passes.
@@ -75,11 +69,7 @@ public final class MiniGameResult {
         return passed;
     }
     public List<String> getHighlights() {
-        ArrayList<String> copy = new ArrayList<String>();
-        for (int i = 0; i < highlights.size(); i++) {
-            copy.add(highlights.get(i));
-        }
-        return copy;
+        return Lists.copyOf(highlights);
     }
 
     // ----- Queries -----

@@ -43,7 +43,7 @@ public final class Profession implements Identity {
         if (other == null) {
             return false;
         }
-        return equals(other);
+        return professionName.equals(other.getProfessionName());
     }
 
     // Equal by profession name.

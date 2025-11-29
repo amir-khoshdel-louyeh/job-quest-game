@@ -1,27 +1,35 @@
 package controller;
 
 import model.player.CareerProgress;
-import model.player.User;
+import model.player.PlayerView;
+import utils.DurationText;
+import utils.ReputationText;
 
 // Builds the text block shown for player stats.
-// Read by stats views.
-public class StatsController {
+// Read-only: works with a PlayerView, never the mutable User.
+// Package-private: GameController exposes only the formatted text.
+final class StatsController {
 
     // ----- Queries -----
-    public String getDetailedStats(User user) {
-        String stats = "";
-        stats = stats + "===================================\n";
-        stats = stats + " Player: " + user.getUsername() + " - Level " + user.getLevel() + "\n";
-        stats = stats + "===================================\n";
-        stats = stats + " XP: " + user.getExperience() + "/" + user.getRequiredExperienceForNextLevel();
-        stats = stats + " (" + user.getExperiencePercentage() + "%)\n";
-        stats = stats + " Reputation: " + user.getReputation() + "/" + CareerProgress.MAX_REPUTATION + " (" + utils.ReputationText.titleFor(user.getReputation()) + ")\n";
-        stats = stats + " Job Bonus: " + user.getJobBonus() + "\n";
-        stats = stats + " Played: " + (user.getTotalPlayTime() / (1000 * 60)) + " min\n";
-        stats = stats + " Total Earned: $" + user.getTotalMoneyEarned() + "\n";
-        stats = stats + " Jobs Completed: " + user.getTotalJobsCompleted() + "\n";
-        stats = stats + " Achievements: " + user.getUnlockedAchievements().size() + " unlocked\n";
-        stats = stats + "===================================\n";
-        return stats;
+    public String getDetailedStats(PlayerView player) {
+        StringBuilder stats = new StringBuilder();
+        stats.append("===================================\n");
+        stats.append(" Player: ").append(player.getUsername())
+                .append(" - Level ").append(player.getLevel()).append('\n');
+        stats.append("===================================\n");
+        stats.append(" XP: ").append(player.getExperience()).append('/')
+                .append(player.getRequiredExperienceForNextLevel())
+                .append(" (").append(player.getExperiencePercentage()).append("%)\n");
+        stats.append(" Reputation: ").append(player.getReputation()).append('/')
+                .append(CareerProgress.MAX_REPUTATION).append(" (")
+                .append(ReputationText.titleFor(player.getReputation())).append(")\n");
+        stats.append(" Job Bonus: ").append(player.getJobBonus()).append('\n');
+        stats.append(" Played: ").append(player.getPlayTimeMinutes()).append(" min\n");
+        stats.append(" Total Earned: $").append(player.getTotalMoneyEarned()).append('\n');
+        stats.append(" Jobs Completed: ").append(player.getTotalJobsCompleted()).append('\n');
+        stats.append(" Achievements: ").append(player.getAchievementCount())
+                .append(" unlocked\n");
+        stats.append("===================================\n");
+        return stats.toString();
     }
 }

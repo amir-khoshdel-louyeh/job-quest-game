@@ -2,32 +2,32 @@ package view;
 
 // The main game screen: stats on the side, world in the middle, chat at the bottom.
 import controller.GameController;
+import controller.GameSession;
 import controller.MessageSink;
 import controller.RoutineController;
-import controller.UserController;
-import model.player.User;
+import model.player.PlayerView;
 import observer.ChangeType;
+import observer.Observable;
 import observer.Observer;
 import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class GamePanel extends JPanel implements Observer, MessageSink {
-    private GameController controller;
-    private RoutineController routineController;
-    private UserController userController;
-    private UserStatsPanel statsPanel;
-    private ChatPanel chatPanel;
-    private NavBar navBar;
+    private final GameController controller;
+    private final RoutineController routineController;
+    private final Observable observable;
+    private final PlayerView player;
+    private final UserStatsPanel statsPanel;
+    private final ChatPanel chatPanel;
+    private final NavBar navBar;
     // Dispatch table instead of a switch: each change type knows which
-    // section to repaint. SKILLS maps to a no-op (nothing skill-related
-    // shows in this panel).
+    // section to repaint. SKILLS has no entry (nothing skill-related shows
+    // here), so update() falls back to a full refresh for it.
     private final Map<ChangeType, Consumer<UserStatsPanel>> refreshers = new EnumMap<>(ChangeType.class);
     {
         refreshers.put(ChangeType.BALANCE, UserStatsPanel::refreshBalance);
@@ -36,20 +36,17 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         refreshers.put(ChangeType.XP, UserStatsPanel::refreshProgress);
         refreshers.put(ChangeType.REPUTATION, UserStatsPanel::refreshProgress);
         refreshers.put(ChangeType.JOBS, UserStatsPanel::refreshProgress);
-        refreshers.put(ChangeType.SKILLS, panel -> { /* no skill display here */ });
     }
-    private JPanel animationPanel;
-    private JPanel rightPanel;
-    private SessionPanel sessionPanel;
-    private JButton bottomExitButton;
-    private final long sessionStartTime;
+    private final JPanel rightPanel;
+    private final SessionPanel sessionPanel;
+    private final JButton bottomExitButton;
 
-    public GamePanel(User user) {
-        this.sessionStartTime = System.currentTimeMillis();
-        this.controller = new GameController(user, sessionStartTime);
-        this.userController = controller.getUserController();
-        this.userController.addObserver(this); // Get stat updates.
-        this.routineController = new RoutineController(userController, this);
+    public GamePanel(GameSession session) {
+        this.controller = session.gameController();
+        this.player = session.playerView();
+        this.observable = session.observable();
+        this.observable.addObserver(this); // Get stat updates.
+        this.routineController = session.createRoutineController(this, new SwingScheduler());
         setLayout(new BorderLayout(10,10));
         setBackground(AppTheme.BACKGROUND_COLOR);
 
@@ -58,17 +55,17 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         titleLabel.setForeground(AppTheme.PRIMARY_COLOR);
         add(titleLabel, BorderLayout.NORTH);
 
-        rightPanel = new JPanel();
+        this.rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setPreferredSize(new Dimension(240, 0));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        statsPanel = new UserStatsPanel(userController);
+        this.statsPanel = new UserStatsPanel(player);
 
-        sessionPanel = new SessionPanel();
+        this.sessionPanel = new SessionPanel();
 
-        bottomExitButton = AppTheme.createDangerButton("❌ Exit");
+        this.bottomExitButton = AppTheme.createDangerButton("❌ Exit");
         bottomExitButton.setAction(sessionPanel.getExitAction());
 
         rightPanel.add(statsPanel);
@@ -85,67 +82,16 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         bottomActionsPanel.add(bottomExitButton);
 
-        try {
-            java.net.URL imageUrl = getClass().getResource("/images/WorldView.png");
-            if (imageUrl != null) {
-                animationPanel = new JPanel() {
-                    private final Image bgImage = new ImageIcon(imageUrl).getImage();
-
-                    protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
-                        g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
-                    }
-                };
-                animationPanel.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
-                    javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
-                    AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
-
-                // Click zones from left to right: Hospital, Workshop, empty middle, Market, School.
-                animationPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                animationPanel.setToolTipText("Hospital | Workshop | (closed) | Market | School — or use the buttons above");
-                animationPanel.addMouseListener(new MouseAdapter() {
-
-                    public void mouseClicked(MouseEvent e) {
-                        int panelWidth = animationPanel.getWidth();
-                        int sectionWidth = panelWidth / 5;
-                        int x = e.getX();
-
-                        if (x >= 0 && x < sectionWidth) {
-                            navBar.openHospital();
-                        } else if (x >= sectionWidth && x < sectionWidth * 2) {
-                            navBar.openWorkshop();
-                        } else if (x >= sectionWidth * 2 && x < sectionWidth * 3) {
-                            // Middle zone intentionally does nothing.
-                        } else if (x >= sectionWidth * 3 && x < sectionWidth * 4) {
-                            navBar.openMarket();
-                        } else if (x >= sectionWidth * 4 && x < panelWidth) {
-                            navBar.openSchool();
-                        }
-                    }
-                });
-
-            } else {
-                animationPanel = new JPanel(new GridBagLayout());
-                animationPanel.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
-                    javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
-                    AppTheme.FONT_SUBHEADING, AppTheme.TEXT_PRIMARY));
-                animationPanel.setBackground(Color.BLACK);
-                animationPanel.add(new JLabel("World view image not found."));
-            }
-        } catch (Exception e) {
-            utils.GameLog.error("loading world view", e);
-            animationPanel.add(new JLabel("Error loading world view.", SwingConstants.CENTER), BorderLayout.CENTER);
-        }
+        this.navBar = new NavBar(controller, session.gameQueries(),
+                session.developerController(), player, this);
+        WorldViewPanel worldView = new WorldViewPanel(navBar);
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);
-        navBar = new NavBar(controller, userController, this);
         centerPanel.add(navBar, BorderLayout.NORTH);
-        centerPanel.add(animationPanel, BorderLayout.CENTER);
+        centerPanel.add(worldView, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        chatPanel = new ChatPanel();
+        this.chatPanel = new ChatPanel();
 
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(chatPanel, BorderLayout.CENTER);
@@ -157,34 +103,28 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     // Show onboarding hints for fresh accounts.
     maybeShowOnboarding();
 
-        if (userController.isBlocked()) {
+        if (player.isBlocked()) {
             JOptionPane.showMessageDialog(this,
-                "Your account is blocked until " + new java.util.Date(userController.getBlockedUntil()));
+                "Your account is blocked until " + new java.util.Date(player.getBlockedUntil()));
         }
-    }
-
-    
-    // Refresh panel when stats change.
-    public void update() {
-        updateUserInfo();
     }
 
     // Selective refresh via the dispatch table above — no switch.
     @Override
     public void update(ChangeType whatChanged) {
         if (whatChanged == null) {
-            updateUserInfo();
+            refreshAll();
             return;
         }
         Consumer<UserStatsPanel> refresh = refreshers.get(whatChanged);
         if (refresh == null) {
-            updateUserInfo();
+            refreshAll();
             return;
         }
         refresh.accept(statsPanel);
     }
 
-    public void updateUserInfo() {
+    private void refreshAll() {
         statsPanel.refresh();
     }
 
@@ -205,7 +145,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     // Explicit detach (also called from removeNotify above).
     public void disposePanel() {
         try {
-            userController.removeObserver(this);
+            observable.removeObserver(this);
         } catch (Exception e) {
             utils.GameLog.error("removing panel observer", e);
         }
@@ -217,8 +157,8 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     }
 
     private void maybeShowOnboarding() {
-        boolean fresh = userController.getTotalJobsCompleted() == 0
-                && userController.getSkills().isEmpty();
+        boolean fresh = player.getTotalJobsCompleted() == 0
+                && player.getSkillCount() == 0;
         if (!fresh) return;
         addChatMessage("👋 Welcome to Job Quest! Your goal: earn, learn skills, unlock better jobs.");
         addChatMessage("🎯 Next: 1) 🔨 Workshop — do your first job  2) 📊 Progress — track challenges  3) 🎓 School — learn a skill");
@@ -233,8 +173,4 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         chatPanel.addChatMessage(msg);
     }
 
-    /** Returns the player's profession object for game routing. */
-    public model.Identity getUserIdentity() {
-        return userController.getIdentity();
-    }
 }

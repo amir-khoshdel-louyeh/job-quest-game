@@ -5,7 +5,7 @@ import java.util.Objects;
 // Tracks a user's money balance.
 // Used by model.player.User (sole owner); read via User/UserController/EconomyController.
 
-public class Wallet {
+public final class Wallet {
     private int balance;
     private int totalMoneyEarned;
 
@@ -37,27 +37,32 @@ public class Wallet {
     }
 
     // ----- Commands -----
-    public void deposit(int amount) {
+    public boolean deposit(int amount) {
         if (amount > 0) {
             setBalance(balance + amount);
+            return true;
         }
+        return false;
     }
 
-    public void withdraw(int amount) {
-        if (amount > 0) {
+    public boolean withdraw(int amount) {
+        if (amount > 0 && balance >= amount) {
             setBalance(balance - amount);
+            return true;
         }
+        return false;
     }
 
-    public void earn(int amount) {
-        if (amount > 0) {
-            setBalance(balance + amount);
+    public boolean earn(int amount) {
+        if (deposit(amount)) {
             totalMoneyEarned = totalMoneyEarned + amount;
+            return true;
         }
+        return false;
     }
 
-    // ----- Cheat harness -----
-    // Package-private: only User/CheatService (same package) may call this.
+    // ----- DevControls support -----
+    // Package-private: only User may call this; the demo port is on User.
     void setBalanceForCheat(int newBalance) {
         setBalance(newBalance);
     }

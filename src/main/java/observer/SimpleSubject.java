@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Holds watchers and tells them when something changes.
-public class SimpleSubject implements Subject {
+public final class SimpleSubject implements Subject {
     private final List<Observer> observers = new ArrayList<Observer>();
 
     // ----- Private helpers -----

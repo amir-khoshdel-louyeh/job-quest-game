@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import model.Identity;
+import utils.Lists;
 
 // One piece of work the player can do for pay.
 // Checked against Identity + SkillSet; read via JobProvider/JobController.
@@ -62,11 +63,7 @@ public final class Job {
     }
 
     public List<String> getRequiredSkills() {
-        ArrayList<String> copy = new ArrayList<String>();
-        for (int i = 0; i < requiredSkills.size(); i++) {
-            copy.add(requiredSkills.get(i));
-        }
-        return copy;
+        return Lists.copyOf(requiredSkills);
     }
 
     // ----- Queries -----
@@ -76,10 +73,7 @@ public final class Job {
 
     // True when the profession matches and every needed skill is present.
     public boolean isAvailableFor(Identity identity, SkillSet skills) {
-        if (identity == null || skills == null) {
-            return false;
-        }
-        if (!requiredIdentity.isSameProfession(identity)) {
+        if (skills == null || !isForIdentity(identity)) {
             return false;
         }
         return skills.hasAllSkills(requiredSkills);
@@ -87,18 +81,10 @@ public final class Job {
 
     // Lists required skills still missing (empty = ready to work).
     public List<String> missingSkills(SkillSet skills) {
-        ArrayList<String> missing = new ArrayList<String>();
         if (skills == null) {
-            missing.addAll(requiredSkills);
-            return missing;
+            return Lists.copyOf(requiredSkills);
         }
-        for (int i = 0; i < requiredSkills.size(); i++) {
-            String need = requiredSkills.get(i);
-            if (!skills.hasSkill(need)) {
-                missing.add(need);
-            }
-        }
-        return missing;
+        return Lists.filter(requiredSkills, need -> !skills.hasSkill(need));
     }
 
     // ----- Object overrides -----

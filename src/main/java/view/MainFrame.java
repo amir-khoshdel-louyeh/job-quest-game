@@ -1,12 +1,15 @@
 package view;
 
 import view.theme.AppTheme;
+import provider.IdentityOptionProvider;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
 // The app window: starts fullscreen, F11 toggles windowed, ESC asks to exit.
 public class MainFrame extends JFrame {
+    // One shared read-only catalog for every start screen in this window.
+    private final IdentityOptionProvider identityOptions = new IdentityOptionProvider();
     private GraphicsDevice device;
     
     public MainFrame() {
@@ -40,20 +43,22 @@ public class MainFrame extends JFrame {
         
         setFocusable(true);
         requestFocusInWindow();
-        try {
-            setIconImage(Toolkit.getDefaultToolkit().getImage(
-                getClass().getResource("/images/icon.png")
-            ));
-        } catch (Exception e) {
-            // Icon is cosmetic: keep going, but stay visible in the log.
-            utils.GameLog.error("setting window icon", e);
+        // Icon is cosmetic: skip it silently when the resource is absent.
+        java.net.URL iconUrl = getClass().getResource("/images/icon.png");
+        if (iconUrl != null) {
+            setIconImage(Toolkit.getDefaultToolkit().getImage(iconUrl));
         }
         getContentPane().setBackground(AppTheme.BACKGROUND_COLOR);
         
         // Show start panel - pick a career, no login needed
-        showPanel(new StartPanel(this));
+        showStartPanel();
         
         setVisible(true);
+    }
+
+    // Builds the start screen with the shared career catalog.
+    public void showStartPanel() {
+        showPanel(new StartPanel(this, identityOptions));
     }
     
     public void showPanel(JPanel panel) {

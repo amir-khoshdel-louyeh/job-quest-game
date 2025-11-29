@@ -1,27 +1,39 @@
 package controller;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import model.Identity;
+import model.career.SkillSet;
 import model.goals.Challenge;
+import model.player.DevControls;
+import model.player.JobPlayer;
+import model.player.PaymentStats;
+import model.player.PurchaseTarget;
+import model.player.SkillLearner;
+import model.player.PlayerProgress;
+import model.player.UpkeepTarget;
 import model.player.User;
+import model.store.ServiceTarget;
 import observer.ChangeType;
 import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
 
-// Holds one player and handles balance, health, energy, and XP changes.
-// Views read via the delegates below, never the live User.
-public class UserController implements Subject, model.goals.AchievementStats {
+// Holds one player and handles commands plus observer notifications.
+// Reads live in PlayerReadModel; views see this object only as Observable.
+final class UserController implements Subject, PlayerProgress,
+        PaymentStats, ServiceTarget, UpkeepTarget,
+        JobPlayer, SkillLearner, PurchaseTarget {
     private final User user;
     private final SimpleSubject subject = new SimpleSubject();
+    private int batchDepth;
+    private boolean pendingFullRefresh;
+    private final EnumSet<ChangeType> pendingChanges = EnumSet.noneOf(ChangeType.class);
 
     // ----- Construction -----
     public UserController(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("user must not be null");
-        }
-        this.user = user;
+        this.user = utils.Require.notNull(user, "user");
     }
 
     // ----- Observer delegates -----
@@ -32,64 +44,89 @@ public class UserController implements Subject, model.goals.AchievementStats {
     public void removeObserver(Observer observer) { subject.removeObserver(observer); }
 
     @Override
-    public void notifyObservers() { subject.notifyObservers(); }
+    public void notifyObservers() {
+        if (batchDepth > 0) {
+            pendingFullRefresh = true;
+            return;
+        }
+        subject.notifyObservers();
+    }
 
     @Override
-    public void notifyObservers(ChangeType whatChanged) { subject.notifyObservers(whatChanged); }
-
-    // ----- Getter -----
-    public User getUser() {
-        return user;
+    public void notifyObservers(ChangeType whatChanged) {
+        if (batchDepth > 0) {
+            if (whatChanged == null) {
+                pendingFullRefresh = true;
+            } else {
+                pendingChanges.add(whatChanged);
+            }
+            return;
+        }
+        subject.notifyObservers(whatChanged);
     }
 
-    public String getUsername() {
-        return user.getUsername();
+    // ----- Batching -----
+    // Hold notifications until the whole action finishes, then publish once.
+    @Override
+    public void runBatch(Runnable action) {
+        utils.Require.notNull(action, "action");
+        batchDepth++;
+        try {
+            action.run();
+        } finally {
+            batchDepth--;
+            if (batchDepth == 0) {
+                flushBatch();
+            }
+        }
     }
 
-    // ----- Identity delegates -----
-    public String getIdentityName() {
-        return user.getIdentityName();
+    // One full refresh when several parts changed; one targeted update otherwise.
+    private void flushBatch() {
+        boolean fullRefresh = pendingFullRefresh;
+        EnumSet<ChangeType> changes = EnumSet.copyOf(pendingChanges);
+        pendingFullRefresh = false;
+        pendingChanges.clear();
+        if (fullRefresh || changes.size() > 1) {
+            subject.notifyObservers();
+        } else if (!changes.isEmpty()) {
+            subject.notifyObservers(changes.iterator().next());
+        }
     }
 
+    // ----- Dev access -----
+    // The demo panel mutates through the narrow port; no other layer sees User.
+    DevControls devControls() {
+        return user.devControls();
+    }
+
+    // ----- Domain read ports -----
+    // Only reads used by commands/services stay here; view reads moved out.
     public Identity getIdentity() {
         return user.getIdentity();
     }
 
-    public List<String> getSkills() {
-        return user.getSkills();
-    }
-
-    public boolean hasSkill(String skillName) {
-        return user.hasSkill(skillName);
-    }
-
-    public model.career.SkillSet getSkillSet() {
+    public SkillSet getSkillSet() {
         return user.getSkillSet();
     }
 
-    // ----- Read delegates -----
     public int getLevel() {
         return user.getLevel();
-    }
-
-    public int getExperience() {
-        return user.getExperience();
-    }
-
-    public int getRequiredExperienceForNextLevel() {
-        return user.getRequiredExperienceForNextLevel();
-    }
-
-    public int getExperiencePercentage() {
-        return user.getExperiencePercentage();
     }
 
     public int getReputation() {
         return user.getReputation();
     }
 
-    public long getTotalPlayTime() {
-        return user.getTotalPlayTime();
+    public long getPlayTimeMinutes() {
+        return user.getPlayTimeMinutes();
+    }
+
+    // Adds elapsed play time; the upkeep scheduler calls this once per minute.
+    public void addPlayTime(long millis) {
+        if (millis > 0) {
+            user.addPlayTime(millis);
+        }
     }
 
     @Override
@@ -116,18 +153,6 @@ public class UserController implements Subject, model.goals.AchievementStats {
         return user.hasAchievement(id);
     }
 
-    public List<Challenge> getActiveChallenges() {
-        return user.getActiveChallenges();
-    }
-
-    public long getLastSicknessTime() {
-        return user.getLastSicknessTime();
-    }
-
-    public void markSicknessChecked(long now) {
-        user.markSicknessChecked(now);
-    }
-
     // ----- Commands -----
     public int getBalance() {
         return user.getBalance();
@@ -141,59 +166,89 @@ public class UserController implements Subject, model.goals.AchievementStats {
         return user.getEnergy();
     }
 
-    public void addBalance(int amount) {
-        if (amount > 0) {
-            user.deposit(amount);
-            notifyObservers(ChangeType.BALANCE);
-        }
-    }
-
     public boolean deductBalance(int amount) {
-        if (amount > 0 && user.getBalance() >= amount) {
-            user.withdraw(amount);
+        if (user.withdraw(amount)) {
+            notifyObservers(ChangeType.BALANCE);
             return true;
         }
         return false;
     }
 
-    public void increaseHealth(int amount) {
-        if (amount > 0) {
-            user.gainHealth(amount);
-            notifyObservers(ChangeType.HEALTH);
+    // Adds money (reward, challenge, or achievement).
+    @Override
+    public boolean deposit(int amount) {
+        if (user.deposit(amount)) {
+            notifyObservers(ChangeType.BALANCE);
+            return true;
         }
+        return false;
     }
 
-    public void decreaseHealth(int amount) {
-        if (amount > 0) {
-            user.loseHealth(amount);
+    // Adds health and tells observers; Service.apply uses this surface.
+    @Override
+    public boolean gainHealth(int amount) {
+        if (user.gainHealth(amount)) {
             notifyObservers(ChangeType.HEALTH);
+            return true;
         }
+        return false;
     }
 
-    public void increaseEnergy(int amount) {
-        if (amount > 0) {
-            user.gainEnergy(amount);
+    // Adds energy and tells observers; Service.apply uses this surface.
+    @Override
+    public boolean gainEnergy(int amount) {
+        if (user.gainEnergy(amount)) {
             notifyObservers(ChangeType.ENERGY);
+            return true;
         }
+        return false;
     }
 
     public void decreaseEnergy(int amount) {
-        if (amount > 0) {
-            user.loseEnergy(amount);
+        loseEnergy(amount);
+    }
+
+    @Override
+    public boolean loseEnergy(int amount) {
+        if (user.loseEnergy(amount)) {
             notifyObservers(ChangeType.ENERGY);
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean loseHealth(int amount) {
+        if (user.loseHealth(amount)) {
+            notifyObservers(ChangeType.HEALTH);
+            return true;
+        }
+        return false;
+    }
+
+    // Upkeep uses the same money path as every other withdrawal.
+    @Override
+    public boolean withdraw(int amount) {
+        return deductBalance(amount);
+    }
+
+    @Override
+    public void blockUntil(long time) {
+        user.blockUntil(time);
+    }
+
+    @Override
+    public void markSicknessChecked(long time) {
+        user.markSicknessChecked(time);
+    }
+
+    @Override
+    public long getLastSicknessTime() {
+        return user.getLastSicknessTime();
     }
 
     public boolean isBlocked() {
         return user.isBlocked();
-    }
-
-    public long getBlockedUntil() {
-        return user.getBlockedUntil();
-    }
-
-    public void blockUser(long durationMillis) {
-        user.blockUntil(System.currentTimeMillis() + durationMillis);
     }
 
     public void unblockUser() {
@@ -209,15 +264,24 @@ public class UserController implements Subject, model.goals.AchievementStats {
         return false;
     }
 
-    // Adds XP.
-    public void addExperience(int amount) {
-        if (amount > 0) {
-            user.addExperience(amount);
-            notifyObservers(ChangeType.XP);
+    // Adds XP. A level-up refills vitals inside User, so health and energy
+    // observers must be told too or the bars stay stale.
+    @Override
+    public boolean addExperience(int amount) {
+        if (amount <= 0) {
+            return false;
         }
+        boolean leveledUp = user.addExperience(amount);
+        notifyObservers(ChangeType.XP);
+        if (leveledUp) {
+            notifyObservers(ChangeType.HEALTH);
+            notifyObservers(ChangeType.ENERGY);
+        }
+        return leveledUp;
     }
 
     // Gains reputation.
+    @Override
     public void gainReputation(int amount) {
         if (amount > 0) {
             user.gainReputation(amount);
@@ -243,7 +307,36 @@ public class UserController implements Subject, model.goals.AchievementStats {
         notifyObservers(ChangeType.JOBS);
     }
 
-    public void refresh() {
+    // ----- Challenge / achievement ports -----
+    @Override
+    public List<Challenge> getActiveChallenges() {
+        return user.getActiveChallenges();
+    }
+
+    @Override
+    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
+        return user.updateChallengeProgress(type, amount);
+    }
+
+    @Override
+    public void addChallenges(List<Challenge> challenges) {
+        user.addChallenges(challenges);
+    }
+
+    @Override
+    public boolean hasChallenge(String challengeId) {
+        return user.hasChallenge(challengeId);
+    }
+
+    @Override
+    public void unlockAchievement(String id) {
+        user.unlockAchievement(id);
+    }
+
+    // ----- Full refresh -----
+    // Demo and play-time changes have no dedicated ChangeType; callers that
+    // touch several stats at once use this instead of guessing a subset.
+    public void publishAll() {
         notifyObservers();
     }
 }

@@ -1,22 +1,25 @@
 package view.minigame;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import javax.swing.*;
 
 import model.minigame.MiniGameResult;
 import model.minigame.QuizQuestion;
+import model.minigame.QuizRound;
+import model.minigame.ScoreStrategy;
 import services.minigame.QuizScorer;
+import utils.Lists;
 import view.theme.AppTheme;
 
-// The quiz game: answer 3 questions before time runs out.
+// The quiz game screen. All round state lives in QuizRound; this class
+// only draws the questions and forwards the player's clicks.
 public class QuizGameDialog extends JDialog {
 
     private final String gameName;
     private final List<QuizQuestion> bank;
-    private final QuizScorer scorer;
+    private final ScoreStrategy scorer;
 
     private JLabel promptLabel;
     private JPanel optionsPanel;
@@ -25,19 +28,17 @@ public class QuizGameDialog extends JDialog {
     private JButton nextButton;
     private JProgressBar timeBar;
 
-    private List<QuizQuestion> round;
-    private List<Integer> picked;
-    private int index;
+    private QuizRound round;
     private final utils.ElapsedTimer stopwatch = new utils.ElapsedTimer();
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
 
     public QuizGameDialog(JFrame parent, String gameName,
-                          List<QuizQuestion> bank, QuizScorer scorer) {
+                          List<QuizQuestion> bank, ScoreStrategy scorer) {
         super(parent, gameName, true);
         this.gameName = gameName;
-        this.bank = bank;
+        this.bank = Lists.copyOf(bank);
         this.scorer = scorer != null ? scorer : new QuizScorer();
         AppTheme.styleDialog(this, 600, 520);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -46,6 +47,9 @@ public class QuizGameDialog extends JDialog {
 
     /** Blocking play: returns the submitted result, or null on pre-finish cancel. */
     public MiniGameResult showAndPlay() {
+        if (bank.isEmpty()) {
+            return null;
+        }
         startRound();
         setVisible(true);
         return accepted ? result : null;
@@ -86,7 +90,7 @@ public class QuizGameDialog extends JDialog {
         JButton skip = AppTheme.createSecondaryButton("Skip");
         skip.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                answer(-1);
+                answer(QuizRound.SKIPPED);
             }
         });
         nextButton = AppTheme.createPrimaryButton("Next");
@@ -104,44 +108,25 @@ public class QuizGameDialog extends JDialog {
     }
 
     private void startRound() {
-        ArrayList<QuizQuestion> shuffled = new ArrayList<QuizQuestion>(bank);
-        Collections.shuffle(shuffled);
-        int count = 3;
-        if (shuffled.size() < count) {
-            count = shuffled.size();
-        }
-        round = new ArrayList<QuizQuestion>();
-        for (int i = 0; i < count; i++) {
-            round.add(shuffled.get(i));
-        }
-        picked = new ArrayList<Integer>();
-        for (int i = 0; i < round.size(); i++) {
-            picked.add(-2);
-        }
-        index = 0;
+        round = QuizRound.random(gameName, bank, QuizRound.QUESTIONS_PER_ROUND,
+                new Random(), scorer);
         stopwatch.start();
         stopTick();
         tick = new javax.swing.Timer(200, new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                int elapsed = elapsedSeconds();
-                int left = QuizScorer.ROUND_PAR_SECONDS - elapsed;
+                int left = QuizScorer.ROUND_PAR_SECONDS - elapsedSeconds();
                 if (left < 0) {
                     left = 0;
                 }
                 timeBar.setMaximum(QuizScorer.ROUND_PAR_SECONDS);
                 timeBar.setValue(left);
-                timeBar.setString(left + "s left - Q" + (index + 1) + "/" + round.size());
+                timeBar.setString(left + "s left - Q" + (round.getIndex() + 1) + "/" + round.size());
                 if (left <= 15) {
                     timeBar.setForeground(AppTheme.ERROR_COLOR);
                 } else {
                     timeBar.setForeground(AppTheme.PRIMARY_COLOR);
                 }
                 if (left <= 0) {
-                    for (int i = 0; i < picked.size(); i++) {
-                        if (picked.get(i) == -2) {
-                            picked.set(i, -1);
-                        }
-                    }
                     finish();
                 }
             }
@@ -155,78 +140,72 @@ public class QuizGameDialog extends JDialog {
     }
 
     private void showQuestion() {
-        QuizQuestion q = round.get(index);
-        promptLabel.setText("<html><b>Q" + (index + 1) + ".</b> " + q.getPrompt() + "</html>");
+        QuizQuestion question = round.getCurrentQuestion();
+        promptLabel.setText("<html><b>Q" + (round.getIndex() + 1) + ".</b> "
+                + question.getPrompt() + "</html>");
         optionsPanel.removeAll();
-        List<String> opts = q.getOptions();
-        for (int i = 0; i < opts.size(); i++) {
+        List<String> options = question.getOptions();
+        for (int i = 0; i < options.size(); i++) {
             final int choice = i;
-            String label = opts.get(i);
-            JButton b = AppTheme.createSecondaryButton(label);
-            b.setAlignmentX(Component.LEFT_ALIGNMENT);
-            b.addActionListener(new java.awt.event.ActionListener() {
+            JButton button = AppTheme.createSecondaryButton(options.get(i));
+            button.setAlignmentX(Component.LEFT_ALIGNMENT);
+            button.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     answer(choice);
                 }
             });
-            optionsPanel.add(b);
+            optionsPanel.add(button);
             optionsPanel.add(Box.createVerticalStrut(8));
         }
         feedbackLabel.setText(" ");
         feedbackLabel.setForeground(AppTheme.TEXT_SECONDARY);
         nextButton.setEnabled(false);
+        nextButton.setText(round.isLastQuestion() ? "Finish" : "Next");
         optionsPanel.revalidate();
         optionsPanel.repaint();
     }
 
     private void answer(int choice) {
-        if (picked.get(index) != -2) {
+        if (round.isAnswered(round.getIndex())) {
             return;
         }
-        picked.set(index, choice);
-        QuizQuestion q = round.get(index);
-        boolean ok = false;
-        if (choice >= 0 && q.isCorrect(choice)) {
-            ok = true;
-        }
+        round.answer(choice);
+        QuizQuestion question = round.getCurrentQuestion();
+        boolean correct = choice >= 0 && question.isCorrect(choice);
+
         for (int i = 0; i < optionsPanel.getComponents().length; i++) {
-            Component c = optionsPanel.getComponents()[i];
-            if (c instanceof JButton) {
-                JButton b = (JButton) c;
-                b.setEnabled(false);
+            Component component = optionsPanel.getComponents()[i];
+            if (component instanceof JButton) {
+                component.setEnabled(false);
             }
         }
-        String msg = "";
-        if (ok) {
-            msg = "Correct! " + q.getExplanation();
-        } else {
-            if (choice < 0) {
-                msg = "Skipped. ";
-            } else {
-                msg = "Not quite. ";
-            }
-            msg = msg + q.getExplanation();
-            if (q.getExplanation().equals("")) {
-                msg = "Wrong. Answer was: " + q.getOptions().get(q.getCorrectIndex());
-            } else {
-                msg = msg + " (was: " + q.getOptions().get(q.getCorrectIndex()) + ")";
-            }
-        }
-        feedbackLabel.setText(msg);
-        if (ok) {
+
+        feedbackLabel.setText(feedbackText(question, choice, correct));
+        if (correct) {
             feedbackLabel.setForeground(AppTheme.SUCCESS_COLOR.darker());
         } else {
             feedbackLabel.setForeground(AppTheme.ERROR_COLOR);
         }
         nextButton.setEnabled(true);
-        if (index == round.size() - 1) {
-            nextButton.setText("Finish");
+        nextButton.setText(round.isLastQuestion() ? "Finish" : "Next");
+    }
+
+    // Presentation wording only; the model decides what is correct.
+    private static String feedbackText(QuizQuestion question, int choice, boolean correct) {
+        String answer = question.getOptions().get(question.getCorrectIndex());
+        if (correct) {
+            return "Correct! " + question.getExplanation();
         }
+        if (question.getExplanation().equals("")) {
+            return "Wrong. Answer was: " + answer;
+        }
+        String start = choice < 0 ? "Skipped. " : "Not quite. ";
+        return start + question.getExplanation() + " (was: " + answer + ")";
     }
 
     private void next() {
-        if (index < round.size() - 1) {
-            index++;
+        if (!round.isLastQuestion()) {
+            round.next();
             showQuestion();
         } else {
             finish();
@@ -235,40 +214,32 @@ public class QuizGameDialog extends JDialog {
 
     private void finish() {
         stopTick();
-        for (int i = 0; i < picked.size(); i++) {
-            if (picked.get(i) == -2) {
-                picked.set(i, -1);
-            }
-        }
         int elapsed = elapsedSeconds();
         if (elapsed < 1) {
             elapsed = 1;
         }
-        result = scorer.score(gameName, round, picked, elapsed);
-        String highlights = "";
-        List<String> hl = result.getHighlights();
-        for (int i = 0; i < hl.size(); i++) {
-            if (i > 0) {
-                highlights = highlights + " - ";
-            }
-            highlights = highlights + hl.get(i);
-        }
-        String pass = "FAIL";
-        if (result.isPassed()) {
-            pass = "PASS";
-        }
+        result = round.score(elapsed);
+
+        String highlights = String.join(" - ", result.getHighlights());
+        String pass = result.isPassed() ? "PASS" : "FAIL";
         String html = "<html><center><h2>Score " + result.getScore() + "/100 " + pass + "</h2>"
                 + highlights + "<br>" + result.getElapsedSeconds() + "s</center></html>";
-        int type = JOptionPane.INFORMATION_MESSAGE;
-        if (!result.isPassed()) {
-            type = JOptionPane.WARNING_MESSAGE;
-        }
+        int type = result.isPassed() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE;
         JOptionPane.showMessageDialog(this, html, "Result — " + gameName, type);
         accepted = true;
         dispose();
     }
 
     private void stopTick() {
-        if (tick != null && tick.isRunning()) tick.stop();
+        if (tick != null && tick.isRunning()) {
+            tick.stop();
+        }
+    }
+
+    // Closing the window cancels the round and stops the repaint timer.
+    @Override
+    public void dispose() {
+        stopTick();
+        super.dispose();
     }
 }

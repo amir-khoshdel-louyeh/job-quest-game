@@ -5,9 +5,10 @@ import java.util.List;
 
 import model.minigame.MiniGameResult;
 import model.minigame.QuizQuestion;
+import model.minigame.ScoreStrategy;
 
 // Scores quiz rounds from correct answers and speed.
-public class QuizScorer {
+public final class QuizScorer implements ScoreStrategy {
 
     // ----- Constants -----
     // Par time for a round.
@@ -19,6 +20,7 @@ public class QuizScorer {
 
     // ----- Queries -----
     // Grades one quiz round.
+    @Override
     public MiniGameResult score(String gameName, List<QuizQuestion> questions,
                                 List<Integer> picked, int elapsedSeconds) {
         int n = questions.size();
@@ -28,10 +30,8 @@ public class QuizScorer {
             if (picked != null && i < picked.size()) {
                 p = picked.get(i);
             }
-            if (p >= 0) {
-                if (questions.get(i).isCorrect(p)) {
-                    correct = correct + 1;
-                }
+            if (p >= 0 && questions.get(i).isCorrect(p)) {
+                correct = correct + 1;
             }
         }
         int accuracy = 0;

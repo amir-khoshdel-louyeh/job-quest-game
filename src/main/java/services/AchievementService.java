@@ -1,53 +1,39 @@
 package services;
 
-import model.player.User;
+import model.player.AchievementPlayer;
 import model.goals.Achievement;
+import provider.AchievementCatalog;
 import java.util.ArrayList;
 import java.util.List;
 
 // Checks player stats and unlocks earned achievements with rewards.
-// Templates come from outside; injected into GameController.
-public class AchievementService {
-    private final java.util.function.Supplier<List<Achievement>> allSource;
+// The catalog is injected, so this rule layer never constructs its own copy.
+public final class AchievementService {
+    private final AchievementCatalog catalog;
 
     // ----- Construction -----
-    public AchievementService() {
-        provider.AchievementProvider defaults = new provider.AchievementProvider();
-        this.allSource = defaults::getAllAchievements;
-    }
-
-    // Custom template list for tests.
-    public AchievementService(java.util.function.Supplier<List<Achievement>> allSource) {
-        if (allSource == null) {
-            throw new IllegalArgumentException("achievement source must not be null");
-        }
-        this.allSource = allSource;
+    // Every dependency is required; GameSession supplies the shared catalog.
+    public AchievementService(AchievementCatalog catalog) {
+        this.catalog = utils.Require.notNull(catalog, "achievement catalog");
     }
 
     // ----- Commands -----
     // Unlocks new achievements and hands out rewards.
-    public List<Achievement> checkAndUnlockAchievements(User user) {
+    public List<Achievement> checkAndUnlockAchievements(AchievementPlayer player) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
-        List<Achievement> all = allSource.get();
-        for (int i = 0; i < all.size(); i++) {
-            Achievement a = all.get(i);
-            if (!user.hasAchievement(a.getId())) {
-                if (a.checkRequirement(user)) {
-                    user.unlockAchievement(a.getId());
-                    user.deposit(a.getRewardMoney());
-                    newOnes.add(a);
-                }
+        List<Achievement> all = catalog.getAllAchievements();
+        for (Achievement achievement : all) {
+            if (!achievement.isUnlocked(player) && achievement.checkRequirement(player)) {
+                player.unlockAchievement(achievement.getId());
+                player.deposit(achievement.getRewardMoney());
+                newOnes.add(achievement);
             }
         }
         return newOnes;
     }
 
     // ----- Queries -----
-    public int getAchievementProgress(User user, Achievement achievement) {
-        return achievement.getProgress(user);
-    }
-
-    public List<Achievement> getAchievementsWithStatus(User user) {
-        return allSource.get();
+    public List<Achievement> getAllAchievements() {
+        return catalog.getAllAchievements();
     }
 }

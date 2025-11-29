@@ -2,10 +2,12 @@ package model.player;
 
 import java.util.Objects;
 
+import utils.ProgressUtil;
+
 // Tracks health and energy and keeps them within limits.
 // Used by model.player.User (sole owner); read via User/UserController.
 
-public class Vitals {
+public final class Vitals {
     public static final int MAX_HEALTH = 100;
     public static final int MAX_ENERGY = 100000;
 
@@ -19,6 +21,14 @@ public class Vitals {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public int getHealthPercentage() {
+        return ProgressUtil.percent(health, MAX_HEALTH);
+    }
+
+    public int getEnergyPercentage() {
+        return ProgressUtil.percent(energy, MAX_ENERGY);
     }
 
     // ----- Setter -----
@@ -43,28 +53,36 @@ public class Vitals {
     }
 
     // ----- Commands -----
-    public void gainHealth(int amount) {
+    public boolean gainHealth(int amount) {
         if (amount > 0) {
             setHealth(health + amount);
+            return true;
         }
+        return false;
     }
 
-    public void loseHealth(int amount) {
+    public boolean loseHealth(int amount) {
         if (amount > 0) {
             setHealth(health - amount);
+            return true;
         }
+        return false;
     }
 
-    public void gainEnergy(int amount) {
+    public boolean gainEnergy(int amount) {
         if (amount > 0) {
             setEnergy(energy + amount);
+            return true;
         }
+        return false;
     }
 
-    public void loseEnergy(int amount) {
+    public boolean loseEnergy(int amount) {
         if (amount > 0) {
             setEnergy(energy - amount);
+            return true;
         }
+        return false;
     }
 
     public void restoreFull() {
@@ -72,8 +90,8 @@ public class Vitals {
         setEnergy(MAX_ENERGY);
     }
 
-    // ----- Cheat harness -----
-    // Package-private: only User/CheatService (same package) may call these.
+    // ----- DevControls support -----
+    // Package-private: only User may call these; the demo port is on User.
     void setHealthForCheat(int newHealth) {
         setHealth(newHealth);
     }

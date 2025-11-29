@@ -1,354 +1,181 @@
 # Job Quest Game 🎮
 
-A professional career simulation game with modern Java Swing GUI
+A career-simulation game built with **Java 17** and **Swing**.
+Pick a profession, work jobs, pass the quiz mini-game, learn skills, and grow a
+career from your first dollar to a high-level professional.
+
+The game is intentionally **in-memory**: there is no database, login, or save
+file. Progress lasts for the current run, which keeps the project focused on
+object-oriented design.
 
 ## ✨ Features
 
-- 🎨 **Modern Professional UI** - Material Design inspired interface
-- 🔄 **Automatic Database Setup** - No manual configuration needed
-- 💼 **Multiple Career Paths** - Choose from Programmer, Doctor, Logo Designer, or Typist
-- 📊 **Resource Management** - Track health, energy, and money
-- 🛒 **Shopping System** - Buy items and services
-- 📚 **Skill Learning** - Upgrade your abilities
-- 💾 **Auto-Save** - Your progress is automatically saved
-- 🏆 **Professional Architecture** - Built with SOLID principles and design patterns
+- 🎨 Swing UI with a shared theme (`view/theme/AppTheme`)
+- 💼 Four careers: Programmer, Doctor, Logo Designer, Typist
+- 🔨 Jobs with a short quiz mini-game (pass score: 50/100)
+- 📈 Levels, XP, reputation, and a job bonus
+- 🎓 Six learnable skills with playtime requirements
+- 🛒 Hospital and Market services for health and energy
+- 🏆 Seven story challenges and 21 achievements
+- ⏱️ Passive energy/health drain, sickness checks, and knockout penalties
+- 🛠️ Developer panel for demos (change stats instantly)
+- 🧪 45 unit tests in four test classes (`mvn test`)
 
-## 📋 Prerequisites
+## 📋 Requirements
 
-### 1. Java Development Kit (JDK)
-```bash
-sudo apt update
-sudo apt install openjdk-17-jdk -y
-java -version
-```
+- **JDK 17+**
+- **Maven 3.8+**
 
-### 2. Apache Maven
-```bash
-sudo apt install maven -y
-mvn -version
-```
+No database or external service is needed.
 
-### 3. MySQL Server
-```bash
-sudo apt install mysql-server -y
-sudo systemctl enable --now mysql
-sudo systemctl status mysql
-```
-
-## 🚀 Installation and Setup
-
-### Step 1: Clone the Project
-```bash
-git clone https://github.com/amir-khoshdel-louyeh/job-quest-game.git
-cd job-quest-game
-```
-
-### Step 2: Database Setup
-
-**Good News:** Database is created automatically! ✨
-
-The application will automatically on first run:
-- Create the `job_quest` database
-- Create user `jobuser` with password `jobpass`
-- Create all required tables
-
-**Just make sure MySQL is installed and running!**
-
-#### (Optional) Manual Database Setup
-
-If you want to create the database manually:
+## 🚀 Run
 
 ```bash
-sudo mysql -e "
-CREATE DATABASE IF NOT EXISTS job_quest CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-CREATE USER IF NOT EXISTS 'jobuser'@'localhost' IDENTIFIED BY 'jobpass';
-GRANT ALL PRIVILEGES ON job_quest.* TO 'jobuser'@'localhost';
-FLUSH PRIVILEGES;
-"
-```
+# Run the tests
+mvn clean test
 
-### Step 3: Compile and Run
-
-```bash
-# Compile the project
-mvn clean compile
-
-# Run the game
+# Start the game
 mvn exec:java -Dexec.mainClass="main.Main"
 ```
 
-**On first run** you will see these messages:
-```
-Checking and initializing database...
-✓ Database 'job_quest' is ready.
-✓ Table 'users' is ready.
-✓ Table 'items' is ready.
-Database initialized successfully.
-```
-
-## 🏗️ Build Executable JAR
+Build a runnable JAR:
 
 ```bash
-# Build JAR
 mvn clean package
-
-# Run JAR
 java -jar target/job-quest-game-1.0-SNAPSHOT.jar
 ```
 
-## 🎮 Game Mechanics
+## 🎮 Game mechanics
 
-### Progression System
-1. **Start** with basic stats and $5,000
-2. **Complete jobs** to earn money and XP
-3. **Learn skills** to unlock higher-paying jobs
-4. **Build reputation** for payment bonuses (up to +50%)
-5. **Level up** for permanent bonuses (+5% per level)
-6. **Maintain streaks** for daily login rewards (up to +30%)
-7. **Complete quests** for bonus money and XP
-8. **Unlock achievements** for major rewards
+### Progression
 
-### Payment Calculation
+- Choose a career with its own starting balance and job list.
+- Every job plays a 3-question quiz round with a 90-second par time.
+- A successful job pays money, grants XP, and raises reputation.
+- XP needed for the next level is `level × 200`.
+- Leveling up refills health and energy.
+
+### Payment
+
 ```
-Final Payment = Base × (1 + Reputation Bonus + Level Bonus + Streak Bonus)
-```
-
-**Example:** 
-- Level 10 (+ 45%) + Reputation 80 (+40%) + 15-day Streak (+15%)
-- $1,000 base job → **$2,000 final payment!**
-
-### Quest Types
-- **Daily Quests:** Complete 3 jobs, earn specific amounts
-- **Weekly Quests:** Longer-term goals with bigger rewards
-- **Main Story:** One-time quests that guide your journey
-
-### Random Events
-Events occur randomly and can:
-- ✨ Grant bonus money, health, or energy
-- ⚠️ Create challenges like equipment repairs
-- ℹ️ Provide information and small boosts
-
-See [GAME_LOGIC_GUIDE.md](GAME_LOGIC_GUIDE.md) for detailed mechanics!
-
-## 🔧 Troubleshooting
-
-### Error: "Connection refused"
-```bash
-# Check MySQL status
-sudo systemctl status mysql
-
-# Restart MySQL
-sudo systemctl restart mysql
+final pay = base × (1 + level bonus + reputation bonus + job bonus) × quiz multiplier
 ```
 
-### Error: "Access denied for user 'jobuser'"
-The application creates the user automatically. If you get an error, create it manually:
-```bash
-sudo mysql -e "
-CREATE USER IF NOT EXISTS 'jobuser'@'localhost' IDENTIFIED BY 'jobpass';
-GRANT ALL PRIVILEGES ON job_quest.* TO 'jobuser'@'localhost';
-FLUSH PRIVILEGES;
-"
+| Bonus | Rule | Cap |
+| --- | --- | --- |
+| Level | +5% per level above 1 | +500% |
+| Reputation | +0.5% per point | +50% |
+| Job bonus | +2% per job-bonus point, +1 point per 10 jobs | +30% |
+| Quiz | 0.5 + score / 100 (score 50+ passes) | 1.5× |
+
+XP is `25 + base pay / 8`, also scaled by the quiz multiplier. The quiz score is
+80% accuracy + 20% speed.
+
+### Resources
+
+- **Health** (0–100) is restored at the Hospital.
+- **Energy** (0–100,000) is restored at the Market.
+- Energy drains by 1 every 30 seconds; health drains by 1 every 60 seconds.
+- Low health doubles the energy drain; low energy triples the health drain.
+- Reaching 0 health or 0 energy costs $200 and blocks jobs for 5 minutes.
+- A sickness check runs hourly with a 10% chance to lose 5–10 health.
+
+### Skills and jobs
+
+- Jobs require a profession and, for advanced work, specific skills.
+- Skills unlock after a playtime requirement (0 to 110 minutes) and cost money.
+- The School screen shows available, locked, and learned skills.
+- The Workshop shows available jobs first and locked jobs with the missing skills.
+
+## 🏗️ Architecture
+
+Dependencies point one way:
+
+```
+main → view → controller → services / providers → model
+                                  ↘ observer
 ```
 
-### Error: "Unknown database 'job_quest'"
-The application creates the database automatically. If you get an error, create it manually:
-```bash
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS job_quest CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
-```
+- **model** — entities and value objects (`User`, `Wallet`, `Job`, `JobRewards`,
+  `QuizRound`, `Achievement`, ...)
+- **services** — pure game rules (`JobService`, `JobGate`, `ChallengeService`,
+  `AchievementService`, `RoutineService`, `QuizScorer`)
+- **provider** — read-only game catalogs (`JobProvider`, `SkillProvider`, ...)
+- **controller** — application actions (`GameController`), read queries
+  (`GameQueries`), and observer notifications
+- **view** — Swing screens; it renders and forwards clicks
+- **observer** — `Subject` / `Observer` / `ChangeType` for stat updates
+- **utils** — formatting and small shared helpers
 
-### Verify Database Connection
-```bash
-# Connect to MySQL
-mysql -u jobuser -p job_quest
-# Password: jobpass
+### OOP concepts in this project
 
-# Show tables
-SHOW TABLES;
+| Concept | Where to look |
+| --- | --- |
+| Encapsulation | `User` composition; `QuizRound` state; `Wallet`/`Vitals` setter guards; defensive `ChallengeBook` copies |
+| Information hiding | Package-private `UserController`/`PlayerReadModel`/`SkillBook`/rule controllers; `PlayerView`/`Observable`-only view surface; `DevControls` demo port |
+| Abstraction | `Identity`, `SkillSet`, `PaymentStats`, `ServiceTarget`, `ScoreStrategy`, `DevControls` |
+| Inheritance | `AbstractCatalog<T>`, `UnknownIdentityException` |
+| Polymorphism | `LearnableSkill.Availability`, `Purchasable`, `MiniGameLauncher` |
+| Composition | `User` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
+| Immutability / value objects | `Job`, `JobRewards`, `Service`, `MiniGameResult`, `QuizQuestion` |
+| Observer pattern | `Subject`, `SimpleSubject`, `Observer`, `ChangeType` |
+| Strategy pattern | `MiniGameLauncher`/`QuizLauncher`, `ScoreStrategy`/`QuizScorer` |
+| Factory methods | `Outcome.success`, `MiniGameResult.quiz`, `QuizRound.random` |
+| Dependency inversion | `JobService` depends on `PaymentStats`; services/controllers depend on `*Catalog` contracts; controllers depend on `GamePlayer`/`JobPlayer`/`SkillLearner`/`PurchaseTarget` ports |
+| Single responsibility | `PlayerReadModel` (reads) vs `UserController` (commands/notifications); `JobGate` (eligibility) vs `JobController` (outcomes); rule calculators each own one rule |
+| Open/closed | Add a mini-game or achievement without editing the existing flow |
+| Interface segregation | Role views (`JobBoardView`, `SkillBoardView`, ...), command ports (`GamePlayer`, `JobPlayer`, `SkillLearner`, `PurchaseTarget`), `SkillSet`, `PaymentStats`, goal ports, and narrow upkeep targets for consumers |
 
-# Exit
-exit;
-```
+See [docs/OOP_DESIGN.md](docs/OOP_DESIGN.md) for a file-by-file tour.
 
-## 📁 Project Structure
+## 📁 Project structure
 
 ```
 job-quest-game/
 ├── src/main/java/
-│   ├── controller/      # Game controllers
-│   ├── database/        # Database management
-│   │   ├── DatabaseConnection.java
-│   │   ├── DatabaseInitializer.java  # 🆕 Auto-initialization
-│   │   ├── DatabaseUtil.java
-│   │   └── jobـquest.sql
-│   ├── main/           # Application entry point
-│   ├── model/          # Data models
-│   ├── services/       # Game services
-│   ├── utils/          # Utility tools
-│   └── view/           # User interface
-├── src/main/resources/
-│   └── images/         # Game images
-├── pom.xml             # Maven configuration
-└── README.md
+│   ├── main/            # Application entry point
+│   ├── model/           # Entities, value objects, interfaces
+│   │   ├── player/      # User, Wallet, Vitals, CareerProgress, PlayClock, ...
+│   │   ├── career/      # Job, JobRewards, Profession, LearnableSkill
+│   │   ├── goals/       # Challenge, Achievement and their books
+│   │   ├── store/       # Service, Purchasable, ServiceTarget
+│   │   └── minigame/    # QuizRound, QuizQuestion, MiniGameResult, ScoreStrategy
+│   ├── services/        # Rule composers + job/ and upkeep/ rule classes
+│   ├── provider/        # Catalogs of jobs, skills, services, achievements
+│   ├── controller/      # GameSession, controllers, SessionTracker, Scheduler port
+│   ├── view/            # Swing panels/dialogs, WorldViewPanel, NotificationToast (+ theme, minigame)
+│   ├── observer/        # Observer pattern
+│   └── utils/           # Lists, DurationText, Require, text helpers, balance
+├── src/test/java/       # Domain unit tests
+├── docs/                # Design notes
+└── pom.xml
 ```
 
-## 🛠️ Technologies Used
+## 🧪 Tests
 
-- **Java 17+**: Main programming language
-- **Java Swing**: Graphical user interface
-- **MySQL 8.0**: Database
-- **JDBC**: Database connection
-- **Maven**: Project and dependency management
-
-## 📦 Dependencies
-
-All dependencies are defined in `pom.xml` and Maven automatically downloads them:
-
-- **MySQL Connector/J 8.0.33**: JDBC driver for MySQL
-
-## 🔒 Database Configuration
-
-Default settings:
-- **Host**: localhost
-- **Port**: 3306
-- **Database**: job_quest
-- **Username**: jobuser
-- **Password**: jobpass
-
-To change these settings, edit these files:
-- `src/main/java/database/DatabaseConfig.java`
-- `src/main/java/database/DatabaseConnection.java`
-- `src/main/java/database/DatabaseInitializer.java`
-
-## 📊 Game Features
-
-- ✅ **Modern Professional UI** with Material Design
-- ✅ Registration and login system with smooth animations
-- ✅ Multiple career paths with unique skills
-- ✅ Interactive identity selection with hover effects
-- ✅ Work and income system
-- ✅ Health and energy management
-- ✅ Shop and inventory system
-- ✅ Skill learning system
-- ✅ Automatic game progress save
-- ✅ Total play time calculation
-- ✅ Automatic database initialization
-- ✅ Repository pattern for data access
-- ✅ SOLID principles and design patterns
-
-## 🏗️ Architecture
-
-The project follows professional software engineering practices:
-
-- **Design Patterns**: Singleton, Repository, Factory, Strategy, Observer
-- **SOLID Principles**: All five principles implemented
-- **Layered Architecture**: Presentation, Controller, Service, Repository, Data Access
-- **Modern UI**: Theme system with consistent styling
-
-For detailed architecture documentation, see:
-- `ARCHITECTURE.md` - Design patterns and principles
-- `OOP_REFACTORING.md` - Code quality improvements
-- `GUI_IMPROVEMENTS.md` - UI/UX enhancements
-
-## 📚 Documentation
-
-- **[README.md](README.md)** - Getting started guide
-- **[GAME_LOGIC_GUIDE.md](GAME_LOGIC_GUIDE.md)** - ⭐ Detailed game mechanics and systems
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Design patterns and architecture
-- **[OOP_REFACTORING.md](OOP_REFACTORING.md)** - Code improvements summary
-- **[GUI_IMPROVEMENTS.md](GUI_IMPROVEMENTS.md)** - UI/UX enhancements
-- **[CHANGES_SUMMARY.md](CHANGES_SUMMARY.md)** - Complete transformation summary
-
-## 🎯 Quick Start Guide
-
-### First Time Playing
-1. Register a new account
-2. Choose your career identity
-3. Complete your first job to earn money
-4. Check your daily quests
-5. Save money to learn your first skill
-
-### Advanced Strategy
-1. **Build your streak** - Login daily for +30% payment bonus
-2. **Increase reputation** - Complete jobs consistently
-3. **Learn all skills** - Unlock the highest-paying jobs
-4. **Complete quests** - Easy money and XP
-5. **Unlock achievements** - Earn up to $39,000 in rewards!
-
-See [GAME_LOGIC_GUIDE.md](GAME_LOGIC_GUIDE.md) for detailed strategies!
-
-## 📈 Progression Overview
-
-```
-Level 1 → 10:  Build foundation, learn first skills
-Level 11 → 30: Increase reputation, complete quests  
-Level 31 → 50: Maximize bonuses, unlock achievements
-Level 51+:     Master tier - Earn 3x more per job!
+```bash
+mvn test
 ```
 
-## 🏆 Achievement System
+The suite lives in `ModelRulesTest`, `GameRulesTest`, `UserControllerTest`, and
+`PlayerViewBoundaryTest`. It covers progression, resource caps, job rewards,
+mini-game scaling, quiz rounds, skill availability, services, routine upkeep,
+play-time accrual, purchase outcomes, challenge isolation, session summaries,
+and the read-only view boundary. Tests never open a window.
 
-Unlock 12+ achievements:
-- 💰 Money achievements (First Dollar → Millionaire)
-- 📊 Job achievements (First Job → Workaholic)  
-- 🎓 Skill achievements (Student → Master)
-- 🎯 Special achievements (Health, Dedication)
+## 🛠️ Developer panel
 
-**Total Rewards:** $39,000+
+The **Dev** button opens demo controls for balance, health, energy, level,
+reputation, playtime, and job bonus. These mutations live in `CheatService` and
+reach the player only through the narrow `DevControls` port, so the aggregate's
+`Wallet`, `Vitals`, `CareerProgress`, `JobRecord`, and `PlayClock` stay private.
+Upkeep runs on an injected `Scheduler` (`SwingScheduler` in the app), so the
+controller layer has no Swing dependency.
 
-## 📜 Quest System
-
-**Daily Quests:** Reset every 24 hours
-- Complete 3 jobs: $500 + 100 XP
-- Earn $1,000: $300 + 50 XP
-
-**Weekly Quests:** Reset every 7 days
-- Complete 20 jobs: $3,000 + 500 XP
-- Learn 2 skills: $2,000 + 400 XP
-
-**Main Story:** Progressive career journey
-- 5 main quests with increasing difficulty
-- Total rewards: $8,200 + 1,650 XP
-
-## ⚡ Random Events
-
-15+ events can occur:
-- ✨ Positive: Bonus money, energy, health
-- ⚠️ Negative: Bills, equipment issues  
-- ℹ️ Neutral: Information and small boosts
-
-Events trigger randomly with 5-minute cooldown.
-
-## 💰 Payment Bonuses
-
-Jobs pay more as you progress:
-
-**Base Payment Multipliers:**
-- Level bonus: +5% per level (up to +500%)
-- Reputation bonus: Up to +50% at max
-- Streak bonus: +1% per day (max +30%)
-
-**Example:** A $1,000 job can pay $3,000+ with all bonuses!
-
-## 🎨 Professional UI Features
-
-## 👨‍💻 Developer
+## 👨‍💻 Author
 
 Amir Khoshdel Louyeh
 
 ## 📄 License
 
-This project is released under an open license.
-
----
-
-## 🎯 Quick Start
-
-```bash
-# Clone, compile and run in 3 lines!
-git clone https://github.com/amir-khoshdel-louyeh/job-quest-game.git
-cd job-quest-game
-mvn clean compile && mvn exec:java -Dexec.mainClass="main.Main"
-```
-
-**Enjoy!** 🚀
+Released under an open license.

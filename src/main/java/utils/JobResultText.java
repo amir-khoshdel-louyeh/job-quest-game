@@ -3,26 +3,28 @@ package utils;
 import java.util.List;
 
 import model.career.Job;
+import model.career.JobRewards;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import model.minigame.MiniGameResult;
 
 // Job-result message texts.
-// Owns wording; JobResult holds data.
+// Owns wording; the controller puts it in an Outcome.
 public final class JobResultText {
     private JobResultText() {
     }
 
     // ----- Queries -----
     // Builds the success message.
-    public static String successLine(Job job, int basePayment, int bonusAmount, int finalPayment,
-                                     int xpGained, int reputationGained,
+    public static String successLine(Job job, JobRewards rewards,
                                      int levelBefore, int levelAfter,
                                      List<Challenge> completedChallenges,
                                      List<Achievement> newAchievements) {
-        String msg = job.getName() + " completed! +$" + finalPayment;
-        msg = msg + " (base $" + basePayment + " + bonus $" + bonusAmount + ")";
-        msg = msg + " +" + xpGained + " XP +" + reputationGained + " rep";
+        String msg = job.getName() + " completed! +$" + rewards.getFinalPayment();
+        msg = msg + " (base $" + rewards.getBasePayment()
+                + " + bonus $" + rewards.getBonusPayment() + ")";
+        msg = msg + " +" + rewards.getExperience() + " XP +"
+                + rewards.getReputation() + " rep";
         if (levelAfter > levelBefore) {
             msg = msg + " Level up! " + levelBefore + " -> " + levelAfter + " (HP & Energy refilled)";
         }

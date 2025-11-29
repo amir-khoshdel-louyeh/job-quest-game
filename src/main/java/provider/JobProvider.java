@@ -5,10 +5,11 @@ import java.util.List;
 
 import model.Identity;
 import model.career.Job;
+import utils.Lists;
 
 // Builds the job catalog the player picks from.
 // Extends AbstractCatalog; injected into JobController/JobService.
-public class JobProvider extends AbstractCatalog<Job> {
+public final class JobProvider extends AbstractCatalog<Job> implements JobCatalog {
 
     // ----- Construction -----
     public JobProvider() {
@@ -68,24 +69,11 @@ public class JobProvider extends AbstractCatalog<Job> {
     }
 
     // ----- Queries -----
-    // Old name for getAll().
-    public List<Job> getAllJobs() {
-        return getAll();
-    }
-
     // Returns jobs for one profession.
     public List<Job> getJobsForIdentity(Identity identity) {
-        ArrayList<Job> result = new ArrayList<Job>();
         if (identity == null) {
-            return result;
+            return new ArrayList<Job>();
         }
-        List<Job> all = snapshot();
-        for (int i = 0; i < all.size(); i++) {
-            Job job = all.get(i);
-            if (job.isForIdentity(identity)) {
-                result.add(job);
-            }
-        }
-        return result;
+        return Lists.filter(snapshot(), job -> job.isForIdentity(identity));
     }
 }

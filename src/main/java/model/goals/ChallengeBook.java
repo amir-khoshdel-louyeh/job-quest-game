@@ -4,23 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Owns active challenges.
-// Used by model.player.User (sole owner).
-public class ChallengeBook {
-    private ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
+// Used by model.player.User (sole owner). Incoming challenges are copied so a
+// caller cannot keep mutating the progress the book stores.
+public final class ChallengeBook implements ChallengeLog {
+    private final ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();
 
     // ----- Getter -----
     // Returns snapshots so callers cannot mutate the stored progress.
     public List<Challenge> getActiveChallenges() {
         ArrayList<Challenge> copy = new ArrayList<Challenge>();
-        for (int i = 0; i < activeChallenges.size(); i++) {
-            copy.add(activeChallenges.get(i).copySnapshot());
+        for (Challenge challenge : activeChallenges) {
+            copy.add(challenge.copySnapshot());
         }
         return copy;
     }
 
     // ----- Commands -----
     // Adds progress to challenges of this type; returns newly completed ones.
-    public List<Challenge> updateProgress(Challenge.ChallengeType type, int amount) {
+    public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         if (type == null) {
             return finished;
@@ -42,7 +43,7 @@ public class ChallengeBook {
             return;
         }
         if (!hasChallenge(challenge.getId())) {
-            activeChallenges.add(challenge);
+            activeChallenges.add(challenge.copy());
         }
     }
 

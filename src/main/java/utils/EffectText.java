@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Locale;
+
 // Shop/service effect text.
 public final class EffectText {
     private EffectText() {
@@ -11,14 +13,18 @@ public final class EffectText {
         }
         String result = "";
         if (energyEffect > 0) {
-            result = result + "+" + energyEffect + " Energy";
+            result = result + "+" + formatAmount(energyEffect) + " Energy";
         }
         if (healthEffect > 0) {
             if (!result.equals("")) {
                 result = result + ", ";
             }
-            result = result + "+" + healthEffect + " Health";
+            result = result + "+" + formatAmount(healthEffect) + " Health";
         }
         return result;
+    }
+
+    private static String formatAmount(int amount) {
+        return String.format(Locale.US, "%,d", amount);
     }
 }

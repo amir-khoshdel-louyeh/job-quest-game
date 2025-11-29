@@ -2,35 +2,51 @@ package view;
 
 import controller.DeveloperController;
 import controller.GameController;
-import controller.UserController;
+import controller.GameQueries;
 import model.career.Job;
 import model.career.LearnableSkill;
+import model.player.PlayerView;
+import view.minigame.QuizLauncher;
 import view.theme.AppTheme;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 // Top bar + the screens it opens (hospital, workshop, market,
 // school, progress, dev controls). Owned by GamePanel.
-public class NavBar extends JPanel {
+public class NavBar extends JPanel implements WorldViewPanel.Navigator {
 
     private final GameController controller;
-    private final UserController userController;
+    private final GameQueries queries;
+    private final DeveloperController developerController;
+    private final PlayerView player;
     private final GamePanel host;
+    private final view.minigame.MiniGameLauncher workGame = new QuizLauncher();
 
-    public NavBar(GameController controller, UserController userController, GamePanel host) {
+    public NavBar(GameController controller, GameQueries queries,
+                  DeveloperController developerController,
+                  PlayerView player, GamePanel host) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {
             throw new IllegalArgumentException("controller must not be null");
         }
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
+        if (queries == null) {
+            throw new IllegalArgumentException("queries must not be null");
+        }
+        if (developerController == null) {
+            throw new IllegalArgumentException("developerController must not be null");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("player must not be null");
         }
         if (host == null) {
             throw new IllegalArgumentException("host must not be null");
         }
         this.controller = controller;
-        this.userController = userController;
+        this.queries = queries;
+        this.developerController = developerController;
+        this.player = player;
         this.host = host;
         setBackground(AppTheme.BACKGROUND_COLOR);
         add(navButton("Hospital", "Buy health services (heal)", true, new java.awt.event.ActionListener() {
@@ -65,36 +81,38 @@ public class NavBar extends JPanel {
         }));
     }
 
+    @Override
     public void openHospital() {
-        new ServiceDialog(frame(), controller, host, controller.getHealthServices()).setVisible(true);
+        new ServiceDialog(frame(), controller, host, queries.getHealthServices()).setVisible(true);
     }
 
+    @Override
     public void openWorkshop() {
-        GameController.ActionResult result = controller.doWork();
-        if (result.isSuccess() && result.getNextAction() == GameController.NextAction.OPEN_JOB_DIALOG) {
-            java.util.List<Job> myJobs = controller.getJobsForCurrentIdentity();
-            new JobDialog(frame(), controller, host, myJobs, userController).setVisible(true);
-        } else {
-            host.addChatMessage(result.getMessage());
+        List<Job> jobs = queries.getJobsForCurrentIdentity();
+        if (jobs.isEmpty()) {
+            host.addChatMessage("No jobs are available for your current identity/skills.");
+            return;
         }
+        new JobDialog(frame(), controller, host, jobs, player, workGame).setVisible(true);
     }
 
+    @Override
     public void openMarket() {
-        new ServiceDialog(frame(), controller, host, controller.getEnergyServices()).setVisible(true);
+        new ServiceDialog(frame(), controller, host, queries.getEnergyServices()).setVisible(true);
     }
 
+    @Override
     public void openSchool() {
-        java.util.List<LearnableSkill> mySkills = controller.getSkillsForCurrentIdentity();
-        new SkillDialog(frame(), controller, host, mySkills, userController).setVisible(true);
+        java.util.List<LearnableSkill> mySkills = queries.getSkillsForCurrentIdentity();
+        new SkillDialog(frame(), controller, host, mySkills, player).setVisible(true);
     }
 
     public void openProgress() {
-        new ProgressDialog(frame(), controller, host).setVisible(true);
+        new ProgressDialog(frame(), queries, host).setVisible(true);
     }
 
     public void openDevControls() {
-        DeveloperController dev = new DeveloperController(userController);
-        new DeveloperDialog(frame(), dev, host).setVisible(true);
+        new DeveloperDialog(frame(), developerController, host).setVisible(true);
     }
 
     private JFrame frame() {

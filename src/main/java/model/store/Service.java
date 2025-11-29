@@ -12,6 +12,12 @@ public final class Service implements Purchasable {
     private final int energyEffect;
 
     // ----- Construction -----
+    // Description is derived from the effects so the catalog cannot drift.
+    public Service(String name, int cost, int healthEffect, int energyEffect) {
+        this(name, utils.EffectText.formatServiceEffect(energyEffect, healthEffect),
+                cost, healthEffect, energyEffect);
+    }
+
     public Service(String name, String description, int cost, int healthEffect, int energyEffect) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("Service name must not be blank");

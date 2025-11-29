@@ -4,7 +4,11 @@ package view.theme;
 import javax.swing.*;
 import java.awt.*;
 
-public class AppTheme {
+public final class AppTheme {
+
+    private AppTheme() {
+    }
+
     
     public static final Color PRIMARY_COLOR = new Color(63, 81, 181);        // Indigo
     public static final Color PRIMARY_DARK = new Color(48, 63, 159);         // Dark Indigo
@@ -135,31 +139,26 @@ public class AppTheme {
     }
 
     private static void addHoverEffect(JButton button, Color base, Color hover) {
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(hover);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(base);
-            }
-        });
+        addHoverEffect(button, base, hover, null, null);
     }
 
-    private static void addHoverEffect(JButton button, Color base, Color hover, Color hoverForeground, Color baseForeground) {
+    private static void addHoverEffect(JButton button, Color base, Color hover,
+                                       Color hoverForeground, Color baseForeground) {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(hover);
-                button.setForeground(hoverForeground);
+                if (hoverForeground != null) {
+                    button.setForeground(hoverForeground);
+                }
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBackground(base);
-                button.setForeground(baseForeground);
+                if (baseForeground != null) {
+                    button.setForeground(baseForeground);
+                }
             }
         });
     }

@@ -2,7 +2,7 @@ package model.player;
 
 // Tracks jobs completed and the job bonus (+1 per 10 jobs, max +30%).
 // Used by model.player.User (sole owner); read via User/UserController/JobService.
-public class JobRecord {
+public final class JobRecord {
     public static final int MAX_JOB_BONUS = 15;
 
     private int totalJobsCompleted = 0;
@@ -54,8 +54,8 @@ public class JobRecord {
         setJobBonus(this.jobBonus + 1);
     }
 
-    // ----- Cheat harness -----
-    // Package-private: only User/CheatService (same package) may call this.
+    // ----- DevControls support -----
+    // Package-private: only User may call this; the demo port is on User.
     void setJobBonusForCheat(int jobBonus) {
         setJobBonus(jobBonus);
     }

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import model.Identity;
+import utils.Lists;
 
 // Holds the 4 starting professions plus card artwork.
 // Read by StartPanel.
-public class IdentityOptionProvider {
+public final class IdentityOptionProvider {
 
     private final ArrayList<Identity> options = new ArrayList<Identity>();
 
@@ -38,11 +39,7 @@ public class IdentityOptionProvider {
 
     // ----- Getter -----
     public List<Identity> getAvailableOptions() {
-        ArrayList<Identity> copy = new ArrayList<Identity>();
-        for (int i = 0; i < options.size(); i++) {
-            copy.add(options.get(i));
-        }
-        return copy;
+        return Lists.copyOf(options);
     }
 
     // ----- Queries -----

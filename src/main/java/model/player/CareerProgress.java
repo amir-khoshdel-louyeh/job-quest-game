@@ -2,7 +2,7 @@ package model.player;
 
 // Tracks level, experience, and reputation.
 // Used by model.player.User (sole owner); read via User/UserController/StatsController.
-public class CareerProgress {
+public final class CareerProgress {
     public static final int MAX_LEVEL = 100;
     public static final int MAX_REPUTATION = 100;
 
@@ -48,22 +48,20 @@ public class CareerProgress {
     }
 
     // ----- Commands -----
+    // Adds XP and levels up as many times as the amount allows.
     public boolean addExperience(int amount) {
         if (amount <= 0) {
             return false;
         }
         setExperience(experience + amount);
-        return checkLevelUp();
-    }
-
-    private boolean checkLevelUp() {
-        int need = getRequiredExperienceForNextLevel();
-        if (experience >= need && level < MAX_LEVEL) {
-            setLevel(level + 1);
+        boolean leveledUp = false;
+        while (level < MAX_LEVEL && experience >= getRequiredExperienceForNextLevel()) {
+            int need = getRequiredExperienceForNextLevel();
             setExperience(experience - need);
-            return true;
+            setLevel(level + 1);
+            leveledUp = true;
         }
-        return false;
+        return leveledUp;
     }
 
     public void gainReputation(int amount) {
@@ -87,8 +85,8 @@ public class CareerProgress {
         return utils.ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
     }
 
-    // ----- Cheat harness -----
-    // Package-private: only User/CheatService (same package) may call these.
+    // ----- DevControls support -----
+    // Package-private: only User may call these; the demo port is on User.
     void setLevelForCheat(int newLevel) {
         setLevel(newLevel);
     }

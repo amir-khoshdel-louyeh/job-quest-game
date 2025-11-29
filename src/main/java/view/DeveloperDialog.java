@@ -121,7 +121,6 @@ public class DeveloperDialog extends JDialog {
     private void afterQuick(String text) {
         refreshFields();
         gamePanel.addChatMessage("Dev: " + text + " applied.");
-        gamePanel.updateUserInfo();
     }
 
     private void refreshFields() {
@@ -130,7 +129,7 @@ public class DeveloperDialog extends JDialog {
         energyField.setText(String.valueOf(devController.getEnergy()));
         levelField.setText(String.valueOf(devController.getLevel()));
         reputationField.setText(String.valueOf(devController.getReputation()));
-        playtimeField.setText(String.valueOf(devController.getTotalPlayTime() / (1000 * 60)));
+        playtimeField.setText(String.valueOf(devController.getPlayTimeMinutes()));
         jobBonusField.setText(String.valueOf(devController.getJobBonus()));
     }
 
@@ -140,18 +139,10 @@ public class DeveloperDialog extends JDialog {
         devController.setEnergy(parse(energyField, devController.getEnergy()));
         devController.setLevel(parse(levelField, devController.getLevel()));
         devController.setReputation(parse(reputationField, devController.getReputation()));
-        long currentMinutes = devController.getTotalPlayTime() / (1000 * 60);
-        int currentInt = (int) currentMinutes;
-        // Keep inside int range.
-        if (currentMinutes > Integer.MAX_VALUE) {
-            currentInt = Integer.MAX_VALUE;
-        }
-        long wanted = parse(playtimeField, currentInt);
-        devController.addPlaytimeMinutes(wanted - currentMinutes);
+        devController.setPlaytimeMinutes(parseLong(playtimeField, devController.getPlayTimeMinutes()));
         devController.setJobBonus(parse(jobBonusField, devController.getJobBonus()));
         refreshFields();
         gamePanel.addChatMessage("Dev: values applied.");
-        gamePanel.updateUserInfo();
     }
 
     // Multi-catch: only the two failures a parse can honestly produce
@@ -164,6 +155,19 @@ public class DeveloperDialog extends JDialog {
         }
         try {
             return Integer.parseInt(field.getText().trim());
+        } catch (NumberFormatException | NullPointerException ex) {
+            field.setText(String.valueOf(fallback));
+            return fallback;
+        }
+    }
+
+    private static long parseLong(JTextField field, long fallback) {
+        if (field == null) {
+            return fallback;
+        }
+        try {
+            long value = Long.parseLong(field.getText().trim());
+            return value < 0 ? 0 : value;
         } catch (NumberFormatException | NullPointerException ex) {
             field.setText(String.valueOf(fallback));
             return fallback;

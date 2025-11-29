@@ -1,9 +1,12 @@
 package view;
 
 import controller.GameController;
-import controller.UserController;
-import model.Identity;
+import controller.Outcome;
 import model.career.Job;
+import model.career.SkillSet;
+import model.minigame.MiniGameResult;
+import model.player.JobBoardView;
+import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -15,13 +18,15 @@ public class JobDialog extends JDialog {
 
     private final GameController controller;
     private final GamePanel gamePanel;
+    private final MiniGameLauncher workGame;
 
     public JobDialog(JFrame parent, GameController controller, GamePanel gamePanel,
-                     List<Job> allJobs, UserController users) {
+                     List<Job> allJobs, JobBoardView player, MiniGameLauncher workGame) {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        String userIdentity = users.getIdentityName();
+        this.workGame = utils.Require.notNull(workGame, "workGame");
+        String userIdentity = player.getIdentityName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);
@@ -35,17 +40,13 @@ public class JobDialog extends JDialog {
             return;
         }
 
-        model.career.SkillSet skills = users.getSkillSet();
+        SkillSet skills = player.getSkillSet();
 
-        // Available first, locked after.
-        // Drop other careers' jobs if an unfiltered list arrives.
+        // Available first, locked after; the controller already sent this career's jobs.
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
-            if (!job.isForIdentity(users.getIdentity())) {
-                continue;
-            }
-            if (job.isAvailableFor(users.getIdentity(), skills)) {
+            if (job.isAvailableFor(player.getIdentity(), skills)) {
                 available.add(job);
             } else {
                 locked.add(job);
@@ -89,7 +90,7 @@ public class JobDialog extends JDialog {
     }
 
     // View formats; the missing set is computed inside Job (single source).
-    private static String lockReason(Job job, model.career.SkillSet skills) {
+    private static String lockReason(Job job, SkillSet skills) {
         List<String> missing = job.missingSkills(skills);
         if (missing.isEmpty()) {
             return "Not available yet";
@@ -145,10 +146,9 @@ public class JobDialog extends JDialog {
             doItButton.setToolTipText(lockReason);
         } else {
             final Job myJob = job;
-            final JButton myButton = doItButton;
             doItButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    handleDoJob(myJob, myButton);
+                    handleDoJob(myJob);
                 }
             });
         }
@@ -158,38 +158,27 @@ public class JobDialog extends JDialog {
         return panel;
     }
 
-    // Every job first plays a short work game; the submitted score sets pay and XP. Cancel before submitting = no job, no penalty.
-    private void handleDoJob(Job job, JButton source) {
+    // Every job first plays a short work game; the submitted score sets pay and XP.
+    // Cancel before submitting = no job, no penalty.
+    private void handleDoJob(Job job) {
         JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-        Identity identity = gamePanel.getUserIdentity();
-        GameController.ActionResult result;
-        if (identity != null) {
-            // Single-pick flow: the job chosen above IS the work —
-            // the mini-game opens locked to that job, no second picker.
-            model.minigame.MiniGameResult game = playWorkGame(parent, job);
-            if (game == null) {
-                return; // cancelled — nothing happens, dialog stays open
-            }
-            result = controller.doJob(job, game);
-        } else {
-            result = controller.doJob(job); // unknown identity → legacy path
+        MiniGameResult game = playWorkGame(parent, job);
+        if (game == null) {
+            return; // cancelled — nothing happens, dialog stays open
         }
+        Outcome<?> result = controller.doJob(job, game);
         gamePanel.addChatMessage(result.getMessage());
-        gamePanel.updateUserInfo();
         if (!result.isSuccess()) {
             JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Work", JOptionPane.WARNING_MESSAGE);
         }
     }
 
-    // One mini-game for every profession: quiz, launched directly.
-    private static final view.minigame.MiniGameLauncher WORK_GAME =
-            new view.minigame.QuizLauncher();
-
-    private model.minigame.MiniGameResult playWorkGame(JFrame parent, Job job) {
+    // The injected launcher decides which mini-game a job plays.
+    private MiniGameResult playWorkGame(JFrame parent, Job job) {
         String jobName = "Job";
         if (job != null) {
             jobName = job.getName();
         }
-        return WORK_GAME.launch(parent, jobName);
+        return workGame.launch(parent, jobName);
     }
 }

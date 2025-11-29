@@ -44,7 +44,7 @@ public class SessionPanel extends JPanel {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(SessionPanel.this);
                 if (frame instanceof MainFrame) {
-                    ((MainFrame) frame).showPanel(new StartPanel((MainFrame) frame));
+                    ((MainFrame) frame).showStartPanel();
                 }
             }
         });

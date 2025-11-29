@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.minigame.QuizQuestion;
+import utils.Lists;
 
 // Holds the quiz questions for the quiz mini-game.
 // Injected into the quiz launcher/controller.
@@ -81,10 +82,6 @@ public final class QuizProvider {
 
     // ----- Getter -----
     public List<QuizQuestion> getQuestions() {
-        ArrayList<QuizQuestion> copy = new ArrayList<QuizQuestion>();
-        for (int i = 0; i < questions.size(); i++) {
-            copy.add(questions.get(i));
-        }
-        return copy;
+        return Lists.copyOf(questions);
     }
 }

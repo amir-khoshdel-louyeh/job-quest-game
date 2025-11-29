@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameController;
+import controller.GameQueries;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import view.theme.AppTheme;
@@ -12,11 +12,11 @@ import java.util.List;
 // The progress screen: challenges, achievements, and stats in tabs.
 public class ProgressDialog extends JDialog {
 
-    private final GameController controller;
+    private final GameQueries queries;
 
-    public ProgressDialog(JFrame parent, GameController controller, GamePanel gamePanel) {
+    public ProgressDialog(JFrame parent, GameQueries queries, GamePanel gamePanel) {
         super(parent, "📊 Progress", true);
-        this.controller = controller;
+        this.queries = queries;
         AppTheme.styleDialog(this, 560, 620);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -41,8 +41,8 @@ public class ProgressDialog extends JDialog {
     }
 
     private JComponent buildChallengesTab() {
-        List<Challenge> active = controller.getActiveChallenges();
-        List<Challenge> done = controller.getCompletedChallenges();
+        List<Challenge> active = queries.getActiveChallenges();
+        List<Challenge> done = queries.getCompletedChallenges();
 
         JPanel root = new JPanel();
         root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
@@ -106,8 +106,8 @@ public class ProgressDialog extends JDialog {
     }
 
     private JComponent buildAchievementsTab() {
-        List<Achievement> all = controller.getAchievementsWithStatus();
-        model.goals.AchievementStats stats = controller.getUserController();
+        List<Achievement> all = queries.getAchievements();
+        model.goals.AchievementStats stats = queries.getPlayerView();
         int unlocked = 0;
         for (int i = 0; i < all.size(); i++) {
             if (all.get(i).isUnlocked(stats)) {
@@ -132,7 +132,7 @@ public class ProgressDialog extends JDialog {
     }
 
     private JPanel achievementRow(Achievement a) {
-        model.goals.AchievementStats stats = controller.getUserController();
+        model.goals.AchievementStats stats = queries.getPlayerView();
         boolean unlocked = a.isUnlocked(stats);
         JPanel card = AppTheme.createItemCard();
         card.setLayout(new BorderLayout(8, 8));
@@ -151,25 +151,8 @@ public class ProgressDialog extends JDialog {
 
         card.add(AppTheme.createCardDescription(a.getDescription()), BorderLayout.CENTER);
 
-        // Get progress, clamped to 0-100.
-        // Polymorphic: behavior lives on the Achievement itself, no service lookup.
-        int pct = 0;
-        try {
-            int p = a.getProgress(controller.getUserController());
-            if (p < 0) {
-                p = 0;
-            }
-            if (p > 100) {
-                p = 100;
-            }
-            pct = p;
-        } catch (Exception e) {
-            if (unlocked) {
-                pct = 100;
-            } else {
-                pct = 0;
-            }
-        }
+        // Progress is already clamped to 0-100 by Achievement/ProgressUtil.
+        int pct = a.getProgress(queries.getPlayerView());
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue(unlocked ? 100 : pct);
         bar.setStringPainted(true);
@@ -186,13 +169,13 @@ public class ProgressDialog extends JDialog {
         root.setBackground(AppTheme.BACKGROUND_COLOR);
         root.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JLabel session = new JLabel(controller.getSessionStats());
+        JLabel session = new JLabel(queries.getSessionStats());
         session.setFont(AppTheme.FONT_BODY);
         session.setForeground(AppTheme.TEXT_SECONDARY);
         session.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         root.add(session, BorderLayout.NORTH);
 
-        JTextArea stats = new JTextArea(controller.getDetailedStats());
+        JTextArea stats = new JTextArea(queries.getDetailedStats());
         stats.setEditable(false);
         stats.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
         stats.setBackground(AppTheme.SURFACE_COLOR);

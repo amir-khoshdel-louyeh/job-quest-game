@@ -1,6 +1,7 @@
 package view;
 
 import controller.GameController;
+import controller.Outcome;
 import model.store.Service;
 import view.theme.AppTheme;
 
@@ -50,8 +51,8 @@ public class ServiceDialog extends JDialog {
         JLabel nameLabel = AppTheme.createCardTitle(service.getName());
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel descriptionLabel = AppTheme.createCardDescription(
-                service.getDescription() + "<br>Effect: " + utils.EffectText.formatServiceEffect(service.getEnergyEffect(), service.getHealthEffect()));
+        // The service description is already derived from its effects.
+        JLabel descriptionLabel = AppTheme.createCardDescription(service.getDescription());
         descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         infoPanel.add(nameLabel);
@@ -84,9 +85,8 @@ public class ServiceDialog extends JDialog {
 
     // Stays open for repeat buys; success goes to chat, only failures pop up.
     private void handleBuyService(Service service) {
-        GameController.ActionResult result = controller.purchaseService(service.getName());
+        Outcome<?> result = controller.purchaseService(service.getName());
         gamePanel.addChatMessage(result.getMessage());
-        gamePanel.updateUserInfo();
         if (!result.isSuccess()) {
             JOptionPane.showMessageDialog(this, result.getMessage(), "Cannot Purchase", JOptionPane.WARNING_MESSAGE);
         }

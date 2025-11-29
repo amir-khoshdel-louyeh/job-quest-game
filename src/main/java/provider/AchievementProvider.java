@@ -9,7 +9,7 @@ import model.goals.AchievementStats;
 
 // Holds all achievements the player can earn.
 // Extends AbstractCatalog; injected into AchievementService.
-public class AchievementProvider extends AbstractCatalog<Achievement> {
+public final class AchievementProvider extends AbstractCatalog<Achievement> implements AchievementCatalog {
 
     // ----- Construction -----
     public AchievementProvider() {

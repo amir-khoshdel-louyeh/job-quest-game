@@ -9,16 +9,10 @@ public final class GameSummaryText {
 
     public static String summaryLine(String gameName, int score, int accuracy,
                                      int elapsedSeconds, List<String> highlights) {
-        String base = gameName + ": score " + score + "/100, accuracy " + accuracy + "% in " + elapsedSeconds + "s";
+        String base = gameName + ": score " + score + "/100, accuracy " + accuracy
+                + "% in " + elapsedSeconds + "s";
         if (highlights != null && !highlights.isEmpty()) {
-            String h = "";
-            for (int i = 0; i < highlights.size(); i++) {
-                if (i > 0) {
-                    h = h + "; ";
-                }
-                h = h + highlights.get(i);
-            }
-            base = base + " — " + h;
+            base = base + " — " + String.join("; ", highlights);
         }
         return base;
     }

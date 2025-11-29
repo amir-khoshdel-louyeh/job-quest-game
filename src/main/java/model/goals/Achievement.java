@@ -4,7 +4,8 @@ import java.util.Objects;
 
 // An unlockable goal with a reward.
 // Checked against AchievementStats; read via AchievementProvider/AchievementService.
-public class Achievement {
+// Final: the stat extractor is part of its construction, not an extension point.
+public final class Achievement {
     private final String id;
     private final String name;
     private final String description;
@@ -49,7 +50,7 @@ public class Achievement {
         return stats.hasAchievement(id);
     }
 
-    protected int getCurrentValue(AchievementStats stats) {
+    private int getCurrentValue(AchievementStats stats) {
         return valueExtractor.applyAsInt(stats);
     }
 

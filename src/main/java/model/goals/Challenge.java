@@ -4,7 +4,7 @@ import java.util.Objects;
 
 // A mission the player can finish for extra rewards.
 // Tracked by ChallengeBook; read via ChallengeProvider/ChallengeService.
-public class Challenge {
+public final class Challenge {
     private final String id;
     private final String name;
     private final String description;
@@ -70,7 +70,8 @@ public class Challenge {
         return c;
     }
     // Adds progress, capped at the target.
-    public void addProgress(int amount) {
+    // Package-private: only Challenge/ChallengeBook may move a quest forward.
+    void addProgress(int amount) {
         if (amount <= 0 || completed) {
             return;
         }

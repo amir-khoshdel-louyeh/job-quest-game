@@ -5,10 +5,11 @@ import java.util.List;
 
 import model.Identity;
 import model.career.LearnableSkill;
+import utils.Lists;
 
 // Holds all skills the player can learn at school.
 // Extends AbstractCatalog; injected into SkillController.
-public class SkillProvider extends AbstractCatalog<LearnableSkill> {
+public final class SkillProvider extends AbstractCatalog<LearnableSkill> implements SkillCatalog {
 
     // ----- Construction -----
     public SkillProvider() {
@@ -60,17 +61,9 @@ public class SkillProvider extends AbstractCatalog<LearnableSkill> {
     }
 
     public List<LearnableSkill> getSkillsForIdentity(Identity identity) {
-        ArrayList<LearnableSkill> result = new ArrayList<LearnableSkill>();
         if (identity == null) {
-            return result;
+            return new ArrayList<LearnableSkill>();
         }
-        List<LearnableSkill> all = snapshot();
-        for (int i = 0; i < all.size(); i++) {
-            LearnableSkill skill = all.get(i);
-            if (skill.isForIdentity(identity)) {
-                result.add(skill);
-            }
-        }
-        return result;
+        return Lists.filter(snapshot(), skill -> skill.isForIdentity(identity));
     }
 }

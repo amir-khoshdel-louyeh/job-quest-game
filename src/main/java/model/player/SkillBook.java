@@ -1,23 +1,16 @@
 package model.player;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import model.career.SkillSet;
 
 // Tracks learned skills.
-// Used by model.player.User (sole owner); read via User/UserController.
+// Used by model.player.User (sole owner); callers only ever see SkillSet,
+// so the concrete book cannot be downcast and mutated.
+final class SkillBook implements SkillSet {
+    private final ArrayList<String> skills = new ArrayList<String>();
 
-public class SkillBook implements model.career.SkillSet {
-    private ArrayList<String> skills = new ArrayList<String>();
-
-    // ----- Getter -----
-    public List<String> getSkills() {
-        ArrayList<String> copy = new ArrayList<String>();
-        for (int i = 0; i < skills.size(); i++) {
-            copy.add(skills.get(i));
-        }
-        return copy;
-    }
-
+    // ----- Queries -----
     public boolean hasSkill(String skillName) {
         if (skillName == null) {
             return false;

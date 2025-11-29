@@ -1,78 +1,59 @@
 package controller;
 
 import model.career.LearnableSkill;
-import model.player.User;
+import model.player.SkillLearner;
 import model.goals.Challenge;
-import provider.SkillProvider;
+import provider.SkillCatalog;
 import services.AchievementService;
 import services.ChallengeService;
 
 // Handles learning new skills for the player's profession.
-public class SkillController {
-    private UserController userController;
-    private ChallengeService challengeService;
-    private AchievementService achievementService;
-    private SkillProvider skillProvider;
+// Package-private: only GameSession/GameController wire it.
+final class SkillController {
+    private final SkillLearner player;
+    private final ChallengeService challengeService;
+    private final AchievementService achievementService;
+    private final SkillCatalog skillProvider;
 
     // ----- Construction -----
-    public SkillController(UserController userController) {
-        this(userController, new ChallengeService(), new AchievementService(), new SkillProvider());
-    }
-
-    // Services come from outside.
-    public SkillController(UserController userController,
-                           ChallengeService challengeService,
-                           AchievementService achievementService) {
-        this(userController, challengeService, achievementService, new SkillProvider());
-    }
-
-    // Skill catalog comes from outside.
-    public SkillController(UserController userController,
-                           ChallengeService challengeService,
-                           AchievementService achievementService,
-                           SkillProvider skillProvider) {
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
-        }
-        this.userController = userController;
-        if (challengeService != null) {
-            this.challengeService = challengeService;
-        } else {
-            this.challengeService = new ChallengeService();
-        }
-        if (achievementService != null) {
-            this.achievementService = achievementService;
-        } else {
-            this.achievementService = new AchievementService();
-        }
-        if (skillProvider != null) {
-            this.skillProvider = skillProvider;
-        } else {
-            this.skillProvider = new SkillProvider();
-        }
+    // Services and catalog come from GameSession; every dependency is required.
+    SkillController(SkillLearner player,
+                    ChallengeService challengeService,
+                    AchievementService achievementService,
+                    SkillCatalog skillProvider) {
+        this.player = utils.Require.notNull(player, "player");
+        this.challengeService = utils.Require.notNull(challengeService, "challengeService");
+        this.achievementService = utils.Require.notNull(achievementService, "achievementService");
+        this.skillProvider = utils.Require.notNull(skillProvider, "skillProvider");
     }
 
     // ----- Commands -----
-    // Learns a skill; returns true if learned.
-    public boolean learnSkill(String skillName) {
+    // Learns a skill only when the profession, playtime, and money all allow it.
+    public Outcome<LearnableSkill> learnSkill(String skillName) {
         LearnableSkill toLearn = skillProvider.getSkill(skillName);
         if (toLearn == null) {
-            return false;
+            return Outcome.failure("That skill does not exist.");
         }
-        User user = userController.getUser();
-        if (!toLearn.isForIdentity(user.getIdentity())) {
-            return false;
+        if (!toLearn.isForIdentity(player.getIdentity())) {
+            return Outcome.failure("That skill is not available for your profession.");
         }
-        if (user.hasSkill(toLearn.getName())) {
-            return false;
+
+        LearnableSkill.Availability availability = toLearn.availabilityFor(
+                player.getSkillSet(), player.getPlayTimeMinutes());
+        if (availability == LearnableSkill.Availability.LEARNED) {
+            return Outcome.failure("You already learned that skill.");
         }
-        if (userController.deductBalance(toLearn.getCost())) {
-            userController.addSkill(toLearn.getName());
-            challengeService.updateChallengeProgress(user, Challenge.ChallengeType.LEARN_SKILLS, 1);
-            achievementService.checkAndUnlockAchievements(user);
-            userController.refresh();
-            return true;
+        if (availability == LearnableSkill.Availability.LOCKED) {
+            return Outcome.failure("You need more playtime before that skill unlocks.");
         }
-        return false;
+
+        if (!player.deductBalance(toLearn.getCost())) {
+            return Outcome.failure("You do not have enough money for that skill.");
+        }
+        player.addSkill(toLearn.getName());
+        challengeService.updateChallengeProgress(
+                player, Challenge.ChallengeType.LEARN_SKILLS, 1);
+        achievementService.checkAndUnlockAchievements(player);
+        return Outcome.success("Skill learned successfully.", toLearn);
     }
 }

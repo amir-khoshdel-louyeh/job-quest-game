@@ -40,6 +40,33 @@ public final class LearnableSkill {
         }
     }
 
+    // ----- Queries -----
+    public enum Availability {
+        LEARNED,
+        AVAILABLE,
+        LOCKED
+    }
+
+    // One rule for the school screen and the controller.
+    public Availability availabilityFor(SkillSet learnedSkills, long playTimeMinutes) {
+        if (learnedSkills != null && learnedSkills.hasSkill(name)) {
+            return Availability.LEARNED;
+        }
+        if (playTimeMinutes >= requiredPlayTimeMinutes) {
+            return Availability.AVAILABLE;
+        }
+        return Availability.LOCKED;
+    }
+
+    // Minutes still needed before this skill unlocks (0 when ready).
+    public long minutesUntilUnlocked(long playTimeMinutes) {
+        long remaining = requiredPlayTimeMinutes - playTimeMinutes;
+        if (remaining < 0) {
+            return 0;
+        }
+        return remaining;
+    }
+
     // ----- Getter -----
     public String getName() {
         return name;

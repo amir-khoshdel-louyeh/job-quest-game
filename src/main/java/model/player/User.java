@@ -2,33 +2,40 @@ package model.player;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import model.Identity;
+import model.career.SkillSet;
 import model.goals.AchievementBook;
-import model.goals.AchievementStats;
 import model.goals.Challenge;
 import model.goals.ChallengeBook;
 import model.store.ServiceTarget;
 
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
 // blocking, achievement, and challenge books.
-// Read via UserController; mutated via controllers and services.
-public class User implements AchievementStats, ServiceTarget {
+// Read/mutated through UserController; services see narrow ports instead.
+// Raw components are private: the demo panel uses the DevControls port.
+public final class User implements PlayerProgress, ServiceTarget, PaymentStats, UpkeepTarget {
     private final String username;
     private final Identity identity;
     private final Wallet wallet;
     private final Vitals vitals;
     private final CareerProgress progress;
     private final SkillBook skillBook = new SkillBook();
-    private final BlockStatus blockStatus = new BlockStatus();
+    private final BlockStatus blockStatus;
     private final JobRecord jobRecord = new JobRecord();
     private final AchievementBook achievementBook = new AchievementBook();
     private final ChallengeBook challengeBook = new ChallengeBook();
-
-    private long totalPlayTime = 0;
+    private final PlayClock playClock = new PlayClock();
+    private final DevControls devControls;
 
     // ----- Construction -----
     public User(String username, Identity identity, int balance) {
+        this(username, identity, balance, System::currentTimeMillis);
+    }
+
+    // Fixed clock for tests; the block check uses it instead of the wall clock.
+    public User(String username, Identity identity, int balance, Supplier<Long> clock) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("username required");
         }
@@ -37,6 +44,8 @@ public class User implements AchievementStats, ServiceTarget {
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
+        this.blockStatus = new BlockStatus(clock);
+        this.devControls = new DemoMutations();
     }
 
     // ----- Identity Delegate -----
@@ -49,9 +58,6 @@ public class User implements AchievementStats, ServiceTarget {
     }
 
     public String getIdentityName() {
-        if (identity == null) {
-            return "?";
-        }
         return identity.getDisplayName();
     }
 
@@ -60,16 +66,16 @@ public class User implements AchievementStats, ServiceTarget {
         return wallet.getBalance();
     }
 
-    public void deposit(int amount) {
-        wallet.deposit(amount);
+    public boolean deposit(int amount) {
+        return wallet.deposit(amount);
     }
 
-    public void withdraw(int amount) {
-        wallet.withdraw(amount);
+    public boolean withdraw(int amount) {
+        return wallet.withdraw(amount);
     }
 
-    public void earn(int amount) {
-        wallet.earn(amount);
+    public boolean earn(int amount) {
+        return wallet.earn(amount);
     }
 
     public int getTotalMoneyEarned() {
@@ -81,33 +87,37 @@ public class User implements AchievementStats, ServiceTarget {
         return vitals.getHealth();
     }
 
-    @Override
-    public void gainHealth(int amount) {
-        vitals.gainHealth(amount);
+    public int getHealthPercentage() {
+        return vitals.getHealthPercentage();
     }
 
-    public void loseHealth(int amount) {
-        vitals.loseHealth(amount);
+    @Override
+    public boolean gainHealth(int amount) {
+        return vitals.gainHealth(amount);
+    }
+
+    public boolean loseHealth(int amount) {
+        return vitals.loseHealth(amount);
     }
 
     public int getEnergy() {
         return vitals.getEnergy();
     }
 
-    @Override
-    public void gainEnergy(int amount) {
-        vitals.gainEnergy(amount);
+    public int getEnergyPercentage() {
+        return vitals.getEnergyPercentage();
     }
 
-    public void loseEnergy(int amount) {
-        vitals.loseEnergy(amount);
+    @Override
+    public boolean gainEnergy(int amount) {
+        return vitals.gainEnergy(amount);
+    }
+
+    public boolean loseEnergy(int amount) {
+        return vitals.loseEnergy(amount);
     }
 
     // ----- SkillBook Delegate -----
-    public List<String> getSkills() {
-        return skillBook.getSkills();
-    }
-
     public boolean addSkill(String skillName) {
         return skillBook.addSkill(skillName);
     }
@@ -121,13 +131,17 @@ public class User implements AchievementStats, ServiceTarget {
         return skillBook.hasSkill(skillName);
     }
 
-    public model.career.SkillSet getSkillSet() {
+    public SkillSet getSkillSet() {
         return skillBook;
     }
 
     // ----- Play time Delegate -----
-    public long getTotalPlayTime() {
-        return totalPlayTime;
+    public long getPlayTimeMinutes() {
+        return playClock.getTotalMinutes();
+    }
+
+    public void addPlayTime(long millis) {
+        playClock.addMillis(millis);
     }
 
     // ----- BlockStatus Delegate -----
@@ -229,11 +243,7 @@ public class User implements AchievementStats, ServiceTarget {
     }
 
     public List<Challenge> updateChallengeProgress(Challenge.ChallengeType type, int amount) {
-        return challengeBook.updateProgress(type, amount);
-    }
-
-    public void addChallenge(Challenge challenge) {
-        challengeBook.addChallenge(challenge);
+        return challengeBook.updateChallengeProgress(type, amount);
     }
 
     public void addChallenges(List<Challenge> list) {
@@ -244,15 +254,59 @@ public class User implements AchievementStats, ServiceTarget {
         return challengeBook.hasChallenge(challengeId);
     }
 
-    // ----- Cheat harness access -----
-    Wallet wallet() { return wallet; }
-    Vitals vitals() { return vitals; }
-    CareerProgress progress() { return progress; }
-    JobRecord jobRecord() { return jobRecord; }
-    void addPlayTimeForCheat(long deltaMillis) {
-        if (deltaMillis > 0) {
-            this.totalPlayTime += deltaMillis;
+    // ----- DevControls (demo panel) -----
+    // Returns the narrow demo port, never the internal components. User itself
+    // is only reachable from the controller layer, so views cannot use this.
+    public DevControls devControls() {
+        return devControls;
+    }
+
+    // Exact-value demo mutations, kept out of the public User surface.
+    private final class DemoMutations implements DevControls {
+        @Override
+        public void setBalance(int amount) {
+            wallet.setBalanceForCheat(amount);
         }
+
+        @Override
+        public void setHealth(int health) {
+            vitals.setHealthForCheat(health);
+        }
+
+        @Override
+        public void setEnergy(int energy) {
+            vitals.setEnergyForCheat(energy);
+        }
+
+        @Override
+        public void setLevel(int level) {
+            progress.setLevelForCheat(level);
+        }
+
+        @Override
+        public void setReputation(int reputation) {
+            progress.setReputationForCheat(reputation);
+        }
+
+        @Override
+        public void setJobBonus(int jobBonus) {
+            jobRecord.setJobBonusForCheat(jobBonus);
+        }
+
+        @Override
+        public void addPlayTimeMinutes(long minutes) {
+            playClock.addMillis(minutes * utils.DurationText.MILLIS_PER_MINUTE);
+        }
+
+        @Override
+        public void setPlayTimeMinutes(long minutes) {
+            playClock.setMinutesForCheat(minutes);
+        }
+    }
+
+    // ----- Achievement summary -----
+    public int getAchievementCount() {
+        return achievementBook.getUnlockedCount();
     }
 
     // ----- Object overrides -----

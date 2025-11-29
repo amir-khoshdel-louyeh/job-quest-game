@@ -1,29 +1,24 @@
 package controller;
 
-import model.player.CheatService;
 import observer.ChangeType;
 
 // Lets developers set stats by hand for demos and testing.
 // Out-of-rules mutations live in CheatService; this only cheats + notifies.
-public class DeveloperController {
+// The aggregate is reached through UserController.devControls(), not User.
+public final class DeveloperController {
     private final UserController userController;
     private final CheatService cheats;
 
     // ----- Construction -----
-    public DeveloperController(UserController userController) {
+    // Package-private: GameSession creates the one developer facade per run.
+    DeveloperController(UserController userController) {
         this(userController, new CheatService());
     }
 
-    // Custom CheatService for tests.
-    public DeveloperController(UserController userController, CheatService cheats) {
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
-        }
-        if (cheats == null) {
-            throw new IllegalArgumentException("cheats must not be null");
-        }
-        this.userController = userController;
-        this.cheats = cheats;
+    // Custom CheatService for tests; every dependency is required.
+    DeveloperController(UserController userController, CheatService cheats) {
+        this.userController = utils.Require.notNull(userController, "userController");
+        this.cheats = utils.Require.notNull(cheats, "cheats");
     }
 
     // ----- Read delegates -----
@@ -43,8 +38,8 @@ public class DeveloperController {
         return userController.getReputation();
     }
 
-    public long getTotalPlayTime() {
-        return userController.getTotalPlayTime();
+    public long getPlayTimeMinutes() {
+        return userController.getPlayTimeMinutes();
     }
 
     public int getJobBonus() {
@@ -58,50 +53,58 @@ public class DeveloperController {
     // ----- Commands -----
     // Sets balance. Demo only.
     public void setBalance(int amount) {
-        cheats.setBalance(userController.getUser(), amount);
+        cheats.setBalance(userController.devControls(), amount);
         userController.notifyObservers(ChangeType.BALANCE);
     }
 
     // Sets health. Demo only.
     public void setHealth(int hp) {
-        cheats.setHealth(userController.getUser(), hp);
+        cheats.setHealth(userController.devControls(), hp);
         userController.notifyObservers(ChangeType.HEALTH);
     }
 
     // Sets energy. Demo only.
     public void setEnergy(int energy) {
-        cheats.setEnergy(userController.getUser(), energy);
+        cheats.setEnergy(userController.devControls(), energy);
         userController.notifyObservers(ChangeType.ENERGY);
     }
 
     // Adds playtime in minutes; non-positive values are ignored.
     public void addPlaytimeMinutes(long minutes) {
-        if (minutes == 0) return;
-        cheats.addPlaytimeMinutes(userController.getUser(), minutes);
-        userController.refresh();
+        if (minutes == 0) {
+            return;
+        }
+        cheats.addPlaytimeMinutes(userController.devControls(), minutes);
+        userController.publishAll();
+    }
+
+    // Sets playtime to an exact number of minutes. Demo only.
+    public void setPlaytimeMinutes(long minutes) {
+        cheats.setPlaytimeMinutes(userController.devControls(), minutes);
+        userController.publishAll();
     }
 
     // Sets level. Demo only.
     public void setLevel(int level) {
-        cheats.setLevel(userController.getUser(), level);
+        cheats.setLevel(userController.devControls(), level);
         userController.notifyObservers(ChangeType.XP);
     }
 
     // Sets reputation. Demo only.
     public void setReputation(int reputation) {
-        cheats.setReputation(userController.getUser(), reputation);
+        cheats.setReputation(userController.devControls(), reputation);
         userController.notifyObservers(ChangeType.REPUTATION);
     }
 
     // Sets job bonus. Demo only.
-    public void setJobBonus(int level) {
-        cheats.setJobBonus(userController.getUser(), level);
+    public void setJobBonus(int jobBonus) {
+        cheats.setJobBonus(userController.devControls(), jobBonus);
         userController.notifyObservers();
     }
 
     // Lifts any active block. Demo only.
     public void unblock() {
         userController.unblockUser();
-        userController.refresh();
+        userController.publishAll();
     }
 }

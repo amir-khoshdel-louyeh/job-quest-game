@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.goals.Challenge;
+import utils.Lists;
 
 // Holds the story challenges the player can try.
 // Injected into ChallengeService.
-public class ChallengeProvider {
+public final class ChallengeProvider implements ChallengeCatalog {
 
     private final List<Challenge> challenges;
 
@@ -21,7 +22,11 @@ public class ChallengeProvider {
         if (challenges == null) {
             throw new IllegalArgumentException("challenge catalog must not be null");
         }
-        this.challenges = new ArrayList<>(challenges);
+        // Keep private templates: callers may still hold the objects they pass.
+        this.challenges = new ArrayList<Challenge>();
+        for (Challenge challenge : challenges) {
+            this.challenges.add(challenge.copy());
+        }
     }
 
     private static List<Challenge> buildCatalog() {
@@ -85,7 +90,13 @@ public class ChallengeProvider {
     }
 
     // ----- Getter -----
+    // Fresh copies: Challenge is mutable, so a catalog must never hand out
+    // the instances it stores (two players would share progress).
     public List<Challenge> getChallenges() {
-        return new ArrayList<>(challenges);
+        List<Challenge> copy = new ArrayList<Challenge>();
+        for (int i = 0; i < challenges.size(); i++) {
+            copy.add(challenges.get(i).copy());
+        }
+        return copy;
     }
 }

@@ -1,10 +1,8 @@
 package view;
 
+import controller.GameSession;
 import model.Identity;
-import model.player.User;
 import provider.IdentityOptionProvider;
-import provider.IdentityProvider;
-import provider.UnknownIdentityException;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -18,11 +16,12 @@ public class StartPanel extends JPanel {
     private JButton startButton;
     private JLabel errorLabel;
     private ButtonGroup identityGroup;
-    private final IdentityOptionProvider options = new IdentityOptionProvider();
-    private final IdentityProvider identities = new IdentityProvider();
+    private final IdentityOptionProvider options;
 
-    public StartPanel(MainFrame mainFrame) {
+    // The career catalog is supplied by MainFrame, not built here.
+    public StartPanel(MainFrame mainFrame, IdentityOptionProvider options) {
         this.mainFrame = mainFrame;
+        this.options = utils.Require.notNull(options, "identity options");
         setBackground(AppTheme.BACKGROUND_COLOR);
         setLayout(new BorderLayout(AppTheme.PADDING_LARGE, AppTheme.PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(
@@ -197,17 +196,9 @@ public class StartPanel extends JPanel {
             name = "Player";
         }
         try {
-            User user = new User(
-                name,
-                identities.createIdentity(selected.getProfessionName()),
-                selected.getStartingBalance());
-            user.grantStartingBonus();
-            mainFrame.showPanel(new GamePanel(user));
-        } catch (UnknownIdentityException ex) {
-            // Specific-before-general: this subclass branch runs for bad
-            // profession keys; the IAE branch below stays for every other
-            // validation failure (e.g. blank profession name in Profession).
-            errorLabel.setText("Unknown career selected. Please pick again.");
+            // The selected option is already a complete Identity; reuse it.
+            GameSession session = GameSession.start(name, selected);
+            mainFrame.showPanel(new GamePanel(session));
         } catch (IllegalArgumentException ex) {
             errorLabel.setText("Error: " + ex.getMessage());
         }

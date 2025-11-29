@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import utils.Lists;
+
 // One quiz question with answer options.
 // Read via quiz provider/controller.
 public final class QuizQuestion {
 
-    private String id;
-    private String prompt;
-    private ArrayList<String> options;
-    private int correctIndex;
-    private String explanation;
+    private final String id;
+    private final String prompt;
+    private final ArrayList<String> options;
+    private final int correctIndex;
+    private final String explanation;
 
     // ----- Construction -----
     public QuizQuestion(String id, String prompt,
@@ -28,10 +30,7 @@ public final class QuizQuestion {
         }
         this.id = id;
         this.prompt = prompt;
-        this.options = new ArrayList<String>();
-        for (int i = 0; i < options.size(); i++) {
-            this.options.add(options.get(i));
-        }
+        this.options = new ArrayList<String>(Lists.copyOf(options));
         this.correctIndex = correctIndex;
         if (explanation == null) {
             this.explanation = "";
@@ -45,11 +44,7 @@ public final class QuizQuestion {
         return prompt;
     }
     public List<String> getOptions() {
-        ArrayList<String> copy = new ArrayList<String>();
-        for (int i = 0; i < options.size(); i++) {
-            copy.add(options.get(i));
-        }
-        return copy;
+        return Lists.copyOf(options);
     }
     public int getCorrectIndex() {
         return correctIndex;

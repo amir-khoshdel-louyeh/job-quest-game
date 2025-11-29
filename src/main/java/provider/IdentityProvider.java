@@ -9,7 +9,7 @@ import model.career.Profession;
 
 // Builds the starting profession the player picks.
 // Keys ignore case and spaces.
-public class IdentityProvider {
+public final class IdentityProvider {
     private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
 
     // ----- Construction -----

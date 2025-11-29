@@ -1,103 +1,90 @@
 package controller;
 
-import observer.ChangeType;
-import services.RoutineService;
+import java.util.ArrayList;
+import java.util.List;
 
-// Runs periodic upkeep like energy, health, and sickness checks.
-// Owns the Swing timers; the service mutates silently and this notifies.
-public class RoutineController {
+import services.RoutineService;
+import utils.GameBalance;
+
+// Runs periodic upkeep like energy, health, sickness, and play time.
+// Scheduling is injected (view.SwingScheduler in the app), so this class
+// stays free of Swing; UserController is the UpkeepTarget and publishes the
+// matching changes itself.
+public final class RoutineController {
+    private static final long ENERGY_TICK_MILLIS = 30 * 1000L;
+    private static final long HEALTH_TICK_MILLIS = 60 * 1000L;
+    private static final long PLAY_TIME_TICK_MILLIS = 60 * 1000L;
+
     private final UserController userController;
     private final MessageSink messages;
     private final RoutineService routines;
-    private final java.util.List<javax.swing.Timer> timers = new java.util.ArrayList<>();
+    private final Scheduler scheduler;
+    private final List<Scheduler.Cancelable> tasks = new ArrayList<Scheduler.Cancelable>();
 
     // ----- Construction -----
-    public RoutineController(UserController userController, MessageSink messages) {
-        this(userController, messages, new RoutineService());
+    // Package-private: GameSession.createRoutineController is the only entry.
+    RoutineController(UserController userController, MessageSink messages,
+                      Scheduler scheduler) {
+        this(userController, messages, new RoutineService(), scheduler);
     }
 
-    // Custom service for tests.
-    public RoutineController(UserController userController, MessageSink messages, RoutineService routines) {
-        if (userController == null) {
-            throw new IllegalArgumentException("userController must not be null");
-        }
-        if (messages == null) {
-            throw new IllegalArgumentException("messages must not be null");
-        }
-        if (routines == null) {
-            throw new IllegalArgumentException("routines must not be null");
-        }
-        this.userController = userController;
-        this.messages = messages;
-        this.routines = routines;
+    // Custom service + scheduler for tests; every dependency is required.
+    RoutineController(UserController userController, MessageSink messages,
+                      RoutineService routines, Scheduler scheduler) {
+        this.userController = utils.Require.notNull(userController, "userController");
+        this.messages = utils.Require.notNull(messages, "messages");
+        this.routines = utils.Require.notNull(routines, "routines");
+        this.scheduler = utils.Require.notNull(scheduler, "scheduler");
     }
 
     // ----- Commands -----
-    public void decreaseEnergy() {
-        if (userController.getEnergy() <= 0) {
-            return;
-        }
-        String message = routines.processEnergyDecrease(userController.getUser());
-        userController.notifyObservers(ChangeType.ENERGY);
+    // Tick actions stay package-private; views only start/stop the schedulers.
+    void decreaseEnergy() {
+        // UserController is the UpkeepTarget: drains and the knockout fine
+        // notify observers themselves, so this only reports the message.
+        String message = routines.processEnergyDecrease(userController);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
-    public void decreaseHealth() {
-        String message = routines.processHealthDecrease(userController.getUser());
-        userController.notifyObservers(ChangeType.HEALTH);
+    void decreaseHealth() {
+        String message = routines.processHealthDecrease(userController);
         if (message != null) {
             messages.addChatMessage(message);
         }
     }
 
-    public void sicknessCheck() {
-        String message = routines.processSicknessCheck(userController.getUser());
+    void sicknessCheck() {
+        String message = routines.processSicknessCheck(userController);
         if (message != null) {
-            userController.notifyObservers(ChangeType.HEALTH);
             messages.addChatMessage(message);
         }
     }
 
-    // Starts background upkeep timers; restarts cleanly if called twice.
+    // Records one minute of play time; exposed to package tests only.
+    void recordPlayTime() {
+        userController.addPlayTime(PLAY_TIME_TICK_MILLIS);
+    }
+
+    // Starts background upkeep; restarts cleanly if called twice.
     public void startSchedulers() {
         stopSchedulers();
-        final RoutineController self = this;
-        timers.add(utils.TimerUtil.runPeriodic(30000, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                self.decreaseEnergy();
-            }
-        }));
-        timers.add(utils.TimerUtil.runPeriodic(60000, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                self.decreaseHealth();
-            }
-        }));
-        timers.add(utils.TimerUtil.runPeriodic((int) utils.GameBalance.SICKNESS_COOLDOWN_MILLIS, new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                self.sicknessCheck();
-            }
-        }));
-
-        // Unblocks after 5 minutes.
-        final UserController users = userController;
-        utils.TimerUtil.runOnce(5 * 60 * 1000, new Runnable() {
-            public void run() {
-                users.unblockUser();
-            }
-        });
+        tasks.add(scheduler.every(ENERGY_TICK_MILLIS, this::decreaseEnergy));
+        tasks.add(scheduler.every(HEALTH_TICK_MILLIS, this::decreaseHealth));
+        tasks.add(scheduler.every(GameBalance.SICKNESS_COOLDOWN_MILLIS, this::sicknessCheck));
+        tasks.add(scheduler.every(PLAY_TIME_TICK_MILLIS, this::recordPlayTime));
     }
 
-    // Halts upkeep timers.
+    // Halts upkeep.
     public void stopSchedulers() {
-        for (int i = 0; i < timers.size(); i++) {
+        for (Scheduler.Cancelable task : tasks) {
             try {
-                timers.get(i).stop();
+                task.cancel();
             } catch (Exception e) {
                 utils.GameLog.error("stopping scheduler", e);
             }
         }
-        timers.clear();
+        tasks.clear();
     }
 }
