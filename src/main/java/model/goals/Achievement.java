@@ -2,6 +2,7 @@ package model.goals;
 
 import model.AbstractIdentified;
 import utils.ProgressMath;
+import utils.Require;
 
 // An unlockable goal with a reward.
 // Checked against AchievementStats; read via AchievementProvider/AchievementService.
@@ -19,7 +20,8 @@ public final class Achievement extends AbstractIdentified {
     public Achievement(String id, String name, String description, int rewardMoney,
                        int requiredValue,
                        java.util.function.ToIntFunction<AchievementStats> valueExtractor) {
-        if (id == null || id.trim().equals("")) {
+        String validId = Require.notNull(id, "id");
+        if (validId.trim().equals("")) {
             throw new IllegalArgumentException("id required");
         }
         if (requiredValue <= 0) {
@@ -28,7 +30,7 @@ public final class Achievement extends AbstractIdentified {
         if (valueExtractor == null) {
             throw new IllegalArgumentException("valueExtractor required");
         }
-        this.id = id;
+        this.id = validId;
         this.name = name;
         this.description = description;
         this.rewardMoney = rewardMoney;
