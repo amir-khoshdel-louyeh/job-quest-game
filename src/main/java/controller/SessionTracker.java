@@ -1,5 +1,6 @@
 package controller;
 
+import controller.contract.SessionStats;
 import utils.DurationText;
 
 // Tracks one play session: elapsed minutes and successful jobs.

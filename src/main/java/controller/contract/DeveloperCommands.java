@@ -1,4 +1,4 @@
-package controller;
+package controller.contract;
 
 // Demo controls a screen can request.
 // The developer dialog depends on this contract, not on DeveloperController.

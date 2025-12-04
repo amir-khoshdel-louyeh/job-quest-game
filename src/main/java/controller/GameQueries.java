@@ -1,5 +1,8 @@
 package controller;
 
+import controller.contract.GameReads;
+import controller.contract.SessionStats;
+
 import java.util.List;
 
 import model.career.Job;

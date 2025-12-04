@@ -1,4 +1,4 @@
-package controller;
+package controller.contract;
 
 // Handle for one scheduled task; cancelling it stops the repetition.
 // Its own type so Scheduler stays a one-method abstraction.

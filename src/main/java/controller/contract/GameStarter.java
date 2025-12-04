@@ -1,4 +1,4 @@
-package controller;
+package controller.contract;
 
 import model.Identity;
 

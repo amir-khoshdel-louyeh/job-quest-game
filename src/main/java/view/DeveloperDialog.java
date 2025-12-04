@@ -1,6 +1,6 @@
 package view;
 
-import controller.DeveloperCommands;
+import controller.contract.DeveloperCommands;
 import model.player.CareerProgress;
 import view.theme.AppTheme;
 

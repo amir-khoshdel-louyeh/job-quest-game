@@ -1,8 +1,8 @@
 package view;
 
-import controller.DeveloperCommands;
-import controller.GameCommands;
-import controller.GameReads;
+import controller.contract.DeveloperCommands;
+import controller.contract.GameCommands;
+import controller.contract.GameReads;
 import model.career.Job;
 import model.career.LearnableSkill;
 import model.player.PlayerView;

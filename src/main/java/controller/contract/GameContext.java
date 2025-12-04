@@ -1,4 +1,4 @@
-package controller;
+package controller.contract;
 
 import model.player.PlayerView;
 import observer.Observable;

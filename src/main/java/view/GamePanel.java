@@ -1,10 +1,10 @@
 package view;
 
 // The main game screen: stats on the side, world in the middle, chat at the bottom.
-import controller.GameCommands;
-import controller.GameContext;
-import controller.MessageSink;
-import controller.RoutineControl;
+import controller.contract.GameCommands;
+import controller.contract.GameContext;
+import controller.contract.MessageSink;
+import controller.contract.RoutineControl;
 import model.player.PlayerView;
 import observer.ChangeType;
 import observer.Observable;

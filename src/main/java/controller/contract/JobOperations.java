@@ -1,5 +1,6 @@
-package controller;
+package controller.contract;
 
+import controller.Outcome;
 import model.career.Job;
 import model.minigame.MiniGameResult;
 

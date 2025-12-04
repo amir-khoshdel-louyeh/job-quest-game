@@ -1,6 +1,6 @@
 package view;
 
-import controller.MessageSink;
+import controller.contract.MessageSink;
 import view.theme.AppTheme;
 
 import javax.swing.*;

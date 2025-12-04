@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameCommands;
+import controller.contract.GameCommands;
 import controller.Outcome;
 import model.career.Job;
 import model.career.SkillSet;

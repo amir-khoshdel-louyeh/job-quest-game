@@ -1,5 +1,6 @@
 package controller;
 
+import controller.contract.DeveloperCommands;
 import model.player.DevControls;
 import model.player.PlayerView;
 import observer.ChangeType;

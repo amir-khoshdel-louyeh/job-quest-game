@@ -1,4 +1,4 @@
-package controller;
+package controller.contract;
 
 // Runs a task on a fixed period. The view layer supplies the real
 // implementation (Swing timer), so controllers never import Swing.

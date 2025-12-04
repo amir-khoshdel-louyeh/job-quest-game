@@ -1,5 +1,6 @@
 package controller;
 
+import controller.contract.ServicePurchases;
 import model.player.PurchaseTarget;
 import model.store.Service;
 import provider.ServiceCatalog;

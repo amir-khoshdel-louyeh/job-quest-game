@@ -3,7 +3,7 @@ package main;
 import javax.swing.SwingUtilities;
 
 import controller.GameSessionFactory;
-import controller.GameStarter;
+import controller.contract.GameStarter;
 import provider.IdentityCatalog;
 import provider.IdentityProvider;
 import provider.QuizProvider;

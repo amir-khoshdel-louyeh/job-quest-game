@@ -1,5 +1,6 @@
 package controller;
 
+import controller.contract.SkillOperations;
 import model.career.LearnableSkill;
 import model.career.SkillAvailability;
 import model.player.SkillLearner;

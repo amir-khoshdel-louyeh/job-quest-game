@@ -1,6 +1,6 @@
 package view;
 
-import controller.GameReads;
+import controller.contract.GameReads;
 import model.goals.Achievement;
 import model.goals.AchievementStats;
 import model.goals.Challenge;
