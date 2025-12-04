@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import utils.Lists;
+import utils.Require;
 
 // Hands out challenges and tracks their progress and rewards.
 // The catalog is injected, so this rule layer never constructs its own copy.
@@ -20,7 +21,7 @@ public final class ChallengeService implements ChallengeRules {
     // ----- Construction -----
     // Every dependency is required; GameSession supplies the shared catalog.
     public ChallengeService(ChallengeCatalog catalog) {
-        this.catalog = utils.Require.notNull(catalog, "challenge catalog");
+        this.catalog = Require.notNull(catalog, "challenge catalog");
     }
 
     // ----- Commands -----

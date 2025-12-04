@@ -4,6 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 
 import view.theme.AppTheme;
+import utils.GameLog;
+import utils.Require;
 
 // The world map in the middle of the game screen.
 // One responsibility: draw the image and turn a click into a navigation call.
@@ -13,7 +15,7 @@ public class WorldViewPanel extends JPanel {
     private Image background;
 
     public WorldViewPanel(Navigator navigator) {
-        this.navigator = utils.Require.notNull(navigator, "navigator");
+        this.navigator = Require.notNull(navigator, "navigator");
         setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",
                 javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
@@ -36,7 +38,7 @@ public class WorldViewPanel extends JPanel {
         } catch (RuntimeException e) {
             // The map is optional art: fall back to the placeholder instead of
             // letting an unchecked image/URL failure abort the whole game screen.
-            utils.GameLog.error("loading world view", e);
+            GameLog.error("loading world view", e);
             showMissingImage();
         }
     }

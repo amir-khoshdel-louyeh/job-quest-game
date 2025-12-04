@@ -11,6 +11,8 @@ import observer.Observable;
 import observer.Observer;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
+import utils.GameLog;
+import utils.Require;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +48,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         this.player = context.playerView();
         this.observable = context.observable();
         this.observable.addObserver(this); // Get stat updates.
-        utils.Require.notNull(workGame, "workGame");
+        Require.notNull(workGame, "workGame");
         this.routineController = context.createRoutineController(this, new SwingScheduler());
         setLayout(new BorderLayout(10,10));
         setBackground(AppTheme.BACKGROUND_COLOR);
@@ -140,7 +142,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         } catch (RuntimeException e) {
             // Detach is best-effort: the panel is already leaving the hierarchy,
             // so log the failure and still let Swing finish its own cleanup.
-            utils.GameLog.error("disposing game panel", e);
+            GameLog.error("disposing game panel", e);
         }
         super.removeNotify();
     }
@@ -151,13 +153,13 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
             observable.removeObserver(this);
         } catch (RuntimeException e) {
             // No checked failures here; keep going so the scheduler still stops.
-            utils.GameLog.error("removing panel observer", e);
+            GameLog.error("removing panel observer", e);
         }
         try {
             routineController.stopSchedulers();
         } catch (RuntimeException e) {
             // Same rule: cleanup of the other collaborators must not be skipped.
-            utils.GameLog.error("stopping schedulers", e);
+            GameLog.error("stopping schedulers", e);
         }
     }
 

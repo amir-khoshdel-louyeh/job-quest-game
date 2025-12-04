@@ -1,6 +1,7 @@
 package view;
 
 import controller.DeveloperCommands;
+import model.player.CareerProgress;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -42,7 +43,7 @@ public class DeveloperDialog extends JDialog {
         healthField = row(form, "Health (0-100):");
         energyField = row(form, "Energy (0-100k):");
         levelField = row(form, "Level (1-100):");
-        reputationField = row(form, "Reputation (0-" + model.player.CareerProgress.MAX_REPUTATION + "):");
+        reputationField = row(form, "Reputation (0-" + CareerProgress.MAX_REPUTATION + "):");
         playtimeField = row(form, "Playtime (min):");
         jobBonusField = row(form, "Job Bonus:");
 

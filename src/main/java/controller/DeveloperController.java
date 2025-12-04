@@ -4,6 +4,7 @@ import model.player.DevControls;
 import model.player.PlayerView;
 import observer.ChangeType;
 import observer.Subject;
+import utils.Require;
 
 // Lets developers set stats by hand for demos and testing.
 // It depends only on abstractions: a read-only PlayerView for the current
@@ -17,9 +18,9 @@ public final class DeveloperController implements DeveloperCommands {
     // ----- Construction -----
     // Package-private: GameSession creates the one developer facade per run.
     DeveloperController(PlayerView player, DevControls devControls, Subject subject) {
-        this.player = utils.Require.notNull(player, "player");
-        this.devControls = utils.Require.notNull(devControls, "devControls");
-        this.subject = utils.Require.notNull(subject, "subject");
+        this.player = Require.notNull(player, "player");
+        this.devControls = Require.notNull(devControls, "devControls");
+        this.subject = Require.notNull(subject, "subject");
     }
 
     // ----- Read delegates -----

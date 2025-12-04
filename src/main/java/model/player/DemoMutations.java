@@ -1,5 +1,8 @@
 package model.player;
 
+import utils.DurationText;
+import utils.Require;
+
 // Demo-only exact-value mutations used by the developer panel.
 // A separate collaborator rather than a nested class: User composes it from
 // its own components, so the cheat paths never widen User's public API.
@@ -14,12 +17,12 @@ final class DemoMutations implements DevControls {
 
     DemoMutations(Wallet wallet, Vitals vitals, CareerProgress progress,
                   JobRecord jobRecord, PlayClock playClock, BlockStatus blockStatus) {
-        this.wallet = utils.Require.notNull(wallet, "wallet");
-        this.vitals = utils.Require.notNull(vitals, "vitals");
-        this.progress = utils.Require.notNull(progress, "progress");
-        this.jobRecord = utils.Require.notNull(jobRecord, "jobRecord");
-        this.playClock = utils.Require.notNull(playClock, "playClock");
-        this.blockStatus = utils.Require.notNull(blockStatus, "blockStatus");
+        this.wallet = Require.notNull(wallet, "wallet");
+        this.vitals = Require.notNull(vitals, "vitals");
+        this.progress = Require.notNull(progress, "progress");
+        this.jobRecord = Require.notNull(jobRecord, "jobRecord");
+        this.playClock = Require.notNull(playClock, "playClock");
+        this.blockStatus = Require.notNull(blockStatus, "blockStatus");
     }
 
     @Override
@@ -54,7 +57,7 @@ final class DemoMutations implements DevControls {
 
     @Override
     public void addPlayTimeMinutes(long minutes) {
-        playClock.addMillis(minutes * utils.DurationText.MILLIS_PER_MINUTE);
+        playClock.addMillis(minutes * DurationText.MILLIS_PER_MINUTE);
     }
 
     @Override

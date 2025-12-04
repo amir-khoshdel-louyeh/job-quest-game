@@ -14,6 +14,7 @@ import services.ChallengeService;
 import services.JobService;
 import services.RoutineService;
 import services.job.JobGate;
+import utils.Require;
 
 // One game run: creates the player aggregate, its shared services, its
 // controllers, and its read queries. This is the composition root, so it is
@@ -39,7 +40,7 @@ public final class GameSession implements GameContext {
 
     // Starts a run at the current time.
     public static GameSession start(String username, Identity identity) {
-        utils.Require.notNull(identity, "identity");
+        Require.notNull(identity, "identity");
         User user = new User(username, identity, identity.getStartingBalance());
         user.grantStartingBonus();
         UserController users = new UserController(user);

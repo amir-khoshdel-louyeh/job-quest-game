@@ -2,6 +2,7 @@ package view;
 
 import controller.GameReads;
 import model.goals.Achievement;
+import model.goals.AchievementStats;
 import model.goals.Challenge;
 import view.theme.AppTheme;
 
@@ -103,7 +104,7 @@ public class ProgressDialog extends JDialog {
 
     private JComponent buildAchievementsTab() {
         List<Achievement> all = queries.getAchievements();
-        model.goals.AchievementStats stats = queries.getPlayerView();
+        AchievementStats stats = queries.getPlayerView();
         int unlocked = 0;
         for (int i = 0; i < all.size(); i++) {
             if (all.get(i).isUnlocked(stats)) {
@@ -128,7 +129,7 @@ public class ProgressDialog extends JDialog {
     }
 
     private JPanel achievementRow(Achievement a) {
-        model.goals.AchievementStats stats = queries.getPlayerView();
+        AchievementStats stats = queries.getPlayerView();
         boolean unlocked = a.isUnlocked(stats);
         JPanel card = AppTheme.createItemCard();
         card.setLayout(new BorderLayout(8, 8));

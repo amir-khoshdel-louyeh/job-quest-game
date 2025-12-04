@@ -2,6 +2,7 @@ package controller;
 
 import model.career.Job;
 import model.minigame.MiniGameResult;
+import utils.Require;
 
 // Runs high-level player actions: buy services, do jobs, learn skills.
 // Screen reads (catalogs, progress, session stats) live in GameQueries.
@@ -19,10 +20,10 @@ public final class GameController implements GameCommands {
                    JobOperations jobs,
                    SkillOperations skills,
                    SessionStats session) {
-        this.purchases = utils.Require.notNull(purchases, "purchases");
-        this.jobs = utils.Require.notNull(jobs, "jobs");
-        this.skills = utils.Require.notNull(skills, "skills");
-        this.session = utils.Require.notNull(session, "session");
+        this.purchases = Require.notNull(purchases, "purchases");
+        this.jobs = Require.notNull(jobs, "jobs");
+        this.skills = Require.notNull(skills, "skills");
+        this.session = Require.notNull(session, "session");
     }
 
     // ----- Commands -----

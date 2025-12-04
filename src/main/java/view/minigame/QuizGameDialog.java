@@ -10,6 +10,7 @@ import model.minigame.QuizQuestion;
 import model.minigame.QuizRound;
 import model.minigame.ScoreStrategy;
 import utils.Lists;
+import utils.Require;
 import view.theme.AppTheme;
 
 // The quiz game screen. All round state lives in QuizRound; this class
@@ -28,7 +29,7 @@ public class QuizGameDialog extends JDialog {
     private JProgressBar timeBar;
 
     private QuizRound round;
-    private final view.minigame.ElapsedTimer stopwatch = new view.minigame.ElapsedTimer();
+    private final ElapsedTimer stopwatch = new ElapsedTimer();
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
@@ -38,7 +39,7 @@ public class QuizGameDialog extends JDialog {
         super(parent, gameName, true);
         this.gameName = gameName;
         this.bank = Lists.copyOf(bank);
-        this.scorer = utils.Require.notNull(scorer, "scorer");
+        this.scorer = Require.notNull(scorer, "scorer");
         AppTheme.styleDialog(this, 600, 520);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         buildUi();

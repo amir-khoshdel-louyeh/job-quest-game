@@ -16,6 +16,7 @@ import provider.SkillCatalog;
 import services.AchievementRules;
 import services.ChallengeRules;
 import utils.ReputationText;
+import utils.Require;
 
 // Read-only screen queries: catalogs, progress text, and session stats.
 // Actions live in GameController; views receive this object only for reads.
@@ -40,14 +41,14 @@ public final class GameQueries implements GameReads {
                 ChallengeRules challengeRules,
                 AchievementRules achievementRules,
                 SessionStats session) {
-        this.goalPlayer = utils.Require.notNull(goalPlayer, "goalPlayer");
-        this.serviceCatalog = utils.Require.notNull(serviceCatalog, "serviceCatalog");
-        this.jobCatalog = utils.Require.notNull(jobCatalog, "jobCatalog");
-        this.skillCatalog = utils.Require.notNull(skillCatalog, "skillCatalog");
-        this.playerView = utils.Require.notNull(playerView, "playerView");
-        this.challengeRules = utils.Require.notNull(challengeRules, "challengeRules");
-        this.achievementRules = utils.Require.notNull(achievementRules, "achievementRules");
-        this.session = utils.Require.notNull(session, "session");
+        this.goalPlayer = Require.notNull(goalPlayer, "goalPlayer");
+        this.serviceCatalog = Require.notNull(serviceCatalog, "serviceCatalog");
+        this.jobCatalog = Require.notNull(jobCatalog, "jobCatalog");
+        this.skillCatalog = Require.notNull(skillCatalog, "skillCatalog");
+        this.playerView = Require.notNull(playerView, "playerView");
+        this.challengeRules = Require.notNull(challengeRules, "challengeRules");
+        this.achievementRules = Require.notNull(achievementRules, "achievementRules");
+        this.session = Require.notNull(session, "session");
     }
 
     // ----- Catalog queries -----

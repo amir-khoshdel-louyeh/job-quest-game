@@ -6,6 +6,8 @@ import provider.AchievementCatalog;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.Require;
+
 // Checks player stats and unlocks earned achievements with rewards.
 // The catalog is injected, so this rule layer never constructs its own copy.
 public final class AchievementService implements AchievementRules {
@@ -14,7 +16,7 @@ public final class AchievementService implements AchievementRules {
     // ----- Construction -----
     // Every dependency is required; GameSession supplies the shared catalog.
     public AchievementService(AchievementCatalog catalog) {
-        this.catalog = utils.Require.notNull(catalog, "achievement catalog");
+        this.catalog = Require.notNull(catalog, "achievement catalog");
     }
 
     // ----- Commands -----

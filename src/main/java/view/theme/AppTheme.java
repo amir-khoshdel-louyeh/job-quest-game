@@ -3,6 +3,7 @@ package view.theme;
 // Shared colors, fonts, and button styles used by every screen.
 import javax.swing.*;
 import java.awt.*;
+import utils.GameLog;
 
 public final class AppTheme {
 
@@ -55,7 +56,7 @@ public final class AppTheme {
         } catch (ReflectiveOperationException | UnsupportedLookAndFeelException e) {
             // Only the look-and-feel lookup can fail here; a programming bug
             // in customizeDefaults() should still surface.
-            utils.GameLog.error("setting look and feel", e);
+            GameLog.error("setting look and feel", e);
         }
     }
     

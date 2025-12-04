@@ -4,13 +4,14 @@ import java.util.function.Supplier;
 
 import model.player.UpkeepTarget;
 import utils.GameBalance;
+import utils.Require;
 
 // Applies the knockout penalty: a small money fine and a temporary job block.
 public final class KnockoutPolicy {
     private final Supplier<Long> clock;
 
     public KnockoutPolicy(Supplier<Long> clock) {
-        this.clock = utils.Require.notNull(clock, "clock");
+        this.clock = Require.notNull(clock, "clock");
     }
 
     public void applyTo(UpkeepTarget user) {

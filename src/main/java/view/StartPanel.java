@@ -6,6 +6,7 @@ import model.Identity;
 import provider.IdentityCatalog;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
+import utils.Require;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,9 +27,9 @@ public class StartPanel extends JPanel {
     public StartPanel(MainFrame mainFrame, IdentityCatalog options, GameStarter gameStarter,
                       MiniGameLauncher workGame) {
         this.mainFrame = mainFrame;
-        this.options = utils.Require.notNull(options, "identity options");
-        this.gameStarter = utils.Require.notNull(gameStarter, "gameStarter");
-        this.workGame = utils.Require.notNull(workGame, "workGame");
+        this.options = Require.notNull(options, "identity options");
+        this.gameStarter = Require.notNull(gameStarter, "gameStarter");
+        this.workGame = Require.notNull(workGame, "workGame");
         setBackground(AppTheme.BACKGROUND_COLOR);
         setLayout(new BorderLayout(AppTheme.PADDING_LARGE, AppTheme.PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(

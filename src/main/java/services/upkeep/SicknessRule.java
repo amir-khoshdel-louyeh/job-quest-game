@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import model.player.UpkeepTarget;
 import utils.GameBalance;
+import utils.Require;
 
 // Rolls the hourly sickness check and applies the health loss.
 public final class SicknessRule {
@@ -12,8 +13,8 @@ public final class SicknessRule {
     private final Supplier<Long> clock;
 
     public SicknessRule(Random random, Supplier<Long> clock) {
-        this.random = utils.Require.notNull(random, "random");
-        this.clock = utils.Require.notNull(clock, "clock");
+        this.random = Require.notNull(random, "random");
+        this.clock = Require.notNull(clock, "clock");
     }
 
     // Returns a message when sickness hits; null when nothing happens.

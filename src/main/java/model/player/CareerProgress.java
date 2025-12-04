@@ -1,5 +1,7 @@
 package model.player;
 
+import utils.ProgressUtil;
+
 // Tracks level, experience, and reputation.
 // Used by model.player.User (sole owner); read via PlayerView.
 public final class CareerProgress {
@@ -82,7 +84,7 @@ public final class CareerProgress {
     }
 
     public int getExperiencePercentage() {
-        return utils.ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
+        return ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
     }
 
     // ----- DevControls support -----

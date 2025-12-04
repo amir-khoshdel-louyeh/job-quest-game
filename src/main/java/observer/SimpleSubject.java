@@ -3,6 +3,8 @@ package observer;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.GameLog;
+
 // Holds watchers and tells them when something changes.
 public final class SimpleSubject implements Subject {
     private final List<Observer> observers = new ArrayList<Observer>();
@@ -42,7 +44,7 @@ public final class SimpleSubject implements Subject {
             } catch (RuntimeException e) {
                 // One faulty observer must not stop the others; runtime
                 // failures are all an observer callback can throw.
-                utils.GameLog.error("notifying observer", e);
+                GameLog.error("notifying observer", e);
             }
         }
     }
@@ -57,7 +59,7 @@ public final class SimpleSubject implements Subject {
             } catch (RuntimeException e) {
                 // One faulty observer must not stop the others; runtime
                 // failures are all an observer callback can throw.
-                utils.GameLog.error("notifying observer", e);
+                GameLog.error("notifying observer", e);
             }
         }
     }

@@ -6,6 +6,8 @@ import java.util.List;
 import model.player.UpkeepTarget;
 import services.UpkeepRules;
 import utils.GameBalance;
+import utils.GameLog;
+import utils.Require;
 
 // Runs periodic upkeep like energy, health, sickness, and play time.
 // Scheduling is injected (view.SwingScheduler in the app), so this class
@@ -26,10 +28,10 @@ public final class RoutineController implements RoutineControl {
     // Package-private: GameSession.createRoutineController is the only entry.
     RoutineController(UpkeepTarget player, UpkeepRules routines, MessageSink messages,
                       Scheduler scheduler) {
-        this.player = utils.Require.notNull(player, "player");
-        this.routines = utils.Require.notNull(routines, "routines");
-        this.messages = utils.Require.notNull(messages, "messages");
-        this.scheduler = utils.Require.notNull(scheduler, "scheduler");
+        this.player = Require.notNull(player, "player");
+        this.routines = Require.notNull(routines, "routines");
+        this.messages = Require.notNull(messages, "messages");
+        this.scheduler = Require.notNull(scheduler, "scheduler");
     }
 
     // ----- Commands -----
@@ -80,7 +82,7 @@ public final class RoutineController implements RoutineControl {
                 task.cancel();
             } catch (RuntimeException e) {
                 // One bad task must not leave the rest of the schedulers running.
-                utils.GameLog.error("stopping scheduler", e);
+                GameLog.error("stopping scheduler", e);
             }
         }
         tasks.clear();

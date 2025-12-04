@@ -12,6 +12,8 @@ import services.ChallengeRules;
 import services.job.JobEligibility;
 import services.job.JobGateDecision;
 import services.job.JobRewardRules;
+import utils.JobResultText;
+import utils.Require;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +30,11 @@ final class JobController implements JobOperations {
     // Abstractions come from GameSession, so this class never names a concrete rule.
     JobController(JobPlayer player, JobRewardRules rewards, JobEligibility jobGate,
                   ChallengeRules challengeRules, AchievementRules achievementRules) {
-        this.player = utils.Require.notNull(player, "player");
-        this.rewards = utils.Require.notNull(rewards, "rewards");
-        this.jobGate = utils.Require.notNull(jobGate, "jobGate");
-        this.challengeRules = utils.Require.notNull(challengeRules, "challengeRules");
-        this.achievementRules = utils.Require.notNull(achievementRules, "achievementRules");
+        this.player = Require.notNull(player, "player");
+        this.rewards = Require.notNull(rewards, "rewards");
+        this.jobGate = Require.notNull(jobGate, "jobGate");
+        this.challengeRules = Require.notNull(challengeRules, "challengeRules");
+        this.achievementRules = Require.notNull(achievementRules, "achievementRules");
     }
 
     // ----- Commands -----
@@ -55,7 +57,7 @@ final class JobController implements JobOperations {
                 player.getEnergy(),
                 player.isBlocked());
         if (!gate.isAllowed()) {
-            return Outcome.failure(utils.JobResultText.failureLine(job, gate.getReason()));
+            return Outcome.failure(JobResultText.failureLine(job, gate.getReason()));
         }
 
         // Failed mini-game: lose energy and reputation, gain nothing.
@@ -63,7 +65,7 @@ final class JobController implements JobOperations {
             int reputationLost = rewards.reputationPenalty(game);
             player.loseEnergy(job.getEnergyCost());
             player.loseReputation(reputationLost);
-            return Outcome.failure(utils.JobResultText.failedAttemptLine(
+            return Outcome.failure(JobResultText.failedAttemptLine(
                     job, game.getScore(), job.getEnergyCost(), reputationLost, game));
         }
 
@@ -84,10 +86,10 @@ final class JobController implements JobOperations {
         List<Achievement> unlocked =
                 achievementRules.checkAndUnlockAchievements(player);
 
-        String message = utils.JobResultText.successLine(
+        String message = JobResultText.successLine(
                 job, payout, levelBefore, player.getLevel(), completed, unlocked);
         if (game != null) {
-            message = utils.JobResultText.successWithGameLine(message, game);
+            message = JobResultText.successWithGameLine(message, game);
         }
         return Outcome.success(message);
     }

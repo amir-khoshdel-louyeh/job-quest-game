@@ -2,13 +2,14 @@ package services.upkeep;
 
 import model.player.UpkeepTarget;
 import utils.GameBalance;
+import utils.Require;
 
 // Passive energy and health drain, including the knockout check.
 public final class DrainRule {
     private final KnockoutPolicy knockout;
 
     public DrainRule(KnockoutPolicy knockout) {
-        this.knockout = utils.Require.notNull(knockout, "knockout");
+        this.knockout = Require.notNull(knockout, "knockout");
     }
 
     // Returns a warning message when poor health increases the drain.

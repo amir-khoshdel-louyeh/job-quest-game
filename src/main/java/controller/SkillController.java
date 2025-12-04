@@ -7,6 +7,7 @@ import model.goals.ChallengeType;
 import provider.SkillCatalog;
 import services.AchievementRules;
 import services.ChallengeRules;
+import utils.Require;
 
 // Handles learning new skills for the player's profession.
 // Package-private: only GameSession/GameController wire it.
@@ -22,10 +23,10 @@ final class SkillController implements SkillOperations {
                     ChallengeRules challengeRules,
                     AchievementRules achievementRules,
                     SkillCatalog skillProvider) {
-        this.player = utils.Require.notNull(player, "player");
-        this.challengeRules = utils.Require.notNull(challengeRules, "challengeRules");
-        this.achievementRules = utils.Require.notNull(achievementRules, "achievementRules");
-        this.skillProvider = utils.Require.notNull(skillProvider, "skillProvider");
+        this.player = Require.notNull(player, "player");
+        this.challengeRules = Require.notNull(challengeRules, "challengeRules");
+        this.achievementRules = Require.notNull(achievementRules, "achievementRules");
+        this.skillProvider = Require.notNull(skillProvider, "skillProvider");
     }
 
     // ----- Commands -----

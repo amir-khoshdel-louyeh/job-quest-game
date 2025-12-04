@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 import model.minigame.MiniGameResult;
 import model.minigame.ScoreStrategy;
 import provider.QuizCatalog;
+import utils.Require;
 
 // The single quiz game every profession plays.
 // Its question bank and scorer are abstractions supplied by the screen's
@@ -14,8 +15,8 @@ public final class QuizLauncher implements MiniGameLauncher {
     private final ScoreStrategy scorer;
 
     public QuizLauncher(QuizCatalog quizzes, ScoreStrategy scorer) {
-        this.quizzes = utils.Require.notNull(quizzes, "quizzes");
-        this.scorer = utils.Require.notNull(scorer, "scorer");
+        this.quizzes = Require.notNull(quizzes, "quizzes");
+        this.scorer = Require.notNull(scorer, "scorer");
     }
 
     @Override

@@ -4,6 +4,7 @@ import model.player.PlayerView;
 import model.player.Vitals;
 import utils.GameBalance;
 import utils.ReputationText;
+import utils.Require;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -19,7 +20,7 @@ public class UserStatsPanel extends JPanel {
     private JProgressBar xpProgressBar, healthBar, energyBar;
 
     public UserStatsPanel(PlayerView player) {
-        this.player = utils.Require.notNull(player, "player");
+        this.player = Require.notNull(player, "player");
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(AppTheme.BACKGROUND_COLOR);
 

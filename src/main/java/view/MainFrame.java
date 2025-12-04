@@ -4,6 +4,7 @@ import controller.GameStarter;
 import provider.IdentityCatalog;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
+import utils.Require;
 import javax.swing.*;
 import java.awt.*;
 
@@ -16,9 +17,9 @@ public class MainFrame extends JFrame {
 
     public MainFrame(IdentityCatalog identityOptions, GameStarter gameStarter,
                      MiniGameLauncher workGame) {
-        this.identityOptions = utils.Require.notNull(identityOptions, "identityOptions");
-        this.gameStarter = utils.Require.notNull(gameStarter, "gameStarter");
-        this.workGame = utils.Require.notNull(workGame, "workGame");
+        this.identityOptions = Require.notNull(identityOptions, "identityOptions");
+        this.gameStarter = Require.notNull(gameStarter, "gameStarter");
+        this.workGame = Require.notNull(workGame, "workGame");
         AppTheme.initialize();
         
         setTitle("Job Quest - Professional Career Simulation");

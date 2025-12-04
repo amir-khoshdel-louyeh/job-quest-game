@@ -8,6 +8,7 @@ import model.minigame.MiniGameResult;
 import model.player.PlayerView;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
+import utils.Require;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +26,7 @@ public class JobDialog extends JDialog {
         super(parent, "Jobs", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
-        this.workGame = utils.Require.notNull(workGame, "workGame");
+        this.workGame = Require.notNull(workGame, "workGame");
         String userIdentity = player.getIdentityName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));

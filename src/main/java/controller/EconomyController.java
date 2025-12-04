@@ -3,6 +3,7 @@ package controller;
 import model.player.PurchaseTarget;
 import model.store.Service;
 import provider.ServiceCatalog;
+import utils.Require;
 
 // Handles money: buying services like food or hospital visits.
 // Catalog is injected. Package-private: only GameSession/GameController wire it.
@@ -13,8 +14,8 @@ final class EconomyController implements ServicePurchases {
     // ----- Construction -----
     // Catalog is always supplied by the composition root; no hidden default.
     EconomyController(PurchaseTarget player, ServiceCatalog serviceProvider) {
-        this.player = utils.Require.notNull(player, "player");
-        this.serviceProvider = utils.Require.notNull(serviceProvider, "serviceProvider");
+        this.player = Require.notNull(player, "player");
+        this.serviceProvider = Require.notNull(serviceProvider, "serviceProvider");
     }
 
     // ----- Commands -----

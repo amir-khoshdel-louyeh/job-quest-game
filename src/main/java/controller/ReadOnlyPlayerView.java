@@ -4,6 +4,7 @@ import model.Identity;
 import model.career.SkillSet;
 import model.player.PlayerView;
 import model.player.User;
+import utils.Require;
 
 // Read-only player data for screens.
 // It deliberately implements nothing else, so it cannot be cast to a command
@@ -12,7 +13,7 @@ final class ReadOnlyPlayerView implements PlayerView {
     private final User user;
 
     ReadOnlyPlayerView(User user) {
-        this.user = utils.Require.notNull(user, "user");
+        this.user = Require.notNull(user, "user");
     }
 
     @Override

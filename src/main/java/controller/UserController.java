@@ -18,6 +18,7 @@ import observer.Observable;
 import observer.Observer;
 import observer.SimpleSubject;
 import observer.Subject;
+import utils.Require;
 
 // Adapter around one player: commands plus observer notifications.
 // Commands are implemented on this class; reads and subscriptions are handed
@@ -32,7 +33,7 @@ final class UserController implements Subject, JobPlayer,
 
     // ----- Construction -----
     public UserController(User user) {
-        this.user = utils.Require.notNull(user, "user");
+        this.user = Require.notNull(user, "user");
         this.playerView = new ReadOnlyPlayerView(user);
         this.observable = new SubscriptionPort(subject);
     }

@@ -3,6 +3,7 @@ package controller;
 import observer.Observable;
 import observer.Observer;
 import observer.Subject;
+import utils.Require;
 
 // Subscribe-only view of a subject, handed to views.
 // It deliberately implements nothing else, so a view cannot cast it to
@@ -11,7 +12,7 @@ final class SubscriptionPort implements Observable {
     private final Subject subject;
 
     SubscriptionPort(Subject subject) {
-        this.subject = utils.Require.notNull(subject, "subject");
+        this.subject = Require.notNull(subject, "subject");
     }
 
     @Override
