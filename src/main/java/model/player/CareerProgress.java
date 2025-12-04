@@ -87,13 +87,4 @@ public final class CareerProgress {
         return ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
     }
 
-    // ----- DevControls support -----
-    // Package-private: only User may call these; the demo port is on User.
-    void setLevelForCheat(int newLevel) {
-        setLevel(newLevel);
-    }
-
-    void setReputationForCheat(int newRep) {
-        setReputation(newRep);
-    }
 }

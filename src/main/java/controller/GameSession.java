@@ -1,6 +1,5 @@
 package controller;
 
-import controller.contract.DeveloperCommands;
 import controller.contract.GameCommands;
 import controller.contract.GameContext;
 import controller.contract.GameReads;
@@ -32,17 +31,14 @@ public final class GameSession implements GameContext {
     private final PlayerView playerView;
     private final GameCommands gameController;
     private final GameReads gameQueries;
-    private final DeveloperCommands developerController;
 
     // ----- Construction -----
     private GameSession(UserController userController, PlayerView playerView,
-                        GameCommands gameController, GameReads gameQueries,
-                        DeveloperCommands developerController) {
+                        GameCommands gameController, GameReads gameQueries) {
         this.userController = userController;
         this.playerView = playerView;
         this.gameController = gameController;
         this.gameQueries = gameQueries;
-        this.developerController = developerController;
     }
 
     // Starts a run at the current time.
@@ -79,8 +75,7 @@ public final class GameSession implements GameContext {
 
         // A fresh run starts with the story challenges available.
         challenges.initializeChallenges(users);
-        return new GameSession(users, playerView, game, queries,
-                new DeveloperController(playerView, users.devControls(), users));
+        return new GameSession(users, playerView, game, queries);
     }
 
     // ----- Getter -----
@@ -93,11 +88,6 @@ public final class GameSession implements GameContext {
     @Override
     public Observable observable() {
         return userController.observable();
-    }
-
-    @Override
-    public DeveloperCommands developerController() {
-        return developerController;
     }
 
     @Override

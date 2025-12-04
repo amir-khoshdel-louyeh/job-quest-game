@@ -1,6 +1,5 @@
 package view;
 
-import controller.contract.DeveloperCommands;
 import controller.contract.GameCommands;
 import controller.contract.GameReads;
 import model.career.Job;
@@ -14,18 +13,16 @@ import java.awt.*;
 import java.util.List;
 
 // Top bar + the screens it opens (hospital, workshop, market,
-// school, progress, dev controls). Owned by GamePanel.
+// school, progress). Owned by GamePanel.
 public class NavBar extends JPanel implements Navigator {
 
     private final GameCommands controller;
     private final GameReads queries;
-    private final DeveloperCommands developerController;
     private final PlayerView player;
     private final GamePanel host;
     private final MiniGameLauncher workGame;
 
     public NavBar(GameCommands controller, GameReads queries,
-                  DeveloperCommands developerController,
                   PlayerView player, GamePanel host, MiniGameLauncher workGame) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {
@@ -33,9 +30,6 @@ public class NavBar extends JPanel implements Navigator {
         }
         if (queries == null) {
             throw new IllegalArgumentException("queries must not be null");
-        }
-        if (developerController == null) {
-            throw new IllegalArgumentException("developerController must not be null");
         }
         if (player == null) {
             throw new IllegalArgumentException("player must not be null");
@@ -48,7 +42,6 @@ public class NavBar extends JPanel implements Navigator {
         }
         this.controller = controller;
         this.queries = queries;
-        this.developerController = developerController;
         this.player = player;
         this.host = host;
         this.workGame = workGame;
@@ -58,7 +51,6 @@ public class NavBar extends JPanel implements Navigator {
         add(navButton("Market", "Buy energy services (eat)", true, e -> openMarket()));
         add(navButton("School", "Learn skills to unlock better jobs", true, e -> openSchool()));
         add(navButton("Progress", "Challenges, achievements and stats", false, e -> openProgress()));
-        add(navButton("Dev", "Developer demo controls (change variables)", false, e -> openDevControls()));
     }
 
     @Override
@@ -89,10 +81,6 @@ public class NavBar extends JPanel implements Navigator {
 
     public void openProgress() {
         new ProgressDialog(frame(), queries).setVisible(true);
-    }
-
-    public void openDevControls() {
-        new DeveloperDialog(frame(), developerController, host).setVisible(true);
     }
 
     private JFrame frame() {

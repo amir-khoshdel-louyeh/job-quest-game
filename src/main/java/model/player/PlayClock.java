@@ -19,15 +19,6 @@ public final class PlayClock {
         }
     }
 
-    // ----- DevControls support -----
-    // Package-private: only User may call this; the demo port is on User.
-    void setMinutesForCheat(long minutes) {
-        if (minutes < 0) {
-            minutes = 0;
-        }
-        totalMillis = minutes * DurationText.MILLIS_PER_MINUTE;
-    }
-
     // ----- Object overrides -----
     @Override
     public String toString() {

@@ -54,9 +54,4 @@ public final class JobRecord {
         setJobBonus(this.jobBonus + 1);
     }
 
-    // ----- DevControls support -----
-    // Package-private: only User may call this; the demo port is on User.
-    void setJobBonusForCheat(int jobBonus) {
-        setJobBonus(jobBonus);
-    }
 }

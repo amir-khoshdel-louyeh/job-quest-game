@@ -14,7 +14,6 @@ import model.store.ServiceTarget;
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
 // blocking, achievement, and challenge books.
 // Mutated through UserController; services see narrow ports instead.
-// Raw components are private: the demo panel uses the DevControls port.
 // Views never receive this object (see PlayerView on UserController).
 public final class User implements PlayerProgress, ServiceTarget, PaymentStats, UpkeepTarget {
     private final String username;
@@ -28,7 +27,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
     private final AchievementBook achievementBook = new AchievementBook();
     private final ChallengeBook challengeBook = new ChallengeBook();
     private final PlayClock playClock = new PlayClock();
-    private final DevControls devControls;
 
     // ----- Construction -----
     public User(String username, Identity identity, int balance) {
@@ -41,8 +39,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
         this.blockStatus = new BlockStatus();
-        this.devControls = new DemoMutations(wallet, vitals, progress, jobRecord, playClock,
-                blockStatus);
     }
 
     // ----- Identity Delegate -----
@@ -143,10 +139,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         blockStatus.blockUntil(time);
     }
 
-    public void unblock() {
-        blockStatus.unblock();
-    }
-
     public void markSicknessChecked(long time) {
         blockStatus.markSicknessChecked(time);
     }
@@ -238,13 +230,6 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
 
     public void addChallenges(List<Challenge> list) {
         challengeBook.addChallenges(list);
-    }
-
-    // ----- DevControls (demo panel) -----
-    // Returns the narrow demo port, never the internal components. User itself
-    // is only reachable from the controller layer, so views cannot use this.
-    public DevControls devControls() {
-        return devControls;
     }
 
     // ----- Achievement summary -----

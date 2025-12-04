@@ -15,8 +15,6 @@ public interface GameContext {
 
     GameReads gameQueries();
 
-    DeveloperCommands developerController();
-
     // The screen supplies the scheduler it wants; the context stays Swing-free.
     RoutineControl createRoutineController(MessageSink messages, Scheduler scheduler);
 }

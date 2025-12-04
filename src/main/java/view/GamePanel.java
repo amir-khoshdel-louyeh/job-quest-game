@@ -86,7 +86,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         bottomActionsPanel.add(bottomExitButton);
 
         this.navBar = new NavBar(controller, context.gameQueries(),
-                context.developerController(), player, this, workGame);
+                player, this, workGame);
         WorldViewPanel worldView = new WorldViewPanel(navBar);
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
         centerPanel.setBackground(AppTheme.BACKGROUND_COLOR);

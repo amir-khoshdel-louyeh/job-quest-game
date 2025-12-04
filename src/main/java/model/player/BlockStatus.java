@@ -35,10 +35,6 @@ public final class BlockStatus {
         setBlockedUntil(time);
     }
 
-    public void unblock() {
-        setBlockedUntil(0);
-    }
-
     public void markSicknessChecked(long time) {
         setLastSicknessTime(time);
     }

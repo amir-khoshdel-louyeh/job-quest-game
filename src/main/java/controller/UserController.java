@@ -6,7 +6,6 @@ import model.Identity;
 import model.career.SkillSet;
 import model.goals.Challenge;
 import model.goals.ChallengeType;
-import model.player.DevControls;
 import model.player.JobPlayer;
 import model.player.PlayerView;
 import model.player.PurchaseTarget;
@@ -70,12 +69,6 @@ final class UserController implements Subject, JobPlayer,
     @Override
     public void notifyObservers(ChangeType whatChanged) {
         subject.notifyObservers(whatChanged);
-    }
-
-    // ----- Dev access -----
-    // The demo panel mutates through the narrow port; no other layer sees User.
-    DevControls devControls() {
-        return user.devControls();
     }
 
     // ----- Reads required by the command ports -----

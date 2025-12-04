@@ -90,16 +90,6 @@ public final class Vitals {
         setEnergy(MAX_ENERGY);
     }
 
-    // ----- DevControls support -----
-    // Package-private: only User may call these; the demo port is on User.
-    void setHealthForCheat(int newHealth) {
-        setHealth(newHealth);
-    }
-
-    void setEnergyForCheat(int newEnergy) {
-        setEnergy(newEnergy);
-    }
-
     // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {

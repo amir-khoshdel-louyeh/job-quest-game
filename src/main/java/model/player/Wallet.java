@@ -61,12 +61,6 @@ public final class Wallet {
         return false;
     }
 
-    // ----- DevControls support -----
-    // Package-private: only User may call this; the demo port is on User.
-    void setBalanceForCheat(int newBalance) {
-        setBalance(newBalance);
-    }
-
     // ----- Object overrides -----
     @Override
     public boolean equals(Object obj) {
