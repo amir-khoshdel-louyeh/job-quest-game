@@ -3,7 +3,7 @@ package services;
 import model.goals.Challenge;
 import model.goals.ChallengeType;
 import model.player.PlayerProgress;
-import provider.ChallengeCatalog;
+import provider.contract.ChallengeCatalog;
 import java.util.ArrayList;
 import java.util.List;
 

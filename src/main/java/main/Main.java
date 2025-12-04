@@ -4,7 +4,7 @@ import javax.swing.SwingUtilities;
 
 import controller.GameSessionFactory;
 import controller.contract.GameStarter;
-import provider.IdentityCatalog;
+import provider.contract.IdentityCatalog;
 import provider.IdentityProvider;
 import provider.QuizProvider;
 import services.minigame.QuizScorer;

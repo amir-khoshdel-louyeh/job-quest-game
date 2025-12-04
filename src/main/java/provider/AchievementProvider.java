@@ -1,6 +1,8 @@
 
 package provider;
 
+import provider.contract.AchievementCatalog;
+
 import java.util.ArrayList;
 import java.util.List;
 

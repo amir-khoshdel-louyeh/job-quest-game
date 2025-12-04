@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 
 import model.minigame.MiniGameResult;
 import model.minigame.ScoreStrategy;
-import provider.QuizCatalog;
+import provider.contract.QuizCatalog;
 import utils.Require;
 
 // The single quiz game every profession plays.

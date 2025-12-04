@@ -1,5 +1,7 @@
 package provider;
 
+import provider.contract.ChallengeCatalog;
+
 import java.util.ArrayList;
 import java.util.List;
 

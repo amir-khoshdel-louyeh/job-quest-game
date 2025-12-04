@@ -1,5 +1,7 @@
 package provider;
 
+import provider.contract.IdentityCatalog;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

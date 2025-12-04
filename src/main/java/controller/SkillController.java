@@ -5,7 +5,7 @@ import model.career.LearnableSkill;
 import model.career.SkillAvailability;
 import model.player.SkillLearner;
 import model.goals.ChallengeType;
-import provider.SkillCatalog;
+import provider.contract.SkillCatalog;
 import services.AchievementRules;
 import services.ChallengeRules;
 import utils.Require;

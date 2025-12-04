@@ -1,7 +1,7 @@
 package view;
 
 import controller.contract.GameStarter;
-import provider.IdentityCatalog;
+import provider.contract.IdentityCatalog;
 import view.minigame.MiniGameLauncher;
 import view.theme.AppTheme;
 import utils.Require;

@@ -2,7 +2,7 @@ package services;
 
 import model.goals.Achievement;
 import model.player.PlayerProgress;
-import provider.AchievementCatalog;
+import provider.contract.AchievementCatalog;
 import java.util.ArrayList;
 import java.util.List;
 
