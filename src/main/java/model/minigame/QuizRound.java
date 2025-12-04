@@ -21,7 +21,7 @@ public final class QuizRound {
     private int index;
 
     // ----- Construction -----
-    public QuizRound(String gameName, List<QuizQuestion> questions, ScoreStrategy scorer) {
+    private QuizRound(String gameName, List<QuizQuestion> questions, ScoreStrategy scorer) {
         if (questions == null || questions.isEmpty()) {
             throw new IllegalArgumentException("a quiz round needs at least one question");
         }

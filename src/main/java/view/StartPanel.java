@@ -24,7 +24,7 @@ public class StartPanel extends JPanel {
     private final MiniGameLauncher workGame;
 
     // The career catalog and the game starter are supplied by MainFrame.
-    public StartPanel(MainFrame mainFrame, IdentityCatalog options, GameStarter gameStarter,
+    StartPanel(MainFrame mainFrame, IdentityCatalog options, GameStarter gameStarter,
                       MiniGameLauncher workGame) {
         this.mainFrame = mainFrame;
         this.options = Require.notNull(options, "identity options");

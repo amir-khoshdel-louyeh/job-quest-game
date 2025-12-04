@@ -23,7 +23,7 @@ public class SkillDialog extends JDialog {
     private final List<LearnableSkill> allSkills;
     private final JPanel skillsContainer;
 
-    public SkillDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
+    SkillDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
                        List<LearnableSkill> allSkills, PlayerView player) {
         super(parent, "School of Skills", true);
         this.controller = controller;

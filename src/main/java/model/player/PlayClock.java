@@ -7,6 +7,10 @@ import utils.DurationText;
 public final class PlayClock {
     private long totalMillis;
 
+    // ----- Construction -----
+    PlayClock() {
+    }
+
     // ----- Getter -----
     public long getTotalMinutes() {
         return DurationText.minutesOf(totalMillis);

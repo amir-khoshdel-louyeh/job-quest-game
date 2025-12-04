@@ -8,7 +8,7 @@ import javax.swing.AbstractAction;
 public final class ExitAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
-    public ExitAction() {
+    ExitAction() {
         super("❌ Exit");
     }
 

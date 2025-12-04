@@ -6,6 +6,10 @@ public final class BlockStatus {
     private long blockedUntil = 0;
     private long lastSicknessTime = 0;
 
+    // ----- Construction -----
+    BlockStatus() {
+    }
+
     // ----- Setter -----
     private void setBlockedUntil(long time) {
         if (time <= 0) {

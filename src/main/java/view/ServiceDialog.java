@@ -15,7 +15,7 @@ public class ServiceDialog extends JDialog {
     private final GameCommands controller;
     private final GamePanel gamePanel;
 
-    public ServiceDialog(JFrame parent, GameCommands controller, GamePanel gamePanel, List<Service> services) {
+    ServiceDialog(JFrame parent, GameCommands controller, GamePanel gamePanel, List<Service> services) {
         super(parent, "Available Services", true);
         this.controller = controller;
         this.gamePanel = gamePanel;

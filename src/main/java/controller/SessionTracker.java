@@ -10,7 +10,7 @@ public final class SessionTracker implements SessionStats {
     private int jobsCompleted;
 
     // ----- Construction -----
-    public SessionTracker(long startTime) {
+    SessionTracker(long startTime) {
         this.startTime = startTime;
     }
 

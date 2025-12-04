@@ -15,7 +15,7 @@ public class ProgressDialog extends JDialog {
 
     private final GameReads queries;
 
-    public ProgressDialog(JFrame parent, GameReads queries) {
+    ProgressDialog(JFrame parent, GameReads queries) {
         super(parent, "📊 Progress", true);
         this.queries = queries;
         AppTheme.styleDialog(this, 560, 620);

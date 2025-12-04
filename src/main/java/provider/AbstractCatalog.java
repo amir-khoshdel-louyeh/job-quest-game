@@ -13,7 +13,7 @@ public abstract class AbstractCatalog<T> {
     private final ArrayList<T> entries;
 
     // ----- Construction -----
-    protected AbstractCatalog(List<T> entries) {
+    AbstractCatalog(List<T> entries) {
         if (entries == null) {
             throw new IllegalArgumentException("entries must not be null");
         }

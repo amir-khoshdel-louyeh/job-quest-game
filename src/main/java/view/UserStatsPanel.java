@@ -19,7 +19,7 @@ public class UserStatsPanel extends JPanel {
     private JLabel levelLabel, xpLabel, reputationLabel, jobBonusLabel;
     private JProgressBar xpProgressBar, healthBar, energyBar;
 
-    public UserStatsPanel(PlayerView player) {
+    UserStatsPanel(PlayerView player) {
         this.player = Require.notNull(player, "player");
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(AppTheme.BACKGROUND_COLOR);

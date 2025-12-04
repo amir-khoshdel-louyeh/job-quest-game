@@ -5,7 +5,7 @@ package view.minigame;
 public final class ElapsedTimer {
     private long startMillis;
 
-    public ElapsedTimer() {
+    ElapsedTimer() {
         start();
     }
 

@@ -7,6 +7,11 @@ import java.util.Objects;
 // their id, while equality and hashing are one shared, final implementation.
 public abstract class AbstractIdentified {
 
+    // ----- Construction -----
+    // Only subclasses may construct; subclasses live in other packages.
+    protected AbstractIdentified() {
+    }
+
     // Every concrete entity must say what identifies it.
     public abstract String getId();
 

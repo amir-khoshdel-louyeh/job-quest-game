@@ -14,7 +14,7 @@ public class WorldViewPanel extends JPanel {
     private final Navigator navigator;
     private Image background;
 
-    public WorldViewPanel(Navigator navigator) {
+    WorldViewPanel(Navigator navigator) {
         this.navigator = Require.notNull(navigator, "navigator");
         setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(AppTheme.BORDER_COLOR, 1), "WORLD VIEW",

@@ -8,6 +8,10 @@ public final class JobRecord {
     private int totalJobsCompleted = 0;
     private int jobBonus = 0;
 
+    // ----- Construction -----
+    JobRecord() {
+    }
+
     // ----- Getter -----
     public int getTotalJobsCompleted() {
         return totalJobsCompleted;

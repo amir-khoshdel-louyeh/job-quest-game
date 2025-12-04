@@ -12,6 +12,10 @@ public final class CareerProgress {
     private int experience = 0;
     private int reputation = 0;
 
+    // ----- Construction -----
+    CareerProgress() {
+    }
+
     // ----- Getter -----
     public int getLevel() {
         return level;

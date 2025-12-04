@@ -7,7 +7,7 @@ import java.awt.*;
 // The help screen: one short tab — how to play, nothing more.
 public class AboutDialog extends JDialog {
 
-    public AboutDialog(JFrame parent) {
+    AboutDialog(JFrame parent) {
         super(parent, "About Job Quest", true);
         setSize(520, 560);
         setLocationRelativeTo(parent);

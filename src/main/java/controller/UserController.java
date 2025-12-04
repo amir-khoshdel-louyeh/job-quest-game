@@ -31,7 +31,7 @@ final class UserController implements Subject, JobPlayer,
     private final Observable observable;
 
     // ----- Construction -----
-    public UserController(User user) {
+    UserController(User user) {
         this.user = Require.notNull(user, "user");
         this.playerView = new ReadOnlyPlayerView(user);
         this.observable = new SubscriptionPort(subject);

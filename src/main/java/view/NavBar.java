@@ -22,7 +22,7 @@ public class NavBar extends JPanel implements Navigator {
     private final GamePanel host;
     private final MiniGameLauncher workGame;
 
-    public NavBar(GameCommands controller, GameReads queries,
+    NavBar(GameCommands controller, GameReads queries,
                   PlayerView player, GamePanel host, MiniGameLauncher workGame) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {

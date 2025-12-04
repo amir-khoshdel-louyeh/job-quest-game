@@ -11,7 +11,7 @@ public class SessionPanel extends JPanel {
 
     private final Action exitAction;
 
-    public SessionPanel() {
+    SessionPanel() {
         super();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));

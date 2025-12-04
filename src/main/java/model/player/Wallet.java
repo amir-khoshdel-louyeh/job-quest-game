@@ -10,7 +10,7 @@ public final class Wallet {
     private int totalMoneyEarned;
 
     // ----- Construction -----
-    public Wallet(int startingBalance) {
+    Wallet(int startingBalance) {
         if (startingBalance < 0) {
             startingBalance = 0;
         }

@@ -14,6 +14,10 @@ public final class Vitals {
     private int health = 100;
     private int energy = 100000;
 
+    // ----- Construction -----
+    Vitals() {
+    }
+
     // ----- Getter -----
     public int getHealth() {
         return health;

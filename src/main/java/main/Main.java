@@ -16,6 +16,9 @@ import view.minigame.QuizLauncher;
 // This is the application composition root: the only place that names the
 // concrete catalogs, session factory, and mini-game adapters.
 public class Main {
+    private Main() {
+    }
+
     public static void main(String[] args) {
         IdentityCatalog identities = new IdentityProvider();
         GameStarter starter = new GameSessionFactory();

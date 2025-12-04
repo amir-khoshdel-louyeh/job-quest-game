@@ -34,7 +34,7 @@ public class QuizGameDialog extends JDialog {
     private MiniGameResult result;
     private boolean accepted;
 
-    public QuizGameDialog(JFrame parent, String gameName,
+    QuizGameDialog(JFrame parent, String gameName,
                           List<QuizQuestion> bank, ScoreStrategy scorer) {
         super(parent, gameName, true);
         this.gameName = gameName;

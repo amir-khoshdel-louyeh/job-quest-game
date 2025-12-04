@@ -21,7 +21,7 @@ public class JobDialog extends JDialog {
     private final GamePanel gamePanel;
     private final MiniGameLauncher workGame;
 
-    public JobDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
+    JobDialog(JFrame parent, GameCommands controller, GamePanel gamePanel,
                      List<Job> allJobs, PlayerView player, MiniGameLauncher workGame) {
         super(parent, "Jobs", true);
         this.controller = controller;

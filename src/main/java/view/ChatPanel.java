@@ -13,7 +13,7 @@ public class ChatPanel extends JPanel implements MessageSink {
     private final JTextArea chatArea;
     private final Toast toast = new Toast();
 
-    public ChatPanel() {
+    ChatPanel() {
         super(new BorderLayout());
         chatArea = new JTextArea(5,50);
         chatArea.setEditable(false);

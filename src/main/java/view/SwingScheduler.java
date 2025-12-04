@@ -8,6 +8,10 @@ import controller.contract.Scheduler;
 // Swing-backed scheduler: the only place where upkeep meets Swing.
 public final class SwingScheduler implements Scheduler {
 
+    // ----- Construction -----
+    SwingScheduler() {
+    }
+
     @Override
     public Cancelable every(long periodMillis, Runnable task) {
         if (task == null) {
