@@ -1,7 +1,7 @@
 package model.career;
 
 // Immutable result of one successful job: money, XP, and reputation.
-// Built by services.JobService; read by JobController and the result text.
+// Built by services.JobRewardService; read by JobController and the result text.
 public final class JobRewards {
     private final int basePayment;
     private final int bonusPayment;

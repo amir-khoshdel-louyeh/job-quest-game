@@ -9,7 +9,7 @@ import model.player.PlayerView;
 import observer.ChangeType;
 import observer.Observable;
 import observer.Observer;
-import view.minigame.MiniGameLauncher;
+import view.contract.MiniGameLauncher;
 import view.theme.AppTheme;
 import utils.GameLog;
 import utils.Require;
@@ -25,20 +25,20 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
     private final RoutineControl routineController;
     private final Observable observable;
     private final PlayerView player;
-    private final UserStatsPanel statsPanel;
+    private final PlayerStatsPanel statsPanel;
     private final ChatPanel chatPanel;
-    private final NavBar navBar;
+    private final NavBarPanel navBar;
     // Dispatch table instead of a switch: each change type knows which
     // section to repaint. SKILLS has no entry (nothing skill-related shows
     // here), so update() falls back to a full refresh for it.
-    private final Map<ChangeType, Consumer<UserStatsPanel>> refreshers = new EnumMap<>(ChangeType.class);
+    private final Map<ChangeType, Consumer<PlayerStatsPanel>> refreshers = new EnumMap<>(ChangeType.class);
     {
-        refreshers.put(ChangeType.BALANCE, UserStatsPanel::refreshBalance);
-        refreshers.put(ChangeType.HEALTH, UserStatsPanel::refreshHealth);
-        refreshers.put(ChangeType.ENERGY, UserStatsPanel::refreshEnergy);
-        refreshers.put(ChangeType.XP, UserStatsPanel::refreshProgress);
-        refreshers.put(ChangeType.REPUTATION, UserStatsPanel::refreshProgress);
-        refreshers.put(ChangeType.JOBS, UserStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.BALANCE, PlayerStatsPanel::refreshBalance);
+        refreshers.put(ChangeType.HEALTH, PlayerStatsPanel::refreshHealth);
+        refreshers.put(ChangeType.ENERGY, PlayerStatsPanel::refreshEnergy);
+        refreshers.put(ChangeType.XP, PlayerStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.REPUTATION, PlayerStatsPanel::refreshProgress);
+        refreshers.put(ChangeType.JOBS, PlayerStatsPanel::refreshProgress);
     }
     private final JPanel rightPanel;
     private final SessionPanel sessionPanel;
@@ -64,7 +64,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         rightPanel.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        this.statsPanel = new UserStatsPanel(player);
+        this.statsPanel = new PlayerStatsPanel(player);
 
         this.sessionPanel = new SessionPanel();
 
@@ -85,7 +85,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
         bottomActionsPanel.setBackground(AppTheme.BACKGROUND_COLOR);
         bottomActionsPanel.add(bottomExitButton);
 
-        this.navBar = new NavBar(controller, context.gameQueries(),
+        this.navBar = new NavBarPanel(controller, context.gameQueries(),
                 player, this, workGame);
         WorldViewPanel worldView = new WorldViewPanel(navBar);
         JPanel centerPanel = new JPanel(new BorderLayout(0, 8));
@@ -119,7 +119,7 @@ public class GamePanel extends JPanel implements Observer, MessageSink {
             refreshAll();
             return;
         }
-        Consumer<UserStatsPanel> refresh = refreshers.get(whatChanged);
+        Consumer<PlayerStatsPanel> refresh = refreshers.get(whatChanged);
         if (refresh == null) {
             refreshAll();
             return;

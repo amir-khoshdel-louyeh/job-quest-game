@@ -1,7 +1,7 @@
 package model.goals;
 
 import model.AbstractIdentified;
-import utils.ProgressUtil;
+import utils.ProgressMath;
 
 // A mission the player can finish for extra rewards.
 // Tracked by ChallengeBook; read via ChallengeProvider/ChallengeService.
@@ -79,7 +79,7 @@ public final class Challenge extends AbstractIdentified {
     // ----- Queries -----
     // Progress from 0 to 100.
     public int getProgressPercentage() {
-        return ProgressUtil.percent(currentProgress, targetValue);
+        return ProgressMath.percent(currentProgress, targetValue);
     }
     
     // ----- Getter -----

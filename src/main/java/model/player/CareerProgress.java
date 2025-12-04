@@ -1,9 +1,9 @@
 package model.player;
 
-import utils.ProgressUtil;
+import utils.ProgressMath;
 
 // Tracks level, experience, and reputation.
-// Used by model.player.User (sole owner); read via PlayerView.
+// Used by model.player.Player (sole owner); read via PlayerView.
 public final class CareerProgress {
     public static final int MAX_LEVEL = 100;
     public static final int MAX_REPUTATION = 100;
@@ -88,7 +88,7 @@ public final class CareerProgress {
     }
 
     public int getExperiencePercentage() {
-        return ProgressUtil.percent(experience, getRequiredExperienceForNextLevel());
+        return ProgressMath.percent(experience, getRequiredExperienceForNextLevel());
     }
 
 }

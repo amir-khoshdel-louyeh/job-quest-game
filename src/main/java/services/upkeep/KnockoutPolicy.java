@@ -14,12 +14,12 @@ public final class KnockoutPolicy {
         this.clock = Require.notNull(clock, "clock");
     }
 
-    public void applyTo(UpkeepTarget user) {
+    public void applyTo(UpkeepTarget player) {
         int penalty = GameBalance.KNOCKOUT_MONEY_PENALTY;
         // No partial charge when the balance is short.
-        if (penalty > 0 && user.getBalance() >= penalty) {
-            user.withdraw(penalty);
+        if (penalty > 0 && player.getBalance() >= penalty) {
+            player.withdraw(penalty);
         }
-        user.blockUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
+        player.blockUntil(clock.get() + GameBalance.KNOCKOUT_BLOCK_MILLIS);
     }
 }

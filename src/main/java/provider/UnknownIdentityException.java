@@ -1,9 +1,0 @@
-package provider;
-
-// Unknown profession name.
-// Unchecked: a wrong key wired into the UI or registry.
-public final class UnknownIdentityException extends IllegalArgumentException {
-    UnknownIdentityException(String identityName) {
-        super("Unknown identity type: " + identityName);
-    }
-}

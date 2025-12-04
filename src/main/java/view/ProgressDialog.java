@@ -148,7 +148,7 @@ public class ProgressDialog extends JDialog {
 
         card.add(AppTheme.createCardDescription(a.getDescription()), BorderLayout.CENTER);
 
-        // Progress is already clamped to 0-100 by Achievement/ProgressUtil.
+        // Progress is already clamped to 0-100 by Achievement/ProgressMath.
         int pct = a.getProgress(queries.getPlayerView());
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue(unlocked ? 100 : pct);

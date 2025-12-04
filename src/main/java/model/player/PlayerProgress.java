@@ -8,7 +8,7 @@ import model.goals.ChallengeType;
 
 // The goal surface the rule services need: challenge progress, achievement
 // unlocks, and the rewards both of them hand out.
-// Implemented by UserController (so every change notifies observers) and by
+// Implemented by PlayerController (so every change notifies observers) and by
 // test doubles that have no aggregate behind them.
 public interface PlayerProgress extends AchievementStats {
 

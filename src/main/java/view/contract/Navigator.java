@@ -1,6 +1,6 @@
-package view;
+package view.contract;
 
-// What the world map can open. NavBar implements this.
+// What the world map can open. NavBarPanel implements this.
 public interface Navigator {
     void openHospital();
 

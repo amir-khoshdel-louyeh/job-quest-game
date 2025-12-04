@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 import model.minigame.MiniGameResult;
 import model.minigame.ScoreStrategy;
 import provider.contract.QuizCatalog;
+import view.contract.MiniGameLauncher;
 import utils.Require;
 
 // The single quiz game every profession plays.
@@ -22,7 +23,7 @@ public final class QuizLauncher implements MiniGameLauncher {
     @Override
     public MiniGameResult launch(JFrame parent, String jobName) {
         QuizGameDialog dialog = new QuizGameDialog(
-                parent, jobName + " — Quiz Round", quizzes.getQuestions(), scorer);
+                parent, jobName + " — Quiz Round", quizzes.getAll(), scorer);
         return dialog.showAndPlay();
     }
 }

@@ -7,14 +7,14 @@ import model.career.LearnableSkill;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import model.player.PlayerView;
-import model.store.Service;
+import model.store.ShopItem;
 
 // Every read a screen needs. Views depend on this contract, not on GameQueries.
 public interface GameReads {
 
-    List<Service> getHealthServices();
+    List<ShopItem> getHealthItems();
 
-    List<Service> getEnergyServices();
+    List<ShopItem> getEnergyItems();
 
     List<Job> getJobsForCurrentIdentity();
 

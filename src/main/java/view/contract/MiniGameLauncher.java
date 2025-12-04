@@ -1,4 +1,4 @@
-package view.minigame;
+package view.contract;
 
 import javax.swing.JFrame;
 

@@ -6,11 +6,11 @@ import model.minigame.MiniGameResult;
 import model.player.PaymentStats;
 import services.job.JobPaymentCalculator;
 import services.job.JobRewardCalculator;
-import services.job.JobRewardRules;
+import services.contract.JobRewardRules;
 
 // Composes the two job rule calculators into one JobRewards value.
 // Payment math lives in JobPaymentCalculator; XP/rep in JobRewardCalculator.
-public final class JobService implements JobRewardRules {
+public final class JobRewardService implements JobRewardRules {
     private final JobPaymentCalculator payments = new JobPaymentCalculator();
     private final JobRewardCalculator rewards = new JobRewardCalculator();
 

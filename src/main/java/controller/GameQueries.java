@@ -12,12 +12,12 @@ import model.goals.Challenge;
 import model.player.CareerProgress;
 import model.player.PlayerProgress;
 import model.player.PlayerView;
-import model.store.Service;
+import model.store.ShopItem;
 import provider.contract.JobCatalog;
-import provider.contract.ServiceCatalog;
+import provider.contract.ShopCatalog;
 import provider.contract.SkillCatalog;
-import services.AchievementRules;
-import services.ChallengeRules;
+import services.contract.AchievementRules;
+import services.contract.ChallengeRules;
 import utils.ReputationText;
 import utils.Require;
 
@@ -26,7 +26,7 @@ import utils.Require;
 public final class GameQueries implements GameReads {
     // The goal port: only its read half is used from here.
     private final PlayerProgress goalPlayer;
-    private final ServiceCatalog serviceCatalog;
+    private final ShopCatalog shopCatalog;
     private final JobCatalog jobCatalog;
     private final SkillCatalog skillCatalog;
     private final PlayerView playerView;
@@ -37,7 +37,7 @@ public final class GameQueries implements GameReads {
     // ----- Construction -----
     // Wired by GameSession; every dependency is an abstraction.
     GameQueries(PlayerProgress goalPlayer,
-                ServiceCatalog serviceCatalog,
+                ShopCatalog shopCatalog,
                 JobCatalog jobCatalog,
                 SkillCatalog skillCatalog,
                 PlayerView playerView,
@@ -45,7 +45,7 @@ public final class GameQueries implements GameReads {
                 AchievementRules achievementRules,
                 SessionStats session) {
         this.goalPlayer = Require.notNull(goalPlayer, "goalPlayer");
-        this.serviceCatalog = Require.notNull(serviceCatalog, "serviceCatalog");
+        this.shopCatalog = Require.notNull(shopCatalog, "shopCatalog");
         this.jobCatalog = Require.notNull(jobCatalog, "jobCatalog");
         this.skillCatalog = Require.notNull(skillCatalog, "skillCatalog");
         this.playerView = Require.notNull(playerView, "playerView");
@@ -56,23 +56,23 @@ public final class GameQueries implements GameReads {
 
     // ----- Catalog queries -----
     @Override
-    public List<Service> getHealthServices() {
-        return serviceCatalog.getHealthServices();
+    public List<ShopItem> getHealthItems() {
+        return shopCatalog.getHealthItems();
     }
 
     @Override
-    public List<Service> getEnergyServices() {
-        return serviceCatalog.getEnergyServices();
+    public List<ShopItem> getEnergyItems() {
+        return shopCatalog.getEnergyItems();
     }
 
     @Override
     public List<Job> getJobsForCurrentIdentity() {
-        return jobCatalog.getJobsForIdentity(playerView.getIdentity());
+        return jobCatalog.getJobsForProfession(playerView.getProfession());
     }
 
     @Override
     public List<LearnableSkill> getSkillsForCurrentIdentity() {
-        return skillCatalog.getSkillsForIdentity(playerView.getIdentity());
+        return skillCatalog.getSkillsForProfession(playerView.getProfession());
     }
 
     // ----- Progress queries -----
@@ -87,7 +87,7 @@ public final class GameQueries implements GameReads {
     public String getDetailedStats() {
         StringBuilder stats = new StringBuilder();
         stats.append("===================================\n");
-        stats.append(" Player: ").append(playerView.getUsername())
+        stats.append(" Player: ").append(playerView.getPlayerName())
                 .append(" - Level ").append(playerView.getLevel()).append('\n');
         stats.append("===================================\n");
         stats.append(" XP: ").append(playerView.getExperience()).append('/')

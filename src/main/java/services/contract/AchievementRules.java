@@ -1,4 +1,4 @@
-package services;
+package services.contract;
 
 import java.util.List;
 

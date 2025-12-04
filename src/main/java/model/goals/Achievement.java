@@ -1,7 +1,7 @@
 package model.goals;
 
 import model.AbstractIdentified;
-import utils.ProgressUtil;
+import utils.ProgressMath;
 
 // An unlockable goal with a reward.
 // Checked against AchievementStats; read via AchievementProvider/AchievementService.
@@ -69,7 +69,7 @@ public final class Achievement extends AbstractIdentified {
         if (stats == null) {
             return 0;
         }
-        return ProgressUtil.percent(getCurrentValue(stats), getRequiredValue());
+        return ProgressMath.percent(getCurrentValue(stats), getRequiredValue());
     }
 
     public String toString() {

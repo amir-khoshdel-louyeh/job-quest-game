@@ -3,7 +3,7 @@ package model.goals;
 import java.util.ArrayList;
 
 // Owns unlocked achievements.
-// Used by model.player.User (sole owner); callers only ask for a count or
+// Used by model.player.Player (sole owner); callers only ask for a count or
 // whether an id was unlocked, so the stored list never leaves the book.
 public final class AchievementBook {
     private final ArrayList<String> unlockedAchievements = new ArrayList<String>();

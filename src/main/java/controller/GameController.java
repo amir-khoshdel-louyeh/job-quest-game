@@ -2,7 +2,7 @@ package controller;
 
 import controller.contract.GameCommands;
 import controller.contract.JobOperations;
-import controller.contract.ServicePurchases;
+import controller.contract.ShopPurchases;
 import controller.contract.SessionStats;
 import controller.contract.SkillOperations;
 import model.career.Job;
@@ -12,7 +12,7 @@ import utils.Require;
 // Runs high-level player actions: buy services, do jobs, learn skills.
 // Screen reads (catalogs, progress, session stats) live in GameQueries.
 public final class GameController implements GameCommands {
-    private final ServicePurchases purchases;
+    private final ShopPurchases purchases;
     private final JobOperations jobs;
     private final SkillOperations skills;
     private final SessionStats session;
@@ -21,7 +21,7 @@ public final class GameController implements GameCommands {
     // Every collaborator is an abstraction supplied by GameSession, so this
     // facade never depends on a concrete controller.
     // Package-private: views use this object, but never build it.
-    GameController(ServicePurchases purchases,
+    GameController(ShopPurchases purchases,
                    JobOperations jobs,
                    SkillOperations skills,
                    SessionStats session) {

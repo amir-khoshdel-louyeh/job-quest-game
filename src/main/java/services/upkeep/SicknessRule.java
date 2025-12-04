@@ -18,20 +18,20 @@ public final class SicknessRule {
     }
 
     // Returns a message when sickness hits; null when nothing happens.
-    public String applyTo(UpkeepTarget user) {
+    public String applyTo(UpkeepTarget player) {
         long now = clock.get();
-        if (now - user.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
+        if (now - player.getLastSicknessTime() < GameBalance.SICKNESS_COOLDOWN_MILLIS) {
             return null;
         }
         // 10% chance to get sick.
         if (random.nextInt(GameBalance.SICKNESS_ROLL_BOUND) < GameBalance.SICKNESS_ROLL_HIT_BELOW) {
             int healthLoss = GameBalance.SICKNESS_MIN_HEALTH_LOSS
                     + random.nextInt(GameBalance.SICKNESS_HEALTH_LOSS_RANGE);
-            user.loseHealth(healthLoss);
-            user.markSicknessChecked(now);
+            player.loseHealth(healthLoss);
+            player.markSicknessChecked(now);
             return "🤒 You got sick and lost " + healthLoss + " health!";
         }
-        user.markSicknessChecked(now);
+        player.markSicknessChecked(now);
         return null;
     }
 }

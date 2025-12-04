@@ -9,24 +9,24 @@ import view.theme.AppTheme;
 
 import javax.swing.*;
 
-// Side stats: profile, progression, and identity bars.
+// Side stats: profile, progression, and profession bars.
 // Owned by GamePanel; reads only through PlayerView.
-public class UserStatsPanel extends JPanel {
+public class PlayerStatsPanel extends JPanel {
 
     private final PlayerView player;
 
-    private JLabel usernameLabel, balanceLabel, healthLabel, energyLabel;
+    private JLabel playerNameLabel, balanceLabel, healthLabel, energyLabel;
     private JLabel levelLabel, xpLabel, reputationLabel, jobBonusLabel;
     private JProgressBar xpProgressBar, healthBar, energyBar;
 
-    UserStatsPanel(PlayerView player) {
+    PlayerStatsPanel(PlayerView player) {
         this.player = Require.notNull(player, "player");
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(AppTheme.BACKGROUND_COLOR);
 
         JPanel profilePanel = AppTheme.createSectionPanel("Your Profile");
-        usernameLabel = new JLabel();
-        usernameLabel.setFont(AppTheme.FONT_BODY);
+        playerNameLabel = new JLabel();
+        playerNameLabel.setFont(AppTheme.FONT_BODY);
         balanceLabel = new JLabel();
         balanceLabel.setFont(AppTheme.FONT_BODY);
         balanceLabel.setForeground(AppTheme.MONEY_COLOR.darker());
@@ -37,7 +37,7 @@ public class UserStatsPanel extends JPanel {
         healthBar.setStringPainted(true);
         healthBar.setBackground(AppTheme.DIVIDER_COLOR);
         healthBar.setFont(AppTheme.FONT_SMALL);
-        profilePanel.add(usernameLabel);
+        profilePanel.add(playerNameLabel);
         profilePanel.add(balanceLabel);
         profilePanel.add(healthLabel);
         profilePanel.add(healthBar);
@@ -68,9 +68,9 @@ public class UserStatsPanel extends JPanel {
         progressPanel.add(reputationLabel);
         progressPanel.add(jobBonusLabel);
 
-        JPanel identityPanel = AppTheme.createSectionPanel("Current Identity");
-        JLabel identityName = new JLabel("💼 " + player.getIdentityName());
-        identityName.setFont(AppTheme.FONT_BODY);
+        JPanel identityPanel = AppTheme.createSectionPanel("Current Profession");
+        JLabel professionName = new JLabel("💼 " + player.getProfessionDisplayName());
+        professionName.setFont(AppTheme.FONT_BODY);
         energyLabel = new JLabel();
         energyLabel.setFont(AppTheme.FONT_BODY);
         energyLabel.setForeground(AppTheme.TEXT_SECONDARY);
@@ -78,7 +78,7 @@ public class UserStatsPanel extends JPanel {
         energyBar.setStringPainted(true);
         energyBar.setBackground(AppTheme.DIVIDER_COLOR);
         energyBar.setFont(AppTheme.FONT_SMALL);
-        identityPanel.add(identityName);
+        identityPanel.add(professionName);
         identityPanel.add(energyLabel);
         identityPanel.add(energyBar);
 
@@ -100,7 +100,7 @@ public class UserStatsPanel extends JPanel {
     }
 
     public void refreshBalance() {
-        usernameLabel.setText("👤 " + player.getUsername());
+        playerNameLabel.setText("👤 " + player.getPlayerName());
         balanceLabel.setText("💰 Balance: $" + player.getBalance());
     }
 

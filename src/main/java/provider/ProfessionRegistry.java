@@ -1,6 +1,6 @@
 package provider;
 
-import provider.contract.IdentityCatalog;
+import provider.contract.ProfessionCatalog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,37 +8,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import model.Identity;
 import model.career.Profession;
+import model.career.ProfessionDefinition;
 import utils.Lists;
 
 // The profession registry: creates any career by name and lists the four
 // starting cards (with artwork) the start screen shows.
 // Keys ignore case and spaces.
-public final class IdentityProvider implements IdentityCatalog {
-    private final Map<String, Supplier<Identity>> registry = new HashMap<String, Supplier<Identity>>();
-    private final ArrayList<Identity> options = new ArrayList<Identity>();
+public final class ProfessionRegistry implements ProfessionCatalog {
+    private final Map<String, Supplier<Profession>> registry = new HashMap<String, Supplier<Profession>>();
+    private final ArrayList<Profession> options = new ArrayList<Profession>();
     private final Map<String, String> imagePaths = new HashMap<String, String>();
 
     // ----- Construction -----
-    public IdentityProvider() {
-        registry.put("doctor", () -> new Profession("Doctor", "Doctor", "Heal players and earn big money.",
+    public ProfessionRegistry() {
+        registry.put("doctor", () -> new ProfessionDefinition("Doctor", "Doctor", "Heal players and earn big money.",
                 500));
-        registry.put("programmer", () -> new Profession("Programmer", "Programmer", "Write code and solve complex problems.",
+        registry.put("programmer", () -> new ProfessionDefinition("Programmer", "Programmer", "Write code and solve complex problems.",
                 300));
-        registry.put("logodesigner", () -> new Profession("LogoDesigner", "Logo Designer", "Create logos for clients.",
+        registry.put("logodesigner", () -> new ProfessionDefinition("LogoDesigner", "Logo Designer", "Create logos for clients.",
                 200));
-        registry.put("typist", () -> new Profession("Typist", "Typist", "Type documents for clients.",
+        registry.put("typist", () -> new ProfessionDefinition("Typist", "Typist", "Type documents for clients.",
                 200));
         addStartingOptions();
     }
 
     // One card per starting career, plus the artwork shown on it.
     private void addStartingOptions() {
-        options.add(createIdentity("Doctor"));
-        options.add(createIdentity("Programmer"));
-        options.add(createIdentity("LogoDesigner"));
-        options.add(createIdentity("Typist"));
+        options.add(createProfession("Doctor"));
+        options.add(createProfession("Programmer"));
+        options.add(createProfession("LogoDesigner"));
+        options.add(createProfession("Typist"));
 
         imagePaths.put("Doctor", "/images/doctor.png");
         imagePaths.put("Programmer", "/images/programmer.png");
@@ -48,26 +48,26 @@ public final class IdentityProvider implements IdentityCatalog {
 
     // ----- Queries -----
     @Override
-    public Identity createIdentity(String identityName) {
-        if (identityName == null) {
-            throw new UnknownIdentityException(null);
+    public Profession createProfession(String professionName) {
+        if (professionName == null) {
+            throw new UnknownProfessionException(null);
         }
-        Supplier<Identity> factory = registry.get(normalize(identityName));
+        Supplier<Profession> factory = registry.get(normalize(professionName));
         if (factory == null) {
-            throw new UnknownIdentityException(identityName);
+            throw new UnknownProfessionException(professionName);
         }
         return factory.get();
     }
 
     // The four starting careers, in card order.
     @Override
-    public List<Identity> getAvailableOptions() {
+    public List<Profession> getAll() {
         return Lists.copyOf(options);
     }
 
     // Card artwork for an option, or null when it has none.
     @Override
-    public String imagePathFor(Identity option) {
+    public String imagePathFor(Profession option) {
         if (option == null) {
             return null;
         }

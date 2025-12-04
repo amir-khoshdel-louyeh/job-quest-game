@@ -1,13 +1,13 @@
 package model.player;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.SkillSet;
 
 // Exactly what one learn attempt needs: eligibility, purchase, and the goal
 // surfaces updated afterwards.
 public interface SkillLearner extends PlayerProgress {
 
-    Identity getIdentity();
+    Profession getProfession();
 
     SkillSet getSkillSet();
 

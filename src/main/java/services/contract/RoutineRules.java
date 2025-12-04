@@ -1,10 +1,10 @@
-package services;
+package services.contract;
 
 import model.player.UpkeepTarget;
 
 // The periodic upkeep operations RoutineController needs.
 // RoutineController depends on this contract, not on RoutineService.
-public interface UpkeepRules {
+public interface RoutineRules {
 
     String processSicknessCheck(UpkeepTarget player);
 

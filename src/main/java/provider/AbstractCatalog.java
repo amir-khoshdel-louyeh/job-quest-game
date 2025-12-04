@@ -3,12 +3,15 @@ package provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import provider.contract.Catalog;
 import utils.Lists;
 
-// Shared base for single-list catalogs (jobs, skills, services, achievements).
-// A proper template: the base owns storage and the lookup algorithm, while
-// every subclass supplies its data and says how to read an entry's name.
-public abstract class AbstractCatalog<T> {
+// Shared base for single-list catalogs (jobs, skills, shop items, achievements,
+// challenges, quiz questions).
+// A proper template: the base owns storage, the listing algorithm, and name
+// lookup, while every subclass supplies its data and says how to read an
+// entry's name. Catalogs whose entries are mutable also override copyOf.
+public abstract class AbstractCatalog<T> implements Catalog<T> {
 
     private final ArrayList<T> entries;
 
@@ -21,9 +24,15 @@ public abstract class AbstractCatalog<T> {
     }
 
     // ----- Getter -----
-    // Returns a copy so callers cannot change the catalog.
+    // Returns a copy of the list and, through copyOf, a safe copy of every
+    // entry, so callers can never change the catalog.
+    @Override
     public final List<T> getAll() {
-        return Lists.copyOf(entries);
+        ArrayList<T> copy = new ArrayList<T>();
+        for (int i = 0; i < entries.size(); i++) {
+            copy.add(copyOf(entries.get(i)));
+        }
+        return copy;
     }
 
     // ----- Queries -----
@@ -36,7 +45,7 @@ public abstract class AbstractCatalog<T> {
         for (int i = 0; i < entries.size(); i++) {
             T entry = entries.get(i);
             if (name.equals(nameOf(entry))) {
-                return entry;
+                return copyOf(entry);
             }
         }
         return null;
@@ -45,6 +54,13 @@ public abstract class AbstractCatalog<T> {
     // ----- Abstract hook -----
     // Every catalog entry type has a display name; the base cannot know it.
     protected abstract String nameOf(T entry);
+
+    // ----- Hook -----
+    // Immutable entries are handed out as they are; a catalog holding mutable
+    // entries overrides this to clone on every read.
+    protected T copyOf(T entry) {
+        return entry;
+    }
 
     // ----- Protected helpers -----
     // A copy to filter over; the stored list is never exposed.

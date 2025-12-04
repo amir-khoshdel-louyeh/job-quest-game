@@ -4,12 +4,12 @@ import javax.swing.SwingUtilities;
 
 import controller.GameSessionFactory;
 import controller.contract.GameStarter;
-import provider.contract.IdentityCatalog;
-import provider.IdentityProvider;
+import provider.contract.ProfessionCatalog;
+import provider.ProfessionRegistry;
 import provider.QuizProvider;
 import services.minigame.QuizScorer;
 import view.MainFrame;
-import view.minigame.MiniGameLauncher;
+import view.contract.MiniGameLauncher;
 import view.minigame.QuizLauncher;
 
 // Starts the game and opens the main window.
@@ -20,9 +20,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        IdentityCatalog identities = new IdentityProvider();
+        ProfessionCatalog professions = new ProfessionRegistry();
         GameStarter starter = new GameSessionFactory();
         MiniGameLauncher workGame = new QuizLauncher(new QuizProvider(), new QuizScorer());
-        SwingUtilities.invokeLater(() -> new MainFrame(identities, starter, workGame));
+        SwingUtilities.invokeLater(() -> new MainFrame(professions, starter, workGame));
     }
 }

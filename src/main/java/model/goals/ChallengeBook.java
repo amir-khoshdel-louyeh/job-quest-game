@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Owns active challenges.
-// Used by model.player.User (sole owner). Incoming challenges are copied so a
+// Used by model.player.Player (sole owner). Incoming challenges are copied so a
 // caller cannot keep mutating the progress the book stores.
 public final class ChallengeBook {
     private final ArrayList<Challenge> activeChallenges = new ArrayList<Challenge>();

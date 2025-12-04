@@ -2,10 +2,10 @@ package provider.contract;
 
 import java.util.List;
 
-import model.Identity;
 import model.career.Job;
+import model.career.Profession;
 
-// Read-only job catalog contract.
-public interface JobCatalog {
-    List<Job> getJobsForIdentity(Identity identity);
+// Read-only job catalog contract: all jobs, plus the profession cut.
+public interface JobCatalog extends Catalog<Job> {
+    List<Job> getJobsForProfession(Profession profession);
 }

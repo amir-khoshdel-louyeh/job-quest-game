@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import model.Identity;
 import utils.Lists;
 
 // One piece of work the player can do for pay.
-// Checked against Identity + SkillSet; read via JobProvider/JobController.
+// Checked against Profession + SkillSet; read via JobProvider/JobController.
 public final class Job {
     private final String name;
     private final String description;
     private final int payment;
     private final int energyCost;
-    private final Identity requiredIdentity;
+    private final Profession requiredIdentity;
     private final ArrayList<String> requiredSkills;
 
     // ----- Construction -----
     // Builds a job; null skills become an empty requirement.
-    public Job(String name, String description, int payment, int energyCost, Identity requiredIdentity, List<String> requiredSkills) {
+    public Job(String name, String description, int payment, int energyCost, Profession requiredIdentity, List<String> requiredSkills) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("name required");
         }
@@ -63,13 +62,13 @@ public final class Job {
     }
 
     // ----- Queries -----
-    public boolean isForIdentity(Identity identity) {
-        return identity != null && requiredIdentity.isSameProfession(identity);
+    public boolean isForProfession(Profession profession) {
+        return profession != null && requiredIdentity.isSameProfession(profession);
     }
 
     // True when the profession matches and every needed skill is present.
-    public boolean isAvailableFor(Identity identity, SkillSet skills) {
-        if (skills == null || !isForIdentity(identity)) {
+    public boolean isAvailableFor(Profession profession, SkillSet skills) {
+        if (skills == null || !isForProfession(profession)) {
             return false;
         }
         return skills.hasAllSkills(requiredSkills);

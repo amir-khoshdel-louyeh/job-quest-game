@@ -8,11 +8,11 @@ import model.player.JobPlayer;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import model.goals.ChallengeType;
-import services.AchievementRules;
-import services.ChallengeRules;
-import services.job.JobEligibility;
+import services.contract.AchievementRules;
+import services.contract.ChallengeRules;
+import services.contract.JobEligibility;
 import services.job.JobGateDecision;
-import services.job.JobRewardRules;
+import services.contract.JobRewardRules;
 import utils.JobResultText;
 import utils.Require;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ final class JobController implements JobOperations {
 
     private Outcome execute(Job job, MiniGameResult game) {
         JobGateDecision gate = jobGate.check(job,
-                player.getIdentity(),
+                player.getProfession(),
                 player.getSkillSet(),
                 player.getEnergy(),
                 player.isBlocked());
@@ -70,7 +70,7 @@ final class JobController implements JobOperations {
                     job, game.getScore(), job.getEnergyCost(), reputationLost, game));
         }
 
-        // All reward math lives in JobService and comes back as one value.
+        // All reward math lives in JobRewardService and comes back as one value.
         JobRewards payout = rewards.calculateRewards(job, player, game);
         int levelBefore = player.getLevel();
 

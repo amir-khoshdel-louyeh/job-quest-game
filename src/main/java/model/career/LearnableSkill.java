@@ -4,20 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import model.Identity;
 
 // A skill offered at school with a cost and requirements.
-// Checked against Identity; read via SkillProvider/SkillController.
+// Checked against Profession; read via SkillProvider/SkillController.
 public final class LearnableSkill {
     private final String name;
     private final String description;
     private final int cost;
     private final long requiredPlayTimeMinutes;
-    private final ArrayList<Identity> identities;
+    private final ArrayList<Profession> professions;
 
     // ----- Construction -----
     public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
-                          List<Identity> identities) {
+                          List<Profession> professions) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("name required");
         }
@@ -32,10 +31,10 @@ public final class LearnableSkill {
         }
         this.cost = cost;
         this.requiredPlayTimeMinutes = requiredPlayTimeMinutes;
-        this.identities = new ArrayList<Identity>();
-        if (identities != null) {
-            for (int i = 0; i < identities.size(); i++) {
-                this.identities.add(identities.get(i));
+        this.professions = new ArrayList<Profession>();
+        if (professions != null) {
+            for (int i = 0; i < professions.size(); i++) {
+                this.professions.add(professions.get(i));
             }
         }
     }
@@ -79,12 +78,12 @@ public final class LearnableSkill {
     }
 
     // ----- Queries -----
-    public boolean isForIdentity(Identity identity) {
-        if (identity == null) {
+    public boolean isForProfession(Profession profession) {
+        if (profession == null) {
             return false;
         }
-        for (int i = 0; i < identities.size(); i++) {
-            if (identities.get(i).isSameProfession(identity)) {
+        for (int i = 0; i < professions.size(); i++) {
+            if (professions.get(i).isSameProfession(profession)) {
                 return true;
             }
         }
@@ -105,12 +104,12 @@ public final class LearnableSkill {
                 && requiredPlayTimeMinutes == other.requiredPlayTimeMinutes
                 && Objects.equals(name, other.name)
                 && Objects.equals(description, other.description)
-                && Objects.equals(identities, other.identities);
+                && Objects.equals(professions, other.professions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, cost, requiredPlayTimeMinutes, identities);
+        return Objects.hash(name, description, cost, requiredPlayTimeMinutes, professions);
     }
 
     @Override

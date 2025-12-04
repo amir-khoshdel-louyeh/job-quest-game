@@ -4,8 +4,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 // A buyable service that restores health or energy right away.
-// Applied to a ServiceTarget; read via service provider/controller.
-public final class Service {
+// Applied to a ShopItemTarget; read via ShopCatalog/controller.
+public final class ShopItem {
     private final String name;
     private final String description;
     private final int cost;
@@ -14,17 +14,17 @@ public final class Service {
 
     // ----- Construction -----
     // Description is derived from the effects so the catalog cannot drift.
-    public Service(String name, int cost, int healthEffect, int energyEffect) {
+    public ShopItem(String name, int cost, int healthEffect, int energyEffect) {
         this(name, describeEffect(energyEffect, healthEffect),
                 cost, healthEffect, energyEffect);
     }
 
-    public Service(String name, String description, int cost, int healthEffect, int energyEffect) {
+    public ShopItem(String name, String description, int cost, int healthEffect, int energyEffect) {
         if (name == null || name.trim().equals("")) {
-            throw new IllegalArgumentException("Service name must not be blank");
+            throw new IllegalArgumentException("ShopItem name must not be blank");
         }
         if (cost < 0 || healthEffect < 0 || energyEffect < 0) {
-            throw new IllegalArgumentException("Service cost/effects must be >= 0");
+            throw new IllegalArgumentException("ShopItem cost/effects must be >= 0");
         }
         this.name = name;
         if (description == null) {
@@ -81,17 +81,17 @@ public final class Service {
         return String.format(Locale.US, "%,d", amount);
     }
 
-    public boolean isHealthService() {
+    public boolean isHealthItem() {
         return healthEffect > 0 && energyEffect == 0;
     }
 
-    public boolean isEnergyService() {
+    public boolean isEnergyItem() {
         return energyEffect > 0 && healthEffect == 0;
     }
 
     // ----- Commands -----
     // Applies the stored health and energy amounts.
-    public void apply(ServiceTarget target) {
+    public void apply(ShopItemTarget target) {
         if (target == null) {
             return;
         }
@@ -112,7 +112,7 @@ public final class Service {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Service other = (Service) obj;
+        ShopItem other = (ShopItem) obj;
         return cost == other.cost
                 && healthEffect == other.healthEffect
                 && energyEffect == other.energyEffect

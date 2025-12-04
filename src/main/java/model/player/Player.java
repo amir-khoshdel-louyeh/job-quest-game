@@ -3,21 +3,21 @@ package model.player;
 import java.util.List;
 import java.util.Objects;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.SkillSet;
 import model.goals.AchievementBook;
 import model.goals.Challenge;
 import model.goals.ChallengeBook;
 import model.goals.ChallengeType;
-import model.store.ServiceTarget;
+import model.store.ShopItemTarget;
 
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
 // blocking, achievement, and challenge books.
-// Mutated through UserController; services see narrow ports instead.
-// Views never receive this object (see PlayerView on UserController).
-public final class User implements PlayerProgress, ServiceTarget, PaymentStats, UpkeepTarget {
-    private final String username;
-    private final Identity identity;
+// Mutated through PlayerController; services see narrow ports instead.
+// Views never receive this object (see PlayerView on PlayerController).
+public final class Player implements PlayerProgress, ShopItemTarget, PaymentStats, UpkeepTarget {
+    private final String playerName;
+    private final Profession profession;
     private final Wallet wallet;
     private final Vitals vitals;
     private final CareerProgress progress;
@@ -29,29 +29,29 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
     private final PlayClock playClock = new PlayClock();
 
     // ----- Construction -----
-    public User(String username, Identity identity, int balance) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("username required");
+    public Player(String playerName, Profession profession, int balance) {
+        if (playerName == null || playerName.trim().isEmpty()) {
+            throw new IllegalArgumentException("playerName required");
         }
-        this.username = username;
-        this.identity = Objects.requireNonNull(identity, "identity must not be null");
+        this.playerName = playerName;
+        this.profession = Objects.requireNonNull(profession, "profession must not be null");
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
         this.blockStatus = new BlockStatus();
     }
 
-    // ----- Identity Delegate -----
-    public String getUsername() {
-        return username;
+    // ----- Profession Delegate -----
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public Identity getIdentity() {
-        return identity;
+    public Profession getProfession() {
+        return profession;
     }
 
-    public String getIdentityName() {
-        return identity.getDisplayName();
+    public String getProfessionDisplayName() {
+        return profession.getDisplayName();
     }
 
     // ----- Wallet Delegate -----
@@ -246,19 +246,19 @@ public final class User implements PlayerProgress, ServiceTarget, PaymentStats, 
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        User other = (User) obj;
-        return Objects.equals(username, other.username)
-                && Objects.equals(identity, other.identity);
+        Player other = (Player) obj;
+        return Objects.equals(playerName, other.playerName)
+                && Objects.equals(profession, other.profession);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, identity);
+        return Objects.hash(playerName, profession);
     }
 
     @Override
     public String toString() {
-        return "User [" + username + " (" + getIdentityName() + ")"
+        return "Player [" + playerName + " (" + getProfessionDisplayName() + ")"
                 + ", level " + getLevel()
                 + ", balance $" + getBalance()
                 + ", health " + getHealth()

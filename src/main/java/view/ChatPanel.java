@@ -11,7 +11,7 @@ import java.awt.*;
 public class ChatPanel extends JPanel implements MessageSink {
 
     private final JTextArea chatArea;
-    private final Toast toast = new Toast();
+    private final ToastPopup toast = new ToastPopup();
 
     ChatPanel() {
         super(new BorderLayout());

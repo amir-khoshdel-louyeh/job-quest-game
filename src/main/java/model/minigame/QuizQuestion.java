@@ -40,6 +40,10 @@ public final class QuizQuestion {
     }
 
     // ----- Getter -----
+    public String getId() {
+        return id;
+    }
+
     public String getPrompt() {
         return prompt;
     }

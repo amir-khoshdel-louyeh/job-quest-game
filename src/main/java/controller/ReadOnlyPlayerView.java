@@ -1,133 +1,133 @@
 package controller;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.SkillSet;
 import model.player.PlayerView;
-import model.player.User;
+import model.player.Player;
 import utils.Require;
 
 // Read-only player data for screens.
 // It deliberately implements nothing else, so it cannot be cast to a command
-// port or to the mutable User aggregate.
+// port or to the mutable Player aggregate.
 final class ReadOnlyPlayerView implements PlayerView {
-    private final User user;
+    private final Player player;
 
-    ReadOnlyPlayerView(User user) {
-        this.user = Require.notNull(user, "user");
+    ReadOnlyPlayerView(Player player) {
+        this.player = Require.notNull(player, "player");
     }
 
     @Override
-    public String getUsername() {
-        return user.getUsername();
+    public String getPlayerName() {
+        return player.getPlayerName();
     }
 
     @Override
-    public Identity getIdentity() {
-        return user.getIdentity();
+    public Profession getProfession() {
+        return player.getProfession();
     }
 
     @Override
-    public String getIdentityName() {
-        return user.getIdentityName();
+    public String getProfessionDisplayName() {
+        return player.getProfessionDisplayName();
     }
 
     @Override
     public SkillSet getSkillSet() {
-        return user.getSkillSet();
+        return player.getSkillSet();
     }
 
     @Override
     public int getSkillCount() {
-        return user.getSkillCount();
+        return player.getSkillCount();
     }
 
     @Override
     public int getLevel() {
-        return user.getLevel();
+        return player.getLevel();
     }
 
     @Override
     public int getExperience() {
-        return user.getExperience();
+        return player.getExperience();
     }
 
     @Override
     public int getRequiredExperienceForNextLevel() {
-        return user.getRequiredExperienceForNextLevel();
+        return player.getRequiredExperienceForNextLevel();
     }
 
     @Override
     public int getExperiencePercentage() {
-        return user.getExperiencePercentage();
+        return player.getExperiencePercentage();
     }
 
     @Override
     public int getReputation() {
-        return user.getReputation();
+        return player.getReputation();
     }
 
     @Override
     public int getJobBonus() {
-        return user.getJobBonus();
+        return player.getJobBonus();
     }
 
     @Override
     public long getPlayTimeMinutes() {
-        return user.getPlayTimeMinutes();
+        return player.getPlayTimeMinutes();
     }
 
     @Override
     public int getHealth() {
-        return user.getHealth();
+        return player.getHealth();
     }
 
     @Override
     public int getHealthPercentage() {
-        return user.getHealthPercentage();
+        return player.getHealthPercentage();
     }
 
     @Override
     public int getEnergy() {
-        return user.getEnergy();
+        return player.getEnergy();
     }
 
     @Override
     public int getEnergyPercentage() {
-        return user.getEnergyPercentage();
+        return player.getEnergyPercentage();
     }
 
     @Override
     public int getBalance() {
-        return user.getBalance();
+        return player.getBalance();
     }
 
     @Override
     public boolean isBlocked() {
-        return user.isBlocked();
+        return player.isBlocked();
     }
 
     @Override
     public long getBlockedUntil() {
-        return user.getBlockedUntil();
+        return player.getBlockedUntil();
     }
 
     @Override
     public int getAchievementCount() {
-        return user.getAchievementCount();
+        return player.getAchievementCount();
     }
 
     @Override
     public int getTotalJobsCompleted() {
-        return user.getTotalJobsCompleted();
+        return player.getTotalJobsCompleted();
     }
 
     @Override
     public int getTotalMoneyEarned() {
-        return user.getTotalMoneyEarned();
+        return player.getTotalMoneyEarned();
     }
 
     @Override
     public boolean hasAchievement(String id) {
-        return user.hasAchievement(id);
+        return player.hasAchievement(id);
     }
 }

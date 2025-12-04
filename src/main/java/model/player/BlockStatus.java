@@ -1,7 +1,7 @@
 package model.player;
 
 // Tracks whether the player is blocked from doing jobs.
-// Used by model.player.User (sole owner); read via User/UserController.
+// Used by model.player.Player (sole owner); read via Player/PlayerController.
 public final class BlockStatus {
     private long blockedUntil = 0;
     private long lastSicknessTime = 0;

@@ -2,9 +2,9 @@ package view;
 
 import controller.contract.GameContext;
 import controller.contract.GameStarter;
-import model.Identity;
-import provider.contract.IdentityCatalog;
-import view.minigame.MiniGameLauncher;
+import model.career.Profession;
+import provider.contract.ProfessionCatalog;
+import view.contract.MiniGameLauncher;
 import view.theme.AppTheme;
 import utils.Require;
 
@@ -19,15 +19,15 @@ public class StartPanel extends JPanel {
     private JButton startButton;
     private JLabel errorLabel;
     private ButtonGroup identityGroup;
-    private final IdentityCatalog options;
+    private final ProfessionCatalog options;
     private final GameStarter gameStarter;
     private final MiniGameLauncher workGame;
 
     // The career catalog and the game starter are supplied by MainFrame.
-    StartPanel(MainFrame mainFrame, IdentityCatalog options, GameStarter gameStarter,
+    StartPanel(MainFrame mainFrame, ProfessionCatalog options, GameStarter gameStarter,
                       MiniGameLauncher workGame) {
         this.mainFrame = mainFrame;
-        this.options = Require.notNull(options, "identity options");
+        this.options = Require.notNull(options, "profession options");
         this.gameStarter = Require.notNull(gameStarter, "gameStarter");
         this.workGame = Require.notNull(workGame, "workGame");
         setBackground(AppTheme.BACKGROUND_COLOR);
@@ -63,14 +63,14 @@ public class StartPanel extends JPanel {
         headerPanel.add(Box.createVerticalStrut(20));
         add(headerPanel, BorderLayout.NORTH);
 
-        List<Identity> available = options.getAvailableOptions();
+        List<Profession> available = options.getAll();
         JPanel optionsPanel = new JPanel();
         optionsPanel.setOpaque(false);
         optionsPanel.setLayout(new GridLayout(2, 2, 12, 12));
         identityGroup = new ButtonGroup();
 
-        for (Identity option : available) {
-            optionsPanel.add(createIdentityCard(option));
+        for (Profession option : available) {
+            optionsPanel.add(createProfessionCard(option));
         }
 
         JScrollPane scrollPane = new JScrollPane(optionsPanel);
@@ -124,7 +124,7 @@ public class StartPanel extends JPanel {
         add(bottomWrapper, BorderLayout.SOUTH);
     }
 
-    private JPanel createIdentityCard(Identity option) {
+    private JPanel createProfessionCard(Profession option) {
         JPanel card = new JPanel(new BorderLayout(12, 12));
         card.setBackground(AppTheme.CARD_BACKGROUND);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -181,7 +181,7 @@ public class StartPanel extends JPanel {
     }
 
     private void startGame() {
-        Identity selected = getSelectedOption();
+        Profession selected = getSelectedOption();
         if (selected == null) {
             errorLabel.setText("Please select a career path above.");
             return;
@@ -191,7 +191,7 @@ public class StartPanel extends JPanel {
             name = "Player";
         }
         try {
-            // The selected option is already a complete Identity; reuse it.
+            // The selected option is already a complete Profession; reuse it.
             GameContext game = gameStarter.start(name, selected);
             mainFrame.showPanel(new GamePanel(game, workGame));
         } catch (IllegalArgumentException ex) {
@@ -199,12 +199,12 @@ public class StartPanel extends JPanel {
         }
     }
 
-    private Identity getSelectedOption() {
+    private Profession getSelectedOption() {
         java.util.Enumeration<javax.swing.AbstractButton> buttons = identityGroup.getElements();
         while (buttons.hasMoreElements()) {
             javax.swing.AbstractButton button = buttons.nextElement();
             if (button.isSelected()) {
-                return (Identity) button.getClientProperty("option");
+                return (Profession) button.getClientProperty("option");
             }
         }
         return null;

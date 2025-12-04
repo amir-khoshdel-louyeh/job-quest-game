@@ -3,6 +3,7 @@ package services;
 import model.goals.Achievement;
 import model.player.PlayerProgress;
 import provider.contract.AchievementCatalog;
+import services.contract.AchievementRules;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public final class AchievementService implements AchievementRules {
     @Override
     public List<Achievement> checkAndUnlockAchievements(PlayerProgress player) {
         ArrayList<Achievement> newOnes = new ArrayList<Achievement>();
-        List<Achievement> all = catalog.getAllAchievements();
+        List<Achievement> all = catalog.getAll();
         for (Achievement achievement : all) {
             if (!achievement.isUnlocked(player) && achievement.checkRequirement(player)) {
                 player.unlockAchievement(achievement.getId());
@@ -38,6 +39,6 @@ public final class AchievementService implements AchievementRules {
     // ----- Queries -----
     @Override
     public List<Achievement> getAllAchievements() {
-        return catalog.getAllAchievements();
+        return catalog.getAll();
     }
 }

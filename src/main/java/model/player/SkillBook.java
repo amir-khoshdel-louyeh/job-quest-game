@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import model.career.SkillSet;
 
 // Tracks learned skills.
-// Used by model.player.User (sole owner); callers only ever see SkillSet,
+// Used by model.player.Player (sole owner); callers only ever see SkillSet,
 // so the concrete book cannot be downcast and mutated.
 final class SkillBook implements SkillSet {
     private final ArrayList<String> skills = new ArrayList<String>();

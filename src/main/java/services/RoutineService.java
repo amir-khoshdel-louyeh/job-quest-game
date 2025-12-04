@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import model.player.UpkeepTarget;
+import services.contract.RoutineRules;
 import services.upkeep.DrainRule;
 import services.upkeep.KnockoutPolicy;
 import services.upkeep.SicknessRule;
@@ -11,7 +12,7 @@ import services.upkeep.SicknessRule;
 // Facade for periodic upkeep. Each rule lives in services.upkeep.
 // Clock/random come from outside; state changes are silent and the
 // caller owns observer notifications.
-public final class RoutineService implements UpkeepRules {
+public final class RoutineService implements RoutineRules {
 
     private final SicknessRule sickness;
     private final DrainRule drains;

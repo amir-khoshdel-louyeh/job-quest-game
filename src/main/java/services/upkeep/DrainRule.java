@@ -13,41 +13,41 @@ public final class DrainRule {
     }
 
     // Returns a warning message when poor health increases the drain.
-    public String energy(UpkeepTarget user) {
-        if (user.getEnergy() <= 0) {
+    public String energy(UpkeepTarget player) {
+        if (player.getEnergy() <= 0) {
             return null;
         }
 
         int energyLoss = GameBalance.BASE_ENERGY_LOSS;
         String message = null;
 
-        if (user.getHealth() < GameBalance.LOW_HEALTH_THRESHOLD) {
+        if (player.getHealth() < GameBalance.LOW_HEALTH_THRESHOLD) {
             energyLoss = GameBalance.SICKLY_ENERGY_LOSS;
             message = "⚡ Energy decreased by " + energyLoss + " due to poor health.";
         }
 
-        user.loseEnergy(energyLoss);
+        player.loseEnergy(energyLoss);
 
-        if (user.getEnergy() == 0) {
-            knockout.applyTo(user);
+        if (player.getEnergy() == 0) {
+            knockout.applyTo(player);
         }
         return message;
     }
 
     // Returns a warning message when exhaustion increases the drain.
-    public String health(UpkeepTarget user) {
+    public String health(UpkeepTarget player) {
         int healthLoss = GameBalance.BASE_HEALTH_LOSS;
         String message = null;
 
-        if (user.getEnergy() < GameBalance.LOW_ENERGY_THRESHOLD) {
+        if (player.getEnergy() < GameBalance.LOW_ENERGY_THRESHOLD) {
             healthLoss = GameBalance.EXHAUSTED_HEALTH_LOSS;
             message = "❤️‍🩹 Health decreased by " + healthLoss + " due to extreme fatigue!";
         }
 
-        user.loseHealth(healthLoss);
+        player.loseHealth(healthLoss);
 
-        if (user.getHealth() == 0) {
-            knockout.applyTo(user);
+        if (player.getHealth() == 0) {
+            knockout.applyTo(player);
         }
         return message;
     }

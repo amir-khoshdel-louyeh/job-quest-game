@@ -3,7 +3,7 @@ package model.player;
 import utils.DurationText;
 
 // Tracks how long the player has played.
-// Used by model.player.User (sole owner); read via User/UserController.
+// Used by model.player.Player (sole owner); read via Player/PlayerController.
 public final class PlayClock {
     private long totalMillis;
 

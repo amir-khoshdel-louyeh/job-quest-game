@@ -1,20 +1,20 @@
 package model.player;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.SkillSet;
 import model.goals.AchievementStats;
 
 // Complete read-only player surface.
-// Screens receive only this interface, never the mutable User aggregate:
-// GameSession hands out the package-private UserController as a PlayerView.
+// Screens receive only this interface, never the mutable Player aggregate:
+// GameSession hands out the package-private PlayerController as a PlayerView.
 public interface PlayerView extends AchievementStats {
 
-    // ----- Identity -----
-    String getUsername();
+    // ----- Profession -----
+    String getPlayerName();
 
-    Identity getIdentity();
+    Profession getProfession();
 
-    String getIdentityName();
+    String getProfessionDisplayName();
 
     // ----- Skills -----
     // The query-only SkillSet is enough for every screen: job and skill

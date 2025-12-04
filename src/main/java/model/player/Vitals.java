@@ -2,10 +2,10 @@ package model.player;
 
 import java.util.Objects;
 
-import utils.ProgressUtil;
+import utils.ProgressMath;
 
 // Tracks health and energy and keeps them within limits.
-// Used by model.player.User (sole owner); read via User/UserController.
+// Used by model.player.Player (sole owner); read via Player/PlayerController.
 
 public final class Vitals {
     public static final int MAX_HEALTH = 100;
@@ -28,11 +28,11 @@ public final class Vitals {
     }
 
     public int getHealthPercentage() {
-        return ProgressUtil.percent(health, MAX_HEALTH);
+        return ProgressMath.percent(health, MAX_HEALTH);
     }
 
     public int getEnergyPercentage() {
-        return ProgressUtil.percent(energy, MAX_ENERGY);
+        return ProgressMath.percent(energy, MAX_ENERGY);
     }
 
     // ----- Setter -----

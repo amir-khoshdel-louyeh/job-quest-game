@@ -30,7 +30,7 @@ public class SkillDialog extends JDialog {
         this.gamePanel = gamePanel;
         this.allSkills = Lists.copyOf(allSkills);
         this.player = player;
-        String userIdentity = player.getIdentityName();
+        String userIdentity = player.getProfessionDisplayName();
         setTitle("School of Skills — " + userIdentity + " Lessons");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);

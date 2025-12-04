@@ -16,7 +16,7 @@ import view.theme.AppTheme;
 
 // Reusable bottom-right popup for important chat lines.
 // Decides which messages deserve a toast; only ChatPanel uses it.
-final class Toast {
+final class ToastPopup {
     private static final int HIDE_DELAY_MILLIS = 2500;
     private static final int MAX_LINE_LENGTH = 90;
     private static final String[] IMPORTANT_MARKERS = {

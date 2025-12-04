@@ -4,7 +4,7 @@ import controller.Outcome;
 
 // What GameController needs from the economy module.
 // GameController depends on this contract, not on EconomyController.
-public interface ServicePurchases {
+public interface ShopPurchases {
 
     Outcome purchaseService(String serviceName);
 }

@@ -1,17 +1,14 @@
-package controller;
+package observer;
 
-import observer.Observable;
-import observer.Observer;
-import observer.Subject;
 import utils.Require;
 
 // Subscribe-only view of a subject, handed to views.
 // It deliberately implements nothing else, so a view cannot cast it to
 // Subject and call notifyObservers().
-final class SubscriptionPort implements Observable {
+public final class ReadOnlyObservable implements Observable {
     private final Subject subject;
 
-    SubscriptionPort(Subject subject) {
+    public ReadOnlyObservable(Subject subject) {
         this.subject = Require.notNull(subject, "subject");
     }
 

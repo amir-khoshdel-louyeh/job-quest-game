@@ -2,8 +2,8 @@ package model.player;
 
 import java.util.Objects;
 
-// Tracks a user's money balance.
-// Used by model.player.User (sole owner); read via User/UserController/EconomyController.
+// Tracks a player's money balance.
+// Used by model.player.Player (sole owner); read via Player/PlayerController/EconomyController.
 
 public final class Wallet {
     private int balance;

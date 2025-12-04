@@ -1,7 +1,7 @@
 package model.player;
 
 // Tracks jobs completed and the job bonus (+1 per 10 jobs, max +30%).
-// Used by model.player.User (sole owner); read via User/UserController/JobService.
+// Used by model.player.Player (sole owner); read via Player/PlayerController/JobRewardService.
 public final class JobRecord {
     public static final int MAX_JOB_BONUS = 15;
 

@@ -5,7 +5,8 @@ import controller.contract.GameReads;
 import model.career.Job;
 import model.career.LearnableSkill;
 import model.player.PlayerView;
-import view.minigame.MiniGameLauncher;
+import view.contract.MiniGameLauncher;
+import view.contract.Navigator;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -14,7 +15,7 @@ import java.util.List;
 
 // Top bar + the screens it opens (hospital, workshop, market,
 // school, progress). Owned by GamePanel.
-public class NavBar extends JPanel implements Navigator {
+public class NavBarPanel extends JPanel implements Navigator {
 
     private final GameCommands controller;
     private final GameReads queries;
@@ -22,7 +23,7 @@ public class NavBar extends JPanel implements Navigator {
     private final GamePanel host;
     private final MiniGameLauncher workGame;
 
-    NavBar(GameCommands controller, GameReads queries,
+    NavBarPanel(GameCommands controller, GameReads queries,
                   PlayerView player, GamePanel host, MiniGameLauncher workGame) {
         super(new FlowLayout(FlowLayout.CENTER, 8, 4));
         if (controller == null) {
@@ -55,14 +56,14 @@ public class NavBar extends JPanel implements Navigator {
 
     @Override
     public void openHospital() {
-        new ServiceDialog(frame(), controller, host, queries.getHealthServices()).setVisible(true);
+        new ShopDialog(frame(), controller, host, queries.getHealthItems()).setVisible(true);
     }
 
     @Override
     public void openWorkshop() {
         List<Job> jobs = queries.getJobsForCurrentIdentity();
         if (jobs.isEmpty()) {
-            host.addChatMessage("No jobs are available for your current identity/skills.");
+            host.addChatMessage("No jobs are available for your current profession/skills.");
             return;
         }
         new JobDialog(frame(), controller, host, jobs, player, workGame).setVisible(true);
@@ -70,7 +71,7 @@ public class NavBar extends JPanel implements Navigator {
 
     @Override
     public void openMarket() {
-        new ServiceDialog(frame(), controller, host, queries.getEnergyServices()).setVisible(true);
+        new ShopDialog(frame(), controller, host, queries.getEnergyItems()).setVisible(true);
     }
 
     @Override

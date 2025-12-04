@@ -1,8 +1,8 @@
 package view;
 
 import controller.contract.GameStarter;
-import provider.contract.IdentityCatalog;
-import view.minigame.MiniGameLauncher;
+import provider.contract.ProfessionCatalog;
+import view.contract.MiniGameLauncher;
 import view.theme.AppTheme;
 import utils.Require;
 import javax.swing.*;
@@ -11,13 +11,13 @@ import java.awt.*;
 // The app window: starts maximized with standard exit button (X).
 public class MainFrame extends JFrame {
     // All three collaborators are contracts; main.Main wires the concretes.
-    private final IdentityCatalog identityOptions;
+    private final ProfessionCatalog professionOptions;
     private final GameStarter gameStarter;
     private final MiniGameLauncher workGame;
 
-    public MainFrame(IdentityCatalog identityOptions, GameStarter gameStarter,
+    public MainFrame(ProfessionCatalog professionOptions, GameStarter gameStarter,
                      MiniGameLauncher workGame) {
-        this.identityOptions = Require.notNull(identityOptions, "identityOptions");
+        this.professionOptions = Require.notNull(professionOptions, "professionOptions");
         this.gameStarter = Require.notNull(gameStarter, "gameStarter");
         this.workGame = Require.notNull(workGame, "workGame");
         AppTheme.initialize();
@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
 
     // Builds the start screen with the shared career catalog.
     public void showStartPanel() {
-        showPanel(new StartPanel(this, identityOptions, gameStarter, workGame));
+        showPanel(new StartPanel(this, professionOptions, gameStarter, workGame));
     }
     
     public void showPanel(JPanel panel) {

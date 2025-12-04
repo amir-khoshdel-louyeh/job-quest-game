@@ -6,7 +6,7 @@ import model.career.Job;
 import model.career.SkillSet;
 import model.minigame.MiniGameResult;
 import model.player.PlayerView;
-import view.minigame.MiniGameLauncher;
+import view.contract.MiniGameLauncher;
 import view.theme.AppTheme;
 import utils.Require;
 
@@ -27,7 +27,7 @@ public class JobDialog extends JDialog {
         this.controller = controller;
         this.gamePanel = gamePanel;
         this.workGame = Require.notNull(workGame, "workGame");
-        String userIdentity = player.getIdentityName();
+        String userIdentity = player.getProfessionDisplayName();
         setTitle("Workshop — " + userIdentity + " Jobs");
         setLayout(new BorderLayout(10, 10));
         AppTheme.styleDialog(this, 500, 600);
@@ -47,7 +47,7 @@ public class JobDialog extends JDialog {
         List<Job> available = new java.util.ArrayList<>();
         List<Job> locked = new java.util.ArrayList<>();
         for (Job job : allJobs) {
-            if (job.isAvailableFor(player.getIdentity(), skills)) {
+            if (job.isAvailableFor(player.getProfession(), skills)) {
                 available.add(job);
             } else {
                 locked.add(job);

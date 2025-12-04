@@ -2,7 +2,7 @@ package controller;
 
 import java.util.List;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.SkillSet;
 import model.goals.Challenge;
 import model.goals.ChallengeType;
@@ -11,10 +11,11 @@ import model.player.PlayerView;
 import model.player.PurchaseTarget;
 import model.player.SkillLearner;
 import model.player.UpkeepTarget;
-import model.player.User;
+import model.player.Player;
 import observer.ChangeType;
 import observer.Observable;
 import observer.Observer;
+import observer.ReadOnlyObservable;
 import observer.SimpleSubject;
 import observer.Subject;
 import utils.Require;
@@ -23,18 +24,18 @@ import utils.Require;
 // Commands are implemented on this class; reads and subscriptions are handed
 // out as two separate projection objects, so a view cannot downcast what it
 // receives back to a command port, to Subject, or to the mutable aggregate.
-final class UserController implements Subject, JobPlayer,
+final class PlayerController implements Subject, JobPlayer,
         SkillLearner, PurchaseTarget, UpkeepTarget {
-    private final User user;
+    private final Player player;
     private final SimpleSubject subject = new SimpleSubject();
     private final PlayerView playerView;
     private final Observable observable;
 
     // ----- Construction -----
-    UserController(User user) {
-        this.user = Require.notNull(user, "user");
-        this.playerView = new ReadOnlyPlayerView(user);
-        this.observable = new SubscriptionPort(subject);
+    PlayerController(Player player) {
+        this.player = Require.notNull(player, "player");
+        this.playerView = new ReadOnlyPlayerView(player);
+        this.observable = new ReadOnlyObservable(subject);
     }
 
     // ----- Read-only projections -----
@@ -73,87 +74,87 @@ final class UserController implements Subject, JobPlayer,
 
     // ----- Reads required by the command ports -----
     @Override
-    public Identity getIdentity() {
-        return user.getIdentity();
+    public Profession getProfession() {
+        return player.getProfession();
     }
 
     @Override
     public SkillSet getSkillSet() {
-        return user.getSkillSet();
+        return player.getSkillSet();
     }
 
     @Override
     public int getLevel() {
-        return user.getLevel();
+        return player.getLevel();
     }
 
     @Override
     public int getReputation() {
-        return user.getReputation();
+        return player.getReputation();
     }
 
     @Override
     public int getJobBonus() {
-        return user.getJobBonus();
+        return player.getJobBonus();
     }
 
     @Override
     public long getPlayTimeMinutes() {
-        return user.getPlayTimeMinutes();
+        return player.getPlayTimeMinutes();
     }
 
     // Adds elapsed play time; the upkeep scheduler calls this once per minute.
     @Override
     public void addPlayTime(long millis) {
         if (millis > 0) {
-            user.addPlayTime(millis);
+            player.addPlayTime(millis);
         }
     }
 
     @Override
     public int getHealth() {
-        return user.getHealth();
+        return player.getHealth();
     }
 
     @Override
     public int getEnergy() {
-        return user.getEnergy();
+        return player.getEnergy();
     }
 
     @Override
     public int getBalance() {
-        return user.getBalance();
+        return player.getBalance();
     }
 
     @Override
     public boolean isBlocked() {
-        return user.isBlocked();
+        return player.isBlocked();
     }
 
     @Override
     public int getTotalJobsCompleted() {
-        return user.getTotalJobsCompleted();
+        return player.getTotalJobsCompleted();
     }
 
     @Override
     public int getTotalMoneyEarned() {
-        return user.getTotalMoneyEarned();
+        return player.getTotalMoneyEarned();
     }
 
     @Override
     public int getSkillCount() {
-        return user.getSkillCount();
+        return player.getSkillCount();
     }
 
     @Override
     public boolean hasAchievement(String id) {
-        return user.hasAchievement(id);
+        return player.hasAchievement(id);
     }
 
     // ----- Money / vitals commands -----
     @Override
     public boolean deductBalance(int amount) {
-        if (user.withdraw(amount)) {
+        if (player.withdraw(amount)) {
             notifyObservers(ChangeType.BALANCE);
             return true;
         }
@@ -163,27 +164,27 @@ final class UserController implements Subject, JobPlayer,
     // Adds money (reward, challenge, or achievement).
     @Override
     public boolean deposit(int amount) {
-        if (user.deposit(amount)) {
+        if (player.deposit(amount)) {
             notifyObservers(ChangeType.BALANCE);
             return true;
         }
         return false;
     }
 
-    // Adds health and tells observers; Service.apply uses this surface.
+    // Adds health and tells observers; ShopItem.apply uses this surface.
     @Override
     public boolean gainHealth(int amount) {
-        if (user.gainHealth(amount)) {
+        if (player.gainHealth(amount)) {
             notifyObservers(ChangeType.HEALTH);
             return true;
         }
         return false;
     }
 
-    // Adds energy and tells observers; Service.apply uses this surface.
+    // Adds energy and tells observers; ShopItem.apply uses this surface.
     @Override
     public boolean gainEnergy(int amount) {
-        if (user.gainEnergy(amount)) {
+        if (player.gainEnergy(amount)) {
             notifyObservers(ChangeType.ENERGY);
             return true;
         }
@@ -192,7 +193,7 @@ final class UserController implements Subject, JobPlayer,
 
     @Override
     public boolean loseEnergy(int amount) {
-        if (user.loseEnergy(amount)) {
+        if (player.loseEnergy(amount)) {
             notifyObservers(ChangeType.ENERGY);
             return true;
         }
@@ -201,7 +202,7 @@ final class UserController implements Subject, JobPlayer,
 
     @Override
     public boolean loseHealth(int amount) {
-        if (user.loseHealth(amount)) {
+        if (player.loseHealth(amount)) {
             notifyObservers(ChangeType.HEALTH);
             return true;
         }
@@ -217,38 +218,38 @@ final class UserController implements Subject, JobPlayer,
     // ----- Block -----
     @Override
     public void blockUntil(long time) {
-        user.blockUntil(time);
+        player.blockUntil(time);
     }
 
     @Override
     public void markSicknessChecked(long time) {
-        user.markSicknessChecked(time);
+        player.markSicknessChecked(time);
     }
 
     @Override
     public long getLastSicknessTime() {
-        return user.getLastSicknessTime();
+        return player.getLastSicknessTime();
     }
 
     // ----- Skills / progress -----
     // Adds a new skill. Returns true if the skill is new.
     @Override
     public boolean addSkill(String skillName) {
-        if (user.addSkill(skillName)) {
+        if (player.addSkill(skillName)) {
             notifyObservers(ChangeType.SKILLS);
             return true;
         }
         return false;
     }
 
-    // Adds XP. A level-up refills vitals inside User, so health and energy
+    // Adds XP. A level-up refills vitals inside Player, so health and energy
     // observers must be told too or the bars stay stale.
     @Override
     public boolean addExperience(int amount) {
         if (amount <= 0) {
             return false;
         }
-        boolean leveledUp = user.addExperience(amount);
+        boolean leveledUp = player.addExperience(amount);
         notifyObservers(ChangeType.XP);
         if (leveledUp) {
             notifyObservers(ChangeType.HEALTH);
@@ -261,7 +262,7 @@ final class UserController implements Subject, JobPlayer,
     @Override
     public void gainReputation(int amount) {
         if (amount > 0) {
-            user.gainReputation(amount);
+            player.gainReputation(amount);
             notifyObservers(ChangeType.REPUTATION);
         }
     }
@@ -270,7 +271,7 @@ final class UserController implements Subject, JobPlayer,
     @Override
     public void loseReputation(int amount) {
         if (amount > 0) {
-            user.loseReputation(amount);
+            player.loseReputation(amount);
             notifyObservers(ChangeType.REPUTATION);
         }
     }
@@ -278,9 +279,9 @@ final class UserController implements Subject, JobPlayer,
     // Records one completed job and its pay.
     @Override
     public void recordJobCompletion(int moneyEarned) {
-        user.addCompletedJob();
+        player.addCompletedJob();
         if (moneyEarned > 0) {
-            user.earn(moneyEarned);
+            player.earn(moneyEarned);
             notifyObservers(ChangeType.BALANCE);
         }
         notifyObservers(ChangeType.JOBS);
@@ -289,21 +290,21 @@ final class UserController implements Subject, JobPlayer,
     // ----- Challenge / achievement ports -----
     @Override
     public List<Challenge> getActiveChallenges() {
-        return user.getActiveChallenges();
+        return player.getActiveChallenges();
     }
 
     @Override
     public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
-        return user.updateChallengeProgress(type, amount);
+        return player.updateChallengeProgress(type, amount);
     }
 
     @Override
     public void addChallenges(List<Challenge> challenges) {
-        user.addChallenges(challenges);
+        player.addChallenges(challenges);
     }
 
     @Override
     public void unlockAchievement(String id) {
-        user.unlockAchievement(id);
+        player.unlockAchievement(id);
     }
 }

@@ -9,18 +9,13 @@ import model.goals.Challenge;
 import model.goals.ChallengeType;
 
 // Holds the story challenges the player can try.
-// Injected into ChallengeService.
-public final class ChallengeProvider implements ChallengeCatalog {
-
-    private final List<Challenge> challenges;
+// Extends AbstractCatalog; Challenge carries per-player progress, so every
+// read hands out a clone (see copyOf).
+public final class ChallengeProvider extends AbstractCatalog<Challenge> implements ChallengeCatalog {
 
     // ----- Construction -----
     public ChallengeProvider() {
-        // Keep private templates: callers may still hold the objects they pass.
-        this.challenges = new ArrayList<Challenge>();
-        for (Challenge challenge : buildCatalog()) {
-            this.challenges.add(challenge.copy());
-        }
+        super(buildCatalog());
     }
 
     private static List<Challenge> buildCatalog() {
@@ -83,14 +78,16 @@ public final class ChallengeProvider implements ChallengeCatalog {
         return all;
     }
 
-    // ----- Getter -----
-    // Fresh copies: Challenge is mutable, so a catalog must never hand out
-    // the instances it stores (two players would share progress).
-    public List<Challenge> getChallenges() {
-        List<Challenge> copy = new ArrayList<Challenge>();
-        for (int i = 0; i < challenges.size(); i++) {
-            copy.add(challenges.get(i).copy());
-        }
-        return copy;
+    // ----- Template hooks -----
+    @Override
+    protected String nameOf(Challenge entry) {
+        return entry.getName();
+    }
+
+    // Challenge is mutable, so a catalog must never hand out the instances it
+    // stores (two players would share progress).
+    @Override
+    protected Challenge copyOf(Challenge entry) {
+        return entry.copy();
     }
 }

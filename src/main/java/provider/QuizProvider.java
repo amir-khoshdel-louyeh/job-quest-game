@@ -3,20 +3,16 @@ package provider;
 import provider.contract.QuizCatalog;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import model.minigame.QuizQuestion;
-import utils.Lists;
 
 // Holds the quiz questions for the quiz mini-game.
 // Injected into the quiz launcher/controller.
-public final class QuizProvider implements QuizCatalog {
-
-    private final ArrayList<QuizQuestion> questions;
+public final class QuizProvider extends AbstractCatalog<QuizQuestion> implements QuizCatalog {
 
     // ----- Construction -----
     public QuizProvider() {
-        this.questions = buildCatalog();
+        super(buildCatalog());
     }
 
     private static ArrayList<QuizQuestion> buildCatalog() {
@@ -74,9 +70,10 @@ public final class QuizProvider implements QuizCatalog {
         return list;
     }
 
-    // ----- Getter -----
+    // ----- Template hook -----
+    // A question has no display name; its id is its key.
     @Override
-    public List<QuizQuestion> getQuestions() {
-        return Lists.copyOf(questions);
+    protected String nameOf(QuizQuestion entry) {
+        return entry.getId();
     }
 }

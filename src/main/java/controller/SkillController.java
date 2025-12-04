@@ -6,8 +6,8 @@ import model.career.SkillAvailability;
 import model.player.SkillLearner;
 import model.goals.ChallengeType;
 import provider.contract.SkillCatalog;
-import services.AchievementRules;
-import services.ChallengeRules;
+import services.contract.AchievementRules;
+import services.contract.ChallengeRules;
 import utils.Require;
 
 // Handles learning new skills for the player's profession.
@@ -16,29 +16,29 @@ final class SkillController implements SkillOperations {
     private final SkillLearner player;
     private final ChallengeRules challengeRules;
     private final AchievementRules achievementRules;
-    private final SkillCatalog skillProvider;
+    private final SkillCatalog skillCatalog;
 
     // ----- Construction -----
     // Abstractions and catalog come from GameSession; every dependency is required.
     SkillController(SkillLearner player,
                     ChallengeRules challengeRules,
                     AchievementRules achievementRules,
-                    SkillCatalog skillProvider) {
+                    SkillCatalog skillCatalog) {
         this.player = Require.notNull(player, "player");
         this.challengeRules = Require.notNull(challengeRules, "challengeRules");
         this.achievementRules = Require.notNull(achievementRules, "achievementRules");
-        this.skillProvider = Require.notNull(skillProvider, "skillProvider");
+        this.skillCatalog = Require.notNull(skillCatalog, "skillCatalog");
     }
 
     // ----- Commands -----
     // Learns a skill only when the profession, playtime, and money all allow it.
     @Override
     public Outcome learnSkill(String skillName) {
-        LearnableSkill toLearn = skillProvider.getSkill(skillName);
+        LearnableSkill toLearn = skillCatalog.findByName(skillName);
         if (toLearn == null) {
             return Outcome.failure("That skill does not exist.");
         }
-        if (!toLearn.isForIdentity(player.getIdentity())) {
+        if (!toLearn.isForProfession(player.getProfession())) {
             return Outcome.failure("That skill is not available for your profession.");
         }
 

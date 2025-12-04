@@ -2,12 +2,10 @@ package provider.contract;
 
 import java.util.List;
 
-import model.Identity;
 import model.career.LearnableSkill;
+import model.career.Profession;
 
-// Read-only skill catalog contract.
-public interface SkillCatalog {
-    LearnableSkill getSkill(String name);
-
-    List<LearnableSkill> getSkillsForIdentity(Identity identity);
+// Read-only skill catalog contract: name lookup plus the profession cut.
+public interface SkillCatalog extends NamedCatalog<LearnableSkill> {
+    List<LearnableSkill> getSkillsForProfession(Profession profession);
 }

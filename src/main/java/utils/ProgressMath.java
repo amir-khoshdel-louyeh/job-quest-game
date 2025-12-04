@@ -2,8 +2,8 @@ package utils;
 
 // 0-100 progress math.
 // Shared by CareerProgress, Challenge, and Achievement.
-public final class ProgressUtil {
-    private ProgressUtil() {
+public final class ProgressMath {
+    private ProgressMath() {
     }
 
     public static int percent(int current, int target) {

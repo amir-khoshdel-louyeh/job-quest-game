@@ -3,6 +3,7 @@ package view;
 import java.awt.*;
 import javax.swing.*;
 
+import view.contract.Navigator;
 import view.theme.AppTheme;
 import utils.GameLog;
 import utils.Require;

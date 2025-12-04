@@ -102,6 +102,11 @@ XP is `25 + base pay / 8`, also scaled by the quiz multiplier. The quiz score is
 
 ## 🏗️ Architecture
 
+راهنمای فارسیِ ساختار packageها و کلاس‌ها در
+[ARCHITECTURE_FA.md](./ARCHITECTURE_FA.md) و نسخه‌ی تعاملی راست‌به‌چپ، همراه با
+جست‌وجو، فیلتر، ارتباط‌ها، مفاهیم OOP و کد کامل فایل‌ها در
+[ARCHITECTURE_FA.html](./ARCHITECTURE_FA.html) قرار دارد.
+
 Dependencies point one way only. A layer may use the layer below it, but never
 the other way around:
 
@@ -115,12 +120,12 @@ main → view → controller → services / providers → model
   calculates a game rule
 - **controller** — application actions (`GameController`), read queries
   (`GameQueries`), and observer notifications. It never paints on screen
-- **services** — pure game rules (`JobService`, `JobGate`, `ChallengeService`,
+- **services** — pure game rules (`JobRewardService`, `JobGate`, `ChallengeService`,
   `AchievementService`, `RoutineService`, `QuizScorer`). No UI, no database
 - **provider** — read-only catalogs of jobs, skills, services, achievements,
   challenges, quizzes, and careers. These are data, not game logic
 - **model** — entities, value objects, small rules, and the ports that connect
-  the layers (`User`, `Wallet`, `Job`, `JobRewards`, `QuizRound`, ...)
+  the layers (`Player`, `Wallet`, `Job`, `JobRewards`, `QuizRound`, ...)
 - **observer** — `Subject` / `Observer` / `ChangeType` for stat updates
 - **utils** — formatting and small shared helpers
 
@@ -141,14 +146,14 @@ JobDialog (view)
   → GameController
     → JobController
       → JobGate (can this job start?)
-      → JobService → JobPaymentCalculator + JobRewardCalculator
-      → UserController (commands + notifications)
-        → User → Wallet / Vitals / CareerProgress / books
+      → JobRewardService → JobPaymentCalculator + JobRewardCalculator
+      → PlayerController (commands + notifications)
+        → Player → Wallet / Vitals / CareerProgress / books
   → Outcome (success/failure + message) back to the view
-  → UserController notifies observers → GamePanel refreshes the stats panel
+  → PlayerController notifies observers → GamePanel refreshes the stats panel
 ```
 
-Views never receive the mutable `User`. `GameSession` hands them a read-only
+Views never receive the mutable `Player`. `GameSession` hands them a read-only
 `PlayerView` and a subscribe-only `Observable`, so a cast cannot reach a command
 port or the aggregate.
 
@@ -156,17 +161,17 @@ port or the aggregate.
 
 | Order | File | Why |
 | --- | --- | --- |
-| 1 | `model/Identity.java` | The profession contract |
+| 1 | `model/career/Profession.java` | The profession contract |
 | 2 | `model/player/Wallet.java` | Encapsulation with guarded commands |
 | 3 | `model/player/Vitals.java` | Clamping inside private setters |
 | 4 | `model/player/CareerProgress.java` | Multi-level XP in one call |
-| 5 | `model/player/User.java` | Aggregate root built by composition |
+| 5 | `model/player/Player.java` | Aggregate root built by composition |
 | 6 | `model/career/Job.java` + `JobRewards.java` | Immutable value objects |
 | 7 | `model/minigame/QuizRound.java` | A small state machine |
 | 8 | `provider/AbstractCatalog.java` | Generics + inheritance |
-| 9 | `services/JobService.java` | Composition of two rule classes |
+| 9 | `services/JobRewardService.java` | Composition of two rule classes |
 | 10 | `observer/SimpleSubject.java` | Defensive snapshot + safe notify |
-| 11 | `controller/UserController.java` | Adapter, ports, projections |
+| 11 | `controller/PlayerController.java` | Adapter, ports, projections |
 | 12 | `controller/GameSession.java` | Composition root |
 | 13 | `controller/GameController.java` + `GameQueries.java` | Action/read split |
 
@@ -174,21 +179,21 @@ port or the aggregate.
 
 | Concept | Where to look |
 | --- | --- |
-| Encapsulation | `User` composition; `QuizRound` state; `Wallet`/`Vitals` setter guards; defensive `ChallengeBook` copies |
-| Information hiding | Package-private `UserController`/`SkillBook`/rule controllers; views get read-only `PlayerView` and `Observable` projections, so no cast back to a command port or `User`; `DevControls` demo port |
-| Abstraction | `Identity`, `SkillSet`, `PaymentStats`, `ServiceTarget`, `ScoreStrategy`, `PlayerView`, `UpkeepTarget`, `DevControls` |
-| Inheritance | `AbstractCatalog<T>` (template method), `AbstractIdentified` (shared identity), `UnknownIdentityException` |
-| Polymorphism | `Identity`/`Profession`, `Service.apply(ServiceTarget)`, `MiniGameLauncher`/`QuizLauncher` |
-| Composition | `User` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
-| Immutability / value objects | `Job`, `JobRewards`, `Service`, `MiniGameResult`, `QuizQuestion` |
+| Encapsulation | `Player` composition; `QuizRound` state; `Wallet`/`Vitals` setter guards; defensive `ChallengeBook` copies |
+| Information hiding | Package-private `PlayerController`/`SkillBook`/rule controllers; views get read-only `PlayerView` and `Observable` projections, so no cast back to a command port or `Player`; `DevControls` demo port |
+| Abstraction | `Profession`, `SkillSet`, `PaymentStats`, `ShopItemTarget`, `ScoreStrategy`, `PlayerView`, `UpkeepTarget`, `DevControls` |
+| Inheritance | `AbstractCatalog<T>` (template method), `AbstractIdentified` (shared identity), `UnknownProfessionException` |
+| Polymorphism | `Profession`/`ProfessionDefinition`, `ShopItem.apply(ShopItemTarget)`, `MiniGameLauncher`/`QuizLauncher` |
+| Composition | `Player` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
+| Immutability / value objects | `Job`, `JobRewards`, `ShopItem`, `MiniGameResult`, `QuizQuestion` |
 | Observer pattern | `Subject`, `SimpleSubject`, `Observer`, `ChangeType` |
 | Strategy pattern | `MiniGameLauncher`/`QuizLauncher`, `ScoreStrategy`/`QuizScorer` |
 | Factory methods | `Outcome.success`, `MiniGameResult.quiz`, `QuizRound.random` |
-| Dependency inversion | `JobService` depends on `PaymentStats`; upkeep rules on `UpkeepTarget`; goal services on `PlayerProgress`; controllers on `JobPlayer`/`SkillLearner`/`PurchaseTarget`; services and views on `*Catalog` contracts |
+| Dependency inversion | `JobRewardService` depends on `PaymentStats`; upkeep rules on `UpkeepTarget`; goal services on `PlayerProgress`; controllers on `JobPlayer`/`SkillLearner`/`PurchaseTarget`; services and views on `*Catalog` contracts |
 | Single responsibility | `JobGate` (eligibility) vs `JobController` (outcomes); rule calculators each own one rule; `GameController` (actions) vs `GameQueries` (reads) |
 | Open/closed | Add a mini-game or achievement without editing the existing flow |
 | Interface segregation | Read surface (`PlayerView`), goal surface (`PlayerProgress`), per-use-case ports (`JobPlayer`, `SkillLearner`, `PurchaseTarget`), plus `SkillSet`, `PaymentStats`, `AchievementStats`, and `UpkeepTarget` |
-| Adapter / port | `UserController` (adapter over `User`); `Scheduler`/`SwingScheduler`; `MessageSink`/`GamePanel` |
+| Adapter / port | `PlayerController` (adapter over `Player`); `Scheduler`/`SwingScheduler`; `MessageSink`/`GamePanel` |
 | Composition root | `GameSession` builds the player, services, controllers, and queries |
 | Defensive copying | `utils.Lists`, `AbstractCatalog.getAll()`, `ChallengeProvider`, `QuizProvider` |
 
@@ -199,19 +204,19 @@ job-quest-game/
 ├── src/main/java/
 │   ├── main/            # Application entry point
 │   ├── model/           # Entities, value objects, ports, small rules
-│   │   ├── career/      # Job, JobRewards, Profession, LearnableSkill
+│   │   ├── career/      # Job, JobRewards, Profession, ProfessionDefinition, LearnableSkill
 │   │   ├── goals/       # Challenge, Achievement and their books
 │   │   ├── minigame/    # QuizRound, QuizQuestion, MiniGameResult, ScoreStrategy
-│   │   ├── player/      # User, Wallet, Vitals, CareerProgress, ports
-│   │   └── store/       # Service, ServiceTarget
+│   │   ├── player/      # Player, Wallet, Vitals, CareerProgress, ports
+│   │   └── store/       # ShopItem, ShopItemTarget
 │   ├── services/        # Rule composers
 │   │   ├── job/         # JobGate, payment and reward calculators
 │   │   ├── minigame/    # QuizScorer
 │   │   └── upkeep/      # Drain, sickness, knockout rules
-│   ├── provider/        # Read-only catalogs and identity factory
+│   ├── provider/        # Read-only catalogs and profession registry
 │   ├── controller/      # GameSession, controllers, queries, ports
 │   ├── view/            # Swing screens, dialogs, theme
-│   │   ├── minigame/    # MiniGameLauncher, QuizLauncher, QuizGameDialog
+│   │   ├── minigame/    # QuizLauncher, QuizGameDialog
 │   │   └── theme/       # AppTheme
 │   ├── observer/        # Observer pattern
 │   └── utils/           # Lists, formatting, GameBalance, logging
@@ -225,14 +230,14 @@ job-quest-game/
 
 `mvn test` runs the JUnit 5 suite under `src/test/java`:
 
-- `UserTest` — player aggregate rules.
-- `JobGateTest`, `JobServiceTest` — eligibility and reward math.
+- `PlayerTest` — player aggregate rules.
+- `JobGateTest`, `JobRewardServiceTest` — eligibility and reward math.
 - `ChallengeServiceTest`, `AchievementServiceTest` — goal progress and rewards.
 - `RoutineServiceTest`, `DrainRuleTest`, `SicknessRuleTest`, `KnockoutPolicyTest` — upkeep rules.
 - `AbstractCatalogTest`, `AbstractIdentifiedTest` — abstract base behaviour.
 
 The rules depend on small ports (`PaymentStats`, `UpkeepTarget`,
-`PlayerProgress`, `ServiceTarget`) and time is injected as a `Supplier<Long>`,
+`PlayerProgress`, `ShopItemTarget`) and time is injected as a `Supplier<Long>`,
 so the suite runs headless with fake players and no Swing window.
 
 ## 🛠️ Developer panel

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.player.UpkeepTarget;
-import services.UpkeepRules;
+import services.contract.RoutineRules;
 import utils.GameBalance;
 import utils.GameLog;
 import utils.Require;
@@ -17,7 +17,7 @@ import utils.Require;
 // Runs periodic upkeep like energy, health, sickness, and play time.
 // Scheduling is injected (view.SwingScheduler in the app), so this class
 // stays free of Swing. Its collaborators are abstractions: the UpkeepTarget
-// port, the UpkeepRules contract, and the Scheduler handle.
+// port, the RoutineRules contract, and the Scheduler handle.
 public final class RoutineController implements RoutineControl {
     private static final long ENERGY_TICK_MILLIS = 30 * 1000L;
     private static final long HEALTH_TICK_MILLIS = 60 * 1000L;
@@ -25,13 +25,13 @@ public final class RoutineController implements RoutineControl {
 
     private final UpkeepTarget player;
     private final MessageSink messages;
-    private final UpkeepRules routines;
+    private final RoutineRules routines;
     private final Scheduler scheduler;
     private final List<Cancelable> tasks = new ArrayList<Cancelable>();
 
     // ----- Construction -----
     // Package-private: GameSession.createRoutineController is the only entry.
-    RoutineController(UpkeepTarget player, UpkeepRules routines, MessageSink messages,
+    RoutineController(UpkeepTarget player, RoutineRules routines, MessageSink messages,
                       Scheduler scheduler) {
         this.player = Require.notNull(player, "player");
         this.routines = Require.notNull(routines, "routines");

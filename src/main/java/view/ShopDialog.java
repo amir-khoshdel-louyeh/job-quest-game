@@ -2,7 +2,7 @@ package view;
 
 import controller.contract.GameCommands;
 import controller.Outcome;
-import model.store.Service;
+import model.store.ShopItem;
 import view.theme.AppTheme;
 
 import javax.swing.*;
@@ -10,12 +10,12 @@ import java.awt.*;
 import java.util.List;
 
 // The shop screen: buy services to restore health or energy.
-public class ServiceDialog extends JDialog {
+public class ShopDialog extends JDialog {
 
     private final GameCommands controller;
     private final GamePanel gamePanel;
 
-    ServiceDialog(JFrame parent, GameCommands controller, GamePanel gamePanel, List<Service> services) {
+    ShopDialog(JFrame parent, GameCommands controller, GamePanel gamePanel, List<ShopItem> services) {
         super(parent, "Available Services", true);
         this.controller = controller;
         this.gamePanel = gamePanel;
@@ -28,7 +28,7 @@ public class ServiceDialog extends JDialog {
         servicesContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         servicesContainer.setBackground(AppTheme.BACKGROUND_COLOR);
 
-        for (Service service : services) {
+        for (ShopItem service : services) {
             servicesContainer.add(createServicePanel(service));
             servicesContainer.add(Box.createVerticalStrut(10));
         }
@@ -41,7 +41,7 @@ public class ServiceDialog extends JDialog {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    private JPanel createServicePanel(Service service) {
+    private JPanel createServicePanel(ShopItem service) {
         JPanel panel = AppTheme.createItemCard();
 
         JPanel infoPanel = new JPanel();
@@ -79,7 +79,7 @@ public class ServiceDialog extends JDialog {
     }
 
     // Stays open for repeat buys; success goes to chat, only failures pop up.
-    private void handleBuyService(Service service) {
+    private void handleBuyService(ShopItem service) {
         Outcome result = controller.purchaseService(service.getName());
         gamePanel.addChatMessage(result.getMessage());
         if (!result.isSuccess()) {

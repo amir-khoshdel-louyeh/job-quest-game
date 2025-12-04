@@ -4,6 +4,7 @@ import model.goals.Challenge;
 import model.goals.ChallengeType;
 import model.player.PlayerProgress;
 import provider.contract.ChallengeCatalog;
+import services.contract.ChallengeRules;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public final class ChallengeService implements ChallengeRules {
     @Override
     public void initializeChallenges(PlayerProgress player) {
         if (player.getActiveChallenges().isEmpty()) {
-            player.addChallenges(catalog.getChallenges());
+            player.addChallenges(catalog.getAll());
         }
     }
 

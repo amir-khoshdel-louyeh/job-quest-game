@@ -1,13 +1,14 @@
-package services.job;
+package services.contract;
 
-import model.Identity;
+import model.career.Profession;
 import model.career.Job;
 import model.career.SkillSet;
+import services.job.JobGateDecision;
 
 // Decides whether one job attempt may start.
 // JobController depends on this contract, not on JobGate.
 public interface JobEligibility {
 
-    JobGateDecision check(Job job, Identity identity, SkillSet skills,
+    JobGateDecision check(Job job, Profession profession, SkillSet skills,
                           int energy, boolean blocked);
 }
