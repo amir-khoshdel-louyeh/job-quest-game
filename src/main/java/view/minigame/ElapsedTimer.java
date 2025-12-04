@@ -1,4 +1,4 @@
-package utils;
+package view.minigame;
 
 // Stopwatch for elapsed-time measurement.
 // The quiz dialog owns one to time a round.

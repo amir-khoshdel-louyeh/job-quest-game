@@ -28,7 +28,7 @@ public class QuizGameDialog extends JDialog {
     private JProgressBar timeBar;
 
     private QuizRound round;
-    private final utils.ElapsedTimer stopwatch = new utils.ElapsedTimer();
+    private final view.minigame.ElapsedTimer stopwatch = new view.minigame.ElapsedTimer();
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
