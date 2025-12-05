@@ -3,6 +3,7 @@ package model.player;
 import java.util.ArrayList;
 
 import model.career.SkillSet;
+import utils.Require;
 
 // Tracks learned skills.
 // Used by model.player.Player (sole owner); callers only ever see SkillSet,
@@ -12,10 +13,7 @@ final class SkillBook implements SkillSet {
 
     // ----- Queries -----
     public boolean hasSkill(String skillName) {
-        if (skillName == null) {
-            return false;
-        }
-        return skills.contains(skillName);
+        return skills.contains(Require.notNull(skillName, "skillName"));
     }
 
     @Override
@@ -25,13 +23,14 @@ final class SkillBook implements SkillSet {
 
     // ----- Commands -----
     public boolean addSkill(String skillName) {
-        if (skillName == null || skillName.trim().equals("")) {
+        String validName = Require.notNull(skillName, "skillName");
+        if (validName.trim().equals("")) {
+            throw new IllegalArgumentException("skillName required");
+        }
+        if (skills.contains(validName)) {
             return false;
         }
-        if (skills.contains(skillName)) {
-            return false;
-        }
-        skills.add(skillName);
+        skills.add(validName);
         return true;
     }
 }

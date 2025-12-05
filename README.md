@@ -102,11 +102,6 @@ XP is `25 + base pay / 8`, also scaled by the quiz multiplier. The quiz score is
 
 ## 🏗️ Architecture
 
-راهنمای فارسیِ ساختار packageها و کلاس‌ها در
-[ARCHITECTURE_FA.md](./ARCHITECTURE_FA.md) و نسخه‌ی تعاملی راست‌به‌چپ، همراه با
-جست‌وجو، فیلتر، ارتباط‌ها، مفاهیم OOP و کد کامل فایل‌ها در
-[ARCHITECTURE_FA.html](./ARCHITECTURE_FA.html) قرار دارد.
-
 Dependencies point one way only. A layer may use the layer below it, but never
 the other way around:
 

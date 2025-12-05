@@ -3,6 +3,8 @@ package model.goals;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.Require;
+
 // Owns active challenges.
 // Used by model.player.Player (sole owner). Incoming challenges are copied so a
 // caller cannot keep mutating the progress the book stores.
@@ -22,10 +24,8 @@ public final class ChallengeBook {
     // ----- Commands -----
     // Adds progress to challenges of this type; returns newly completed ones.
     public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
+        Require.notNull(type, "type");
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
-        if (type == null) {
-            return finished;
-        }
         for (int i = 0; i < activeChallenges.size(); i++) {
             Challenge c = activeChallenges.get(i);
             if (c.getType() == type && !c.isCompleted()) {
@@ -39,18 +39,14 @@ public final class ChallengeBook {
     }
 
     public void addChallenge(Challenge challenge) {
-        if (challenge == null) {
-            return;
-        }
+        Require.notNull(challenge, "challenge");
         if (!hasChallenge(challenge.getId())) {
             activeChallenges.add(challenge.copy());
         }
     }
 
     public void addChallenges(List<Challenge> list) {
-        if (list == null) {
-            return;
-        }
+        Require.notNull(list, "list");
         for (int i = 0; i < list.size(); i++) {
             addChallenge(list.get(i));
         }
@@ -58,9 +54,7 @@ public final class ChallengeBook {
 
     // ----- Queries -----
     private boolean hasChallenge(String challengeId) {
-        if (challengeId == null) {
-            return false;
-        }
+        Require.notNull(challengeId, "challengeId");
         for (int i = 0; i < activeChallenges.size(); i++) {
             Challenge c = activeChallenges.get(i);
             if (challengeId.equals(c.getId())) {

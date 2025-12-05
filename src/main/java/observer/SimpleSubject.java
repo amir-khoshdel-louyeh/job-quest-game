@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import utils.GameLog;
+import utils.Require;
 
 // Holds watchers and tells them when something changes.
 public final class SimpleSubject implements Subject {
@@ -18,20 +19,15 @@ public final class SimpleSubject implements Subject {
     // ----- Commands -----
     @Override
     public void addObserver(Observer observer) {
-        if (observer == null) {
-            return;
-        }
-        if (!observers.contains(observer)) {
-            observers.add(observer);
+        Observer validObserver = Require.notNull(observer, "observer");
+        if (!observers.contains(validObserver)) {
+            observers.add(validObserver);
         }
     }
 
     @Override
     public void removeObserver(Observer observer) {
-        if (observer == null) {
-            return;
-        }
-        observers.remove(observer);
+        observers.remove(Require.notNull(observer, "observer"));
     }
 
     @Override

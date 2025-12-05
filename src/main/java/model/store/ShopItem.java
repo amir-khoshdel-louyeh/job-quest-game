@@ -3,6 +3,8 @@ package model.store;
 import java.util.Locale;
 import java.util.Objects;
 
+import utils.Require;
+
 // A buyable service that restores health or energy right away.
 // Applied to a ShopItemTarget; read via ShopCatalog/controller.
 public final class ShopItem {
@@ -92,9 +94,7 @@ public final class ShopItem {
     // ----- Commands -----
     // Applies the stored health and energy amounts.
     public void apply(ShopItemTarget target) {
-        if (target == null) {
-            return;
-        }
+        Require.notNull(target, "target");
         if (energyEffect > 0) {
             target.gainEnergy(energyEffect);
         }

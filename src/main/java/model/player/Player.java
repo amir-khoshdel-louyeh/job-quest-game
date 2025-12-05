@@ -10,6 +10,7 @@ import model.goals.Challenge;
 import model.goals.ChallengeBook;
 import model.goals.ChallengeType;
 import model.store.ShopItemTarget;
+import utils.Require;
 
 // Represents one player. Owns Wallet/Vitals/Progress plus skill,
 // blocking, achievement, and challenge books.
@@ -34,7 +35,7 @@ public final class Player implements PlayerProgress, ShopItemTarget, PaymentStat
             throw new IllegalArgumentException("playerName required");
         }
         this.playerName = playerName;
-        this.profession = Objects.requireNonNull(profession, "profession must not be null");
+        this.profession = Require.notNull(profession, "profession");
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
