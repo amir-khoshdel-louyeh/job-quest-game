@@ -3,7 +3,7 @@ package controller.contract;
 import java.util.List;
 
 import model.career.Job;
-import model.career.LearnableSkill;
+import model.career.Skill;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import model.player.PlayerView;
@@ -18,7 +18,7 @@ public interface GameReads {
 
     List<Job> getJobsForCurrentIdentity();
 
-    List<LearnableSkill> getSkillsForCurrentIdentity();
+    List<Skill> getSkillsForCurrentIdentity();
 
     PlayerView getPlayerView();
 

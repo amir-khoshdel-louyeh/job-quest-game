@@ -115,8 +115,9 @@ main → view → controller → services / providers → model
   calculates a game rule
 - **controller** — application actions (`GameController`), read queries
   (`GameQueries`), and observer notifications. It never paints on screen
-- **services** — pure game rules (`JobRewardService`, `JobGate`, `ChallengeService`,
-  `AchievementService`, `RoutineService`, `QuizScorer`). No UI, no database
+- **services** — pure game rules (`JobRewardService`, `JobGate`, `SkillGate`,
+  `ChallengeService`, `AchievementService`, `RoutineService`, `QuizScorer`).
+  No UI, no database
 - **provider** — read-only catalogs of jobs, skills, services, achievements,
   challenges, quizzes, and careers. These are data, not game logic
 - **model** — entities, value objects, small rules, and the ports that connect
@@ -199,13 +200,14 @@ job-quest-game/
 ├── src/main/java/
 │   ├── main/            # Application entry point
 │   ├── model/           # Entities, value objects, ports, small rules
-│   │   ├── career/      # Job, JobRewards, Profession, ProfessionDefinition, LearnableSkill
+│   │   ├── career/      # Job, JobRewards, Profession, ProfessionDefinition, Skill
 │   │   ├── goals/       # Challenge, Achievement and their books
 │   │   ├── minigame/    # QuizRound, QuizQuestion, MiniGameResult, ScoreStrategy
 │   │   ├── player/      # Player, Wallet, Vitals, CareerProgress, ports
 │   │   └── store/       # ShopItem, ShopItemTarget
 │   ├── services/        # Rule composers
 │   │   ├── job/         # JobGate, payment and reward calculators
+│   │   ├── skill/       # SkillGate
 │   │   ├── minigame/    # QuizScorer
 │   │   └── upkeep/      # Drain, sickness, knockout rules
 │   ├── provider/        # Read-only catalogs and profession registry
@@ -227,6 +229,7 @@ job-quest-game/
 
 - `PlayerTest` — player aggregate rules.
 - `JobGateTest`, `JobRewardServiceTest` — eligibility and reward math.
+- `SkillGateTest` — skill eligibility rules.
 - `ChallengeServiceTest`, `AchievementServiceTest` — goal progress and rewards.
 - `RoutineServiceTest`, `DrainRuleTest`, `SicknessRuleTest`, `KnockoutPolicyTest` — upkeep rules.
 - `AbstractCatalogTest`, `AbstractIdentifiedTest` — abstract base behaviour.

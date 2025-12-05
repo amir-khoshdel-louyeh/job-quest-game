@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.career.Profession;
-import model.career.LearnableSkill;
+import model.career.Skill;
 import utils.Lists;
 import utils.Require;
 
 // Holds all skills the player can learn at school.
 // Extends AbstractCatalog; injected into SkillController.
-public final class SkillProvider extends AbstractCatalog<LearnableSkill> implements SkillCatalog {
+public final class SkillProvider extends AbstractCatalog<Skill> implements SkillCatalog {
 
     // ----- Construction -----
     // The profession registry comes from the composition root; this catalog
@@ -22,14 +22,14 @@ public final class SkillProvider extends AbstractCatalog<LearnableSkill> impleme
     }
 
     // Tuned for a 10-hour run: full path affordable in the first hours.
-    private static ArrayList<LearnableSkill> buildDefaultCatalog(ProfessionRegistry professions) {
-        ArrayList<LearnableSkill> skills = new ArrayList<LearnableSkill>();
-        skills.add(new LearnableSkill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(professions.createProfession("Typist"), professions.createProfession("Doctor"))));
-        skills.add(new LearnableSkill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(professions.createProfession("LogoDesigner"))));
-        skills.add(new LearnableSkill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(professions.createProfession("Typist"), professions.createProfession("Doctor"))));
-        skills.add(new LearnableSkill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(professions.createProfession("Programmer"), professions.createProfession("LogoDesigner"))));
-        skills.add(new LearnableSkill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(professions.createProfession("Programmer"))));
-        skills.add(new LearnableSkill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(professions.createProfession("Programmer"), professions.createProfession("Doctor"))));
+    private static ArrayList<Skill> buildDefaultCatalog(ProfessionRegistry professions) {
+        ArrayList<Skill> skills = new ArrayList<Skill>();
+        skills.add(new Skill("Typing Proficiency", "Improves speed on basic tasks.", 300, 0, makeList2(professions.createProfession("Typist"), professions.createProfession("Doctor"))));
+        skills.add(new Skill("Basic Graphic Design", "Unlocks simple design jobs.", 800, 10, makeList1(professions.createProfession("LogoDesigner"))));
+        skills.add(new Skill("Content Writing", "Unlocks article writing jobs.", 1200, 25, makeList2(professions.createProfession("Typist"), professions.createProfession("Doctor"))));
+        skills.add(new Skill("Web Development Basics", "Unlocks entry-level web tasks.", 2500, 45, makeList2(professions.createProfession("Programmer"), professions.createProfession("LogoDesigner"))));
+        skills.add(new Skill("Advanced SEO", "Boosts earnings from web-related jobs.", 4000, 75, makeList1(professions.createProfession("Programmer"))));
+        skills.add(new Skill("Project Management", "Unlocks high-paying management tasks.", 8000, 110, makeList2(professions.createProfession("Programmer"), professions.createProfession("Doctor"))));
         return skills;
     }
 
@@ -49,14 +49,14 @@ public final class SkillProvider extends AbstractCatalog<LearnableSkill> impleme
 
     // ----- Template hook -----
     @Override
-    protected String nameOf(LearnableSkill entry) {
+    protected String nameOf(Skill entry) {
         return entry.getName();
     }
 
     // ----- Queries -----
-    public List<LearnableSkill> getSkillsForProfession(Profession profession) {
+    public List<Skill> getSkillsForProfession(Profession profession) {
         if (profession == null) {
-            return new ArrayList<LearnableSkill>();
+            return new ArrayList<Skill>();
         }
         return Lists.filter(snapshot(), skill -> skill.isForProfession(profession));
     }

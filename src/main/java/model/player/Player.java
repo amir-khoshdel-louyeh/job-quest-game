@@ -122,7 +122,15 @@ public final class Player extends AbstractIdentified
     }
 
     // ----- SkillBook Delegate -----
-    public boolean addSkill(String skillName) {
+    // Charges the wallet and records the skill as one aggregate command.
+    public boolean purchaseSkill(String skillName, int cost) {
+        Require.notNegative(cost, "cost");
+        if (skillBook.hasSkill(skillName)) {
+            return false;
+        }
+        if (cost > 0 && !wallet.withdraw(cost)) {
+            return false;
+        }
         return skillBook.addSkill(skillName);
     }
 

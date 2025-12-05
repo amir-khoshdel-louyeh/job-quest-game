@@ -230,10 +230,13 @@ final class PlayerController implements Subject, JobPlayer,
     }
 
     // ----- Skills / progress -----
-    // Adds a new skill. Returns true if the skill is new.
+    // Charges the wallet and learns the skill in one aggregate command.
     @Override
-    public boolean addSkill(String skillName) {
-        if (player.addSkill(skillName)) {
+    public boolean purchaseSkill(String skillName, int cost) {
+        if (player.purchaseSkill(skillName, cost)) {
+            if (cost > 0) {
+                notifyObservers(ChangeType.BALANCE);
+            }
             notifyObservers(ChangeType.SKILLS);
             return true;
         }

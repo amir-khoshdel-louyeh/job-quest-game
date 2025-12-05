@@ -1,13 +1,14 @@
 package controller;
 
 import controller.contract.SkillOperations;
-import model.career.LearnableSkill;
-import model.career.SkillAvailability;
+import model.career.Skill;
 import model.player.SkillLearner;
 import model.goals.ChallengeType;
 import provider.contract.SkillCatalog;
 import services.contract.AchievementRules;
 import services.contract.ChallengeRules;
+import services.contract.SkillEligibility;
+import services.GateDecision;
 import utils.Require;
 
 // Handles learning new skills for the player's profession.
@@ -17,44 +18,39 @@ final class SkillController implements SkillOperations {
     private final ChallengeRules challengeRules;
     private final AchievementRules achievementRules;
     private final SkillCatalog skillCatalog;
+    private final SkillEligibility skillGate;
 
     // ----- Construction -----
     // Abstractions and catalog come from GameSession; every dependency is required.
     SkillController(SkillLearner player,
                     ChallengeRules challengeRules,
                     AchievementRules achievementRules,
-                    SkillCatalog skillCatalog) {
+                    SkillCatalog skillCatalog,
+                    SkillEligibility skillGate) {
         this.player = Require.notNull(player, "player");
         this.challengeRules = Require.notNull(challengeRules, "challengeRules");
         this.achievementRules = Require.notNull(achievementRules, "achievementRules");
         this.skillCatalog = Require.notNull(skillCatalog, "skillCatalog");
+        this.skillGate = Require.notNull(skillGate, "skillGate");
     }
 
     // ----- Commands -----
     // Learns a skill only when the profession, playtime, and money all allow it.
     @Override
     public Outcome learnSkill(String skillName) {
-        LearnableSkill toLearn = skillCatalog.findByName(skillName);
-        if (toLearn == null) {
-            return Outcome.failure("That skill does not exist.");
-        }
-        if (!toLearn.isForProfession(player.getProfession())) {
-            return Outcome.failure("That skill is not available for your profession.");
-        }
-
-        SkillAvailability availability = toLearn.availabilityFor(
-                player.getSkillSet(), player.getPlayTimeMinutes());
-        if (availability == SkillAvailability.LEARNED) {
-            return Outcome.failure("You already learned that skill.");
-        }
-        if (availability == SkillAvailability.LOCKED) {
-            return Outcome.failure("You need more playtime before that skill unlocks.");
+        Skill toLearn = skillCatalog.findByName(skillName);
+        GateDecision gate = skillGate.check(toLearn,
+                player.getProfession(),
+                player.getSkillSet(),
+                player.getPlayTimeMinutes(),
+                player.getBalance());
+        if (!gate.isAllowed()) {
+            return Outcome.failure(gate.getReason());
         }
 
-        if (!player.deductBalance(toLearn.getCost())) {
+        if (!player.purchaseSkill(toLearn.getName(), toLearn.getCost())) {
             return Outcome.failure("You do not have enough money for that skill.");
         }
-        player.addSkill(toLearn.getName());
         challengeRules.updateChallengeProgress(
                 player, ChallengeType.LEARN_SKILLS, 1);
         achievementRules.checkAndUnlockAchievements(player);

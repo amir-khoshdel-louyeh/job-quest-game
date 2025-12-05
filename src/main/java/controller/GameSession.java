@@ -21,6 +21,7 @@ import services.ChallengeService;
 import services.JobRewardService;
 import services.RoutineService;
 import services.job.JobGate;
+import services.skill.SkillGate;
 import utils.Require;
 
 // One game run: creates the player aggregate, its shared services, its
@@ -64,7 +65,7 @@ public final class GameSession implements GameContext {
         JobController jobController = new JobController(
                 playerController, new JobRewardService(), new JobGate(), challenges, achievements);
         SkillController skillController = new SkillController(
-                playerController, challenges, achievements, skills);
+                playerController, challenges, achievements, skills, new SkillGate());
         SessionTracker session = new SessionTracker(System.currentTimeMillis());
         GameController game = new GameController(economy, jobController, skillController, session);
         GameQueries queries = new GameQueries(playerController, services, jobs, skills, playerView,

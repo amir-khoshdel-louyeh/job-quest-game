@@ -6,7 +6,7 @@ import controller.contract.SessionStats;
 import java.util.List;
 
 import model.career.Job;
-import model.career.LearnableSkill;
+import model.career.Skill;
 import model.goals.Achievement;
 import model.goals.Challenge;
 import model.player.CareerProgress;
@@ -71,7 +71,7 @@ public final class GameQueries implements GameReads {
     }
 
     @Override
-    public List<LearnableSkill> getSkillsForCurrentIdentity() {
+    public List<Skill> getSkillsForCurrentIdentity() {
         return skillCatalog.getSkillsForProfession(playerView.getProfession());
     }
 

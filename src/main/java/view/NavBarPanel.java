@@ -3,7 +3,7 @@ package view;
 import controller.contract.GameCommands;
 import controller.contract.GameReads;
 import model.career.Job;
-import model.career.LearnableSkill;
+import model.career.Skill;
 import model.player.PlayerView;
 import view.contract.MiniGameLauncher;
 import view.contract.Navigator;
@@ -76,7 +76,7 @@ public class NavBarPanel extends JPanel implements Navigator {
 
     @Override
     public void openSchool() {
-        java.util.List<LearnableSkill> mySkills = queries.getSkillsForCurrentIdentity();
+        java.util.List<Skill> mySkills = queries.getSkillsForCurrentIdentity();
         new SkillDialog(frame(), controller, host, mySkills, player).setVisible(true);
     }
 

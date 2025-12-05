@@ -7,7 +7,7 @@ import java.util.Objects;
 
 // A skill offered at school with a cost and requirements.
 // Checked against Profession; read via SkillProvider/SkillController.
-public final class LearnableSkill {
+public final class Skill {
     private final String name;
     private final String description;
     private final int cost;
@@ -15,8 +15,8 @@ public final class LearnableSkill {
     private final ArrayList<Profession> professions;
 
     // ----- Construction -----
-    public LearnableSkill(String name, String description, int cost, long requiredPlayTimeMinutes,
-                          List<Profession> professions) {
+    public Skill(String name, String description, int cost, long requiredPlayTimeMinutes,
+                 List<Profession> professions) {
         if (name == null || name.trim().equals("")) {
             throw new IllegalArgumentException("name required");
         }
@@ -99,7 +99,7 @@ public final class LearnableSkill {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        LearnableSkill other = (LearnableSkill) obj;
+        Skill other = (Skill) obj;
         return cost == other.cost
                 && requiredPlayTimeMinutes == other.requiredPlayTimeMinutes
                 && Objects.equals(name, other.name)

@@ -3,6 +3,7 @@ package services.job;
 import model.career.Profession;
 import model.career.Job;
 import model.career.SkillSet;
+import services.GateDecision;
 import services.contract.JobEligibility;
 
 // Decides whether one job attempt may start: existence, block, profession,
@@ -11,22 +12,22 @@ public final class JobGate implements JobEligibility {
 
     // ----- Queries -----
     @Override
-    public JobGateDecision check(Job job, Profession profession, SkillSet skills,
-                                 int energy, boolean blocked) {
+    public GateDecision check(Job job, Profession profession, SkillSet skills,
+                              int energy, boolean blocked) {
         if (job == null) {
-            return JobGateDecision.reject("No job selected.");
+            return GateDecision.reject("No job selected.");
         }
         if (blocked) {
-            return JobGateDecision.reject("You are blocked. Rest and try later.");
+            return GateDecision.reject("You are blocked. Rest and try later.");
         }
         if (!job.isAvailableFor(profession, skills)) {
-            return JobGateDecision.reject(
+            return GateDecision.reject(
                     "Not available for your profession/skills. Learn more skills!");
         }
         if (energy < job.getEnergyCost()) {
-            return JobGateDecision.reject("Not enough energy (need " + job.getEnergyCost()
+            return GateDecision.reject("Not enough energy (need " + job.getEnergyCost()
                     + ", have " + energy + "). Eat or rest first.");
         }
-        return JobGateDecision.allow();
+        return GateDecision.allow();
     }
 }

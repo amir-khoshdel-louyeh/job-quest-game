@@ -13,7 +13,7 @@ public interface SkillLearner extends PlayerProgress {
 
     long getPlayTimeMinutes();
 
-    boolean deductBalance(int amount);
+    int getBalance();
 
-    boolean addSkill(String skillName);
+    boolean purchaseSkill(String skillName, int cost);
 }

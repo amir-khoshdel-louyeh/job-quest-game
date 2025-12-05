@@ -11,7 +11,7 @@ import model.goals.ChallengeType;
 import services.contract.AchievementRules;
 import services.contract.ChallengeRules;
 import services.contract.JobEligibility;
-import services.job.JobGateDecision;
+import services.GateDecision;
 import services.contract.JobRewardRules;
 import utils.JobResultText;
 import utils.Require;
@@ -52,7 +52,7 @@ final class JobController implements JobOperations {
     }
 
     private Outcome execute(Job job, MiniGameResult game) {
-        JobGateDecision gate = jobGate.check(job,
+        GateDecision gate = jobGate.check(job,
                 player.getProfession(),
                 player.getSkillSet(),
                 player.getEnergy(),
