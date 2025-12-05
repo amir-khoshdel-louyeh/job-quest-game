@@ -6,14 +6,14 @@ public final class ProgressMath {
     private ProgressMath() {
     }
 
-    public static int percent(int current, int target) {
+    public static int percent(double current, double target) {
         if (target <= 0) {
             return 100;
         }
         if (current <= 0) {
             return 0;
         }
-        double ratio = current / (double) target;
+        double ratio = current / target;
         int result = (int) (ratio * 100);
         if (result < 0) {
             return 0;

@@ -183,7 +183,7 @@ port or the aggregate.
 | Information hiding | Package-private `PlayerController`/`SkillBook`/rule controllers; views get read-only `PlayerView` and `Observable` projections, so no cast back to a command port or `Player`; `DevControls` demo port |
 | Abstraction | `Profession`, `SkillSet`, `PaymentStats`, `ShopItemTarget`, `ScoreStrategy`, `PlayerView`, `UpkeepTarget`, `DevControls` |
 | Inheritance | `AbstractCatalog<T>` (template method), `AbstractIdentified` (shared identity), `UnknownProfessionException` |
-| Polymorphism | `Profession`/`ProfessionDefinition`, `ShopItem.apply(ShopItemTarget)`, `MiniGameLauncher`/`QuizLauncher` |
+| Polymorphism | Ad-hoc: `GameController.doJob` overloads; Coercion: `ProgressMath.percent(double, double)` called with `int` values; Inclusion: `ScoreStrategy`/`QuizScorer`, `ShopItem.apply(ShopItemTarget)`, `Profession`/`ProfessionDefinition`; Parametric: `Catalog<T>`/`AbstractCatalog<T>` |
 | Composition | `Player` owns `Wallet`, `Vitals`, `CareerProgress`, `PlayClock`, books |
 | Immutability / value objects | `Job`, `JobRewards`, `ShopItem`, `MiniGameResult`, `QuizQuestion` |
 | Observer pattern | `Subject`, `SimpleSubject`, `Observer`, `ChangeType` |

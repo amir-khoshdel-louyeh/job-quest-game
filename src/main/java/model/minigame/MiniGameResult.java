@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import utils.Lists;
+import utils.ProgressMath;
 
 // Holds the score and summary of a mini-game.
 // Built via quiz(); read by JobController.
@@ -75,6 +76,7 @@ public final class MiniGameResult {
     // ----- Queries -----
     // Bigger score gives a bigger reward.
     public double rewardMultiplier() {
-        return REWARD_BASE + score * REWARD_RANGE / MAX_SCORE;
+        double scorePercent = ProgressMath.percent(score, MAX_SCORE);
+        return REWARD_BASE + scorePercent / 100.0 * REWARD_RANGE;
     }
 }
