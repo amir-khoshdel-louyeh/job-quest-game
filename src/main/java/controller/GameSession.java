@@ -48,14 +48,9 @@ public final class GameSession implements GameContext {
         Player player = new Player(playerName, profession, profession.getStartingBalance());
         player.grantStartingBonus();
         PlayerController playerController = new PlayerController(player);
-        // Views get projections, not the adapter: they can read the player and
-        // subscribe to changes, but cannot cast what they hold to a command
-        // port, to Subject, or to the mutable Player aggregate.
         PlayerView playerView = playerController.playerView();
 
         // One catalog/service instance per run: job, skill, challenge, and
-        // achievement rules must see the same state. Catalogs are passed in
-        // explicitly so no rule class hides a second copy of its own.
         ProfessionRegistry professions = new ProfessionRegistry();
         ChallengeProvider challengeCatalog = new ChallengeProvider();
         AchievementProvider achievementCatalog = new AchievementProvider();
@@ -86,7 +81,6 @@ public final class GameSession implements GameContext {
         return playerView;
     }
 
-    // Views may subscribe, but cannot notify or mutate.
     @Override
     public Observable observable() {
         return playerController.observable();
@@ -97,13 +91,11 @@ public final class GameSession implements GameContext {
         return gameController;
     }
 
-    // Read-only screen data; no player mutations are reachable from here.
     @Override
     public GameReads gameQueries() {
         return gameQueries;
     }
 
-    // Builds the upkeep controller with the caller's scheduler and message sink.
     @Override
     public RoutineControl createRoutineController(MessageSink messages, Scheduler scheduler) {
         return new RoutineController(playerController, new RoutineService(), messages, scheduler);

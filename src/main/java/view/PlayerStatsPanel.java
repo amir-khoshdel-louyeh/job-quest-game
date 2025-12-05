@@ -92,19 +92,19 @@ public class PlayerStatsPanel extends JPanel {
     }
 
     // ----- Rendering -----
-    public void refresh() {
+    public final void refresh() {
         refreshBalance();
         refreshHealth();
         refreshEnergy();
         refreshProgress();
     }
 
-    public void refreshBalance() {
+    public final void refreshBalance() {
         playerNameLabel.setText("👤 " + player.getPlayerName());
         balanceLabel.setText("💰 Balance: $" + player.getBalance());
     }
 
-    public void refreshHealth() {
+    public final void refreshHealth() {
         int health = player.getHealth();
         healthLabel.setText("❤️ Health: " + health + "/" + Vitals.MAX_HEALTH);
         healthBar.setValue(health);
@@ -113,7 +113,7 @@ public class PlayerStatsPanel extends JPanel {
                 ? AppTheme.WARNING_COLOR : AppTheme.HEALTH_COLOR);
     }
 
-    public void refreshEnergy() {
+    public final void refreshEnergy() {
         int energy = player.getEnergy();
         energyLabel.setText("⚡ Energy: " + energy + "/" + Vitals.MAX_ENERGY);
         energyBar.setValue(energy);
@@ -122,7 +122,7 @@ public class PlayerStatsPanel extends JPanel {
                 ? AppTheme.WARNING_COLOR : AppTheme.ENERGY_COLOR.darker());
     }
 
-    public void refreshProgress() {
+    public final void refreshProgress() {
         levelLabel.setText("Level: " + player.getLevel());
         xpLabel.setText("XP: " + player.getExperience() + "/"
                 + player.getRequiredExperienceForNextLevel());

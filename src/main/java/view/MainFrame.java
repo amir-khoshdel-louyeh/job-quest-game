@@ -46,11 +46,11 @@ public class MainFrame extends JFrame {
     }
 
     // Builds the start screen with the shared career catalog.
-    public void showStartPanel() {
+    public final void showStartPanel() {
         showPanel(new StartPanel(this, professionOptions, gameStarter, workGame));
     }
     
-    public void showPanel(JPanel panel) {
+    public final void showPanel(JPanel panel) {
         SwingUtilities.invokeLater(() -> {
             setContentPane(panel);
             revalidate();

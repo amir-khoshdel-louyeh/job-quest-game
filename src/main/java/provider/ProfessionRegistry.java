@@ -22,41 +22,25 @@ public final class ProfessionRegistry implements ProfessionCatalog {
 
     // ----- Construction -----
     public ProfessionRegistry() {
-        registry.put("doctor", () -> new ProfessionDefinition("Doctor", "Doctor", "Heal players and earn big money.",
-                500));
-        registry.put("programmer", () -> new ProfessionDefinition("Programmer", "Programmer", "Write code and solve complex problems.",
-                300));
-        registry.put("logodesigner", () -> new ProfessionDefinition("LogoDesigner", "Logo Designer", "Create logos for clients.",
-                200));
-        registry.put("typist", () -> new ProfessionDefinition("Typist", "Typist", "Type documents for clients.",
-                200));
-        addStartingOptions();
+        register("Doctor", "Doctor", "Heal players and earn big money.", 500, "/images/doctor.png");
+        register("Programmer", "Programmer", "Write code and solve complex problems.", 300, "/images/programmer.png");
+        register("LogoDesigner", "Logo Designer", "Create logos for clients.", 200, "/images/logodesigner.png");
+        register("Typist", "Typist", "Type documents for clients.", 200, "/images/typist.png");
     }
 
-    // One card per starting career, plus the artwork shown on it.
-    private void addStartingOptions() {
-        options.add(createProfession("Doctor"));
-        options.add(createProfession("Programmer"));
-        options.add(createProfession("LogoDesigner"));
-        options.add(createProfession("Typist"));
-
-        imagePaths.put("Doctor", "/images/doctor.png");
-        imagePaths.put("Programmer", "/images/programmer.png");
-        imagePaths.put("LogoDesigner", "/images/logodesigner.png");
-        imagePaths.put("Typist", "/images/typist.png");
+    // Adds one starting career, in card order, to the lookup and artwork indexes.
+    private void register(String name, String displayName, String description, int startingBalance, String imagePath) {
+        String key = normalize(name);
+        Supplier<Profession> factory = () -> new ProfessionDefinition(name, displayName, description, startingBalance);
+        registry.put(key, factory);
+        options.add(factory.get());
+        imagePaths.put(key, imagePath);
     }
 
     // ----- Queries -----
     @Override
     public Profession createProfession(String professionName) {
-        if (professionName == null) {
-            throw new UnknownProfessionException(null);
-        }
-        Supplier<Profession> factory = registry.get(normalize(professionName));
-        if (factory == null) {
-            throw new UnknownProfessionException(professionName);
-        }
-        return factory.get();
+        return buildProfession(professionName);
     }
 
     // The four starting careers, in card order.
@@ -71,11 +55,22 @@ public final class ProfessionRegistry implements ProfessionCatalog {
         if (option == null) {
             return null;
         }
-        return imagePaths.get(option.getProfessionName());
+        return imagePaths.get(normalize(option.getProfessionName()));
+    }
+
+    // ----- Private helpers -----
+    private Profession buildProfession(String professionName) {
+        if (professionName == null) {
+            throw new UnknownProfessionException(null);
+        }
+        Supplier<Profession> factory = registry.get(normalize(professionName));
+        if (factory == null) {
+            throw new UnknownProfessionException(professionName);
+        }
+        return factory.get();
     }
 
     // "Logo Designer" -> "logodesigner".
-    // ----- Private helpers -----
     private static String normalize(String raw) {
         String trimmed = raw.trim().toLowerCase();
         StringBuilder key = new StringBuilder();
