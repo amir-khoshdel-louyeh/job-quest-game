@@ -1,8 +1,9 @@
 package model.player;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
+import model.AbstractIdentified;
 import model.career.Profession;
 import model.career.SkillSet;
 import model.goals.AchievementBook;
@@ -16,7 +17,9 @@ import utils.Require;
 // blocking, achievement, and challenge books.
 // Mutated through PlayerController; services see narrow ports instead.
 // Views never receive this object (see PlayerView on PlayerController).
-public final class Player implements PlayerProgress, ShopItemTarget, PaymentStats, UpkeepTarget {
+public final class Player extends AbstractIdentified
+        implements PlayerProgress, ShopItemTarget, PaymentStats, UpkeepTarget {
+    private final String id;
     private final String playerName;
     private final Profession profession;
     private final Wallet wallet;
@@ -34,12 +37,19 @@ public final class Player implements PlayerProgress, ShopItemTarget, PaymentStat
         if (playerName == null || playerName.trim().isEmpty()) {
             throw new IllegalArgumentException("playerName required");
         }
+        this.id = UUID.randomUUID().toString();
         this.playerName = playerName;
         this.profession = Require.notNull(profession, "profession");
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
         this.blockStatus = new BlockStatus();
+    }
+
+    // ----- Identity -----
+    @Override
+    public String getId() {
+        return id;
     }
 
     // ----- Profession Delegate -----
@@ -239,24 +249,6 @@ public final class Player implements PlayerProgress, ShopItemTarget, PaymentStat
     }
 
     // ----- Object overrides -----
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Player other = (Player) obj;
-        return Objects.equals(playerName, other.playerName)
-                && Objects.equals(profession, other.profession);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(playerName, profession);
-    }
-
     @Override
     public String toString() {
         return "Player [" + playerName + " (" + getProfessionDisplayName() + ")"
