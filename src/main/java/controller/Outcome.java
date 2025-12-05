@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.Objects;
+
 // One result shape for every controller action: did it work, and what should the
 // view say.
 public final class Outcome {
@@ -9,7 +11,7 @@ public final class Outcome {
     // ----- Construction -----
     private Outcome(boolean success, String message) {
         this.success = success;
-        this.message = message == null ? "" : message;
+        this.message = Objects.requireNonNullElse(message, "");
     }
 
     // ----- Factories -----

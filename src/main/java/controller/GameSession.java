@@ -6,6 +6,7 @@ import controller.contract.GameReads;
 import controller.contract.MessageSink;
 import controller.contract.RoutineControl;
 import controller.contract.Scheduler;
+import java.util.function.Supplier;
 import model.career.Profession;
 import model.player.PlayerView;
 import model.player.Player;
@@ -46,7 +47,8 @@ public final class GameSession implements GameContext {
     // Starts a run at the current time.
     public static GameSession start(String playerName, Profession profession) {
         Require.notNull(profession, "profession");
-        Player player = new Player(playerName, profession, profession.getStartingBalance());
+        Supplier<Long> clock = System::currentTimeMillis;
+        Player player = new Player(playerName, profession, profession.getStartingBalance(), clock);
         player.grantStartingBonus();
         PlayerController playerController = new PlayerController(player);
         PlayerView playerView = playerController.playerView();
@@ -66,7 +68,7 @@ public final class GameSession implements GameContext {
                 playerController, new JobRewardService(), new JobGate(), challenges, achievements);
         SkillController skillController = new SkillController(
                 playerController, challenges, achievements, skills, new SkillGate());
-        SessionTracker session = new SessionTracker(System.currentTimeMillis());
+        SessionTracker session = new SessionTracker(clock);
         GameController game = new GameController(economy, jobController, skillController, session);
         GameQueries queries = new GameQueries(playerController, services, jobs, skills, playerView,
                 challenges, achievements, session);

@@ -1,13 +1,19 @@
 package model.player;
 
+import java.util.function.Supplier;
+
+import utils.Require;
+
 // Tracks whether the player is blocked from doing jobs.
 // Used by model.player.Player (sole owner); read via Player/PlayerController.
 public final class BlockStatus {
+    private final Supplier<Long> clock;
     private long blockedUntil = 0;
     private long lastSicknessTime = 0;
 
     // ----- Construction -----
-    BlockStatus() {
+    BlockStatus(Supplier<Long> clock) {
+        this.clock = Require.notNull(clock, "clock");
     }
 
     // ----- Setter -----
@@ -45,6 +51,6 @@ public final class BlockStatus {
 
     // ----- Queries -----
     public boolean isBlocked() {
-        return System.currentTimeMillis() < blockedUntil;
+        return clock.get() < blockedUntil;
     }
 }

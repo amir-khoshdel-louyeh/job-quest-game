@@ -2,6 +2,7 @@ package model.player;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import model.AbstractIdentified;
 import model.career.Profession;
@@ -33,7 +34,8 @@ public final class Player extends AbstractIdentified
     private final PlayClock playClock = new PlayClock();
 
     // ----- Construction -----
-    public Player(String playerName, Profession profession, int balance) {
+    public Player(String playerName, Profession profession, int balance,
+                  Supplier<Long> clock) {
         if (playerName == null || playerName.trim().isEmpty()) {
             throw new IllegalArgumentException("playerName required");
         }
@@ -43,7 +45,7 @@ public final class Player extends AbstractIdentified
         this.wallet = new Wallet(balance);
         this.vitals = new Vitals();
         this.progress = new CareerProgress();
-        this.blockStatus = new BlockStatus();
+        this.blockStatus = new BlockStatus(Require.notNull(clock, "clock"));
     }
 
     // ----- Identity -----

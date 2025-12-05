@@ -1,6 +1,7 @@
 package main;
 
 import javax.swing.SwingUtilities;
+import java.util.function.Supplier;
 
 import controller.GameSessionFactory;
 import controller.contract.GameStarter;
@@ -22,7 +23,8 @@ public class Main {
     public static void main(String[] args) {
         ProfessionCatalog professions = new ProfessionRegistry();
         GameStarter starter = new GameSessionFactory();
-        MiniGameLauncher workGame = new QuizLauncher(new QuizProvider(), new QuizScorer());
+        Supplier<Long> clock = System::currentTimeMillis;
+        MiniGameLauncher workGame = new QuizLauncher(new QuizProvider(), new QuizScorer(), clock);
         SwingUtilities.invokeLater(() -> new MainFrame(professions, starter, workGame));
     }
 }

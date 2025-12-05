@@ -1,5 +1,6 @@
 package view.minigame;
 
+import java.util.function.Supplier;
 import javax.swing.JFrame;
 
 import model.minigame.MiniGameResult;
@@ -14,16 +15,18 @@ import utils.Require;
 public final class QuizLauncher implements MiniGameLauncher {
     private final QuizCatalog quizzes;
     private final ScoreStrategy scorer;
+    private final Supplier<Long> clock;
 
-    public QuizLauncher(QuizCatalog quizzes, ScoreStrategy scorer) {
+    public QuizLauncher(QuizCatalog quizzes, ScoreStrategy scorer, Supplier<Long> clock) {
         this.quizzes = Require.notNull(quizzes, "quizzes");
         this.scorer = Require.notNull(scorer, "scorer");
+        this.clock = Require.notNull(clock, "clock");
     }
 
     @Override
     public MiniGameResult launch(JFrame parent, String jobName) {
         QuizGameDialog dialog = new QuizGameDialog(
-                parent, jobName + " — Quiz Round", quizzes.getAll(), scorer);
+                parent, jobName + " — Quiz Round", quizzes.getAll(), scorer, clock);
         return dialog.showAndPlay();
     }
 }

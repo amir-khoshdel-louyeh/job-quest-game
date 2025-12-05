@@ -3,6 +3,7 @@ package view.minigame;
 import java.awt.*;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 import javax.swing.*;
 
 import model.minigame.MiniGameResult;
@@ -29,17 +30,19 @@ public class QuizGameDialog extends JDialog {
     private JProgressBar timeBar;
 
     private QuizRound round;
-    private final ElapsedTimer stopwatch = new ElapsedTimer();
+    private final ElapsedTimer stopwatch;
     private javax.swing.Timer tick;
     private MiniGameResult result;
     private boolean accepted;
 
     QuizGameDialog(JFrame parent, String gameName,
-                          List<QuizQuestion> bank, ScoreStrategy scorer) {
+                          List<QuizQuestion> bank, ScoreStrategy scorer,
+                          Supplier<Long> clock) {
         super(parent, gameName, true);
         this.gameName = gameName;
         this.bank = Lists.copyOf(bank);
         this.scorer = Require.notNull(scorer, "scorer");
+        this.stopwatch = new ElapsedTimer(Require.notNull(clock, "clock"));
         AppTheme.styleDialog(this, 600, 520);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         buildUi();
