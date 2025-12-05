@@ -12,4 +12,18 @@ public final class Require {
         return value;
     }
 
+    public static int notNegative(int value, String name) {
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " must be >= 0");
+        }
+        return value;
+    }
+
+    public static long notNegative(long value, String name) {
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " must be >= 0");
+        }
+        return value;
+    }
+
 }

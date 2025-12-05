@@ -106,9 +106,7 @@ final class PlayerController implements Subject, JobPlayer,
     // Adds elapsed play time; the upkeep scheduler calls this once per minute.
     @Override
     public void addPlayTime(long millis) {
-        if (millis > 0) {
-            player.addPlayTime(millis);
-        }
+        player.addPlayTime(Require.notNegative(millis, "millis"));
     }
 
     @Override
@@ -246,7 +244,8 @@ final class PlayerController implements Subject, JobPlayer,
     // observers must be told too or the bars stay stale.
     @Override
     public boolean addExperience(int amount) {
-        if (amount <= 0) {
+        Require.notNegative(amount, "amount");
+        if (amount == 0) {
             return false;
         }
         boolean leveledUp = player.addExperience(amount);
@@ -261,6 +260,7 @@ final class PlayerController implements Subject, JobPlayer,
     // Gains reputation.
     @Override
     public void gainReputation(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             player.gainReputation(amount);
             notifyObservers(ChangeType.REPUTATION);
@@ -270,6 +270,7 @@ final class PlayerController implements Subject, JobPlayer,
     // Loses reputation.
     @Override
     public void loseReputation(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             player.loseReputation(amount);
             notifyObservers(ChangeType.REPUTATION);
@@ -279,6 +280,7 @@ final class PlayerController implements Subject, JobPlayer,
     // Records one completed job and its pay.
     @Override
     public void recordJobCompletion(int moneyEarned) {
+        Require.notNegative(moneyEarned, "moneyEarned");
         player.addCompletedJob();
         if (moneyEarned > 0) {
             player.earn(moneyEarned);

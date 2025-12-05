@@ -3,6 +3,7 @@ package model.player;
 import java.util.Objects;
 
 import utils.ProgressMath;
+import utils.Require;
 
 // Tracks health and energy and keeps them within limits.
 // Used by model.player.Player (sole owner); read via Player/PlayerController.
@@ -58,6 +59,7 @@ public final class Vitals {
 
     // ----- Commands -----
     public boolean gainHealth(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setHealth(health + amount);
             return true;
@@ -66,6 +68,7 @@ public final class Vitals {
     }
 
     public boolean loseHealth(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setHealth(health - amount);
             return true;
@@ -74,6 +77,7 @@ public final class Vitals {
     }
 
     public boolean gainEnergy(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setEnergy(energy + amount);
             return true;
@@ -82,6 +86,7 @@ public final class Vitals {
     }
 
     public boolean loseEnergy(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setEnergy(energy - amount);
             return true;

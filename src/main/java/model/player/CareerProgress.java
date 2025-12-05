@@ -1,6 +1,7 @@
 package model.player;
 
 import utils.ProgressMath;
+import utils.Require;
 
 // Tracks level, experience, and reputation.
 // Used by model.player.Player (sole owner); read via PlayerView.
@@ -56,7 +57,8 @@ public final class CareerProgress {
     // ----- Commands -----
     // Adds XP and levels up as many times as the amount allows.
     public boolean addExperience(int amount) {
-        if (amount <= 0) {
+        Require.notNegative(amount, "amount");
+        if (amount == 0) {
             return false;
         }
         setExperience(experience + amount);
@@ -71,12 +73,14 @@ public final class CareerProgress {
     }
 
     public void gainReputation(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setReputation(reputation + amount);
         }
     }
 
     public void loseReputation(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setReputation(reputation - amount);
         }

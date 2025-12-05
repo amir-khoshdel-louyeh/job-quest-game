@@ -25,6 +25,7 @@ public final class ChallengeBook {
     // Adds progress to challenges of this type; returns newly completed ones.
     public List<Challenge> updateChallengeProgress(ChallengeType type, int amount) {
         Require.notNull(type, "type");
+        Require.notNegative(amount, "amount");
         ArrayList<Challenge> finished = new ArrayList<Challenge>();
         for (int i = 0; i < activeChallenges.size(); i++) {
             Challenge c = activeChallenges.get(i);

@@ -2,6 +2,8 @@ package model.player;
 
 import java.util.Objects;
 
+import utils.Require;
+
 // Tracks a player's money balance.
 // Used by model.player.Player (sole owner); read via Player/PlayerController/EconomyController.
 
@@ -38,6 +40,7 @@ public final class Wallet {
 
     // ----- Commands -----
     public boolean deposit(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0) {
             setBalance(balance + amount);
             return true;
@@ -46,6 +49,7 @@ public final class Wallet {
     }
 
     public boolean withdraw(int amount) {
+        Require.notNegative(amount, "amount");
         if (amount > 0 && balance >= amount) {
             setBalance(balance - amount);
             return true;
@@ -54,6 +58,7 @@ public final class Wallet {
     }
 
     public boolean earn(int amount) {
+        Require.notNegative(amount, "amount");
         if (deposit(amount)) {
             totalMoneyEarned = totalMoneyEarned + amount;
             return true;

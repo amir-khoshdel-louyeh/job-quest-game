@@ -2,6 +2,7 @@ package model.goals;
 
 import model.AbstractIdentified;
 import utils.ProgressMath;
+import utils.Require;
 
 // A mission the player can finish for extra rewards.
 // Tracked by ChallengeBook; read via ChallengeProvider/ChallengeService.
@@ -67,7 +68,8 @@ public final class Challenge extends AbstractIdentified {
     // Adds progress, capped at the target.
     // Package-private: only Challenge/ChallengeBook may move a quest forward.
     void addProgress(int amount) {
-        if (amount <= 0 || completed) {
+        Require.notNegative(amount, "amount");
+        if (amount == 0 || completed) {
             return;
         }
         currentProgress = currentProgress + amount;

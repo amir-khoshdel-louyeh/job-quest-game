@@ -1,6 +1,7 @@
 package model.player;
 
 import utils.DurationText;
+import utils.Require;
 
 // Tracks how long the player has played.
 // Used by model.player.Player (sole owner); read via Player/PlayerController.
@@ -18,6 +19,7 @@ public final class PlayClock {
 
     // ----- Commands -----
     public void addMillis(long deltaMillis) {
+        Require.notNegative(deltaMillis, "deltaMillis");
         if (deltaMillis > 0) {
             totalMillis = totalMillis + deltaMillis;
         }
